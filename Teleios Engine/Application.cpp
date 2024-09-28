@@ -2,6 +2,9 @@
 #include "Macros/ErrorMacros.h"
 
 Application::Application(unsigned int width, unsigned int height, const char* name)
+	:
+	m_name(name),
+	window(width, height, m_name)
 {
 	INITIALIZE_CONSOLE
 };
@@ -15,8 +18,16 @@ int Application::Run()
 {
 	while(true)
 	{
-		Sleep(1);
-	}
+		BOOL messageResult = window.HandleMessages();
 
-	return 0;
+		if (messageResult != TRUE)
+			return messageResult;
+
+		Update();
+	}
+}
+
+void Application::Update()
+{
+
 }

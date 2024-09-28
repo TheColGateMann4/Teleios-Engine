@@ -157,7 +157,9 @@
     <ClCompile Include="ErrorHandler.cpp" />
     <ClCompile Include="includes\DirectXIncludes.h" />
     <ClCompile Include="EntryPoint.cpp" />
+    <ClCompile Include="Macros\KeyMacros.h" />
     <ClCompile Include="Macros\ErrorMacros.h" />
+    <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -166,6 +168,7 @@
     <ClInclude Include="Application.h" />
     <ClInclude Include="ErrorHandler.h" />
     <ClInclude Include="includes\CppIncludes.h" />
+    <ClInclude Include="Window.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

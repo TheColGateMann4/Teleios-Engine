@@ -1,5 +1,6 @@
 #pragma once
 #include "Includes/CppIncludes.h"
+#include "Window.h"
 
 class Application
 {
@@ -11,6 +12,12 @@ public:
 public:
 	int Run();
 
+	void Update();
+
 private:
 	CONSOLE_HANDLE
+	const char* m_name;
+
+private:
+	Window window;
 };
