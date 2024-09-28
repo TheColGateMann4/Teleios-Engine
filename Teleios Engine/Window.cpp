@@ -160,6 +160,24 @@ LRESULT Window::HandleMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			PostQuitMessage(0);
 			return 0;
 		}
+		case WM_SIZE:
+		{
+			if (wParam == SIZE_MINIMIZED)
+			{
+				m_minimized = true;
+				break;
+			}
+			else if (wParam == SIZE_RESTORED && m_minimized || wParam == SIZE_MAXIMIZED && m_minimized)
+			{
+				m_minimized = false;
+				break;
+			}
+
+			m_width = static_cast<signed short>(lParam);
+			m_height = lParam >> 16;
+
+			break;
+		}
 	}
 
 	return DefWindowProcA(hWnd, msg, wParam, lParam);
