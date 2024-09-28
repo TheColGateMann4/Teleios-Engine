@@ -53,15 +53,15 @@ constexpr float _pi = 3.14159265358979f;
 
 #ifdef _DEBUG
 	#define INITIALIZE_CONSOLE \
-				AllocConsole();\
-				freopen_s(&m_pConsole, "CONOUT$", "w", stdout);
+		AllocConsole();\
+		freopen_s(&m_pConsole, "CONOUT$", "w", stdout);
 	
 	#define CLEANUP_CONSOLE \
-				fclose(m_pConsole); \
-				FreeConsole();
+		fclose(m_pConsole); \
+		FreeConsole();
 	
-	#define CONSOLE_HANDLE \ 
-	FILE* m_pConsole;
+	#define CONSOLE_HANDLE \
+		FILE* m_pConsole;
 #else
 	#define INITIALIZE_CONSOLE
 	#define CLEANUP_CONSOLE
