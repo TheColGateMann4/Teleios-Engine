@@ -6,12 +6,12 @@ Application::Application(unsigned int width, unsigned int height, const char* na
 	m_name(name),
 	window(width, height, m_name)
 {
-	INITIALIZE_CONSOLE
+
 };
 
 Application::~Application()
 {
-	CLEANUP_CONSOLE
+
 }
 
 int Application::Run()
@@ -29,5 +29,7 @@ int Application::Run()
 
 void Application::Update()
 {
+	std::cout << "GetCurrentBackBufferIndex(): " << window.graphics.GetCurrentBackBufferIndex() << '\n';
 
+	window.graphics.FinishFrame();
 }

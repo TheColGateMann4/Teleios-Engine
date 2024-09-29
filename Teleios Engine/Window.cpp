@@ -13,35 +13,40 @@ Window::Window(UINT32 width, UINT32 height, const char* name)
 	m_height(height),
 	m_windowClass(name)
 {
-	RECT rWindow = { NULL };
+	// Window initialization
+	{
+		RECT rWindow = { NULL };
 
-	rWindow.left = 100;
-	rWindow.right = width + rWindow.left;
+		rWindow.left = 100;
+		rWindow.right = width + rWindow.left;
 
-	rWindow.top = 100;
-	rWindow.bottom = height + rWindow.top;
+		rWindow.top = 100;
+		rWindow.bottom = height + rWindow.top;
 
-	DWORD creationFlags = WS_CAPTION | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU;
+		DWORD creationFlags = WS_CAPTION | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU;
 
-	if (AdjustWindowRect(&rWindow, creationFlags, FALSE) == 0)
-		THROW_LAST_ERROR;
+		if (AdjustWindowRect(&rWindow, creationFlags, FALSE) == 0)
+			THROW_LAST_ERROR;
 
-	this->m_hWnd = CreateWindowA(
-		m_windowClass.GetName(), 
-		name,
-		creationFlags,
-		CW_USEDEFAULT, CW_USEDEFAULT, // position X-Y 
-		rWindow.right - rWindow.left, rWindow.bottom - rWindow.top, //size width-height
-		NULL,
-		NULL,
-		m_windowClass.GetInstance(),
-		this
-	);
+		this->m_hWnd = CreateWindowA(
+			m_windowClass.GetName(),
+			name,
+			creationFlags,
+			CW_USEDEFAULT, CW_USEDEFAULT, // position X-Y 
+			rWindow.right - rWindow.left, rWindow.bottom - rWindow.top, //size width-height
+			NULL,
+			NULL,
+			m_windowClass.GetInstance(),
+			this
+		);
 
-	if (this->m_hWnd == NULL)
-		THROW_LAST_ERROR;
+		if (this->m_hWnd == NULL)
+			THROW_LAST_ERROR;
 
-	ShowWindow(m_hWnd, SW_SHOW);
+		ShowWindow(m_hWnd, SW_SHOW);
+	}
+
+	graphics.Initialize(m_hWnd);
 }
 
 Window::~Window()

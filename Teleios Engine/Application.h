@@ -15,7 +15,6 @@ public:
 	void Update();
 
 private:
-	CONSOLE_HANDLE
 	const char* m_name;
 
 private:

@@ -1,6 +1,7 @@
 #pragma once
 #include "Includes/CppIncludes.h"
 #include "ErrorHandler.h"
+#include "Graphics.h"
 
 class Window
 {
@@ -48,4 +49,7 @@ private:
 	unsigned int m_height;
 
 	bool m_minimized = false;
+
+public:
+	Graphics graphics;
 };

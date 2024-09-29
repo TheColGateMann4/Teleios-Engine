@@ -10,6 +10,9 @@ int WINAPI WinMain
 	_In_ int
 )
 {
+	CONSOLE_HANDLE;
+	INITIALIZE_CONSOLE;
+
 	try
 	{
 		unsigned int screenWidth = unsigned int(std::round(float(GetSystemMetrics(SM_CXSCREEN)) * 0.625f));
@@ -31,6 +34,8 @@ int WINAPI WinMain
 	{
 		ErrorHandler::ThrowError("Unknown Error", "No Details Available");
 	}
+
+	CLEANUP_CONSOLE;
 
 	return EXIT_FAILURE;
 }
