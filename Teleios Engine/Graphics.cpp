@@ -57,37 +57,19 @@ void Graphics::Initialize(HWND hWnd)
 			THROW_ERROR(pFactory->CreateSwapChain(pCommandQueue.Get(), &swapChainDesc, &pSwapChain));
 		}
 
-		// Creating heap descriptor
+		// Initializing backbuffer render target
 		{
-			D3D12_DESCRIPTOR_HEAP_DESC heapDescriptorDesc = {};
-			heapDescriptorDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
-			heapDescriptorDesc.NumDescriptors = 2;
-			heapDescriptorDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-			heapDescriptorDesc.NodeMask = 0;
+			// these buffers will loop like (frontBuffer -> first, backBuffer -> second) ---> (backBuffer -> first, frontBuffer -> second)
+			// we only care about current front buffer so we know where to draw
+			Microsoft::WRL::ComPtr<ID3D12Resource> pFirstBuffer, pSecondBuffer;
 
-			THROW_ERROR(pDevice->CreateDescriptorHeap(&heapDescriptorDesc, IID_PPV_ARGS(&pHeapDescriptor)));
+			pSwapChain->GetBuffer(0, IID_PPV_ARGS(&pFirstBuffer));
+			pSwapChain->GetBuffer(1, IID_PPV_ARGS(&pSecondBuffer));
+
+			m_backBuffer = std::make_shared<BackBufferRenderTarget>(*this, pFirstBuffer.Get(), pSecondBuffer.Get());
 		}
-
-		// Creating command allocator
-		{
-			THROW_ERROR(pDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&pCommandAllocator)));// or D3D12_COMMAND_LIST_TYPE_BUNDLE made for groups of commands
 		}
-
-		// Creating pipeline state
-		{
-			//D3D12_GRAPHICS_PIPELINE_STATE_DESC pipelineStateDesc = {};
-			//pipelineStateDesc.
-			// make it.
-
-			//THROW_ERROR(pDevice->CreateGraphicsPipelineState(&pipelineStateDesc, IID_PPV_ARGS(&pPipelineState)));
 		}
-
-		// Creating command list
-		{
-			pDevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, pCommandAllocator.Get(), pPipelineState.Get(), IID_PPV_ARGS(&pCommandList));
-		}
-	}
-}
 
 unsigned int Graphics::GetCurrentBackBufferIndex()
 {
@@ -101,4 +83,9 @@ unsigned int Graphics::GetCurrentBackBufferIndex()
 void Graphics::FinishFrame()
 {
 	pSwapChain->Present(1, NULL);
+}
+
+BackBufferRenderTarget* Graphics::GetBackBuffer()
+{
+	return m_backBuffer.get();
 }

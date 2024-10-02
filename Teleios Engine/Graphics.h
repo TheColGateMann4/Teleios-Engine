@@ -14,6 +14,9 @@ public:
 
 	void FinishFrame();
 
+public:
+	BackBufferRenderTarget* GetBackBuffer();
+
 private:
 	Microsoft::WRL::ComPtr<IDXGIFactory4> pFactory;
 	Microsoft::WRL::ComPtr<ID3D12Debug> pDebugController;
@@ -24,5 +27,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> pHeapDescriptor;
 	Microsoft::WRL::ComPtr<ID3D12CommandAllocator> pCommandAllocator;
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> pPipelineState;
-	Microsoft::WRL::ComPtr<ID3D12CommandList> pCommandList;
+
+private:
+	std::shared_ptr<BackBufferRenderTarget> m_backBuffer;
 };
