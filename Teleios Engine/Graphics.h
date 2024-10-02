@@ -2,6 +2,7 @@
 #include "includes/CppIncludes.h"
 #include "includes/DirectXIncludes.h"
 #include "includes/WRLNoWarnings.h"
+#include "RenderTarget.h"
 #include <dxgi1_6.h>
 
 class Graphics
@@ -17,6 +18,8 @@ public:
 public:
 	BackBufferRenderTarget* GetBackBuffer();
 
+	DXGI_FORMAT GetColorSpace() const noexcept;
+
 private:
 	Microsoft::WRL::ComPtr<IDXGIFactory4> pFactory;
 	Microsoft::WRL::ComPtr<ID3D12Debug> pDebugController;
@@ -30,4 +33,7 @@ private:
 
 private:
 	std::shared_ptr<BackBufferRenderTarget> m_backBuffer;
+
+private:
+	DXGI_FORMAT m_colorSpace;
 };

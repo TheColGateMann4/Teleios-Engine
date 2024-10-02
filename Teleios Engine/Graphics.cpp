@@ -1,9 +1,9 @@
 #include "Graphics.h"
 #include "Macros/ErrorMacros.h"
 
-void Graphics::Initialize(HWND hWnd)
+void Graphics::Initialize(HWND hWnd, DXGI_FORMAT colorSpace)
 {
-	HRESULT hr;
+	m_colorSpace = colorSpace;
 
 	// Initializing pipeline components
 	{
@@ -40,7 +40,7 @@ void Graphics::Initialize(HWND hWnd)
 			DXGI_SWAP_CHAIN_DESC swapChainDesc = {};
 			swapChainDesc.BufferDesc.Width = 0;
 			swapChainDesc.BufferDesc.Height = 0;
-			swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
+			swapChainDesc.BufferDesc.Format = m_colorSpace;
 			swapChainDesc.BufferDesc.RefreshRate.Numerator = 1;
 			swapChainDesc.BufferDesc.RefreshRate.Denominator = 144;
 			swapChainDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
@@ -88,4 +88,9 @@ void Graphics::FinishFrame()
 BackBufferRenderTarget* Graphics::GetBackBuffer()
 {
 	return m_backBuffer.get();
+}
+
+DXGI_FORMAT Graphics::GetColorSpace() const noexcept
+{
+	return m_colorSpace;
 }

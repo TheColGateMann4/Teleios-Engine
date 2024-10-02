@@ -4,7 +4,7 @@
 Application::Application(unsigned int width, unsigned int height, const char* name)
 	:
 	m_name(name),
-	window(width, height, m_name)
+	window(width, height, m_name, DXGI_FORMAT_R16G16B16A16_FLOAT)
 {
 
 };

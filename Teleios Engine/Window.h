@@ -6,7 +6,7 @@
 class Window
 {
 public:
-	Window(UINT32 width, UINT32 height, const char* name);
+	Window(UINT32 width, UINT32 height, const char* name, DXGI_FORMAT colorSpace);
 	~Window();
 	Window(const Window&) = delete;
 	Window& operator= (const Window&) = delete;

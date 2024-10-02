@@ -7,7 +7,7 @@
 		Window
 */
 
-Window::Window(UINT32 width, UINT32 height, const char* name)
+Window::Window(UINT32 width, UINT32 height, const char* name, DXGI_FORMAT colorSpace)
 	:
 	m_width(width),
 	m_height(height),
@@ -46,7 +46,7 @@ Window::Window(UINT32 width, UINT32 height, const char* name)
 		ShowWindow(m_hWnd, SW_SHOW);
 	}
 
-	graphics.Initialize(m_hWnd);
+	graphics.Initialize(m_hWnd, colorSpace);
 }
 
 Window::~Window()
