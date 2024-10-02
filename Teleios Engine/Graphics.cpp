@@ -89,6 +89,11 @@ void Graphics::FinishFrame()
 	pSwapChain->Present(1, NULL);
 }
 
+ID3D12Device* Graphics::GetDevice()
+{
+	return pDevice.Get();
+}
+
 BackBufferRenderTarget* Graphics::GetBackBuffer()
 {
 	return m_backBuffer.get();

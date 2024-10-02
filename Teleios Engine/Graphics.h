@@ -16,6 +16,8 @@ public:
 	void FinishFrame();
 
 public:
+	ID3D12Device* GetDevice();
+
 	BackBufferRenderTarget* GetBackBuffer();
 
 	DXGI_FORMAT GetColorSpace() const noexcept;
