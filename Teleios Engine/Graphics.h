@@ -8,7 +8,7 @@
 class Graphics
 {
 public:
-	void Initialize(HWND hWnd);
+	void Initialize(HWND hWnd, DXGI_FORMAT colorSpace);
 
 public:
 	unsigned int GetCurrentBackBufferIndex();
@@ -21,6 +21,9 @@ public:
 	BackBufferRenderTarget* GetBackBuffer();
 
 	DXGI_FORMAT GetColorSpace() const noexcept;
+
+private:
+	static constexpr bool CheckValidColorSpace(DXGI_FORMAT format);
 
 private:
 	Microsoft::WRL::ComPtr<IDXGIFactory4> pFactory;
