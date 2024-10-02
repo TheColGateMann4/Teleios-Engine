@@ -7,12 +7,16 @@ void Graphics::Initialize(HWND hWnd, DXGI_FORMAT colorSpace)
 
 	// Initializing pipeline components
 	{
+		HRESULT hr;
+
+#ifdef _DEBUG
 		// Enabling debug layer
 		{
 			THROW_ERROR(D3D12GetDebugInterface(IID_PPV_ARGS(&pDebugController)));
 
 			pDebugController->EnableDebugLayer();
 		}
+#endif
 
 		// Creating dxgi factory
 		{
