@@ -4,6 +4,8 @@
 
 #include <DirectXMath.h>
 
+#define USED_SHADER_MODEL "5_1"
+
 //	//DirectXTex
 //	#include <DirectXTex/DirectXTex.h>
 //	#include <ScreenGrab/Screengrab12.h>
