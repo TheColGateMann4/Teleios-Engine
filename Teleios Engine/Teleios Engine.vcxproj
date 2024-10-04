@@ -75,7 +75,7 @@
     <ExternalIncludePath>$(ExternalIncludePath);D:\Libraries\DirectXTK12\Inc;D:\Libraries\DirectXTK12\Src;D:\Libraries\DirectXTex;D:\Libraries\assimp\include;D:\Libraries\imgui</ExternalIncludePath>
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
     <SourcePath>$(VC_SourcePath)</SourcePath>
-    <OutDir>$(RemoteDebuggerWorkingDirectory)</OutDir>
+    <OutDir>$(RemoteDebuggerWorkingDirectory)$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ExternalIncludePath>$(ExternalIncludePath);D:\Libraries\DirectXTK12\Inc;D:\Libraries\DirectXTK12\Src;D:\Libraries\DirectXTex;D:\Libraries\assimp\include;D:\Libraries\imgui</ExternalIncludePath>
