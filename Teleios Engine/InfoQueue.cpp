@@ -13,8 +13,6 @@ InfoQueue::InfoQueue(Graphics& graphics)
 {
 	graphics.GetDevice()->QueryInterface(pInfoQueue.GetAddressOf());
 
-	pInfoQueue->SetMuteDebugOutput(true); // muting messages in output visual studio window
-
 	pInfoQueue->PushEmptyRetrievalFilter();
 }
 
