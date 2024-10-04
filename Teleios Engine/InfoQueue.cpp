@@ -12,8 +12,6 @@
 InfoQueue::InfoQueue(Graphics& graphics)
 {
 	graphics.GetDevice()->QueryInterface(pInfoQueue.GetAddressOf());
-
-	pInfoQueue->PushEmptyRetrievalFilter();
 }
 
 size_t InfoQueue::GetNumMessages() const
