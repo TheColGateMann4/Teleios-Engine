@@ -1,6 +1,7 @@
 #pragma once
 #include "Includes/CppIncludes.h"
 #include "Window.h"
+#include "Triangle.h"
 
 class Application
 {
@@ -12,6 +13,8 @@ public:
 public:
 	int Run();
 
+	void InitializeScene();
+
 	void Update();
 
 private:
@@ -19,4 +22,6 @@ private:
 
 private:
 	Window window;
+
+	std::shared_ptr<Triangle> triangle;
 };

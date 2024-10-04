@@ -11,11 +11,13 @@ Application::Application(unsigned int width, unsigned int height, const char* na
 
 Application::~Application()
 {
-
+	// synchronise before deletion
 }
 
 int Application::Run()
 {
+	InitializeScene();
+
 	while(true)
 	{
 		BOOL messageResult = window.HandleMessages();
@@ -27,9 +29,14 @@ int Application::Run()
 	}
 }
 
+void Application::InitializeScene()
+{
+	triangle = std::make_shared<Triangle>(window.graphics);
+}
+
 void Application::Update()
 {
-	std::cout << "GetCurrentBackBufferIndex(): " << window.graphics.GetCurrentBackBufferIndex() << '\n';
+
 
 	window.graphics.FinishFrame();
 }
