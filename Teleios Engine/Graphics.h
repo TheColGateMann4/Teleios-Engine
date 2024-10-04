@@ -3,6 +3,7 @@
 #include "includes/DirectXIncludes.h"
 #include "includes/WRLNoWarnings.h"
 #include "RenderTarget.h"
+#include "InfoQueue.h"
 #include <dxgi1_6.h>
 
 class Graphics
@@ -19,6 +20,7 @@ public:
 	ID3D12Device* GetDevice();
 
 	BackBufferRenderTarget* GetBackBuffer();
+	InfoQueue* GetInfoQueue();
 
 	DXGI_FORMAT GetColorSpace() const noexcept;
 
@@ -28,7 +30,6 @@ private:
 private:
 	Microsoft::WRL::ComPtr<IDXGIFactory4> pFactory;
 	Microsoft::WRL::ComPtr<ID3D12Debug> pDebugController;
-	Microsoft::WRL::ComPtr<ID3D12InfoQueue> pDebugInfoQueue;
 	Microsoft::WRL::ComPtr<ID3D12Device> pDevice;
 	Microsoft::WRL::ComPtr<ID3D12CommandQueue> pCommandQueue;
 	Microsoft::WRL::ComPtr<IDXGISwapChain> pSwapChain;
@@ -38,6 +39,7 @@ private:
 
 private:
 	std::shared_ptr<BackBufferRenderTarget> m_backBuffer;
+	std::unique_ptr<InfoQueue> m_infoQueue;
 
 private:
 	DXGI_FORMAT m_colorSpace;

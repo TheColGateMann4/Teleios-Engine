@@ -72,13 +72,13 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <ExternalIncludePath>$(ExternalIncludePath);D:\Libraries\DirectXTK12\Inc;D:\Libraries\DirectXTex;D:\Libraries\assimp\include;D:\Libraries\imgui</ExternalIncludePath>
+    <ExternalIncludePath>$(ExternalIncludePath);D:\Libraries\DirectXTK12\Inc;D:\Libraries\DirectXTK12\Src;D:\Libraries\DirectXTex;D:\Libraries\assimp\include;D:\Libraries\imgui</ExternalIncludePath>
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
     <SourcePath>$(VC_SourcePath)</SourcePath>
-    <OutDir>$(RemoteDebuggerWorkingDirectory)$(Platform)\$(Configuration)\</OutDir>
+    <OutDir>$(RemoteDebuggerWorkingDirectory)</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <ExternalIncludePath>$(ExternalIncludePath);D:\Libraries\DirectXTK12\Inc;D:\Libraries\DirectXTex;D:\Libraries\assimp\include;D:\Libraries\imgui</ExternalIncludePath>
+    <ExternalIncludePath>$(ExternalIncludePath);D:\Libraries\DirectXTK12\Inc;D:\Libraries\DirectXTK12\Src;D:\Libraries\DirectXTex;D:\Libraries\assimp\include;D:\Libraries\imgui</ExternalIncludePath>
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
     <SourcePath>$(VC_SourcePath);D:\Libraries\imgui</SourcePath>
   </PropertyGroup>
@@ -128,7 +128,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>D:\Libraries\DirectXTK12\Bin\Windows10_2022\$(LibrariesArchitecture)\$(Configuration);D:\Libraries\DirectXTex\DirectXTex\Bin\Windows10_2022\$(LibrariesArchitecture)\$(Configuration);D:\Libraries\assimp\lib\$(LibrariesArchitecture);$(OutDir)D3D12\</AdditionalLibraryDirectories>
-      <AdditionalDependencies>d3d12.lib;DirectXTK12.lib;DirectXTex.lib;assimp-vc143-mt.lib;DXGI.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d12.lib;DirectXTK12.lib;DirectXTex.lib;assimp-vc143-mt.lib;DXGI.lib;D3DCompiler.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -160,8 +160,12 @@
     <ClCompile Include="Graphics.cpp" />
     <ClCompile Include="includes\DirectXIncludes.h" />
     <ClCompile Include="EntryPoint.cpp" />
+    <ClCompile Include="InfoQueue.cpp" />
     <ClCompile Include="Macros\KeyMacros.h" />
     <ClCompile Include="Macros\ErrorMacros.h" />
+    <ClCompile Include="PipelineState.cpp" />
+    <ClCompile Include="RenderTarget.cpp" />
+    <ClCompile Include="Shader.cpp" />
     <ClCompile Include="Triangle.cpp" />
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
@@ -170,12 +174,17 @@
     <ClInclude Include="ErrorHandler.h" />
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="includes\CppIncludes.h" />
+    <ClInclude Include="InfoQueue.h" />
+    <ClInclude Include="MessageMap.h" />
+    <ClInclude Include="PipelineState.h" />
+    <ClInclude Include="RenderTarget.h" />
+    <ClInclude Include="Shader.h" />
     <ClInclude Include="Triangle.h" />
     <ClInclude Include="Window.h" />
     <ClInclude Include="includes\WRLNoWarnings.h" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Shaders\Solid_PS.hlsl">
+    <FxCompile Include="Shaders\PS_Solid.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
@@ -183,7 +192,9 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">6.6</ShaderModel>
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDirFullPath)Shaders\%(Filename).cso</ObjectFileOutput>
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDirFullPath)Shaders\%(Filename).cso</ObjectFileOutput>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">6.6</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.1</ShaderModel>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">PSMain</EntryPointName>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="Shaders\VS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
@@ -193,7 +204,9 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">6.6</ShaderModel>
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDirFullPath)Shaders\%(Filename).cso</ObjectFileOutput>
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDirFullPath)Shaders\%(Filename).cso</ObjectFileOutput>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">6.6</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.1</ShaderModel>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">VSMain</EntryPointName>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

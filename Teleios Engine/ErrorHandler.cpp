@@ -1,4 +1,5 @@
 #include "ErrorHandler.h"
+#include "Includes/DirectXIncludes.h"
 
 ErrorHandler::Exception::Exception(unsigned int line, const char* file)
 	:
@@ -10,7 +11,7 @@ ErrorHandler::Exception::Exception(unsigned int line, const char* file)
 
 std::string ErrorHandler::Exception::what()
 {
-	std::string result;
+	std::string result = {};
 
 	result += GetErrorType();
 
@@ -57,7 +58,7 @@ ErrorHandler::StandardException::StandardException(unsigned int line, const char
 
 std::string ErrorHandler::StandardException::what()
 {
-	std::string result;
+	std::string result = {};
 
 	result += GetErrorType();
 
@@ -126,7 +127,7 @@ ErrorHandler::InternalException::InternalException(unsigned int line, const char
 
 std::string ErrorHandler::InternalException::what()
 {
-	std::string result;
+	std::string result = {};
 
 	result += GetErrorType();
 
@@ -169,5 +170,80 @@ const char* ErrorHandler::NoGFXException::GetErrorType()
 }
 
 /*
-		FUNCTIONS
+			SHADER EXCEPTION
 */
+#ifdef _DEBUG
+
+ErrorHandler::ShaderException::ShaderException(unsigned int line, const char* file, ::ID3DBlob* pErrorMessages)
+	:
+	Exception(line, file),
+	m_length(pErrorMessages->GetBufferSize()),
+	m_errorMessages(m_length, '\0')
+{
+	memcpy_s(m_errorMessages.data(), m_length, pErrorMessages->GetBufferPointer(), m_length);
+}
+ 
+std::string ErrorHandler::ShaderException::what()
+{
+	std::string result = {};
+
+	result += GetErrorType();
+
+	result += "\n[Error Name] ";
+	result += GetErrorString();
+
+	result += "\n\n[File] ";
+	result += GetFile();
+
+	result += "\n[Line] ";
+	result += std::to_string(GetLine()).c_str();
+
+	result += "\n[Error Messages] ";
+	result += m_errorMessages.c_str();
+
+	return result;
+}
+
+const char* ErrorHandler::ShaderException::GetErrorType()
+{
+	return "SHADER_EXCEPTION";
+}
+
+/*
+			INFO EXCEPTION
+*/
+
+ErrorHandler::InfoException::InfoException(unsigned int line, const char* file, std::vector<std::string> messages)
+	:
+	Exception(line, file),
+	m_messages(messages)
+{
+
+}
+
+std::string ErrorHandler::InfoException::what()
+{
+	std::string result = {};
+
+	result += "\n[Error Name] ";
+	result += GetErrorString();
+
+	result += "\n\n[File] ";
+	result += GetFile();
+
+	result += "\n[Line] ";
+	result += std::to_string(GetLine()).c_str();
+
+	result += "\n[Messages]: \n\n";
+	for (const auto& message : m_messages)
+		result += message + "\n\n\n";
+
+	return result;
+}
+
+const char* ErrorHandler::InfoException::GetErrorType()
+{
+	return "INFO_EXCEPTION";
+}
+
+#endif

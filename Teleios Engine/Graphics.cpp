@@ -30,6 +30,11 @@ void Graphics::Initialize(HWND hWnd, DXGI_FORMAT colorSpace)
 			THROW_ERROR(D3D12CreateDevice(NULL, D3D_FEATURE_LEVEL_12_0, IID_PPV_ARGS(&pDevice)));
 		}
 
+		// creating info queue
+		{
+			m_infoQueue = std::make_unique<InfoQueue>(*this);
+		}
+
 		// Creating command queue
 		{
 			D3D12_COMMAND_QUEUE_DESC commandQueueDesc = {};
@@ -94,6 +99,11 @@ void Graphics::FinishFrame()
 ID3D12Device* Graphics::GetDevice()
 {
 	return pDevice.Get();
+}
+
+InfoQueue* Graphics::GetInfoQueue()
+{
+	return m_infoQueue.get();
 }
 
 BackBufferRenderTarget* Graphics::GetBackBuffer()

@@ -11,6 +11,7 @@ constexpr float _pi = 3.14159265358979f;
 #include <memory>
 #include <vector>
 #include <string>
+#include <map>
 
 
 #ifdef _DEBUG

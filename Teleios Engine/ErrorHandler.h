@@ -2,6 +2,10 @@
 #include "includes/CppIncludes.h"
 #include <exception>
 
+struct ID3D10Blob;
+typedef ID3D10Blob ID3DBlob;
+
+
 namespace ErrorHandler
 {
 	class Exception
@@ -67,6 +71,33 @@ namespace ErrorHandler
 
 		virtual const char* GetErrorType() override;
 	};
+
+#ifdef _DEBUG
+	class ShaderException : public Exception
+	{
+	public:
+		ShaderException(unsigned int line, const char* file, ::ID3DBlob* pErrorMessages);
+
+	public:
+		virtual std::string what() override;
+		virtual const char* GetErrorType() override;
+
+		size_t m_length;
+		std::string m_errorMessages;
+	};
+
+	class InfoException : public Exception
+	{
+	public:
+		InfoException(unsigned int line, const char* file, std::vector<std::string> messages);
+
+	public:
+		virtual std::string what() override;
+		virtual const char* GetErrorType() override;
+
+		std::vector<std::string> m_messages;
+	};
+#endif
 
 	static void ThrowError(const char* title, const char* text) noexcept
 	{
