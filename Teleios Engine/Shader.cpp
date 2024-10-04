@@ -1,6 +1,9 @@
 #include "Shader.h"
 #include "Macros/ErrorMacros.h"
-#include <d3dcompiler.h>
+
+#ifdef _DEBUG
+    #include <d3dcompiler.h>
+#endif
 
 constexpr const char* GetDefaultEntryPointName(ShaderType type)
 {
