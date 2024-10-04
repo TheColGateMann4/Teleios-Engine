@@ -33,8 +33,8 @@ private:
 		HINSTANCE GetInstance() noexcept;
 
 	private:
-		HINSTANCE m_hInstance;
 		std::string m_name;
+		HINSTANCE m_hInstance;
 	};
 
 private:
