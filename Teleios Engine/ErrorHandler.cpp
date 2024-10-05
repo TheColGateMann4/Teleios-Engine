@@ -29,11 +29,6 @@ const char* ErrorHandler::Exception::GetErrorType()
 	return "EXCEPTION";
 }
 
-std::string ErrorHandler::Exception::GetErrorString()
-{
-	return "";
-}
-
 unsigned int ErrorHandler::Exception::GetLine()
 {
 	return m_line;
@@ -188,9 +183,6 @@ std::string ErrorHandler::ShaderException::what()
 	std::string result = {};
 
 	result += GetErrorType();
-
-	result += "\n[Error Name] ";
-	result += GetErrorString();
 
 	result += "\n\n[File] ";
 	result += GetFile();

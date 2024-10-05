@@ -19,7 +19,6 @@ namespace ErrorHandler
 		virtual std::string what();
 
 		virtual const char* GetErrorType();
-		virtual std::string GetErrorString();
 
 		unsigned int GetLine();
 		const char* GetFile();
@@ -38,7 +37,7 @@ namespace ErrorHandler
 		virtual std::string what() override;
 
 		virtual const char* GetErrorType() override;
-		virtual std::string GetErrorString() override;
+		std::string GetErrorString();
 
 		HRESULT GetErrorCode();
 
@@ -58,7 +57,7 @@ namespace ErrorHandler
 		virtual std::string what() override;
 
 		virtual const char* GetErrorType() override;
-		virtual std::string GetErrorString() override;
+		std::string GetErrorString();
 
 	private:
 		std::string m_errorString;
