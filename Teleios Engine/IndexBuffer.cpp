@@ -10,8 +10,8 @@ IndexBuffer::IndexBuffer(Graphics& graphics, std::vector<unsigned int> indices)
 
         D3D12_HEAP_PROPERTIES heapPropeties = {};
         heapPropeties.Type = D3D12_HEAP_TYPE_DEFAULT;
-        heapPropeties.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_NOT_AVAILABLE;
-        heapPropeties.MemoryPoolPreference = D3D12_MEMORY_POOL_L1;
+		heapPropeties.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+		heapPropeties.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
         heapPropeties.VisibleNodeMask = 0;
 
         D3D12_RESOURCE_DESC resourceDesc = {};
