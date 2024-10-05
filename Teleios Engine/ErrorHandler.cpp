@@ -217,8 +217,7 @@ std::string ErrorHandler::InfoException::what()
 {
 	std::string result = {};
 
-	result += "\n[Error Name] ";
-	result += GetErrorString();
+	result += GetErrorType();
 
 	result += "\n\n[File] ";
 	result += GetFile();
