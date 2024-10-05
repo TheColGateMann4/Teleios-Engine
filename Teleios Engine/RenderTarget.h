@@ -14,7 +14,7 @@ public:
 	RenderTarget(Graphics& graphics);
 
 public:
-	void Bind(ID3D12GraphicsCommandList* commandList) const noexcept;
+	void Bind(Graphics& graphics, ID3D12GraphicsCommandList* commandList) const;
 
 protected:
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> pDescriptorHeap;
@@ -28,7 +28,7 @@ public:
 	BackBufferRenderTarget(Graphics& graphics, ID3D12Resource* pFirstBackBuffer, ID3D12Resource* pSecondBackBuffer);
 
 public:
-	void Bind(Graphics& graphics, ID3D12GraphicsCommandList* commandList) const noexcept;
+	void Bind(Graphics& graphics, ID3D12GraphicsCommandList* commandList) const;
 
 private:
 	D3D12_CPU_DESCRIPTOR_HANDLE m_secondDescriptorHandle;

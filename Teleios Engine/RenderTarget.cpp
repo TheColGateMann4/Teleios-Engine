@@ -49,9 +49,9 @@ RenderTarget::RenderTarget(Graphics& graphics)
 
 }
 
-void RenderTarget::Bind(ID3D12GraphicsCommandList* commandList) const noexcept
+void RenderTarget::Bind(Graphics& graphics, ID3D12GraphicsCommandList* commandList) const
 {
-	commandList->OMSetRenderTargets(1, &m_descriptorHandle, 1, nullptr);
+	THROW_INFO_ERROR(commandList->OMSetRenderTargets(1, &m_descriptorHandle, 1, nullptr));
 }
 
 /*
@@ -76,9 +76,9 @@ BackBufferRenderTarget::BackBufferRenderTarget(Graphics& graphics, ID3D12Resourc
 	}
 }
 
-void BackBufferRenderTarget::Bind(Graphics& graphics, ID3D12GraphicsCommandList* commandList) const noexcept
+void BackBufferRenderTarget::Bind(Graphics& graphics, ID3D12GraphicsCommandList* commandList) const
 {
 	const D3D12_CPU_DESCRIPTOR_HANDLE* descriptorHandle = graphics.GetCurrentBackBufferIndex() == 0 ? &m_descriptorHandle : &m_secondDescriptorHandle;
 
-	commandList->OMSetRenderTargets(1, descriptorHandle, 1, nullptr);
+	THROW_INFO_ERROR(commandList->OMSetRenderTargets(1, descriptorHandle, 1, nullptr));
 }
