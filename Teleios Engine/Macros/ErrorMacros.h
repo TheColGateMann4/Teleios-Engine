@@ -1,7 +1,22 @@
 #pragma once
 #include "../ErrorHandler.h"
 
-#define THROW_ERROR(statement) if((hr = statement) != S_OK) throw ErrorHandler::StandardException{ __LINE__, __FILE__, hr }; 
+#define THROW_ERROR_NO_MSGS(statement) if((hr = statement) != S_OK)	throw ErrorHandler::StandardException{ __LINE__, __FILE__, hr }; 
+
+#ifdef _DEBUG
+	#define DBG_THROW_ERROR(statement, graphics) \
+		if((hr = statement) != S_OK) \
+			if(graphics.GetInfoQueue()->GetNumMessages() != 0) \
+				throw ErrorHandler::InfoException{__LINE__ , __FILE__, graphics.GetInfoQueue()->GetMessages()}; \
+			else \
+				throw ErrorHandler::StandardException{ __LINE__, __FILE__, hr }; 
+
+	#define THROW_ERROR(statement) DBG_THROW_ERROR(statement, graphics) // graphics is used name for graphics varible for now
+
+	#define THROW_ERROR_AT_GFX_INIT(statement) DBG_THROW_ERROR(statement, (*this)); // we using *this since we will be inside graphics class initializing interfaces
+#else
+	#define THROW_ERROR(statement) THROW_ERROR_NO_MSGS(statement)
+#endif
 
 #define THROW_LAST_ERROR throw ErrorHandler::StandardException{ __LINE__, __FILE__, HRESULT_FROM_WIN32(GetLastError()) }; 
 #define THROW_NOGFX		 throw ErrorHandler::NoGFXException{__LINE__, __FILE__};

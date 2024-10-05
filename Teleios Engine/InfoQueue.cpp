@@ -35,7 +35,7 @@ std::vector<std::string> InfoQueue::GetMessages() const
 
 		D3D12_MESSAGE* pMessage = reinterpret_cast<D3D12_MESSAGE*>(new char[messageLength]);
 
-		THROW_ERROR(pInfoQueue->GetMessage(messageIndex, pMessage, &messageLength));
+		THROW_ERROR_NO_MSGS(pInfoQueue->GetMessage(messageIndex, pMessage, &messageLength));
 
 		result.push_back(ProcessMessage(pMessage));
 	}

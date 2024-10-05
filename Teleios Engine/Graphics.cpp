@@ -14,7 +14,7 @@ void Graphics::Initialize(HWND hWnd, DXGI_FORMAT colorSpace)
 #ifdef _DEBUG
 		// Enabling debug layer
 		{
-			THROW_ERROR(D3D12GetDebugInterface(IID_PPV_ARGS(&pDebugController)));
+			THROW_ERROR_NO_MSGS(D3D12GetDebugInterface(IID_PPV_ARGS(&pDebugController)));
 
 			pDebugController->EnableDebugLayer();
 		}
@@ -22,12 +22,12 @@ void Graphics::Initialize(HWND hWnd, DXGI_FORMAT colorSpace)
 
 		// Creating dxgi factory
 		{
-			THROW_ERROR(CreateDXGIFactory2(DXGI_CREATE_FACTORY_DEBUG, IID_PPV_ARGS(&pFactory)));
+			THROW_ERROR_NO_MSGS(CreateDXGIFactory2(DXGI_CREATE_FACTORY_DEBUG, IID_PPV_ARGS(&pFactory)));
 		}
 
 		// Creating device
 		{
-			THROW_ERROR(D3D12CreateDevice(NULL, D3D_FEATURE_LEVEL_12_0, IID_PPV_ARGS(&pDevice)));
+			THROW_ERROR_NO_MSGS(D3D12CreateDevice(NULL, D3D_FEATURE_LEVEL_12_0, IID_PPV_ARGS(&pDevice)));
 		}
 
 		// creating info queue
@@ -43,7 +43,7 @@ void Graphics::Initialize(HWND hWnd, DXGI_FORMAT colorSpace)
 			commandQueueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
 			commandQueueDesc.NodeMask = 0;
 
-			THROW_ERROR(pDevice->CreateCommandQueue(&commandQueueDesc, IID_PPV_ARGS(&pCommandQueue)));
+			THROW_ERROR_AT_GFX_INIT(pDevice->CreateCommandQueue(&commandQueueDesc, IID_PPV_ARGS(&pCommandQueue)));
 		}
 
 		// Creating swap chain
@@ -65,7 +65,7 @@ void Graphics::Initialize(HWND hWnd, DXGI_FORMAT colorSpace)
 			swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 			swapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING; // DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH
 
-			THROW_ERROR(pFactory->CreateSwapChain(pCommandQueue.Get(), &swapChainDesc, &pSwapChain));
+			THROW_ERROR_AT_GFX_INIT(pFactory->CreateSwapChain(pCommandQueue.Get(), &swapChainDesc, &pSwapChain));
 		}
 
 		// Initializing backbuffer render target
