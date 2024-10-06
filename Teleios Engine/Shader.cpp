@@ -75,7 +75,7 @@ void Shader::Reload()
 	UINT flags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
 
 
-	THROW_SHADER_ERROR(D3DCompileFromFile(
+	THROW_BLOB_ERROR(D3DCompileFromFile(
 		wName.c_str(),						 // path to shader
 		nullptr,							 // we don't use macros yet but I got bright plans with this
 		nullptr,							 // we are including files that are in relative directory
@@ -113,7 +113,7 @@ void Shader::Reload()
 
 	std::wstring wName = std::wstring(m_name.begin(), m_name.end());
 
-	THROW_ERROR(D3DReadFileToBlob(
+	THROW_BLOB_ERROR(D3DReadFileToBlob(
 		wName.c_str(),
 		&pShaderCode
 	));
