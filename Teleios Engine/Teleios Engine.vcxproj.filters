@@ -69,6 +69,33 @@
     <ClCompile Include="InfoQueue.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="VertexBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="IndexBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RootSignature.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BlendState.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RasterizerState.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DepthStencilState.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="InputLayout.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DepthStencilView.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CommandList.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="includes\CppIncludes.h">
@@ -105,6 +132,33 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="MessageMap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VertexBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IndexBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RootSignature.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BlendState.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RasterizerState.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DepthStencilState.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="InputLayout.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DepthStencilView.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CommandList.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

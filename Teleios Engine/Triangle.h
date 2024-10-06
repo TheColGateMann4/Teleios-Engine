@@ -3,19 +3,30 @@
 #include "includes/WRLNoWarnings.h"
 
 #include "PipelineState.h"
-#include "Shader.h"
+#include "CommandList.h"
+
+#include "VertexBuffer.h"
+#include "IndexBuffer.h"
+
+class Graphics;
 
 class Triangle
 {
 public:
-	Triangle(class Graphics& graphics);
+	Triangle(Graphics& graphics);
+
+public:
+	void Draw(Graphics& graphics) const;
 
 private:
 	Microsoft::WRL::ComPtr<ID3D12CommandAllocator> pCommandAllocator;
-	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> pCommandList;
 	
 	Microsoft::WRL::ComPtr<ID3D12Resource> pVertexBuffer;
 	Microsoft::WRL::ComPtr<ID3D12Resource> pIndexBuffer;
 
-	std::shared_ptr<PipelineState> pPipelineState;
+	std::unique_ptr<PipelineState> m_pipelineState;
+	std::unique_ptr<CommandList> m_commandList;
+
+	std::shared_ptr<VertexBuffer> m_vertexBuffer;
+	std::shared_ptr<IndexBuffer> m_indexBuffer;
 };

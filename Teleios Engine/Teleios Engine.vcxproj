@@ -156,30 +156,48 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
+    <ClCompile Include="BlendState.cpp" />
+    <ClCompile Include="CommandList.cpp" />
+    <ClCompile Include="DepthStencilState.cpp" />
+    <ClCompile Include="DepthStencilView.cpp" />
     <ClCompile Include="ErrorHandler.cpp" />
     <ClCompile Include="Graphics.cpp" />
     <ClCompile Include="includes\DirectXIncludes.h" />
     <ClCompile Include="EntryPoint.cpp" />
+    <ClCompile Include="IndexBuffer.cpp" />
     <ClCompile Include="InfoQueue.cpp" />
+    <ClCompile Include="InputLayout.cpp" />
     <ClCompile Include="Macros\KeyMacros.h" />
     <ClCompile Include="Macros\ErrorMacros.h" />
     <ClCompile Include="PipelineState.cpp" />
+    <ClCompile Include="RasterizerState.cpp" />
     <ClCompile Include="RenderTarget.cpp" />
+    <ClCompile Include="RootSignature.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="Triangle.cpp" />
+    <ClCompile Include="VertexBuffer.cpp" />
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
+    <ClInclude Include="BlendState.h" />
+    <ClInclude Include="CommandList.h" />
+    <ClInclude Include="DepthStencilState.h" />
+    <ClInclude Include="DepthStencilView.h" />
     <ClInclude Include="ErrorHandler.h" />
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="includes\CppIncludes.h" />
+    <ClInclude Include="IndexBuffer.h" />
     <ClInclude Include="InfoQueue.h" />
+    <ClInclude Include="InputLayout.h" />
     <ClInclude Include="MessageMap.h" />
     <ClInclude Include="PipelineState.h" />
+    <ClInclude Include="RasterizerState.h" />
     <ClInclude Include="RenderTarget.h" />
+    <ClInclude Include="RootSignature.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="Triangle.h" />
+    <ClInclude Include="VertexBuffer.h" />
     <ClInclude Include="Window.h" />
     <ClInclude Include="includes\WRLNoWarnings.h" />
   </ItemGroup>

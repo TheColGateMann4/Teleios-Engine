@@ -36,7 +36,7 @@ void Application::InitializeScene()
 
 void Application::Update()
 {
-
+	triangle->Draw(window.graphics);
 
 	window.graphics.FinishFrame();
 }
