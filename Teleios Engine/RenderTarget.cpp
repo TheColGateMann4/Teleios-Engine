@@ -12,9 +12,11 @@ RenderTarget::RenderTarget(Graphics& graphics, ID3D12Resource* pResource, bool i
 {
 	HRESULT hr;
 
+	// saving our buffer surface for later
+	pResource->QueryInterface(pRenderTarget.GetAddressOf());
+
 	// creating descriptor for our render target view resource
 	{
-
 		D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc = {};
 		descriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
 		descriptorHeapDesc.NumDescriptors = isBackBuffer ? 2 : 1; // in flip model there are two buffers
@@ -49,9 +51,14 @@ RenderTarget::RenderTarget(Graphics& graphics)
 
 }
 
-void RenderTarget::Bind(Graphics& graphics, ID3D12GraphicsCommandList* commandList) const
+const D3D12_CPU_DESCRIPTOR_HANDLE* RenderTarget::GetDescriptor(Graphics& graphics) const
 {
-	THROW_INFO_ERROR(commandList->OMSetRenderTargets(1, &m_descriptorHandle, 1, nullptr));
+	return &m_descriptorHandle;
+}
+
+ID3D12Resource* RenderTarget::GetResource(Graphics& graphics) const
+{
+	return pRenderTarget.Get();
 }
 
 /*
@@ -62,6 +69,9 @@ BackBufferRenderTarget::BackBufferRenderTarget(Graphics& graphics, ID3D12Resourc
 	:
 	RenderTarget(graphics, pFirstBackBuffer, true) // calling render target constructor with back buffer true to create descriptor with two spaces
 {
+	// saving our buffer surface for later
+	pSecondBackBuffer->QueryInterface(pSecondRenderTarget.GetAddressOf());
+
 	// creating second render target view
 	{
 		D3D12_RENDER_TARGET_VIEW_DESC renderTargetViewDesc = {};
@@ -76,9 +86,12 @@ BackBufferRenderTarget::BackBufferRenderTarget(Graphics& graphics, ID3D12Resourc
 	}
 }
 
-void BackBufferRenderTarget::Bind(Graphics& graphics, ID3D12GraphicsCommandList* commandList) const
+const D3D12_CPU_DESCRIPTOR_HANDLE* BackBufferRenderTarget::GetDescriptor(Graphics& graphics) const
 {
-	const D3D12_CPU_DESCRIPTOR_HANDLE* descriptorHandle = graphics.GetCurrentBackBufferIndex() == 0 ? &m_descriptorHandle : &m_secondDescriptorHandle;
+	return graphics.GetCurrentBackBufferIndex() == 0 ? &m_descriptorHandle : &m_secondDescriptorHandle;
+}
 
-	THROW_INFO_ERROR(commandList->OMSetRenderTargets(1, descriptorHandle, 1, nullptr));
+ID3D12Resource* BackBufferRenderTarget::GetResource(Graphics& graphics) const
+{
+	return graphics.GetCurrentBackBufferIndex() == 0 ? pRenderTarget.Get() : pSecondRenderTarget.Get();
 }

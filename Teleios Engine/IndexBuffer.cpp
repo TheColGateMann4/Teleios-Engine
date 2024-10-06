@@ -46,7 +46,7 @@ IndexBuffer::IndexBuffer(Graphics& graphics, std::vector<unsigned int> indices)
     }
 }
 
-void IndexBuffer::Bind(Graphics& graphics, ID3D12GraphicsCommandList* commandList) const
+const D3D12_INDEX_BUFFER_VIEW* IndexBuffer::Get() const
 {
-    THROW_INFO_ERROR(commandList->IASetIndexBuffer(&m_indexBufferView));
+    return &m_indexBufferView;
 }

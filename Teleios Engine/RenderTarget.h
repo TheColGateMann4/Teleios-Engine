@@ -14,9 +14,11 @@ public:
 	RenderTarget(Graphics& graphics);
 
 public:
-	void Bind(Graphics& graphics, ID3D12GraphicsCommandList* commandList) const;
+	virtual const D3D12_CPU_DESCRIPTOR_HANDLE* GetDescriptor(Graphics& graphics) const;
+	virtual ID3D12Resource* GetResource(Graphics& graphics) const;
 
 protected:
+	Microsoft::WRL::ComPtr<ID3D12Resource> pRenderTarget;
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> pDescriptorHeap;
 	D3D12_CPU_DESCRIPTOR_HANDLE m_descriptorHandle;
 	UINT m_sizeOfDescriptor;
@@ -28,8 +30,10 @@ public:
 	BackBufferRenderTarget(Graphics& graphics, ID3D12Resource* pFirstBackBuffer, ID3D12Resource* pSecondBackBuffer);
 
 public:
-	void Bind(Graphics& graphics, ID3D12GraphicsCommandList* commandList) const;
+	virtual const D3D12_CPU_DESCRIPTOR_HANDLE* GetDescriptor(Graphics& graphics) const override;
+	virtual ID3D12Resource* GetResource(Graphics& graphics) const override;
 
 private:
+	Microsoft::WRL::ComPtr<ID3D12Resource> pSecondRenderTarget;
 	D3D12_CPU_DESCRIPTOR_HANDLE m_secondDescriptorHandle;
 };

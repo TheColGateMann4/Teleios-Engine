@@ -46,7 +46,8 @@ VertexBuffer::VertexBuffer(Graphics& graphics, void* pData, size_t dataSize, siz
 	}
 }
 
-void VertexBuffer::Bind(Graphics& graphics, ID3D12GraphicsCommandList* commandList) const
+
+const D3D12_VERTEX_BUFFER_VIEW* VertexBuffer::Get() const
 {
-	THROW_INFO_ERROR(commandList->IASetVertexBuffers(0, 1, &m_vertexBufferView));
+	return &m_vertexBufferView;
 }

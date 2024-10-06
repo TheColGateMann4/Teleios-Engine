@@ -11,10 +11,9 @@ public:
     IndexBuffer(Graphics& graphics, std::vector<unsigned int> indices);
 
 public:
-    void Bind(Graphics& graphics, ID3D12GraphicsCommandList* commandList) const;
+    const D3D12_INDEX_BUFFER_VIEW* Get() const;
 
 private:
     Microsoft::WRL::ComPtr<ID3D12Resource> pIndexBuffer;
     D3D12_INDEX_BUFFER_VIEW m_indexBufferView;
 };
-

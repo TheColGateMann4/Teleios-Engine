@@ -11,7 +11,7 @@ public:
 	VertexBuffer(Graphics& graphics, void* pData, size_t dataSize, size_t dataStride);
 
 public:
-	void Bind(Graphics& graphics, ID3D12GraphicsCommandList* commandList) const;
+	const D3D12_VERTEX_BUFFER_VIEW* Get() const;
 
 private:
 	Microsoft::WRL::ComPtr<ID3D12Resource> pVertexBuffer;
