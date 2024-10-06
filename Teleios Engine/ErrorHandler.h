@@ -72,10 +72,10 @@ namespace ErrorHandler
 	};
 
 #ifdef _DEBUG
-	class ShaderException : public Exception
+	class BlobMsgException : public Exception
 	{
 	public:
-		ShaderException(unsigned int line, const char* file, ::ID3DBlob* pErrorMessages);
+		BlobMsgException(unsigned int line, const char* file, ::ID3DBlob* pErrorMessages);
 
 	public:
 		virtual std::string what() override;

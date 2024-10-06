@@ -165,11 +165,11 @@ const char* ErrorHandler::NoGFXException::GetErrorType()
 }
 
 /*
-			SHADER EXCEPTION
+			BLOB MSG EXCEPTION
 */
 #ifdef _DEBUG
 
-ErrorHandler::ShaderException::ShaderException(unsigned int line, const char* file, ::ID3DBlob* pErrorMessages)
+ErrorHandler::BlobMsgException::BlobMsgException(unsigned int line, const char* file, ::ID3DBlob* pErrorMessages)
 	:
 	Exception(line, file),
 	m_length(pErrorMessages->GetBufferSize()),
@@ -178,7 +178,7 @@ ErrorHandler::ShaderException::ShaderException(unsigned int line, const char* fi
 	memcpy_s(m_errorMessages.data(), m_length, pErrorMessages->GetBufferPointer(), m_length);
 }
  
-std::string ErrorHandler::ShaderException::what()
+std::string ErrorHandler::BlobMsgException::what()
 {
 	std::string result = {};
 
@@ -196,9 +196,9 @@ std::string ErrorHandler::ShaderException::what()
 	return result;
 }
 
-const char* ErrorHandler::ShaderException::GetErrorType()
+const char* ErrorHandler::BlobMsgException::GetErrorType()
 {
-	return "SHADER_EXCEPTION";
+	return "INFO_EXCEPTION";
 }
 
 /*
