@@ -2,17 +2,45 @@
 #include "includes/DirectXIncludes.h"
 #include "includes/WRLNoWarnings.h"
 
+class Graphics;
+
+class RootSignature;
+class Shader;
+class BlendState;
+class RasterizerState;
+class DepthStencilState;
+class InputLayout;
+
 class PipelineState
 {
 public:
 	PipelineState();
 
 public:
-	void SetPixelShader(class Shader* pixelShader);
-	void SetVertexShader(class Shader* vertexShader);
+	void SetRootSignature(RootSignature* rootSignature);
+	void SetVertexShader(Shader* vertexShader);
+	void SetPixelShader(Shader* pixelShader);
+	// DS
+	// HS
+	// GS
+	// StreamOutput
+	// IBStripCutValue
+	void SetBlendState(BlendState* blendState);
+	void SetSampleMask(UINT sampleMask);
+	void SetRasterizerState(RasterizerState* rasterizerState);
+	void SetDepthStencilState(DepthStencilState* depthStencilState);
+	void SetInputLayout(InputLayout* inputLayout);
+	void SetPrimitiveTechnologyType(D3D12_PRIMITIVE_TOPOLOGY_TYPE technologyType);
+	void SetNumRenderTargets(UINT numRenderTargets);
+	void SetRenderTargetFormat(UINT index, DXGI_FORMAT renderTargetFormat);
+	// DSVFormat
+	void SetSampleDesc(UINT count, UINT quality);
+	// NodeMask
+	// CachedPSO
+	// Flags
 
 public:
-	void Finish(class Graphics& graphics);
+	void Finish(Graphics& graphics);
 
 	ID3D12PipelineState* Get() const;
 
