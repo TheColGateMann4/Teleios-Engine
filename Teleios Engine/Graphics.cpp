@@ -79,6 +79,9 @@ void Graphics::Initialize(HWND hWnd, DXGI_FORMAT colorSpace)
 
 			m_backBuffer = std::make_shared<BackBufferRenderTarget>(*this, pFirstBuffer.Get(), pSecondBuffer.Get());
 		}
+
+		// initializing graphic root signature
+		m_rootSignature = std::make_unique<RootSignature>(*this);
 	}
 }
 
@@ -101,14 +104,29 @@ ID3D12Device* Graphics::GetDevice()
 	return pDevice.Get();
 }
 
+ID3D12CommandQueue* Graphics::GetCommandQueue()
+{
+	return pCommandQueue.Get();
+}
+
 InfoQueue* Graphics::GetInfoQueue()
 {
 	return m_infoQueue.get();
 }
 
+RootSignature* Graphics::GetRootSignature()
+{
+	return m_rootSignature.get();
+}
+
 BackBufferRenderTarget* Graphics::GetBackBuffer()
 {
 	return m_backBuffer.get();
+}
+
+DepthStencilView* Graphics::GetDepthStencil()
+{
+	return m_depthStencilView.get();
 }
 
 DXGI_FORMAT Graphics::GetColorSpace() const noexcept

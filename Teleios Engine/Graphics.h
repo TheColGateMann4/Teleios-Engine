@@ -4,6 +4,10 @@
 #include "includes/WRLNoWarnings.h"
 #include "RenderTarget.h"
 #include "InfoQueue.h"
+#include "RootSignature.h"
+#include "RenderTarget.h"
+#include "DepthStencilView.h"
+
 #include <dxgi1_6.h>
 
 class Graphics
@@ -18,8 +22,11 @@ public:
 
 public:
 	ID3D12Device* GetDevice();
+	ID3D12CommandQueue* GetCommandQueue();
 
+	RootSignature* GetRootSignature();
 	BackBufferRenderTarget* GetBackBuffer();
+	DepthStencilView* GetDepthStencil();
 	InfoQueue* GetInfoQueue();
 
 	DXGI_FORMAT GetColorSpace() const noexcept;
@@ -38,8 +45,10 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> pPipelineState;
 
 private:
-	std::shared_ptr<BackBufferRenderTarget> m_backBuffer;
 	std::unique_ptr<InfoQueue> m_infoQueue;
+	std::unique_ptr<RootSignature> m_rootSignature;
+	std::shared_ptr<BackBufferRenderTarget> m_backBuffer;
+	std::shared_ptr<DepthStencilView> m_depthStencilView;
 
 private:
 	DXGI_FORMAT m_colorSpace;
