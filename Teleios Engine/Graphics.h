@@ -2,7 +2,7 @@
 #include "includes/CppIncludes.h"
 #include "includes/DirectXIncludes.h"
 #include "includes/WRLNoWarnings.h"
-#include "RenderTarget.h"
+
 #include "InfoQueue.h"
 #include "RootSignature.h"
 #include "RenderTarget.h"
@@ -30,6 +30,8 @@ public:
 	InfoQueue* GetInfoQueue();
 
 	DXGI_FORMAT GetColorSpace() const noexcept;
+	unsigned int GetWidth() const noexcept;
+	unsigned int GetHeight() const noexcept;
 
 private:
 	static constexpr bool CheckValidColorSpace(DXGI_FORMAT format);
@@ -52,4 +54,6 @@ private:
 
 private:
 	DXGI_FORMAT m_colorSpace;
+	unsigned int m_width;
+	unsigned int m_height;
 };

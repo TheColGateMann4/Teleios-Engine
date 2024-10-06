@@ -77,6 +77,14 @@ void Graphics::Initialize(HWND hWnd, DXGI_FORMAT colorSpace)
 			pSwapChain->GetBuffer(0, IID_PPV_ARGS(&pFirstBuffer));
 			pSwapChain->GetBuffer(1, IID_PPV_ARGS(&pSecondBuffer));
 
+			// getting width and height out of gotten render target
+			{
+				D3D12_RESOURCE_DESC renderTargetDesc = pFirstBuffer->GetDesc();
+
+				m_width = renderTargetDesc.Width;
+				m_height = renderTargetDesc.Height;
+			}
+
 			m_backBuffer = std::make_shared<BackBufferRenderTarget>(*this, pFirstBuffer.Get(), pSecondBuffer.Get());
 		}
 
@@ -133,6 +141,17 @@ DXGI_FORMAT Graphics::GetColorSpace() const noexcept
 {
 	return m_colorSpace;
 }
+
+unsigned int Graphics::GetWidth() const noexcept
+{
+	return m_width;
+}
+
+unsigned int Graphics::GetHeight() const noexcept
+{
+	return m_height;
+}
+
 
 #pragma warning(push)
 #pragma warning(disable: 4061) // turning off warnings for default statement handling unhandled values by cases
