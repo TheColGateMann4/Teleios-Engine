@@ -2,22 +2,23 @@
 #include "Macros/ErrorMacros.h"
 #include "Graphics.h"
 
-VertexBuffer::VertexBuffer(Graphics& graphics, void* pData, size_t dataSize, size_t dataStride)
+VertexBuffer::VertexBuffer(Graphics& graphics, void* pData, size_t numElements, size_t dataStride)
 {
+	size_t dataSize = numElements * dataStride;
+	HRESULT hr;
+
 	// initializing vertex buffer resource
 	{
-		HRESULT hr;
-
 		D3D12_HEAP_PROPERTIES heapPropeties = {};
-		heapPropeties.Type = D3D12_HEAP_TYPE_DEFAULT;
-		heapPropeties.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
-		heapPropeties.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
+		heapPropeties.Type = D3D12_HEAP_TYPE_CUSTOM;
+		heapPropeties.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_WRITE_BACK;
+		heapPropeties.MemoryPoolPreference = D3D12_MEMORY_POOL_L0;
 		heapPropeties.VisibleNodeMask = 0;
 
 		D3D12_RESOURCE_DESC resourceDesc = {};
 		resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
 		resourceDesc.Alignment = 0;
-		resourceDesc.Width = dataSize;
+		resourceDesc.Width = dataSize + 2;
 		resourceDesc.Height = 1;
 		resourceDesc.DepthOrArraySize = 1;
 		resourceDesc.MipLevels = 1;
@@ -26,7 +27,6 @@ VertexBuffer::VertexBuffer(Graphics& graphics, void* pData, size_t dataSize, siz
 		resourceDesc.SampleDesc.Quality = 0;
 		resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
 		resourceDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
-
 
 		THROW_ERROR(graphics.GetDevice()->CreateCommittedResource(
 			&heapPropeties,
@@ -38,10 +38,33 @@ VertexBuffer::VertexBuffer(Graphics& graphics, void* pData, size_t dataSize, siz
 		));
 	}
 
+	// passing data to vetex buffer resource
+	{
+		D3D12_RANGE readRange = {};
+		readRange.Begin = 0;
+		readRange.End = 0;
+		
+		D3D12_RANGE writeRange = {};
+		writeRange.Begin = 0;
+		writeRange.End = dataSize;
+
+		void* pMappedData = nullptr;
+
+		THROW_ERROR(pVertexBuffer->Map(
+			0,
+			&readRange,
+			&pMappedData
+		));
+
+		memcpy_s(pMappedData, dataSize, pData, dataSize);
+
+		pVertexBuffer->Unmap(0, &writeRange);
+	}
+
 	// initializing vertex buffer view
 	{
 		m_vertexBufferView.BufferLocation = pVertexBuffer->GetGPUVirtualAddress();
-		m_vertexBufferView.SizeInBytes = dataSize * dataStride;
+		m_vertexBufferView.SizeInBytes = dataSize;
 		m_vertexBufferView.StrideInBytes = dataStride;
 	}
 }

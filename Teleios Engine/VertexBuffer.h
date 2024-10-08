@@ -8,7 +8,7 @@ class VertexBuffer
 {
 public:
 	// data has to be aligned in 16 bytes
-	VertexBuffer(Graphics& graphics, void* pData, size_t dataSize, size_t dataStride);
+	VertexBuffer(Graphics& graphics, void* pData, size_t numElements, size_t dataStride);
 
 public:
 	const D3D12_VERTEX_BUFFER_VIEW* Get() const;
