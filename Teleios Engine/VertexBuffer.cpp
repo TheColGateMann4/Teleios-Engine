@@ -18,7 +18,7 @@ VertexBuffer::VertexBuffer(Graphics& graphics, void* pData, size_t numElements, 
 		D3D12_RESOURCE_DESC resourceDesc = {};
 		resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
 		resourceDesc.Alignment = 0;
-		resourceDesc.Width = dataSize + 2;
+		resourceDesc.Width = dataSize;
 		resourceDesc.Height = 1;
 		resourceDesc.DepthOrArraySize = 1;
 		resourceDesc.MipLevels = 1;
