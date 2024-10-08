@@ -34,6 +34,7 @@ public:
 
 private:
 	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> pCommandList;
+	D3D12_COMMAND_LIST_TYPE m_type;
 	bool m_initialized;
 	bool m_closed;
 };

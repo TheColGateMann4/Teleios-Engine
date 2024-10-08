@@ -4,8 +4,9 @@
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
 
-CommandList::CommandList(Graphics& graphics, D3D12_COMMAND_LIST_TYPE type, ID3D12CommandAllocator* pCommandAllocator, ID3D12PipelineState* pPipelineState)
+CommandList::CommandList(Graphics& graphics, D3D12_COMMAND_LIST_TYPE type, ID3D12PipelineState* pPipelineState)
 	:
+	m_type(type),
 	m_initialized(true),
 	m_closed(true)
 {
@@ -42,6 +43,8 @@ ID3D12GraphicsCommandList* CommandList::Get()
 
 void CommandList::SetRenderTarget(Graphics& graphics, RenderTarget* renderTarget, DepthStencilView* depthStencilView)
 {
+	THROW_INTERNAL_ERROR_IF("Cannot call ResourceBarrier on bundle command list object", m_type == D3D12_COMMAND_LIST_TYPE_BUNDLE);
+
 	// marking out current front buffer as the one that will be changing states, from present back to render target
 	{
 		ID3D12Resource* pCurrFrontBuffer = renderTarget->GetResource(graphics);
