@@ -10,33 +10,38 @@ ImguiManager::ImguiManager(Graphics& graphics, HWND hWnd)
 {
 	HRESULT hr;
 
-	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
-	ImGuiIO& io = ImGui::GetIO();
-	(void)io;
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+	// imgui initialization stuff
+	{
+		IMGUI_CHECKVERSION();
+
+		ImGui::CreateContext();
+	}
 
 
+	// setting style for our imgui layer
 	ImGui::StyleColorsDark();
 
 
-	D3D12_DESCRIPTOR_HEAP_DESC desc = {};
-	desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-	desc.NumDescriptors = 1;
-	desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+	// descriptor heap initialization
+	{
+		D3D12_DESCRIPTOR_HEAP_DESC desc = {};
+		desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+		desc.NumDescriptors = 1;
+		desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 
-	THROW_ERROR(graphics.GetDevice()->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&pDescriptorHeap)));
+		THROW_ERROR(graphics.GetDevice()->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&pDescriptorHeap)));
 
-	ImGui_ImplWin32_Init(hWnd);
+		ImGui_ImplWin32_Init(hWnd);
 
-	ImGui_ImplDX12_Init(
-		graphics.GetDevice(),
-		1,
-		graphics.GetColorSpace(),
-		pDescriptorHeap.Get(),
-		pDescriptorHeap->GetCPUDescriptorHandleForHeapStart(),
-		pDescriptorHeap->GetGPUDescriptorHandleForHeapStart()
-	);
+		ImGui_ImplDX12_Init(
+			graphics.GetDevice(),
+			1,
+			graphics.GetColorSpace(),
+			pDescriptorHeap.Get(),
+			pDescriptorHeap->GetCPUDescriptorHandleForHeapStart(),
+			pDescriptorHeap->GetGPUDescriptorHandleForHeapStart()
+		);
+	}
 }
 
 ImguiManager::~ImguiManager()
@@ -55,8 +60,6 @@ void ImguiManager::BeginFrame()
 
 void ImguiManager::Render()
 {
-	ImGui::ShowDemoWindow();
-
 	ImGui::Render();
 }
 
