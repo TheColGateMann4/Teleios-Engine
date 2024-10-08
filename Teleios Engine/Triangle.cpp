@@ -136,28 +136,9 @@ void Triangle::Draw(Graphics& graphics) const
 		m_directCommandList->Get()->RSSetScissorRects(1, &viewportRect);
 	}
 
-	{
-		FLOAT clearColor[] = { 0.01f, 0.02f, 0.03f, 1.0f};
+	m_directCommandList->ClearRenderTargetView(graphics, graphics.GetBackBuffer());
 
-		m_directCommandList->Get()->ClearRenderTargetView(
-			*graphics.GetBackBuffer()->GetDescriptor(graphics),
-			clearColor,
-			0,
-			nullptr
-		);
-	}
-
-	{
-		m_directCommandList->Get()->ClearDepthStencilView(
-			*graphics.GetDepthStencil()->GetDescriptor(),
-			D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL,
-			1.0f,
-			0.0f,
-			0,
-			nullptr
-		);
-	}
-	// ClearRenderTargetView
+	m_directCommandList->ClearDepthStencilView(graphics, graphics.GetDepthStencil());
 
 	m_directCommandList->ExecuteBundle(graphics, m_bundleCommandList.get());
 	

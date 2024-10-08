@@ -39,6 +39,10 @@ public:
 
 	void ExecuteBundle(Graphics& graphics, CommandList* commandList);
 
+	void ClearRenderTargetView(Graphics& graphics, RenderTarget* renderTarget);
+
+	void ClearDepthStencilView(Graphics& graphics, DepthStencilView* depthStencilView);
+
 
 private:
 	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> pCommandList;
