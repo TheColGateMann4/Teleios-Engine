@@ -16,6 +16,7 @@
 	#define THROW_ERROR_AT_GFX_INIT(statement) DBG_THROW_ERROR(statement, (*this)); // we using *this since we will be inside graphics class initializing interfaces
 #else
 	#define THROW_ERROR(statement) THROW_ERROR_NO_MSGS(statement)
+	#define THROW_ERROR_AT_GFX_INIT(statement) THROW_ERROR_NO_MSGS(statement)
 #endif
 
 #define THROW_LAST_ERROR throw ErrorHandler::StandardException{ __LINE__, __FILE__, HRESULT_FROM_WIN32(GetLastError()) }; 
@@ -28,6 +29,6 @@
 	#define THROW_BLOB_ERROR(statement)		     if((hr = statement) != S_OK) throw ErrorHandler::BlobMsgException{__LINE__ , __FILE__ , pErrorMessages.Get()};
 	#define THROW_INFO_ERROR(statement)	  statement; if(graphics.GetInfoQueue()->GetNumMessages() != 0) throw ErrorHandler::InfoException{__LINE__ , __FILE__, graphics.GetInfoQueue()->GetMessages()};
 #else
-	#define THROW_BLOB_ERROR(statement)	THROW_ERROR
+	#define THROW_BLOB_ERROR(statement)	THROW_ERROR(statement)
 	#define THROW_INFO_ERROR(statement)
 #endif
