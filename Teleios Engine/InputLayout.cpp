@@ -11,15 +11,12 @@ InputLayout::InputLayout(std::vector<Item>& layout)
 
 	size_t accumulatedAlignedOffset = 0;
 
-	for (size_t elementIndex = 0; elementIndex < layoutSize; elementIndex++)
+	for (const auto& item : layout)
 	{
-		Item& item = layout.at(elementIndex);
+		m_layoutElements.push_back(GetItemDesc(item, accumulatedAlignedOffset));
 
-		m_layoutElements.push_back(GetItemDesc(item, elementIndex, accumulatedAlignedOffset));
-
-		accumulatedAlignedOffset = GetAlignedSize(accumulatedAlignedOffset, GetItemSize(item.type));
+		accumulatedAlignedOffset += GetItemSize(item.type);
 	}
-
 
 	m_desc = {};
 	m_desc.pInputElementDescs = m_layoutElements.data();
@@ -31,13 +28,13 @@ D3D12_INPUT_LAYOUT_DESC InputLayout::Get()
 	return m_desc;
 }
 
-D3D12_INPUT_ELEMENT_DESC InputLayout::GetItemDesc(Item item, size_t itemIndex, size_t accumulatedSize)
+D3D12_INPUT_ELEMENT_DESC InputLayout::GetItemDesc(Item item, size_t accumulatedSize)
 {
 	D3D12_INPUT_ELEMENT_DESC elementDesc = {};
 	elementDesc.SemanticName = item.semanticName;
 	elementDesc.SemanticIndex = 0;
 	elementDesc.Format = GetItemFormat(item.type);
-	elementDesc.InputSlot = itemIndex;
+	elementDesc.InputSlot = 0;
 	elementDesc.AlignedByteOffset = accumulatedSize;
 	elementDesc.InputSlotClass = D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
 	elementDesc.InstanceDataStepRate = 0;
