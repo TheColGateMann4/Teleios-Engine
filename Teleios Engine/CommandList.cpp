@@ -53,8 +53,8 @@ void CommandList::ResourceBarrier(Graphics& graphics, RenderTarget* renderTarget
 		resourceBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 		resourceBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
 		resourceBarrier.Transition.pResource = pCurrFrontBuffer;
-		resourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
-		resourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
+		resourceBarrier.Transition.StateBefore = previousState;
+		resourceBarrier.Transition.StateAfter = afterState;
 
 		THROW_INFO_ERROR(pCommandList->ResourceBarrier(1, &resourceBarrier));
 	}
