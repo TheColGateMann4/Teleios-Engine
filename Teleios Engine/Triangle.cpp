@@ -10,15 +10,8 @@
 
 Triangle::Triangle(Graphics& graphics)
 {
-	HRESULT hr;
-
-	// Creating command allocator
-	{
-		THROW_ERROR(graphics.GetDevice()->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_BUNDLE, IID_PPV_ARGS(&pCommandAllocator)));// or D3D12_COMMAND_LIST_TYPE_BUNDLE made for groups of commands
-	}
-
-	m_commandList = std::make_unique<CommandList>(graphics, D3D12_COMMAND_LIST_TYPE_BUNDLE, pCommandAllocator.Get());
-
+	m_bundleCommandList = std::make_unique<CommandList>(graphics, D3D12_COMMAND_LIST_TYPE_BUNDLE);
+	m_directCommandList = std::make_unique<CommandList>(graphics, D3D12_COMMAND_LIST_TYPE_DIRECT);
 
 	struct Vertice
 	{
@@ -87,6 +80,9 @@ Triangle::Triangle(Graphics& graphics)
 
 			// RTVFormats
 			m_pipelineState->SetRenderTargetFormat(0, graphics.GetColorSpace());
+			
+			// DSVFormats
+			m_pipelineState->SetDepthStencilFormat(DXGI_FORMAT_D24_UNORM_S8_UINT);
 
 			// SampleDesc
 			m_pipelineState->SetSampleDesc(1, 0);
@@ -94,39 +90,82 @@ Triangle::Triangle(Graphics& graphics)
 
 		m_pipelineState->Finish(graphics); // Finish() call gets object from desc it made up
 
-		m_commandList->Open(graphics, pCommandAllocator.Get(), m_pipelineState->Get());
+		m_bundleCommandList->Open(graphics, m_pipelineState->Get());
 	}
 	
-	// SetGraphicsRootSignature
-	// RSSetViewports
-	// RSSetScissorRects
 
-	// ClearRenderTargetView
-	// ClearDepthStencilView
+	m_bundleCommandList->SetPrimitiveTopology(graphics, D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	// setting render target for local command list
-	m_commandList->SetRenderTarget(graphics, graphics.GetBackBuffer(), graphics.GetDepthStencil());
+	m_bundleCommandList->SetVertexBuffer(graphics, m_vertexBuffer.get());
 
-	m_commandList->SetPrimitiveTopology(graphics, D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	m_bundleCommandList->SetIndexBuffer(graphics, m_indexBuffer.get());
 
-	m_commandList->SetVertexBuffer(graphics, m_vertexBuffer.get());
+	m_bundleCommandList->SetRootSignature(graphics, graphics.GetRootSignature());
 
-	m_commandList->SetIndexBuffer(graphics, m_indexBuffer.get());
+	m_bundleCommandList->DrawIndexed(graphics, indices.size());
 
-	m_commandList->DrawIndexed(graphics, indices.size());
-
-	// ResourceBarrier RenderTarget D3D12_RESOURCE_STATE_RENDER_TARGET -> D3D12_RESOURCE_STATE_PRESENT
-
-	m_commandList->Close(graphics);
-
-	// wait for resources to get uploaded to gpu
+	m_bundleCommandList->Close(graphics);
 }
 
 void Triangle::Draw(Graphics& graphics) const
 {
+	m_directCommandList->Open(graphics, m_pipelineState->Get());
+
+	m_directCommandList->ResourceBarrier(graphics, graphics.GetBackBuffer(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+
+	m_directCommandList->SetRenderTarget(graphics, graphics.GetBackBuffer(), graphics.GetDepthStencil());
+
+	{
+		D3D12_VIEWPORT viewport = {};
+		viewport.TopLeftX = 0;
+		viewport.TopLeftY = 0;
+		viewport.Width = graphics.GetWidth();
+		viewport.Height = graphics.GetHeight();
+		viewport.MinDepth = 0.0f;
+		viewport.MaxDepth = 1.0f;
+
+		m_directCommandList->Get()->RSSetViewports(1, &viewport);
+
+		D3D12_RECT viewportRect = {};
+		viewportRect.left = viewportRect.top = 0;
+		viewportRect.bottom = graphics.GetHeight();
+		viewportRect.right = graphics.GetWidth();
+
+		m_directCommandList->Get()->RSSetScissorRects(1, &viewportRect);
+	}
+
+	{
+		FLOAT clearColor[] = { 0.01f, 0.02f, 0.03f, 1.0f};
+
+		m_directCommandList->Get()->ClearRenderTargetView(
+			*graphics.GetBackBuffer()->GetDescriptor(graphics),
+			clearColor,
+			0,
+			nullptr
+		);
+	}
+
+	{
+		m_directCommandList->Get()->ClearDepthStencilView(
+			*graphics.GetDepthStencil()->GetDescriptor(),
+			D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL,
+			1.0f,
+			0.0f,
+			0,
+			nullptr
+		);
+	}
+	// ClearRenderTargetView
+
+	m_directCommandList->ExecuteBundle(graphics, m_bundleCommandList.get());
+	
+	m_directCommandList->ResourceBarrier(graphics, graphics.GetBackBuffer(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
+
+	m_directCommandList->Close(graphics);
+
 	// making this as temporary, later we will probably save points to some CommandQueue class and execute them from there
 
-	ID3D12CommandList* ppCommandLists[] = { m_commandList->Get() };
+	ID3D12CommandList* ppCommandLists[] = { m_directCommandList->Get() };
 
 	graphics.GetCommandQueue()->ExecuteCommandLists(1, ppCommandLists);
 }
