@@ -90,6 +90,9 @@ void Graphics::Initialize(HWND hWnd, DXGI_FORMAT colorSpace)
 
 		// initializing graphic root signature
 		m_rootSignature = std::make_unique<RootSignature>(*this);
+
+		// initializing graphic fence
+		m_graphicFence = std::make_unique<Fence>(*this);
 	}
 }
 
@@ -105,6 +108,11 @@ unsigned int Graphics::GetCurrentBackBufferIndex()
 void Graphics::FinishFrame()
 {
 	pSwapChain->Present(1, NULL);
+}
+
+void Graphics::WaitForGPU()
+{
+	m_graphicFence->WaitForGPU(*this);
 }
 
 ID3D12Device* Graphics::GetDevice()

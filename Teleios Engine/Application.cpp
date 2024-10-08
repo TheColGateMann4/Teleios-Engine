@@ -11,12 +11,14 @@ Application::Application(unsigned int width, unsigned int height, const char* na
 
 Application::~Application()
 {
-	// synchronise before deletion
+	//window.graphics.WaitForGPU();
 }
 
 int Application::Run()
 {
 	InitializeScene();
+
+	window.graphics.WaitForGPU();
 
 	while(true)
 	{
@@ -39,4 +41,6 @@ void Application::Update()
 	triangle->Draw(window.graphics);
 
 	window.graphics.FinishFrame();
+
+	window.graphics.WaitForGPU();
 }

@@ -3,6 +3,7 @@
 #include "includes/DirectXIncludes.h"
 #include "includes/WRLNoWarnings.h"
 
+#include "Fence.h"
 #include "InfoQueue.h"
 #include "RootSignature.h"
 #include "RenderTarget.h"
@@ -19,6 +20,8 @@ public:
 	unsigned int GetCurrentBackBufferIndex();
 
 	void FinishFrame();
+
+	void WaitForGPU();
 
 public:
 	ID3D12Device* GetDevice();
@@ -48,6 +51,7 @@ private:
 
 private:
 	std::unique_ptr<InfoQueue> m_infoQueue;
+	std::unique_ptr<Fence> m_graphicFence;
 	std::unique_ptr<RootSignature> m_rootSignature;
 	std::shared_ptr<BackBufferRenderTarget> m_backBuffer;
 	std::shared_ptr<DepthStencilView> m_depthStencilView;
