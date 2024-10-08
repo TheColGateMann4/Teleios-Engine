@@ -4,20 +4,22 @@
 
 IndexBuffer::IndexBuffer(Graphics& graphics, std::vector<unsigned int> indices)
 {
+    size_t dataSize = indices.size() * sizeof(indices.at(0));
+    HRESULT hr;
+
+
     // initializing vertex buffer resource
     {
-        HRESULT hr;
-
         D3D12_HEAP_PROPERTIES heapPropeties = {};
-        heapPropeties.Type = D3D12_HEAP_TYPE_DEFAULT;
-		heapPropeties.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
-		heapPropeties.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
+		heapPropeties.Type = D3D12_HEAP_TYPE_CUSTOM;
+		heapPropeties.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_WRITE_BACK;
+		heapPropeties.MemoryPoolPreference = D3D12_MEMORY_POOL_L0;
         heapPropeties.VisibleNodeMask = 0;
 
         D3D12_RESOURCE_DESC resourceDesc = {};
         resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
         resourceDesc.Alignment = 0;
-        resourceDesc.Width = indices.size();
+        resourceDesc.Width = dataSize;
         resourceDesc.Height = 1;
         resourceDesc.DepthOrArraySize = 1;
         resourceDesc.MipLevels = 1;
@@ -38,10 +40,33 @@ IndexBuffer::IndexBuffer(Graphics& graphics, std::vector<unsigned int> indices)
         ));
     }
 
+	// passing data to index buffer resource
+	{
+		D3D12_RANGE readRange = {};
+		readRange.Begin = 0;
+		readRange.End = 0;
+
+		D3D12_RANGE writeRange = {};
+		writeRange.Begin = 0;
+		writeRange.End = dataSize;
+
+		void* pMappedData = nullptr;
+
+		THROW_ERROR(pIndexBuffer->Map(
+			0,
+			&readRange,
+			&pMappedData
+		));
+
+		memcpy_s(pMappedData, dataSize, indices.data(), dataSize);
+
+        pIndexBuffer->Unmap(0, &writeRange);
+	}
+
     // initializing vertex buffer view
     {
         m_indexBufferView.BufferLocation = pIndexBuffer->GetGPUVirtualAddress();
-        m_indexBufferView.SizeInBytes = indices.size() * sizeof(indices.at(0));
+        m_indexBufferView.SizeInBytes = dataSize;
         m_indexBufferView.Format = DXGI_FORMAT_R32_UINT;
     }
 }
