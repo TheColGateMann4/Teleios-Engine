@@ -22,7 +22,13 @@ void Graphics::Initialize(HWND hWnd, DXGI_FORMAT colorSpace)
 
 		// Creating dxgi factory
 		{
-			THROW_ERROR_NO_MSGS(CreateDXGIFactory2(DXGI_CREATE_FACTORY_DEBUG, IID_PPV_ARGS(&pFactory)));
+			UINT dxgiFactoryFlags = 0;
+
+#ifdef _DEBUG
+			dxgiFactoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
+#endif
+
+			THROW_ERROR_NO_MSGS(CreateDXGIFactory2(dxgiFactoryFlags, IID_PPV_ARGS(&pFactory)));
 		}
 
 		// Creating device
@@ -30,10 +36,12 @@ void Graphics::Initialize(HWND hWnd, DXGI_FORMAT colorSpace)
 			THROW_ERROR_NO_MSGS(D3D12CreateDevice(NULL, D3D_FEATURE_LEVEL_12_0, IID_PPV_ARGS(&pDevice)));
 		}
 
+#ifdef _DEBUG
 		// creating info queue
 		{
 			m_infoQueue = std::make_unique<InfoQueue>(*this);
 		}
+#endif
 
 		// Creating command queue
 		{
@@ -74,8 +82,8 @@ void Graphics::Initialize(HWND hWnd, DXGI_FORMAT colorSpace)
 			// we only care about current front buffer so we know where to draw
 			Microsoft::WRL::ComPtr<ID3D12Resource> pFirstBuffer, pSecondBuffer;
 
-			pSwapChain->GetBuffer(0, IID_PPV_ARGS(&pFirstBuffer));
-			pSwapChain->GetBuffer(1, IID_PPV_ARGS(&pSecondBuffer));
+			THROW_ERROR_AT_GFX_INIT(pSwapChain->GetBuffer(0, IID_PPV_ARGS(&pFirstBuffer)));
+			THROW_ERROR_AT_GFX_INIT(pSwapChain->GetBuffer(1, IID_PPV_ARGS(&pSecondBuffer)));
 
 			// getting width and height out of gotten render target
 			{
@@ -110,7 +118,9 @@ unsigned int Graphics::GetCurrentBackBufferIndex()
 
 void Graphics::FinishFrame()
 {
-	pSwapChain->Present(1, NULL);
+	HRESULT hr;
+
+	THROW_ERROR_AT_GFX_INIT(pSwapChain->Present(1, NULL));
 }
 
 void Graphics::WaitForGPU()
@@ -128,10 +138,12 @@ ID3D12CommandQueue* Graphics::GetCommandQueue()
 	return pCommandQueue.Get();
 }
 
+#ifdef _DEBUG
 InfoQueue* Graphics::GetInfoQueue()
 {
 	return m_infoQueue.get();
 }
+#endif
 
 RootSignature* Graphics::GetRootSignature()
 {

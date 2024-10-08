@@ -30,7 +30,10 @@ public:
 	RootSignature* GetRootSignature();
 	BackBufferRenderTarget* GetBackBuffer();
 	DepthStencilView* GetDepthStencil();
+
+#ifdef _DEBUG
 	InfoQueue* GetInfoQueue();
+#endif
 
 	DXGI_FORMAT GetColorSpace() const noexcept;
 	unsigned int GetWidth() const noexcept;
@@ -50,7 +53,9 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> pPipelineState;
 
 private:
+#ifdef _DEBUG
 	std::unique_ptr<InfoQueue> m_infoQueue;
+#endif	
 	std::unique_ptr<Fence> m_graphicFence;
 	std::unique_ptr<RootSignature> m_rootSignature;
 	std::shared_ptr<BackBufferRenderTarget> m_backBuffer;
