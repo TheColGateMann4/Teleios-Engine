@@ -1,5 +1,8 @@
 #include "Application.h"
 #include "Macros/ErrorMacros.h"
+#include <backend/imgui_impl_dx12.h>
+#include <backend/imgui_impl_win32.h>
+#include <imgui.h>
 
 Application::Application(unsigned int width, unsigned int height, const char* name)
 	:
@@ -12,6 +15,9 @@ Application::Application(unsigned int width, unsigned int height, const char* na
 Application::~Application()
 {
 	//window.graphics.WaitForGPU();
+	ImGui_ImplDX12_Shutdown();
+	ImGui_ImplWin32_Shutdown();
+	ImGui::DestroyContext();
 }
 
 int Application::Run()
