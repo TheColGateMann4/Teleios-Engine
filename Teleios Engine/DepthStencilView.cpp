@@ -27,12 +27,16 @@ DepthStencilView::DepthStencilView(Graphics& graphics)
 		resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
 		resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
 
+		D3D12_CLEAR_VALUE clearValue = {};
+		clearValue.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+		clearValue.DepthStencil = {1.0f, 0}; // depth 1.0f, stencil 0
+
 		THROW_ERROR(graphics.GetDevice()->CreateCommittedResource(
 			&heapPropeties,
 			D3D12_HEAP_FLAG_NONE,
 			&resourceDesc,
 			D3D12_RESOURCE_STATE_DEPTH_WRITE,
-			nullptr,
+			&clearValue,
 			IID_PPV_ARGS(&m_depthStencilSurface)
 		));
 	}
