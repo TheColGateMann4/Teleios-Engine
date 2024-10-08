@@ -33,7 +33,9 @@ RenderTarget::RenderTarget(Graphics& graphics, ID3D12Resource* pResource, bool i
 		renderTargetViewDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
 		renderTargetViewDesc.Texture2D = D3D12_TEX2D_RTV{};
 
-		graphics.GetDevice()->CreateRenderTargetView(pResource, &renderTargetViewDesc, pDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
+		m_descriptorHandle = pDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+
+		graphics.GetDevice()->CreateRenderTargetView(pResource, &renderTargetViewDesc, m_descriptorHandle);
 	}
 }
 
