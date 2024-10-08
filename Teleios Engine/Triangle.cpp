@@ -19,12 +19,14 @@ Triangle::Triangle(Graphics& graphics)
 		DirectX::XMFLOAT3 color;
 	};
 
+	float aspectRatioX = float(graphics.GetWidth()) / graphics.GetHeight();
+
 	std::vector<InputLayout::Item> layoutElements = { {"POSITION", InputLayout::ItemType::Position3}, {"COLOR", InputLayout::ItemType::Color3} };
 
 	std::vector<Vertice> vertices = {
-		{{0.0f, 0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}},
-		{{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}},
-		{{-0.5f, -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}}
+		{{0.0f / aspectRatioX, 0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}},
+		{{0.5f / aspectRatioX, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}},
+		{{-0.5f / aspectRatioX, -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}}
 	};
 
 	std::vector<unsigned int> indices = {
