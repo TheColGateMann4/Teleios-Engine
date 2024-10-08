@@ -22,16 +22,16 @@ DepthStencilView::DepthStencilView(Graphics& graphics)
 		resourceDesc.Height = graphics.GetHeight();
 		resourceDesc.DepthOrArraySize = 1;
 		resourceDesc.MipLevels = 1;
-		resourceDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-		resourceDesc.SampleDesc = DXGI_SAMPLE_DESC{1, 0}; // count 1, quality 0
-		resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_64KB_STANDARD_SWIZZLE;
+		resourceDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT; // 24 bytes of depth, and 8 bytes of stencil
+		resourceDesc.SampleDesc = DXGI_SAMPLE_DESC{1, 0};
+		resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
 		resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
 
 		THROW_ERROR(graphics.GetDevice()->CreateCommittedResource(
 			&heapPropeties,
-			D3D12_HEAP_FLAG_DENY_BUFFERS | D3D12_HEAP_FLAG_ALLOW_ONLY_RT_DS_TEXTURES,
+			D3D12_HEAP_FLAG_NONE,
 			&resourceDesc,
-			D3D12_RESOURCE_STATE_DEPTH_WRITE | D3D12_RESOURCE_STATE_DEPTH_READ,
+			D3D12_RESOURCE_STATE_DEPTH_WRITE,
 			nullptr,
 			IID_PPV_ARGS(&m_depthStencilSurface)
 		));
@@ -56,7 +56,7 @@ DepthStencilView::DepthStencilView(Graphics& graphics)
 	// creating view
 	{
 		D3D12_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc = {};
-		depthStencilViewDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT; // 24 bytes of depth, and 8 bytes of stencil
+		depthStencilViewDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
 		depthStencilViewDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
 		depthStencilViewDesc.Flags = D3D12_DSV_FLAG_NONE;
 		depthStencilViewDesc.Texture2D.MipSlice = 0;
