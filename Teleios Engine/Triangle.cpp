@@ -128,6 +128,8 @@ Triangle::Triangle(Graphics& graphics)
 
 void Triangle::Draw(Graphics& graphics) const
 {
+	graphics.GetImguiManager()->Render();
+
 	m_directCommandList->Open(graphics, m_pipelineState->Get());
 
 	m_directCommandList->ResourceBarrier(graphics, graphics.GetBackBuffer(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
@@ -159,6 +161,8 @@ void Triangle::Draw(Graphics& graphics) const
 
 	m_directCommandList->ExecuteBundle(graphics, m_bundleCommandList.get());
 	
+	graphics.GetImguiCommands(m_directCommandList->Get());
+
 	m_directCommandList->ResourceBarrier(graphics, graphics.GetBackBuffer(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 
 	m_directCommandList->Close(graphics);

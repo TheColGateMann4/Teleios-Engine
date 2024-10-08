@@ -101,6 +101,9 @@ void Graphics::Initialize(HWND hWnd, DXGI_FORMAT colorSpace)
 
 		// initializing graphic fence
 		m_graphicFence = std::make_unique<Fence>(*this);
+
+		//initializing imgui
+		m_imguiManager = std::make_unique<ImguiManager>(*this, hWnd);
 	}
 }
 
@@ -113,6 +116,16 @@ unsigned int Graphics::GetCurrentBackBufferIndex()
 	return swapChain3->GetCurrentBackBufferIndex();
 }
 
+void Graphics::GetImguiCommands(ID3D12GraphicsCommandList* pCommandList)
+{
+	m_imguiManager->GetImguiCommands(*this, pCommandList);
+}
+
+void Graphics::BeginFrame()
+{
+	m_imguiManager->BeginFrame();
+}
+
 void Graphics::FinishFrame()
 {
 	HRESULT hr;
@@ -123,6 +136,11 @@ void Graphics::FinishFrame()
 void Graphics::WaitForGPU()
 {
 	m_graphicFence->WaitForGPU(*this);
+}
+
+ImguiManager* Graphics::GetImguiManager()
+{
+	return m_imguiManager.get();
 }
 
 ID3D12Device* Graphics::GetDevice()

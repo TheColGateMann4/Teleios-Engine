@@ -170,6 +170,7 @@
     <ClCompile Include="ErrorHandler.cpp" />
     <ClCompile Include="Fence.cpp" />
     <ClCompile Include="Graphics.cpp" />
+    <ClCompile Include="ImguiManager.cpp" />
     <ClCompile Include="includes\DirectXIncludes.h" />
     <ClCompile Include="EntryPoint.cpp" />
     <ClCompile Include="IndexBuffer.cpp" />
@@ -196,6 +197,7 @@
     <ClInclude Include="ErrorHandler.h" />
     <ClInclude Include="Fence.h" />
     <ClInclude Include="Graphics.h" />
+    <ClInclude Include="ImguiManager.h" />
     <ClInclude Include="includes\CppIncludes.h" />
     <ClInclude Include="IndexBuffer.h" />
     <ClInclude Include="InfoQueue.h" />

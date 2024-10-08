@@ -44,6 +44,8 @@ void Application::InitializeScene()
 
 void Application::Update()
 {
+	window.graphics.BeginFrame();
+
 	triangle->Draw(window.graphics);
 
 	window.graphics.FinishFrame();
