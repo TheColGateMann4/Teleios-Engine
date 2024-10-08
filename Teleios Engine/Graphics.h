@@ -27,7 +27,6 @@ public:
 	ID3D12Device* GetDevice();
 	ID3D12CommandQueue* GetCommandQueue();
 
-	RootSignature* GetRootSignature();
 	BackBufferRenderTarget* GetBackBuffer();
 	DepthStencilView* GetDepthStencil();
 
@@ -57,7 +56,6 @@ private:
 	std::unique_ptr<InfoQueue> m_infoQueue;
 #endif	
 	std::unique_ptr<Fence> m_graphicFence;
-	std::unique_ptr<RootSignature> m_rootSignature;
 	std::shared_ptr<BackBufferRenderTarget> m_backBuffer;
 	std::shared_ptr<DepthStencilView> m_depthStencilView;
 

@@ -8,6 +8,7 @@ class DepthStencilView;
 class IndexBuffer;
 class VertexBuffer;
 class RootSignature;
+class ConstantBuffer;
 
 class CommandList
 {
@@ -37,12 +38,13 @@ public:
 
 	void SetRootSignature(Graphics& graphics, RootSignature* rootSignature);
 
+	void SetConstBufferView(Graphics& graphics, ConstantBuffer* constBuffer);
+
 	void ExecuteBundle(Graphics& graphics, CommandList* commandList);
 
 	void ClearRenderTargetView(Graphics& graphics, RenderTarget* renderTarget);
 
 	void ClearDepthStencilView(Graphics& graphics, DepthStencilView* depthStencilView);
-
 
 private:
 	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> pCommandList;

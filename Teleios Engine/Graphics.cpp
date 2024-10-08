@@ -99,9 +99,6 @@ void Graphics::Initialize(HWND hWnd, DXGI_FORMAT colorSpace)
 		// initializing depth stencil view
 		m_depthStencilView = std::make_shared<DepthStencilView>(*this);
 
-		// initializing graphic root signature
-		m_rootSignature = std::make_unique<RootSignature>(*this);
-
 		// initializing graphic fence
 		m_graphicFence = std::make_unique<Fence>(*this);
 	}
@@ -144,11 +141,6 @@ InfoQueue* Graphics::GetInfoQueue()
 	return m_infoQueue.get();
 }
 #endif
-
-RootSignature* Graphics::GetRootSignature()
-{
-	return m_rootSignature.get();
-}
 
 BackBufferRenderTarget* Graphics::GetBackBuffer()
 {

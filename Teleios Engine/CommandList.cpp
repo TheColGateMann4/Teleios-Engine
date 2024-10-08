@@ -3,6 +3,7 @@
 #include "Macros/ErrorMacros.h"
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
+#include "ConstantBuffer.h"
 
 CommandList::CommandList(Graphics& graphics, D3D12_COMMAND_LIST_TYPE type, ID3D12PipelineState* pPipelineState)
 	:
@@ -113,6 +114,13 @@ void CommandList::SetRootSignature(Graphics& graphics, RootSignature* rootSignat
 	THROW_INTERNAL_ERROR_IF("Cannot call SetRootSignature when command list is not initialized", !m_initialized);
 
 	pCommandList->SetGraphicsRootSignature(rootSignature->Get());
+}
+
+void CommandList::SetConstBufferView(Graphics& graphics, ConstantBuffer* constBuffer)
+{
+	THROW_INTERNAL_ERROR_IF("Cannot call ExecuteBundle when command list is not initialized", !m_initialized);
+
+	THROW_INFO_ERROR(pCommandList->SetGraphicsRootConstantBufferView(constBuffer->GetRootIndex(), constBuffer->GetGPUAddress()));
 }
 
 void CommandList::ExecuteBundle(Graphics& graphics, CommandList* commandList)

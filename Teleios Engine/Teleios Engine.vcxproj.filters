@@ -99,6 +99,9 @@
     <ClCompile Include="Fence.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ConstantBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="includes\CppIncludes.h">
@@ -165,6 +168,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Fence.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ConstantBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

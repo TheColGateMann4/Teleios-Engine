@@ -159,6 +159,7 @@
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="BlendState.cpp" />
     <ClCompile Include="CommandList.cpp" />
+    <ClCompile Include="ConstantBuffer.cpp" />
     <ClCompile Include="DepthStencilState.cpp" />
     <ClCompile Include="DepthStencilView.cpp" />
     <ClCompile Include="ErrorHandler.cpp" />
@@ -184,6 +185,7 @@
     <ClInclude Include="Application.h" />
     <ClInclude Include="BlendState.h" />
     <ClInclude Include="CommandList.h" />
+    <ClInclude Include="ConstantBuffer.h" />
     <ClInclude Include="DepthStencilState.h" />
     <ClInclude Include="DepthStencilView.h" />
     <ClInclude Include="ErrorHandler.h" />

@@ -7,6 +7,7 @@
 #include "RasterizerState.h"
 #include "DepthStencilState.h"
 #include "InputLayout.h"
+#include "ConstantBuffer.h"
 
 Triangle::Triangle(Graphics& graphics)
 {
@@ -43,6 +44,20 @@ Triangle::Triangle(Graphics& graphics)
 	RasterizerState rasterizerState = {};
 	DepthStencilState depthStencilState = {};
 	InputLayout inputLayout(layoutElements);
+	RootSignature rootSignature;
+
+	constBuffer = std::make_shared<ConstantBuffer>(graphics, std::vector<ConstantBuffer::ItemType>{ ConstantBuffer::ItemType::Float3 });
+
+	// initializing root signature and const buffer
+	{
+		UINT rootIndex = rootSignature.AddConstBufferViewParameters(0, constBuffer.get(), RootSignature::TargetShader::PixelShader);
+		rootSignature.Initialize(graphics);
+
+		DirectX::XMFLOAT3 data = { 0.0f, 1.0f, 1.0f };
+
+		constBuffer->SetRootIndex(rootIndex);
+		constBuffer->SetData(graphics, &data, sizeof(data));
+	}
 
 	// initialize pipeline state object
 	{
@@ -51,7 +66,7 @@ Triangle::Triangle(Graphics& graphics)
 		// setting up pipeline state desc
 		{
 			// pRootSignature 
-			m_pipelineState->SetRootSignature(graphics.GetRootSignature());
+			m_pipelineState->SetRootSignature(&rootSignature);
 
 			// Pixel Shader
 			m_pipelineState->SetPixelShader(&pixelShader);
@@ -102,7 +117,9 @@ Triangle::Triangle(Graphics& graphics)
 
 	m_bundleCommandList->SetIndexBuffer(graphics, m_indexBuffer.get());
 
-	m_bundleCommandList->SetRootSignature(graphics, graphics.GetRootSignature());
+	m_bundleCommandList->SetRootSignature(graphics, &rootSignature);
+
+	m_bundleCommandList->SetConstBufferView(graphics, constBuffer.get());
 
 	m_bundleCommandList->DrawIndexed(graphics, indices.size());
 

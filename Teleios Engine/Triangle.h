@@ -26,4 +26,5 @@ private:
 
 	std::shared_ptr<VertexBuffer> m_vertexBuffer;
 	std::shared_ptr<IndexBuffer> m_indexBuffer;
+	std::shared_ptr<ConstantBuffer> constBuffer;
 };
