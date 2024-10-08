@@ -11,17 +11,22 @@ CommandList::CommandList(Graphics& graphics, D3D12_COMMAND_LIST_TYPE type, ID3D1
 	m_closed(true)
 {
 	HRESULT hr;
+	
+	//creating command allocator for given command list type
+	THROW_ERROR(graphics.GetDevice()->CreateCommandAllocator(type, IID_PPV_ARGS(&m_pCommandAllocator)));
 
-	THROW_ERROR(graphics.GetDevice()->CreateCommandList(0, type, pCommandAllocator, pPipelineState, IID_PPV_ARGS(&pCommandList)));
+	THROW_ERROR(graphics.GetDevice()->CreateCommandList(0, type, m_pCommandAllocator.Get(), pPipelineState, IID_PPV_ARGS(&pCommandList)));
 
 	THROW_ERROR(pCommandList->Close());
 }
 
-void CommandList::Open(Graphics& graphics, ID3D12CommandAllocator* pCommandAllocator, ID3D12PipelineState* pPipelineState)
+void CommandList::Open(Graphics& graphics, ID3D12PipelineState* pPipelineState)
 {
 	HRESULT hr;
 
-	THROW_ERROR(pCommandList->Reset(pCommandAllocator, pPipelineState));
+	THROW_ERROR(m_pCommandAllocator->Reset());
+
+	THROW_ERROR(pCommandList->Reset(m_pCommandAllocator.Get(), pPipelineState));
 }
 
 void CommandList::Close(Graphics& graphics)

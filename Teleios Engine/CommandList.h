@@ -7,14 +7,16 @@ class RenderTarget;
 class DepthStencilView;
 class IndexBuffer;
 class VertexBuffer;
+class RootSignature;
 
 class CommandList
 {
 public:
-	CommandList(Graphics& graphics, D3D12_COMMAND_LIST_TYPE type, ID3D12CommandAllocator* pCommandAllocator, ID3D12PipelineState* pPipelineState = nullptr);
+	CommandList(Graphics& graphics, D3D12_COMMAND_LIST_TYPE type,ID3D12PipelineState* pPipelineState = nullptr);
 
 public:
-	void Open(Graphics& graphics, ID3D12CommandAllocator* pCommandAllocator, ID3D12PipelineState* pPipelineState = nullptr);
+	// this function is used to open CommandList, it also resets local allocator
+	void Open(Graphics& graphics, ID3D12PipelineState* pPipelineState = nullptr);
 
 	void Close(Graphics& graphics);
 
@@ -40,6 +42,7 @@ public:
 
 private:
 	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> pCommandList;
+	Microsoft::WRL::ComPtr<ID3D12CommandAllocator> m_pCommandAllocator;
 	D3D12_COMMAND_LIST_TYPE m_type;
 	bool m_initialized;
 	bool m_closed;
