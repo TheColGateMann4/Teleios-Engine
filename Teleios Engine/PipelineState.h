@@ -33,7 +33,7 @@ public:
 	void SetPrimitiveTechnologyType(D3D12_PRIMITIVE_TOPOLOGY_TYPE technologyType);
 	void SetNumRenderTargets(UINT numRenderTargets);
 	void SetRenderTargetFormat(UINT index, DXGI_FORMAT renderTargetFormat);
-	// DSVFormat
+	void SetDepthStencilFormat(DXGI_FORMAT depthStencilFormat);
 	void SetSampleDesc(UINT count, UINT quality);
 	// NodeMask
 	// CachedPSO

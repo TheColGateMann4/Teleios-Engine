@@ -74,6 +74,11 @@ void PipelineState::SetRenderTargetFormat(UINT index, DXGI_FORMAT renderTargetFo
 	m_desc.RTVFormats[index] = renderTargetFormat;
 }
 
+void PipelineState::SetDepthStencilFormat(DXGI_FORMAT depthStencilFormat)
+{
+	m_desc.DSVFormat = depthStencilFormat;
+}
+
 void PipelineState::SetSampleDesc(UINT count, UINT quality)
 {
 	m_desc.SampleDesc.Count = count;
