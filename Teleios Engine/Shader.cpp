@@ -1,10 +1,8 @@
 #include "Shader.h"
 #include "Macros/ErrorMacros.h"
+#include <d3dcompiler.h>
 
 #ifdef _DEBUG
-    #include <d3dcompiler.h>
-#endif
-
 constexpr const char* GetDefaultEntryPointName(ShaderType type)
 {
 	switch (type)
@@ -50,12 +48,11 @@ std::string GetShaderVersion(ShaderType type)
 	return result;
 }
 
-#ifdef _DEBUG
-
 /*
-			Debug Shader
+			Debug Shader Contructor
 */
 
+// debug shader contructor reads .hlsl files and compiles them
 Shader::Shader(const char* name, ShaderType type, const char* entryPointName)
 	:
 	m_name(std::string("../../Shaders/") + name + ".hlsl"),
@@ -72,7 +69,7 @@ void Shader::Reload()
 	Microsoft::WRL::ComPtr<ID3DBlob> pErrorMessages;
 	std::wstring wName = std::wstring(m_name.begin(), m_name.end());
 	std::string sShaderVersion = GetShaderVersion(m_type);
-	UINT flags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
+	UINT flags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION | D3DCOMPILE_WARNINGS_ARE_ERRORS;
 
 
 	THROW_BLOB_ERROR(D3DCompileFromFile(
@@ -88,40 +85,37 @@ void Shader::Reload()
 	));
 }
 
-ID3DBlob* Shader::GetShaderBlob() const
-{
-	return pShaderCode.Get();
-}
-
 #else
 
 /*
-			Release Shader
+			Release Shader Contructor
 */
 
+// release shader contructor reads already compiled shaders from .cso files
 Shader::Shader(const char* name, ShaderType type, const char*)
 	:
 	m_name(std::string("Shaders/") + name + ".cso"),
 	m_type(type)
-{
-	Reload();
-}
+	{
+		Reload();
+		}
 
-void Shader::Reload()
-{
-	HRESULT hr;
+		void Shader::Reload()
+		{
+			HRESULT hr;
 
-	std::wstring wName = std::wstring(m_name.begin(), m_name.end());
+			std::wstring wName = std::wstring(m_name.begin(), m_name.end());
 
-	THROW_BLOB_ERROR(D3DReadFileToBlob(
-		wName.c_str(),
-		&pShaderCode
-	));
-}
+			THROW_BLOB_ERROR(D3DReadFileToBlob(
+				wName.c_str(),
+				&pShaderCode
+			));
+		}
+
+#endif
+
 
 ID3DBlob* Shader::GetShaderBlob() const
 {
 	return pShaderCode.Get();
 }
-
-#endif
