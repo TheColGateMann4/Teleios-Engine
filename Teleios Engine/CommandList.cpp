@@ -41,7 +41,7 @@ ID3D12GraphicsCommandList* CommandList::Get()
 	return pCommandList.Get();
 }
 
-void CommandList::SetRenderTarget(Graphics& graphics, RenderTarget* renderTarget, DepthStencilView* depthStencilView)
+void CommandList::ResourceBarrier(Graphics& graphics, RenderTarget* renderTarget, D3D12_RESOURCE_STATES previousState, D3D12_RESOURCE_STATES afterState) const
 {
 	THROW_INTERNAL_ERROR_IF("Cannot call ResourceBarrier on bundle command list object", m_type == D3D12_COMMAND_LIST_TYPE_BUNDLE);
 
@@ -58,14 +58,17 @@ void CommandList::SetRenderTarget(Graphics& graphics, RenderTarget* renderTarget
 
 		THROW_INFO_ERROR(pCommandList->ResourceBarrier(1, &resourceBarrier));
 	}
+}
 
+void CommandList::SetRenderTarget(Graphics& graphics, RenderTarget* renderTarget, DepthStencilView* depthStencilView)
+{
 	// binding render target to command list
 	{
 		const D3D12_CPU_DESCRIPTOR_HANDLE* renderTargetViewDescriptor = renderTarget->GetDescriptor(graphics);
 
 		const D3D12_CPU_DESCRIPTOR_HANDLE* depthStencilViewDescriptor = depthStencilView != nullptr ? depthStencilView->GetDescriptor() : nullptr;
 
-		THROW_INFO_ERROR(pCommandList->OMSetRenderTargets(1, renderTargetViewDescriptor, 1, depthStencilViewDescriptor));
+		THROW_INFO_ERROR(pCommandList->OMSetRenderTargets(1, renderTargetViewDescriptor, false, depthStencilViewDescriptor));
 	}
 }
 
@@ -82,4 +85,16 @@ void CommandList::SetIndexBuffer(Graphics& graphics, IndexBuffer* indexBuffer)
 void CommandList::SetPrimitiveTopology(Graphics& graphics, D3D_PRIMITIVE_TOPOLOGY primitiveTechnology)
 {
 	THROW_INFO_ERROR(pCommandList->IASetPrimitiveTopology(primitiveTechnology));
+}
+
+void CommandList::SetRootSignature(Graphics& graphics, RootSignature* rootSignature)
+{
+	pCommandList->SetGraphicsRootSignature(rootSignature->Get());
+}
+
+void CommandList::ExecuteBundle(Graphics& graphics, CommandList* commandList)
+{
+	THROW_INTERNAL_ERROR_IF("Cannot call ExecuteBundle on non-direct command list object", m_type != D3D12_COMMAND_LIST_TYPE_DIRECT);
+
+	THROW_INFO_ERROR(pCommandList->ExecuteBundle(commandList->Get()));
 }

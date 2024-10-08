@@ -23,6 +23,8 @@ public:
 	ID3D12GraphicsCommandList* Get();
 
 public:
+	void ResourceBarrier(Graphics& graphics, RenderTarget* renderTarget, D3D12_RESOURCE_STATES previousState, D3D12_RESOURCE_STATES afterState) const;
+	
 	void SetRenderTarget(Graphics& graphics, RenderTarget* renderTarget, DepthStencilView* depthStencilView = nullptr);
 
 	void SetVertexBuffer(Graphics& graphics, VertexBuffer* vertexBuffer);
@@ -30,6 +32,10 @@ public:
 	void SetIndexBuffer(Graphics& graphics, IndexBuffer* indexBuffer);
 
 	void SetPrimitiveTopology(Graphics& graphics, D3D_PRIMITIVE_TOPOLOGY primitiveTechnology);
+
+	void SetRootSignature(Graphics& graphics, RootSignature* rootSignature);
+
+	void ExecuteBundle(Graphics& graphics, CommandList* commandList);
 
 
 private:
