@@ -88,6 +88,9 @@ void Graphics::Initialize(HWND hWnd, DXGI_FORMAT colorSpace)
 			m_backBuffer = std::make_shared<BackBufferRenderTarget>(*this, pFirstBuffer.Get(), pSecondBuffer.Get());
 		}
 
+		// initializing depth stencil view
+		m_depthStencilView = std::make_shared<DepthStencilView>(*this);
+
 		// initializing graphic root signature
 		m_rootSignature = std::make_unique<RootSignature>(*this);
 
