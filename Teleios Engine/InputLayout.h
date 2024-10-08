@@ -27,7 +27,6 @@ public:
 private:
 	D3D12_INPUT_ELEMENT_DESC GetItemDesc(Item item,size_t accumulatedSize);
 
-	size_t GetAlignedSize(size_t previousSize, size_t elementSize);
 	size_t GetItemSize(ItemType itemType);
 	DXGI_FORMAT GetItemFormat(ItemType itemType);
 

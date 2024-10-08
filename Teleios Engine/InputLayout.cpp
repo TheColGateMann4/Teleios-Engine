@@ -42,15 +42,6 @@ D3D12_INPUT_ELEMENT_DESC InputLayout::GetItemDesc(Item item, size_t accumulatedS
 	return elementDesc;
 }
 
-size_t InputLayout::GetAlignedSize(size_t previousSize, size_t elementSize)
-{
-	float numPacks = previousSize / 16; // number of packs so far we went through
-	size_t sizeOfLastPack = (numPacks - std::floor(numPacks)) * 16;
-	size_t lastPackSizeWithNewElement = sizeOfLastPack + elementSize;
-
-	return lastPackSizeWithNewElement > 16 ? std::ceil(numPacks) : previousSize;
-}
-
 size_t InputLayout::GetItemSize(ItemType itemType)
 {
 	switch (itemType)
