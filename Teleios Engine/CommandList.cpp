@@ -113,7 +113,7 @@ void CommandList::SetRootSignature(Graphics& graphics, RootSignature* rootSignat
 {
 	THROW_INTERNAL_ERROR_IF("Cannot call SetRootSignature when command list is not initialized", !m_initialized);
 
-	pCommandList->SetGraphicsRootSignature(rootSignature->Get());
+	THROW_INFO_ERROR(pCommandList->SetGraphicsRootSignature(rootSignature->Get()));
 }
 
 void CommandList::SetConstBufferView(Graphics& graphics, ConstantBuffer* constBuffer)
@@ -138,12 +138,12 @@ void CommandList::ClearRenderTargetView(Graphics& graphics, RenderTarget* render
 
 	FLOAT clearColor[] = { 0.01f, 0.02f, 0.03f, 1.0f };
 
-	pCommandList->ClearRenderTargetView(
+	THROW_INFO_ERROR(pCommandList->ClearRenderTargetView(
 		*graphics.GetBackBuffer()->GetDescriptor(graphics),
 		clearColor,
 		0,
 		nullptr
-	);
+	));
 };
 
 void CommandList::ClearDepthStencilView(Graphics& graphics, DepthStencilView* depthStencilView)
@@ -152,12 +152,12 @@ void CommandList::ClearDepthStencilView(Graphics& graphics, DepthStencilView* de
 	THROW_INTERNAL_ERROR_IF("Cannot call ClearDepthStencilView on non-direct command list object", m_type != D3D12_COMMAND_LIST_TYPE_DIRECT);
 
 
-	pCommandList->ClearDepthStencilView(
+	THROW_INFO_ERROR(pCommandList->ClearDepthStencilView(
 		*graphics.GetDepthStencil()->GetDescriptor(),
 		D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL,
 		1.0f,
 		0.0f,
 		0,
 		nullptr
-	);
+	));
 };
