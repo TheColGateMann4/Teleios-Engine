@@ -2,6 +2,8 @@
 #include "Macros/ErrorMacros.h"
 #include "Graphics.h"
 
+#include "ConstantBuffer.h"
+
 RootSignature::RootSignature()
 	:
 	m_finished(),
@@ -45,9 +47,11 @@ void RootSignature::Initialize(Graphics& graphics)
 	m_finished = true;
 }
 
-UINT RootSignature::AddConstBufferViewParameters(UINT registerNum, ConstantBuffer* constantBuffer, TargetShader target)
+void RootSignature::AddConstBufferViewParameters(UINT registerNum, ConstantBuffer* constantBuffer, TargetShader target)
 {
 	m_rootSignatureDesc.NumParameters++;
+
+	constantBuffer->SetRootIndex(m_rootSignatureDesc.NumParameters - 1);
 
 	D3D12_ROOT_PARAMETER rootParameter = {};
 	rootParameter.ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
@@ -59,6 +63,4 @@ UINT RootSignature::AddConstBufferViewParameters(UINT registerNum, ConstantBuffe
 	m_rootParameters.push_back(rootParameter);
 
 	m_rootSignatureDesc.pParameters = m_rootParameters.data();
-
-	return m_rootSignatureDesc.NumParameters - 1;
 }

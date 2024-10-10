@@ -50,13 +50,10 @@ Triangle::Triangle(Graphics& graphics)
 
 	// initializing root signature and const buffer
 	{
-		UINT rootIndex = rootSignature.AddConstBufferViewParameters(0, constBuffer.get(), RootSignature::TargetShader::PixelShader);
+	    rootSignature.AddConstBufferViewParameters(0, constBuffer.get(), RootSignature::TargetShader::PixelShader);
 		rootSignature.Initialize(graphics);
 
-		DirectX::XMFLOAT3 data = { 0.0f, 1.0f, 1.0f };
-
-		constBuffer->SetRootIndex(rootIndex);
-		constBuffer->SetData(graphics, &data, sizeof(data));
+		constBuffer->SetData(graphics, &m_data, sizeof(m_data));
 	}
 
 	// initialize pipeline state object

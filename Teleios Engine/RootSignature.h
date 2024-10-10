@@ -33,7 +33,7 @@ public:
 	void Initialize(class Graphics& graphics);
 
 	// returns rootIndex that was used
-	UINT AddConstBufferViewParameters(UINT registerNum, class ConstantBuffer* constantBuffer, TargetShader target);
+	void AddConstBufferViewParameters(UINT registerNum, class ConstantBuffer* constantBuffer, TargetShader target);
 	// srv
 	// uav
 	// constants
