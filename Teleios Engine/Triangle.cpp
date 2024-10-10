@@ -9,6 +9,8 @@
 #include "InputLayout.h"
 #include "ConstantBuffer.h"
 
+#include <imgui.h>
+
 Triangle::Triangle(Graphics& graphics)
 {
 	m_bundleCommandList = std::make_unique<CommandList>(graphics, D3D12_COMMAND_LIST_TYPE_BUNDLE);
@@ -125,6 +127,14 @@ Triangle::Triangle(Graphics& graphics)
 
 void Triangle::Draw(Graphics& graphics) const
 {
+	if(ImGui::Begin("Triangle"))
+	{
+		if(ImGui::SliderFloat3("Color", reinterpret_cast<float*>(&m_data), 0.0f, 1.0f))
+			constBuffer->SetData(graphics, &m_data, sizeof(m_data));
+
+		ImGui::End();
+	}
+
 	graphics.GetImguiManager()->Render();
 
 	m_directCommandList->Open(graphics, m_pipelineState->Get());

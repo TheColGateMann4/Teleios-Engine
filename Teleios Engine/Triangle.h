@@ -27,4 +27,6 @@ private:
 	std::shared_ptr<VertexBuffer> m_vertexBuffer;
 	std::shared_ptr<IndexBuffer> m_indexBuffer;
 	std::shared_ptr<ConstantBuffer> constBuffer;
+
+	mutable DirectX::XMFLOAT3 m_data = { 0.0f, 1.0f, 1.0f };
 };
