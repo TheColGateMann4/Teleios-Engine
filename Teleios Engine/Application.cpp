@@ -15,9 +15,6 @@ Application::Application(unsigned int width, unsigned int height, const char* na
 Application::~Application()
 {
 	//window.graphics.WaitForGPU();
-	ImGui_ImplDX12_Shutdown();
-	ImGui_ImplWin32_Shutdown();
-	ImGui::DestroyContext();
 }
 
 int Application::Run()
