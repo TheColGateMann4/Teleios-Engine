@@ -4,6 +4,7 @@
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
 #include "ConstantBuffer.h"
+#include "Texture.h"
 
 CommandList::CommandList(Graphics& graphics, D3D12_COMMAND_LIST_TYPE type, ID3D12PipelineState* pPipelineState)
 	:
@@ -121,6 +122,22 @@ void CommandList::SetConstBufferView(Graphics& graphics, ConstantBuffer* constBu
 	THROW_INTERNAL_ERROR_IF("Cannot call ExecuteBundle when command list is not initialized", !m_initialized);
 
 	THROW_INFO_ERROR(pCommandList->SetGraphicsRootConstantBufferView(constBuffer->GetRootIndex(), constBuffer->GetGPUAddress()));
+}
+
+void CommandList::SetDescriptorHeap(Graphics& graphics, Texture* texture)
+{
+	THROW_INTERNAL_ERROR_IF("Cannot call SetDescriptorHeap when command list is not initialized", !m_initialized);
+
+	ID3D12DescriptorHeap* descriptorHeaps[] = { texture->GetDescriptorHeap()};
+
+	THROW_INFO_ERROR(pCommandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps));
+}
+
+void CommandList::SetDescriptorTable(Graphics& graphics, Texture* texture)
+{
+	THROW_INTERNAL_ERROR_IF("Cannot call SetDescriptorTable when command list is not initialized", !m_initialized);
+
+	THROW_INFO_ERROR(pCommandList->SetGraphicsRootDescriptorTable(texture->GetRootIndex(), texture->GetGPUDescriptor()));
 }
 
 void CommandList::ExecuteBundle(Graphics& graphics, CommandList* commandList)
