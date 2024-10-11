@@ -10,7 +10,8 @@ public:
 		Position3,
 		Position4,
 		Color3,
-		Color4
+		Color4,
+		TexCoords
 	};
 
 	struct Item
