@@ -64,3 +64,29 @@ void RootSignature::AddConstBufferViewParameters(UINT registerNum, ConstantBuffe
 
 	m_rootSignatureDesc.pParameters = m_rootParameters.data();
 }
+
+void RootSignature::AddStaticSampler(UINT registerNum, TargetShader target)
+{
+	m_rootSignatureDesc.NumStaticSamplers++;
+	
+	D3D12_TEXTURE_ADDRESS_MODE textureAddressOverlappingMode = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+
+	D3D12_STATIC_SAMPLER_DESC staticSamplerDesc = {};
+	staticSamplerDesc.Filter = D3D12_FILTER_MIN_MAG_MIP_POINT; // for now we will just hardcode it in here
+	staticSamplerDesc.AddressU = textureAddressOverlappingMode;
+	staticSamplerDesc.AddressV = textureAddressOverlappingMode;
+	staticSamplerDesc.AddressW = textureAddressOverlappingMode;
+	staticSamplerDesc.MipLODBias = 0;
+	staticSamplerDesc.MaxAnisotropy = 16;
+	staticSamplerDesc.ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;
+	staticSamplerDesc.BorderColor = D3D12_STATIC_BORDER_COLOR_OPAQUE_BLACK;
+	staticSamplerDesc.MinLOD = 0;
+	staticSamplerDesc.MaxLOD = D3D12_FLOAT32_MAX;
+	staticSamplerDesc.ShaderRegister = registerNum;
+	staticSamplerDesc.RegisterSpace = 0;
+	staticSamplerDesc.ShaderVisibility = D3D12_SHADER_VISIBILITY(target);
+
+	m_staticSamplers.push_back(staticSamplerDesc);
+
+	m_rootSignatureDesc.pStaticSamplers = m_staticSamplers.data();
+}

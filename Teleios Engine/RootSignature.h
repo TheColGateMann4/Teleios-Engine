@@ -38,11 +38,14 @@ public:
 	// uav
 	// constants
 
+	void AddStaticSampler(UINT registerNum, TargetShader target);
+
 private:
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> pRootSignature;
 	bool m_finished;
 
 	D3D12_ROOT_SIGNATURE_DESC m_rootSignatureDesc;
 	std::vector<D3D12_ROOT_PARAMETER> m_rootParameters;
+	std::vector<D3D12_STATIC_SAMPLER_DESC> m_staticSamplers;
 };
 
