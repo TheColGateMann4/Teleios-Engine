@@ -1,6 +1,7 @@
 #pragma once
 #include "includes/DirectXIncludes.h"
 #include "includes/WRLNoWarnings.h"
+#include "TargetShaders.h"
 
 class RootSignature
 {
@@ -14,16 +15,6 @@ public:
 		UnorderedAccessView = D3D12_ROOT_PARAMETER_TYPE_UAV
 	};
 
-	enum class TargetShader
-	{
-		AllShaders = D3D12_SHADER_VISIBILITY_ALL,
-		PixelShader = D3D12_SHADER_VISIBILITY_PIXEL,
-		VertexShader = D3D12_SHADER_VISIBILITY_VERTEX,
-		HullShader = D3D12_SHADER_VISIBILITY_HULL,
-		DomainShader = D3D12_SHADER_VISIBILITY_DOMAIN,
-		GeometryShader = D3D12_SHADER_VISIBILITY_GEOMETRY
-	};
-
 public:
 	RootSignature();
 
@@ -33,8 +24,9 @@ public:
 	void Initialize(class Graphics& graphics);
 
 	// returns rootIndex that was used
-	void AddConstBufferViewParameters(UINT registerNum, class ConstantBuffer* constantBuffer, TargetShader target);
-	// srv
+	void AddConstBufferViewParameter(class ConstantBuffer* constantBuffer);
+	void AddDescriptorTableParameter(class Texture* texture);
+	//srv
 	// uav
 	// constants
 
@@ -47,5 +39,6 @@ private:
 	D3D12_ROOT_SIGNATURE_DESC m_rootSignatureDesc;
 	std::vector<D3D12_ROOT_PARAMETER> m_rootParameters;
 	std::vector<D3D12_STATIC_SAMPLER_DESC> m_staticSamplers;
+	std::vector<D3D12_DESCRIPTOR_RANGE> m_descriptorTableRanges;
 };
 

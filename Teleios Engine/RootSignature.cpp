@@ -3,6 +3,7 @@
 #include "Graphics.h"
 
 #include "ConstantBuffer.h"
+#include "Texture.h"
 
 RootSignature::RootSignature()
 	:
@@ -47,18 +48,46 @@ void RootSignature::Initialize(Graphics& graphics)
 	m_finished = true;
 }
 
-void RootSignature::AddConstBufferViewParameters(UINT registerNum, ConstantBuffer* constantBuffer, TargetShader target)
+void RootSignature::AddConstBufferViewParameter(ConstantBuffer* constantBuffer)
 {
-	m_rootSignatureDesc.NumParameters++;
+	constantBuffer->SetRootIndex(m_rootSignatureDesc.NumParameters);
 
-	constantBuffer->SetRootIndex(m_rootSignatureDesc.NumParameters - 1);
+	m_rootSignatureDesc.NumParameters++;
 
 	D3D12_ROOT_PARAMETER rootParameter = {};
 	rootParameter.ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	rootParameter.Descriptor = {};
-	rootParameter.Descriptor.ShaderRegister = registerNum;
+	rootParameter.Descriptor.ShaderRegister = constantBuffer->GetSlot();
 	rootParameter.Descriptor.RegisterSpace = 0;
-	rootParameter.ShaderVisibility = D3D12_SHADER_VISIBILITY(target);
+	rootParameter.ShaderVisibility = D3D12_SHADER_VISIBILITY(constantBuffer->GetTarget());
+
+	m_rootParameters.push_back(rootParameter);
+
+	m_rootSignatureDesc.pParameters = m_rootParameters.data();
+}
+
+void RootSignature::AddDescriptorTableParameter(Texture* texture)
+{
+	texture->SetRootIndex(m_rootSignatureDesc.NumParameters);
+
+	m_rootSignatureDesc.NumParameters++;
+
+	D3D12_DESCRIPTOR_RANGE descriptorRange = {};
+	descriptorRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	descriptorRange.NumDescriptors = 1;
+	descriptorRange.BaseShaderRegister = texture->GetSlot();
+	descriptorRange.RegisterSpace = 0;
+	descriptorRange.OffsetInDescriptorsFromTableStart = 0;
+	
+	m_descriptorTableRanges.push_back(descriptorRange);
+
+
+	D3D12_ROOT_PARAMETER rootParameter = {};
+	rootParameter.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	rootParameter.DescriptorTable = {};
+	rootParameter.DescriptorTable.NumDescriptorRanges++;
+	rootParameter.DescriptorTable.pDescriptorRanges = m_descriptorTableRanges.data();
+	rootParameter.ShaderVisibility = D3D12_SHADER_VISIBILITY(texture->GetTarget());
 
 	m_rootParameters.push_back(rootParameter);
 
