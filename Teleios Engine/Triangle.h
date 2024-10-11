@@ -7,6 +7,7 @@
 
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
+#include "Texture.h"
 
 class Graphics;
 
@@ -26,7 +27,8 @@ private:
 
 	std::shared_ptr<VertexBuffer> m_vertexBuffer;
 	std::shared_ptr<IndexBuffer> m_indexBuffer;
-	std::shared_ptr<ConstantBuffer> constBuffer;
+	std::shared_ptr<ConstantBuffer> constantBuffer;
+	std::shared_ptr<Texture> texture;
 
-	mutable DirectX::XMFLOAT3 m_data = { 0.0f, 1.0f, 1.0f };
+	mutable float m_data = 1.0f;
 };

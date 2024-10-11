@@ -19,28 +19,30 @@ Triangle::Triangle(Graphics& graphics)
 	struct Vertice
 	{
 		DirectX::XMFLOAT3 position;
-		DirectX::XMFLOAT3 color;
+		DirectX::XMFLOAT2 texCoords;
 	};
 
 	float aspectRatioX = float(graphics.GetWidth()) / graphics.GetHeight();
 
-	std::vector<InputLayout::Item> layoutElements = { {"POSITION", InputLayout::ItemType::Position3}, {"COLOR", InputLayout::ItemType::Color3} };
+	std::vector<InputLayout::Item> layoutElements = { {"POSITION", InputLayout::ItemType::Position3}, {"TEXCOORDS", InputLayout::ItemType::TexCoords} };
 
 	std::vector<Vertice> vertices = {
-		{{0.0f / aspectRatioX, 0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}},
-		{{0.5f / aspectRatioX, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}},
-		{{-0.5f / aspectRatioX, -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}}
+		{{-0.5f / aspectRatioX,  0.5f, 0.0f}, {0.0f, 0.0f}},
+		{{0.5f  / aspectRatioX,  0.5f, 0.0f}, {1.0f, 0.0f}},
+		{{-0.5f / aspectRatioX, -0.5f, 0.0f}, {0.0f, 1.0f}},
+		{{0.5f  / aspectRatioX, -0.5f, 0.0f}, {1.0f, 1.0f}}
 	};
 
 	std::vector<unsigned int> indices = {
-		0,1,2
+		0,1,3,
+		0,3,2
 	};
 
 
 	m_vertexBuffer = std::make_shared<VertexBuffer>(graphics, vertices.data(), vertices.size(), sizeof(vertices.at(0)));
 	m_indexBuffer = std::make_shared<IndexBuffer>(graphics, indices);
 
-	Shader pixelShader("PS_Solid", PixelShader);
+	Shader pixelShader("PS_Texture", PixelShader);
 	Shader vertexShader("VS", VertexShader);
 	BlendState blendState = {};
 	RasterizerState rasterizerState = {};
@@ -48,14 +50,19 @@ Triangle::Triangle(Graphics& graphics)
 	InputLayout inputLayout(layoutElements);
 	RootSignature rootSignature;
 
-	constBuffer = std::make_shared<ConstantBuffer>(graphics, std::vector<ConstantBuffer::ItemType>{ ConstantBuffer::ItemType::Float3 });
+	constantBuffer = std::make_shared<ConstantBuffer>(graphics, std::vector<ConstantBuffer::ItemType>{ ConstantBuffer::ItemType::Float });
+	constantBuffer->SetData(graphics, &m_data, sizeof(m_data));
 
-	// initializing root signature and const buffer
+	texture = std::make_shared<Texture>(graphics, L"brickwall.jpg");
+
+	// initializing root signature
 	{
-	    rootSignature.AddConstBufferViewParameters(0, constBuffer.get(), RootSignature::TargetShader::PixelShader);
-		rootSignature.Initialize(graphics);
+	    rootSignature.AddConstBufferViewParameter(constantBuffer.get());
+	    rootSignature.AddDescriptorTableParameter(texture.get());
 
-		constBuffer->SetData(graphics, &m_data, sizeof(m_data));
+		rootSignature.AddStaticSampler(0, TargetShader::PixelShader);
+
+		rootSignature.Initialize(graphics);
 	}
 
 	// initialize pipeline state object
@@ -118,7 +125,11 @@ Triangle::Triangle(Graphics& graphics)
 
 	m_bundleCommandList->SetRootSignature(graphics, &rootSignature);
 
-	m_bundleCommandList->SetConstBufferView(graphics, constBuffer.get());
+	m_bundleCommandList->SetConstBufferView(graphics, constantBuffer.get());
+
+	m_bundleCommandList->SetDescriptorHeap(graphics, texture.get());
+
+	m_bundleCommandList->SetDescriptorTable(graphics, texture.get());
 
 	m_bundleCommandList->DrawIndexed(graphics, indices.size());
 
@@ -127,10 +138,10 @@ Triangle::Triangle(Graphics& graphics)
 
 void Triangle::Draw(Graphics& graphics) const
 {
-	if(ImGui::Begin("Triangle"))
+	if (ImGui::Begin("Triangle"))
 	{
-		if(ImGui::SliderFloat3("Color", reinterpret_cast<float*>(&m_data), 0.0f, 1.0f))
-			constBuffer->SetData(graphics, &m_data, sizeof(m_data));
+		if (ImGui::SliderFloat("Texcoords Scale", &m_data, 0.1f, 10.0f))
+			constantBuffer->SetData(graphics, &m_data, sizeof(m_data));
 
 		ImGui::End();
 	}
@@ -165,6 +176,8 @@ void Triangle::Draw(Graphics& graphics) const
 	m_directCommandList->ClearRenderTargetView(graphics, graphics.GetBackBuffer());
 
 	m_directCommandList->ClearDepthStencilView(graphics, graphics.GetDepthStencil());
+
+	m_directCommandList->SetDescriptorHeap(graphics, texture.get());
 
 	m_directCommandList->ExecuteBundle(graphics, m_bundleCommandList.get());
 	
