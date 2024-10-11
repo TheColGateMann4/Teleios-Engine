@@ -1,13 +1,13 @@
 struct VSOut
 {
-	float3 color : COLOR;
+	float2 textureCoords : TEXCOORDS;
 	float4 position : SV_POSITION;
 }; 
 
-VSOut VSMain( float3 position : POSITION, float3 color : COLOR )
+VSOut VSMain( float3 position : POSITION, float2 textureCoords : TEXCOORDS )
 {
 	VSOut vsout;
-	vsout.color = color;
+	vsout.textureCoords = textureCoords;
 	vsout.position = float4(position, 1.0f);
 
 	return vsout;
