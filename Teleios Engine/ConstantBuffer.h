@@ -2,6 +2,7 @@
 #include "includes/CppIncludes.h"
 #include "includes/DirectXIncludes.h"
 #include "includes/WRLNoWarnings.h"
+#include "TargetShaders.h"
 
 class Graphics;
 
@@ -20,7 +21,7 @@ public:
 	};
 
 public:
-	ConstantBuffer(Graphics& graphics, std::vector<ItemType> layout);
+	ConstantBuffer(Graphics& graphics, std::vector<ItemType> layout, TargetShader target = TargetShader::PixelShader, UINT slot = 0);
 
 public:
 	void SetData(Graphics& graphics, void* data, size_t size);
@@ -28,6 +29,8 @@ public:
 	void SetRootIndex(UINT rootIndex);
 
 	UINT GetRootIndex() const;
+	TargetShader GetTarget() const;
+	UINT GetSlot() const;
 
 	D3D12_GPU_VIRTUAL_ADDRESS GetGPUAddress() const;
 
@@ -44,5 +47,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> pDescriptorHeap;
 	UINT m_rootIndex = 0;
 	bool m_initializedRootIndex = false;
+	TargetShader m_target;
+	UINT m_slot;
 };
 

@@ -2,9 +2,11 @@
 #include "Macros/ErrorMacros.h"
 #include "Graphics.h"
 
-ConstantBuffer::ConstantBuffer(Graphics& graphics, std::vector<ItemType> layout)
+ConstantBuffer::ConstantBuffer(Graphics& graphics, std::vector<ItemType> layout, TargetShader target, UINT slot)
 	:
-	m_size(0)
+	m_size(0),
+	m_target(target),
+	m_slot(slot)
 {
 	// getting size of layout
 	{
@@ -116,6 +118,16 @@ UINT ConstantBuffer::GetRootIndex() const
 	THROW_INTERNAL_ERROR_IF("Tried to get root index without setting it beforehand", !m_initializedRootIndex);
 
 	return m_rootIndex;
+}
+
+TargetShader ConstantBuffer::GetTarget() const
+{
+	return m_target;
+}
+
+UINT ConstantBuffer::GetSlot() const
+{
+	return m_slot;
 }
 
 D3D12_GPU_VIRTUAL_ADDRESS ConstantBuffer::GetGPUAddress() const
