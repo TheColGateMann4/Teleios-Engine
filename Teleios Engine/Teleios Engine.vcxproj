@@ -167,6 +167,7 @@
     <ClCompile Include="ConstantBuffer.cpp" />
     <ClCompile Include="DepthStencilState.cpp" />
     <ClCompile Include="DepthStencilView.cpp" />
+    <ClCompile Include="DynamicConstantBuffer.cpp" />
     <ClCompile Include="ErrorHandler.cpp" />
     <ClCompile Include="Fence.cpp" />
     <ClCompile Include="Graphics.cpp" />
@@ -195,6 +196,7 @@
     <ClInclude Include="ConstantBuffer.h" />
     <ClInclude Include="DepthStencilState.h" />
     <ClInclude Include="DepthStencilView.h" />
+    <ClInclude Include="DynamicConstantBuffer.h" />
     <ClInclude Include="ErrorHandler.h" />
     <ClInclude Include="Fence.h" />
     <ClInclude Include="Graphics.h" />

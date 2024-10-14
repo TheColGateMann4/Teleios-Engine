@@ -9,6 +9,8 @@
 #include "InputLayout.h"
 #include "ConstantBuffer.h"
 
+#include "DynamicConstantBuffer.h"
+
 #include <imgui.h>
 
 Triangle::Triangle(Graphics& graphics)
@@ -50,8 +52,16 @@ Triangle::Triangle(Graphics& graphics)
 	InputLayout inputLayout(layoutElements);
 	RootSignature rootSignature;
 
-	constantBuffer = std::make_shared<ConstantBuffer>(graphics, std::vector<ConstantBuffer::ItemType>{ ConstantBuffer::ItemType::Float });
-	constantBuffer->SetData(graphics, &m_data, sizeof(m_data));
+	DynamicConstantBuffer::ConstantBufferLayout layout;
+	layout.AddElement<DynamicConstantBuffer::ElementType::Float>("texcoordsScale");
+	layout.AddElement<DynamicConstantBuffer::ElementType::Float>("brightness");
+
+	DynamicConstantBuffer::ConstantBufferData bufferData(layout);
+	*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("texcoordsScale") = 1.0f;
+	*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("brightness") = 1.0f;
+
+	constantBuffer = std::make_shared<CachedConstantBuffer>(graphics, bufferData);
+	constantBuffer->Update(graphics);
 
 	texture = std::make_shared<Texture>(graphics, L"brickwall.jpg");
 
@@ -140,8 +150,18 @@ void Triangle::Draw(Graphics& graphics) const
 {
 	if (ImGui::Begin("Triangle"))
 	{
-		if (ImGui::SliderFloat("Texcoords Scale", &m_data, 0.1f, 10.0f))
-			constantBuffer->SetData(graphics, &m_data, sizeof(m_data));
+		bool changed = false;
+
+		auto checkChanged = [&changed](bool expressionReturn) mutable
+			{
+				changed =  changed || expressionReturn;
+			};
+
+		checkChanged(ImGui::SliderFloat("Texcoords Scale", constantBuffer->GetData().GetValuePointer<DynamicConstantBuffer::ElementType::Float>("texcoordsScale"), 0.1f, 10.0f));
+		checkChanged(ImGui::SliderFloat("Brightness", constantBuffer->GetData().GetValuePointer<DynamicConstantBuffer::ElementType::Float>("brightness"), 0.01f, 5.0f));
+			
+		if(changed)
+			constantBuffer->Update(graphics);
 
 		ImGui::End();
 	}

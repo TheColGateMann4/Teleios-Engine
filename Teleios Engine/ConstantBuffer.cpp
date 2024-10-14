@@ -2,23 +2,11 @@
 #include "Macros/ErrorMacros.h"
 #include "Graphics.h"
 
-ConstantBuffer::ConstantBuffer(Graphics& graphics, std::vector<ItemType> layout, TargetShader target, UINT slot)
+ConstantBuffer::ConstantBuffer(Graphics& graphics, const DynamicConstantBuffer::ConstantBufferLayout& layout, TargetShader target, UINT slot)
 	:
-	m_size(0),
 	m_target(target),
 	m_slot(slot)
 {
-	// getting size of layout
-	{
-		for (const auto& element : layout)
-		{
-			m_size = GetAlignedSize(m_size, GetElementSize(element), 256);
-			m_size += GetElementSize(element);
-		}
-
-		m_size = GetAlignedSize(m_size, 256);
-	}
-
 	HRESULT hr;
 
 	// creating resource
@@ -32,7 +20,7 @@ ConstantBuffer::ConstantBuffer(Graphics& graphics, std::vector<ItemType> layout,
 		D3D12_RESOURCE_DESC resourceDesc = {};
 		resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
 		resourceDesc.Alignment = 0;
-		resourceDesc.Width = m_size;
+		resourceDesc.Width = layout.GetSize();
 		resourceDesc.Height = 1;
 		resourceDesc.DepthOrArraySize = 1;
 		resourceDesc.MipLevels = 1;
@@ -67,42 +55,12 @@ ConstantBuffer::ConstantBuffer(Graphics& graphics, std::vector<ItemType> layout,
 	{
 		D3D12_CONSTANT_BUFFER_VIEW_DESC constBufferDesc = {};
 		constBufferDesc.BufferLocation = pConstBuffer->GetGPUVirtualAddress();
-		constBufferDesc.SizeInBytes = m_size;
+		constBufferDesc.SizeInBytes = layout.GetSize();
 
 		THROW_INFO_ERROR(graphics.GetDevice()->CreateConstantBufferView(
 			&constBufferDesc,
 			pDescriptorHeap->GetCPUDescriptorHandleForHeapStart()
 		));
-	}
-}
-
-void ConstantBuffer::SetData(Graphics& graphics, void* data, size_t size)
-{
-	THROW_INTERNAL_ERROR_IF("data passed to ConstantBuffer::SetData is invalid", size > m_size || data == nullptr);
-
-	HRESULT hr;
-
-	// passing data to constant buffer resource
-	{
-		D3D12_RANGE readRange = {};
-		readRange.Begin = 0;
-		readRange.End = 0;
-
-		D3D12_RANGE writeRange = {};
-		writeRange.Begin = 0;
-		writeRange.End = size;
-
-		void* pMappedData = nullptr;
-
-		THROW_ERROR(pConstBuffer->Map(
-			0,
-			&readRange,
-			&pMappedData
-		));
-
-		memcpy_s(pMappedData, m_size, data, size);
-
-		pConstBuffer->Unmap(0, &writeRange);
 	}
 }
 
@@ -135,52 +93,83 @@ D3D12_GPU_VIRTUAL_ADDRESS ConstantBuffer::GetGPUAddress() const
 	return pConstBuffer->GetGPUVirtualAddress();
 }
 
-size_t ConstantBuffer::GetAlignedSize(size_t currentSize, size_t nextElementSize, size_t alignment)
+NonCachedConstantBuffer::NonCachedConstantBuffer(Graphics& graphics, const DynamicConstantBuffer::ConstantBufferLayout& layout, TargetShader target, UINT slot)
+	:
+	ConstantBuffer(graphics, layout, target, slot),
+	m_layout(layout)
 {
-	float numPacks = float(currentSize) / alignment; // number of packs so far we went through
-	size_t sizeOfLastPack = (numPacks - std::floor(numPacks)) * alignment;
-	size_t lastPackSizeWithNewElement = sizeOfLastPack + nextElementSize;
-	
-	return lastPackSizeWithNewElement > alignment ? std::ceil(numPacks) * alignment : currentSize;
+
 }
 
-size_t ConstantBuffer::GetAlignedSize(size_t currentSize, size_t alignment)
+void NonCachedConstantBuffer::Update(Graphics& graphics, void* data, size_t size)
 {
-	float numPacks = float(currentSize) / alignment;
-	
-	return (numPacks != std::floor(numPacks)) ? std::ceil(numPacks) * alignment : currentSize;
-}
+	THROW_INTERNAL_ERROR_IF("data passed to ConstantBuffer::SetData is invalid", size > m_layout.GetSize() || data == nullptr);
 
-constexpr size_t ConstantBuffer::GetElementSize(ItemType itemType)
-{
-	switch (itemType)
+	HRESULT hr;
+
+	// passing data to constant buffer resource
 	{
-		case ItemType::Int:
-		case ItemType::Bool:
-			return sizeof(int);
+		D3D12_RANGE readRange = {};
+		readRange.Begin = 0;
+		readRange.End = 0;
 
-		case ItemType::Float:
-			return sizeof(float);
+		D3D12_RANGE writeRange = {};
+		writeRange.Begin = 0;
+		writeRange.End = size;
 
-		case ItemType::Float2:
-			return sizeof(DirectX::XMFLOAT2);
+		void* pMappedData = nullptr;
 
-		case ItemType::Float3:
-			return sizeof(DirectX::XMFLOAT3);
+		THROW_ERROR(pConstBuffer->Map(
+			0,
+			&readRange,
+			&pMappedData
+		));
 
-		case ItemType::Float4:
-			return sizeof(DirectX::XMFLOAT4);
+		memcpy_s(pMappedData, m_layout.GetSize(), data, size);
 
-		case ItemType::Matrix:
-			sizeof(DirectX::XMMATRIX);
-
-		default:
-		{
-			std::string errorString = "Item Type ";
-			errorString += size_t(itemType);
-			errorString += " wasn't defined in GetElementSize";
-
-			THROW_INTERNAL_ERROR(errorString.c_str());
-		}
+		pConstBuffer->Unmap(0, &writeRange);
 	}
+}
+
+CachedConstantBuffer::CachedConstantBuffer(Graphics& graphics, DynamicConstantBuffer::ConstantBufferData& data, TargetShader target, UINT slot)
+	:
+	ConstantBuffer(graphics, data.GetLayout(), target, slot),
+	m_data(data)
+{
+
+}
+
+void CachedConstantBuffer::Update(Graphics& graphics)
+{
+	HRESULT hr;
+
+	unsigned int bufferSize = m_data.GetLayout().GetSize();
+
+	// passing data to constant buffer resource
+	{
+		D3D12_RANGE readRange = {};
+		readRange.Begin = 0;
+		readRange.End = 0;
+
+		D3D12_RANGE writeRange = {};
+		writeRange.Begin = 0;
+		writeRange.End = bufferSize;
+
+		void* pMappedData = nullptr;
+
+		THROW_ERROR(pConstBuffer->Map(
+			0,
+			&readRange,
+			&pMappedData
+		));
+
+		memcpy_s(pMappedData, bufferSize, m_data.GetPtr(), bufferSize);
+
+		pConstBuffer->Unmap(0, &writeRange);
+	}
+}
+
+DynamicConstantBuffer::ConstantBufferData& CachedConstantBuffer::GetData()
+{
+	return m_data;
 }
