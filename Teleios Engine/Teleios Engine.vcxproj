@@ -163,6 +163,7 @@
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="BlendState.cpp" />
+    <ClCompile Include="Camera.cpp" />
     <ClCompile Include="CommandList.cpp" />
     <ClCompile Include="ConstantBuffer.cpp" />
     <ClCompile Include="DepthStencilState.cpp" />
@@ -185,6 +186,7 @@
     <ClCompile Include="RootSignature.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="Texture.cpp" />
+    <ClCompile Include="TransformConstantBuffer.cpp" />
     <ClCompile Include="Triangle.cpp" />
     <ClCompile Include="VertexBuffer.cpp" />
     <ClCompile Include="Window.cpp" />
@@ -192,6 +194,7 @@
   <ItemGroup>
     <ClInclude Include="Application.h" />
     <ClInclude Include="BlendState.h" />
+    <ClInclude Include="Camera.h" />
     <ClInclude Include="CommandList.h" />
     <ClInclude Include="ConstantBuffer.h" />
     <ClInclude Include="DepthStencilState.h" />
@@ -213,6 +216,7 @@
     <ClInclude Include="Shader.h" />
     <ClInclude Include="TargetShaders.h" />
     <ClInclude Include="Texture.h" />
+    <ClInclude Include="TransformConstantBuffer.h" />
     <ClInclude Include="Triangle.h" />
     <ClInclude Include="VertexBuffer.h" />
     <ClInclude Include="Window.h" />

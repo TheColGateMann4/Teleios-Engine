@@ -1,3 +1,10 @@
+cbuffer transforms : register(b0)
+{
+	matrix transform;
+	matrix transformInCameraSpace;
+	matrix transformInCameraView;
+};
+
 struct VSOut
 {
 	float2 textureCoords : TEXCOORDS;
@@ -8,7 +15,7 @@ VSOut VSMain( float3 position : POSITION, float2 textureCoords : TEXCOORDS )
 {
 	VSOut vsout;
 	vsout.textureCoords = textureCoords;
-	vsout.position = float4(position, 1.0f);
+	vsout.position = mul(transformInCameraView, float4(position, 1.0f));
 
 	return vsout;
 }
