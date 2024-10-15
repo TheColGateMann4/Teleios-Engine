@@ -37,7 +37,9 @@ Triangle::Triangle(Graphics& graphics)
 
 	std::vector<unsigned int> indices = {
 		0,1,3,
-		0,3,2
+		0,3,2,
+		0,3,1,
+		0,2,3
 	};
 
 
@@ -51,6 +53,7 @@ Triangle::Triangle(Graphics& graphics)
 	DepthStencilState depthStencilState = {};
 	InputLayout inputLayout(layoutElements);
 	RootSignature rootSignature;
+	transformConstantBuffer = std::make_shared<TransformConstantBuffer>(graphics, this);
 
 	DynamicConstantBuffer::ConstantBufferLayout layout;
 	layout.AddElement<DynamicConstantBuffer::ElementType::Float>("texcoordsScale");
@@ -68,6 +71,7 @@ Triangle::Triangle(Graphics& graphics)
 	// initializing root signature
 	{
 	    rootSignature.AddConstBufferViewParameter(constantBuffer.get());
+	    rootSignature.AddConstBufferViewParameter(transformConstantBuffer->GetBuffer());
 	    rootSignature.AddDescriptorTableParameter(texture.get());
 
 		rootSignature.AddStaticSampler(0, TargetShader::PixelShader);
@@ -137,6 +141,8 @@ Triangle::Triangle(Graphics& graphics)
 
 	m_bundleCommandList->SetConstBufferView(graphics, constantBuffer.get());
 
+	m_bundleCommandList->SetConstBufferView(graphics, transformConstantBuffer->GetBuffer());
+
 	m_bundleCommandList->SetDescriptorHeap(graphics, texture.get());
 
 	m_bundleCommandList->SetDescriptorTable(graphics, texture.get());
@@ -148,24 +154,6 @@ Triangle::Triangle(Graphics& graphics)
 
 void Triangle::Draw(Graphics& graphics) const
 {
-	if (ImGui::Begin("Triangle"))
-	{
-		bool changed = false;
-
-		auto checkChanged = [&changed](bool expressionReturn) mutable
-			{
-				changed =  changed || expressionReturn;
-			};
-
-		checkChanged(ImGui::SliderFloat("Texcoords Scale", constantBuffer->GetData().GetValuePointer<DynamicConstantBuffer::ElementType::Float>("texcoordsScale"), 0.1f, 10.0f));
-		checkChanged(ImGui::SliderFloat("Brightness", constantBuffer->GetData().GetValuePointer<DynamicConstantBuffer::ElementType::Float>("brightness"), 0.01f, 5.0f));
-			
-		if(changed)
-			constantBuffer->Update(graphics);
-
-		ImGui::End();
-	}
-
 	graphics.GetImguiManager()->Render();
 
 	m_directCommandList->Open(graphics, m_pipelineState->Get());
@@ -212,4 +200,40 @@ void Triangle::Draw(Graphics& graphics) const
 	ID3D12CommandList* ppCommandLists[] = { m_directCommandList->Get() };
 
 	graphics.GetCommandQueue()->ExecuteCommandLists(1, ppCommandLists);
+}
+
+void Triangle::Update(Graphics& graphics, Camera& camera)
+{
+	//updating transform constant buffer
+	transformConstantBuffer->Update(graphics, camera);
+}
+
+void Triangle::DrawImguiWindow(Graphics& graphics)
+{
+	if (ImGui::Begin("Triangle"))
+	{
+		bool changed = false;
+
+		auto checkChanged = [&changed](bool expressionReturn) mutable
+			{
+				changed = changed || expressionReturn;
+			};
+
+		checkChanged(ImGui::SliderFloat("Texcoords Scale", constantBuffer->GetData().GetValuePointer<DynamicConstantBuffer::ElementType::Float>("texcoordsScale"), 0.1f, 10.0f));
+		checkChanged(ImGui::SliderFloat("Brightness", constantBuffer->GetData().GetValuePointer<DynamicConstantBuffer::ElementType::Float>("brightness"), 0.01f, 5.0f));
+
+		if (changed)
+			constantBuffer->Update(graphics);
+
+		ImGui::End();
+	}
+}
+
+DirectX::XMMATRIX Triangle::GetTransformMatrix() const
+{
+	DirectX::FXMVECTOR vecPosition = DirectX::XMLoadFloat3(&m_position);
+	DirectX::FXMVECTOR vecRotation = DirectX::XMLoadFloat3(&m_rotation);
+
+	//  multiplying position matrix by rotation matrix
+	return DirectX::XMMatrixTranslationFromVector(vecPosition) * DirectX::XMMatrixRotationRollPitchYawFromVector(vecRotation);
 }
