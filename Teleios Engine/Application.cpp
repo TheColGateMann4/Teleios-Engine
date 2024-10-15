@@ -37,14 +37,24 @@ int Application::Run()
 void Application::InitializeScene()
 {
 	triangle = std::make_shared<Triangle>(window.graphics);
+	camera = std::make_shared<Camera>(window.graphics);
 }
 
 void Application::Update()
 {
 	window.graphics.BeginFrame();
 
+
+	triangle->DrawImguiWindow(window.graphics);
+
+	camera->DrawImguiWindow();
+
+
+	triangle->Update(window.graphics, *camera);
+
 	triangle->Draw(window.graphics);
 
+	
 	window.graphics.FinishFrame();
 
 	window.graphics.WaitForGPU();

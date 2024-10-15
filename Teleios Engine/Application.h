@@ -2,6 +2,7 @@
 #include "Includes/CppIncludes.h"
 #include "Window.h"
 #include "Triangle.h"
+#include "Camera.h"
 
 class Application
 {
@@ -24,4 +25,5 @@ private:
 	Window window;
 
 	std::shared_ptr<Triangle> triangle;
+	std::shared_ptr<Camera> camera;
 };
