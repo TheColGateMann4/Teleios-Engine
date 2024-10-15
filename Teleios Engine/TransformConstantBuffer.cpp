@@ -31,7 +31,7 @@ void TransformConstantBuffer::Update(Graphics& graphics, Camera& camera)
 	matrices[1] = matrices[0] * camera.GetTransformMatrix();
 	matrices[2] = matrices[1] * camera.GetPerspectiveMatrix();
 
-	m_buffer->Update(graphics, matrices, sizeof(DirectX::XMMATRIX) * 3);
+	m_buffer->Update(graphics, matrices, sizeof(matrices));
 }
 
 NonCachedConstantBuffer* TransformConstantBuffer::GetBuffer() const
