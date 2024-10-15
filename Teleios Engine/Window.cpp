@@ -180,8 +180,69 @@ LRESULT Window::HandleMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				break;
 			}
 
-			m_width = static_cast<signed short>(lParam);
+			m_width = static_cast<signed int>(lParam);
 			m_height = lParam >> 16;
+
+			break;
+		}
+		case WM_KILLFOCUS:
+		{
+			input.ReleaseAllKeys();
+
+			break;
+		}
+
+		/*
+					Keyboard 
+		*/ 
+
+		case WM_SYSKEYDOWN:
+		case WM_KEYDOWN:
+		{
+			if (!(lParam & (0b1 << 30)))// 30th bit counting from 0 coresponds to previous key state
+				input.PushKeyEvent(wParam, Input::KeyState::Pressed);
+
+			break;
+		}
+		case WM_SYSKEYUP:
+		case WM_KEYUP:
+		{
+			input.PushKeyEvent(wParam, Input::KeyState::Released);
+
+			break;
+		}
+
+		/*
+					Mouse
+		*/
+
+		case WM_LBUTTONDOWN:
+			input.PushKeyEvent(VK_LBUTTON, Input::KeyState::Pressed); break;	
+		case WM_LBUTTONUP:
+			input.PushKeyEvent(VK_LBUTTON, Input::KeyState::Released); break;
+
+		case WM_MBUTTONDOWN:
+			input.PushKeyEvent(VK_MBUTTON, Input::KeyState::Pressed); break;	
+		case WM_MBUTTONUP:
+			input.PushKeyEvent(VK_MBUTTON, Input::KeyState::Released); break;
+
+		case WM_RBUTTONDOWN:
+			input.PushKeyEvent(VK_RBUTTON, Input::KeyState::Pressed); break;
+		case WM_RBUTTONUP:
+			input.PushKeyEvent(VK_RBUTTON, Input::KeyState::Released); break;
+
+		case WM_XBUTTONDOWN:
+			input.PushKeyEvent((static_cast<unsigned int>(wParam >> 16) == XBUTTON1) ? VK_XBUTTON1 : VK_XBUTTON2, Input::KeyState::Pressed); break;
+		case WM_XBUTTONUP:
+			input.PushKeyEvent((static_cast<unsigned int>(wParam >> 16) == XBUTTON1) ? VK_XBUTTON1 : VK_XBUTTON2, Input::KeyState::Released); break;
+		
+		case WM_MOUSEMOVE:
+		{
+			POINTS mousePosition = {};
+			mousePosition.x = static_cast<SHORT>(lParam); // low order represents X position
+			mousePosition.y = static_cast<SHORT>(lParam >> 16); // high order represents Y position
+
+			input.SetMousePosition(mousePosition);
 
 			break;
 		}

@@ -177,6 +177,7 @@
     <ClCompile Include="EntryPoint.cpp" />
     <ClCompile Include="IndexBuffer.cpp" />
     <ClCompile Include="InfoQueue.cpp" />
+    <ClCompile Include="Input.cpp" />
     <ClCompile Include="InputLayout.cpp" />
     <ClCompile Include="Macros\KeyMacros.h" />
     <ClCompile Include="Macros\ErrorMacros.h" />
@@ -207,6 +208,7 @@
     <ClInclude Include="includes\CppIncludes.h" />
     <ClInclude Include="IndexBuffer.h" />
     <ClInclude Include="InfoQueue.h" />
+    <ClInclude Include="Input.h" />
     <ClInclude Include="InputLayout.h" />
     <ClInclude Include="MessageMap.h" />
     <ClInclude Include="PipelineState.h" />

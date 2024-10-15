@@ -25,6 +25,8 @@ int Application::Run()
 
 	while(true)
 	{
+		window.input.Update();
+
 		BOOL messageResult = window.HandleMessages();
 
 		if (messageResult != TRUE)

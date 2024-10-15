@@ -2,6 +2,7 @@
 #include "Includes/CppIncludes.h"
 #include "ErrorHandler.h"
 #include "Graphics.h"
+#include "Input.h"
 
 class Window
 {
@@ -52,4 +53,5 @@ private:
 
 public:
 	Graphics graphics;
+	Input input;
 };
