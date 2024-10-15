@@ -93,7 +93,7 @@ namespace DynamicConstantBuffer
 		};
 
 	public:
-		void Finish();
+		ConstantBufferLayout& GetFinished();
 
 		template<ElementType elementType>
 		void AddElement(const char* name)

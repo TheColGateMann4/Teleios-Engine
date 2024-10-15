@@ -1,13 +1,15 @@
 #include "DynamicConstantBuffer.h"
 
 
-void DynamicConstantBuffer::ConstantBufferLayout::Finish()
+DynamicConstantBuffer::ConstantBufferLayout& DynamicConstantBuffer::ConstantBufferLayout::GetFinished()
 {
 	THROW_INTERNAL_ERROR_IF("Cannot finish empty layout", m_elements.empty());
 
 	m_finished = true;
 
 	m_alignedSize = GetAlignedSize();
+
+	return *this;
 }
 
 unsigned int DynamicConstantBuffer::ConstantBufferLayout::GetSize() const
@@ -59,10 +61,8 @@ DynamicConstantBuffer::ConstantBufferData::ConstantBufferData(ConstantBufferData
 
 DynamicConstantBuffer::ConstantBufferData::ConstantBufferData(ConstantBufferLayout& layout)
 	:
-	m_layout(layout)
+	m_layout(layout.GetFinished())
 {
-	m_layout.Finish();
-
 	m_data = new char[m_layout.GetSize()];
 }
 

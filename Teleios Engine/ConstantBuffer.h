@@ -34,7 +34,7 @@ protected:
 class NonCachedConstantBuffer : public ConstantBuffer
 {
 public:
-	NonCachedConstantBuffer(Graphics& graphics, const DynamicConstantBuffer::ConstantBufferLayout& layout, TargetShader target = TargetShader::PixelShader, UINT slot = 0);
+	NonCachedConstantBuffer(Graphics& graphics, DynamicConstantBuffer::ConstantBufferLayout& layout, TargetShader target = TargetShader::PixelShader, UINT slot = 0);
 
 	void Update(Graphics& graphics, void* data, size_t size);
 

@@ -93,9 +93,9 @@ D3D12_GPU_VIRTUAL_ADDRESS ConstantBuffer::GetGPUAddress() const
 	return pConstBuffer->GetGPUVirtualAddress();
 }
 
-NonCachedConstantBuffer::NonCachedConstantBuffer(Graphics& graphics, const DynamicConstantBuffer::ConstantBufferLayout& layout, TargetShader target, UINT slot)
+NonCachedConstantBuffer::NonCachedConstantBuffer(Graphics& graphics, DynamicConstantBuffer::ConstantBufferLayout& layout, TargetShader target, UINT slot)
 	:
-	ConstantBuffer(graphics, layout, target, slot),
+	ConstantBuffer(graphics, layout.GetFinished(), target, slot),
 	m_layout(layout)
 {
 
@@ -136,7 +136,7 @@ CachedConstantBuffer::CachedConstantBuffer(Graphics& graphics, DynamicConstantBu
 	ConstantBuffer(graphics, data.GetLayout(), target, slot),
 	m_data(data)
 {
-
+	
 }
 
 void CachedConstantBuffer::Update(Graphics& graphics)
