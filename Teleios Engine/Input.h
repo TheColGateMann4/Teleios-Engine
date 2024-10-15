@@ -16,6 +16,8 @@ public:
 	class Keys
 	{
 	public:
+		void DrawImguiWindow() const;
+
 		KeyState GetKeyState(unsigned short key) const;
 
 		void UpdateEvents();
@@ -32,7 +34,9 @@ public:
 
 	class Mouse
 	{
-	public:		
+	public:
+		void DrawImguiWindow() const;
+		
 		POINTS GetDelta() const;
 
 		void SetPosition(POINTS position);
@@ -56,6 +60,8 @@ public: // Mouse interface
 	POINTS GetMouseDelta() const;
 
 public:	// Internal stuff
+	void DrawImguiWindow() const;
+
 	void Update();
 
 	void ReleaseAllKeys();

@@ -47,6 +47,8 @@ void Application::Update()
 	window.graphics.BeginFrame();
 
 
+	window.input.DrawImguiWindow();
+
 	triangle->DrawImguiWindow(window.graphics);
 
 	camera->DrawImguiWindow();
