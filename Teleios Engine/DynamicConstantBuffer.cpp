@@ -68,7 +68,7 @@ DynamicConstantBuffer::ConstantBufferData::ConstantBufferData(ConstantBufferLayo
 
 DynamicConstantBuffer::ConstantBufferData::~ConstantBufferData()
 {
-	delete m_data;
+	delete[] m_data;
 }
 
 void* DynamicConstantBuffer::ConstantBufferData::GetPtr()
