@@ -299,7 +299,7 @@ LRESULT Window::HandleMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 			POINTS mousePosition = { static_cast<SHORT>(pRawInputHeader->data.mouse.lLastX) , static_cast<SHORT>(pRawInputHeader->data.mouse.lLastY) };
 
-			if(mousePosition.x != 0 && mousePosition.y)
+			if(mousePosition.x != 0 || mousePosition.y != 0)
 				input.SetMouseDelta(mousePosition);
 
 			delete[] pData;
