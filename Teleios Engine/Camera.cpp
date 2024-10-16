@@ -150,9 +150,6 @@ constexpr float Camera::GetSlicedValue(float angle, float sliceValue)
 	float valueOnOtherSide = sliceValue * ((angle < 0) ? 1.0f : -1.0f);
 	float lastPackOnOtherSide = sizeOfLastPack * ((angle < 0) ? -1.0f : 1.0f);
 
-	if (valueOnOtherSide < 0.0f)
-		int a = 53;
-
 	return lastPackOnOtherSide + valueOnOtherSide;
 }
 
