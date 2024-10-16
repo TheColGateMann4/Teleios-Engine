@@ -59,6 +59,12 @@ void Camera::DrawImguiWindow()
 		ImGui::SliderAngle("RotationY", &m_rotation.y, -180.0f, 180.0f);
 		ImGui::SliderAngle("RotationZ", &m_rotation.z, -180.0f, 180.0f);
 
+		ImGui::NewLine();
+
+		ImGui::Text("Conveniency Options:");
+		ImGui::SliderFloat("Sensivity", &m_sensivity, 0.01f, 1.0f, "%.2f");
+		ImGui::SliderFloat("Speed", &m_speed, 0.01f, 10.0f, "%.2f");
+		ImGui::SliderFloat("FastSpeed", &m_fastSpeed, m_speed, m_speed + 20.0f, "%.1f");
 
 		ImGui::End();
 	}
