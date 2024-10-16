@@ -2,6 +2,7 @@
 #include "Macros/ErrorMacros.h"
 #include "Macros/KeyMacros.h"
 //#include "resource.h" 
+#include "hidusage.h"
 
 /*
 		Window
@@ -47,6 +48,18 @@ Window::Window(UINT32 width, UINT32 height, const char* name, DXGI_FORMAT colorS
 	}
 
 	graphics.Initialize(m_hWnd, colorSpace);
+
+	// regitering for raw input notifications
+	{
+		RAWINPUTDEVICE rawInputDevice = {};
+		rawInputDevice.usUsagePage = HID_USAGE_PAGE_GENERIC;
+		rawInputDevice.usUsage = HID_USAGE_GENERIC_MOUSE;
+		rawInputDevice.dwFlags = NULL; // RIDEV_NOLEGACY | RIDEV_CAPTUREMOUSE // could make use of these two flags that make mouse ignore everything
+		rawInputDevice.hwndTarget = m_hWnd;
+
+		if (RegisterRawInputDevices(&rawInputDevice, 1, sizeof(rawInputDevice)) == NULL)
+			THROW_LAST_ERROR;
+	}
 }
 
 Window::~Window()
@@ -244,6 +257,52 @@ LRESULT Window::HandleMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 			input.SetMousePosition(mousePosition);
 
+			break;
+		}
+
+		case WM_INPUT:
+		{
+			HRAWINPUT hRawInput = reinterpret_cast<HRAWINPUT>(lParam);
+
+			UINT bufferSize = 0;
+
+			// getting size of input header
+			if (GetRawInputData(
+				hRawInput,
+				RID_INPUT,
+				nullptr,
+				&bufferSize,
+				sizeof(RAWINPUTHEADER)
+			) == -1)
+				THROW_LAST_ERROR;
+
+			void* pData = new char[bufferSize];
+
+			// getting our data
+			if (GetRawInputData(
+				hRawInput,
+				RID_INPUT,
+				pData,
+				&bufferSize,
+				sizeof(RAWINPUTHEADER)
+			) == -1)
+				THROW_LAST_ERROR;
+
+			RAWINPUT* pRawInputHeader = static_cast<RAWINPUT*>(pData);
+
+			// if its not raw input from mouse we ignore it
+			if (pRawInputHeader->header.dwType != RIM_TYPEMOUSE)
+			{
+				delete[] pData;
+				break;
+			}
+
+			POINTS mousePosition = { static_cast<SHORT>(pRawInputHeader->data.mouse.lLastX) , static_cast<SHORT>(pRawInputHeader->data.mouse.lLastY) };
+
+			if(mousePosition.x != 0 && mousePosition.y)
+				input.SetMouseDelta(mousePosition);
+
+			delete[] pData;
 			break;
 		}
 	}

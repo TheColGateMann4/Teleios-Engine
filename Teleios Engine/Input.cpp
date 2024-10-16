@@ -140,15 +140,12 @@ void Input::Mouse::DrawImguiWindow() const
 
 void Input::Mouse::SetPosition(POINTS position)
 {
-	if(m_positionInitialized)
-	{
-		m_positionDelta.x = position.x - m_position.x;
-		m_positionDelta.y = position.y - m_position.y;
-	}
-
 	m_position = position;
+}
 
-	m_positionInitialized = true;
+void Input::Mouse::SetDelta(POINTS delta)
+{
+	m_positionDelta = delta;
 }
 
 POINTS Input::Mouse::GetDelta() const
@@ -213,6 +210,11 @@ void Input::ReleaseAllKeys()
 void Input::SetMousePosition(POINTS position)
 {
 	mouse.SetPosition(position);
+}
+
+void Input::SetMouseDelta(POINTS delta)
+{
+	mouse.SetDelta(delta);
 }
 
 void Input::PushKeyEvent(unsigned short key, KeyState state)

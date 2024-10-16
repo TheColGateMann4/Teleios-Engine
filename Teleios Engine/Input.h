@@ -41,12 +41,13 @@ public:
 
 		void SetPosition(POINTS position);
 
+		void SetDelta(POINTS delta);
+
 		void CleanupDelta();
 
 	private:
 		POINTS m_positionDelta;
 		POINTS m_position;
-		bool m_positionInitialized = false;
 	};
 
 public: // Keyboard interface
@@ -67,6 +68,8 @@ public:	// Internal stuff
 	void ReleaseAllKeys();
 
 	void SetMousePosition(POINTS position);
+
+	void SetMouseDelta(POINTS delta);
 
 	void PushKeyEvent(unsigned short key, KeyState state);
 
