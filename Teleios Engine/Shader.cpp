@@ -57,7 +57,7 @@ Shader::Shader(const char* name, ShaderType type, const char* entryPointName)
 	:
 	m_name(std::string("../../Shaders/") + name + ".hlsl"),
 	m_type(type),
-	m_entryPoint(entryPointName == "default" ? GetDefaultEntryPointName(m_type) : entryPointName)
+	m_entryPoint(entryPointName == nullptr ? GetDefaultEntryPointName(m_type) : entryPointName)
 {
 	Reload();
 }

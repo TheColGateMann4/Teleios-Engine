@@ -25,7 +25,7 @@ class Shader
 {
 public:
 	// leaving entryPointName as default will make class select proper entryPoint name for a shader
-	Shader(const char* name, ShaderType type, const char* entryPointName = "default");
+	Shader(const char* name, ShaderType type, const char* entryPointName = nullptr);
 
 public:
 	void Reload();
