@@ -38,8 +38,8 @@ private:
 	DirectX::XMMATRIX m_perspective;
 	Settings m_settings;
 
-	float m_sensivity = 0.003f;
-	float m_speed = 0.05f;
+	float m_sensivity = 0.02f;
+	float m_speed = 0.06f;
 	float m_fastSpeed = 0.12f;
 };
 
