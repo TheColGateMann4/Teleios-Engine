@@ -132,6 +132,32 @@ void Window::ShowCursor(bool show, bool updateStatus)
 		while (::ShowCursor(show) >= 0);
 }
 
+bool Window::GetCursorVisibility() const
+{
+	return m_showCursor;
+}
+
+bool Window::GetCursorLocked() const
+{
+	return m_lockCursor;
+}
+
+void Window::OnFocusGain()
+{
+	// if cursor was previously locked, we lock it back
+	if (m_lockCursor)
+		LockCursor(m_lockCursor);
+
+	if (!m_showCursor)
+		this->ShowCursor(m_showCursor); // using this-> so it definetly calls local function instead windows.h one
+}
+
+void Window::OnLFocusLose()
+{
+	if (!m_showCursor)
+		this->ShowCursor(true, false);
+}
+
 /*
 		Window Class
 */
@@ -232,6 +258,17 @@ LRESULT Window::HandleMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 			break;
 		}
+
+		case WM_ACTIVATE:
+		{
+			if (wParam == WA_ACTIVE || wParam == WA_CLICKACTIVE)
+				OnFocusGain();
+			else if (wParam == WA_INACTIVE)
+				OnLFocusLose();
+
+			break;
+		}
+
 		case WM_KILLFOCUS:
 		{
 			input.ReleaseAllKeys();

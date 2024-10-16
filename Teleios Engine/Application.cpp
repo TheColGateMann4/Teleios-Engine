@@ -46,6 +46,11 @@ void Application::Update()
 {
 	window.graphics.BeginFrame();
 
+	if(window.input.GetKeyDown(VK_ESCAPE))
+	{
+		window.LockCursor(!window.GetCursorLocked());
+		window.ShowCursor(!window.GetCursorVisibility());
+	}
 
 	window.input.DrawImguiWindow();
 

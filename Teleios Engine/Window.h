@@ -24,6 +24,9 @@ public:
 	void LockCursor(bool lock, bool updateStatus = true);
 	void ShowCursor(bool show, bool updateStatus = true);
 
+	bool GetCursorVisibility() const;
+	bool GetCursorLocked() const;
+
 public:
 	void OnFocusGain();
 	void OnLFocusLose();
@@ -58,6 +61,9 @@ private:
 	unsigned int m_height;
 
 	bool m_minimized = false;
+
+	bool m_lockCursor = false;
+	bool m_showCursor = true;
 
 public:
 	Graphics graphics;
