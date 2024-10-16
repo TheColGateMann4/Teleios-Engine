@@ -63,9 +63,8 @@ void Camera::DrawImguiWindow()
 		ImGui::SliderFloat("PositionY", &m_position.y, -10.0f, 10.0f);
 		ImGui::SliderFloat("PositionZ", &m_position.z, -10.0f, 10.0f);
 
-		ImGui::SliderAngle("RotationX", &m_rotation.x, -180.0f, 180.0f);
-		ImGui::SliderAngle("RotationY", &m_rotation.y, -180.0f, 180.0f);
-		ImGui::SliderAngle("RotationZ", &m_rotation.z, -180.0f, 180.0f);
+		ImGui::SliderAngle("Pitch", &m_rotation.x, -90.0f, 90.0f);
+		ImGui::SliderAngle("Yaw", &m_rotation.y, -180.0f, 180.0f);
 
 		ImGui::NewLine();
 
@@ -108,10 +107,12 @@ DirectX::XMMATRIX Camera::GetPerspectiveMatrix() const
 
 void Camera::Look(POINTS lookOffset, bool multiplyBySensivity)
 {
+	static constexpr float almostRightAngle = 0.999f * (_pi / 2.0f);
+	static constexpr float halfRotation = _pi;
 	float multipler = (multiplyBySensivity ? m_sensivity : 1.0f);
 
-	m_rotation.x += lookOffset.x * multipler;
-	m_rotation.y += lookOffset.y * multipler;
+	m_rotation.y = GetSlicedValue(m_rotation.y + lookOffset.y * multipler, halfRotation);
+	m_rotation.x = GetClampedValue(m_rotation.x + lookOffset.x * multipler, -almostRightAngle, almostRightAngle);
 }
 
 void Camera::Move(DirectX::XMFLOAT3 direction, bool isFast)
@@ -137,3 +138,28 @@ void Camera::UpdatePerspectiveMatrix()
 {
 	m_perspective = DirectX::XMMatrixPerspectiveFovLH(m_settings.FovAngleY, m_settings.AspectRatio, m_settings.NearZ, m_settings.FarZ);
 }
+
+constexpr float Camera::GetSlicedValue(float angle, float sliceValue)
+{
+	if (angle >= -sliceValue && angle <= sliceValue)
+		return angle;
+
+	float absoluteAngle = std::abs(angle);
+	float numPacks = absoluteAngle / sliceValue;
+	float sizeOfLastPack = (numPacks - std::floor(numPacks)) * sliceValue;
+	float valueOnOtherSide = sliceValue * ((angle < 0) ? 1.0f : -1.0f);
+	float lastPackOnOtherSide = sizeOfLastPack * ((angle < 0) ? -1.0f : 1.0f);
+
+	if (valueOnOtherSide < 0.0f)
+		int a = 53;
+
+	return lastPackOnOtherSide + valueOnOtherSide;
+}
+
+constexpr float Camera::GetClampedValue(float angle, float minAngle, float maxAngle)
+{
+	return angle > maxAngle
+		? maxAngle
+		: (angle < minAngle ? minAngle : angle);
+}
+	

@@ -35,6 +35,9 @@ public:
 private:
 	void UpdatePerspectiveMatrix();
 
+	static constexpr float GetSlicedValue(float angle, float sliceValue);
+	static constexpr float GetClampedValue(float angle, float minAngle, float maxAngle);
+
 private:
 	DirectX::XMFLOAT3 m_position;
 	DirectX::XMFLOAT3 m_rotation;
