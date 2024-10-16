@@ -191,9 +191,9 @@ void Input::DrawImguiWindow() const
 	{
 		mouse.DrawImguiWindow();
 		keyInput.DrawImguiWindow();
-
-		ImGui::End();
 	}
+
+	ImGui::End();
 }
 
 void Input::Update()

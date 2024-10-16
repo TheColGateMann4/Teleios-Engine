@@ -274,9 +274,9 @@ void Triangle::DrawImguiWindow(Graphics& graphics)
 
 		if (changed)
 			constantBuffer->Update(graphics);
-
-		ImGui::End();
 	}
+
+	ImGui::End();
 }
 
 DirectX::XMMATRIX Triangle::GetTransformMatrix() const

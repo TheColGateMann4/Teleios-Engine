@@ -84,9 +84,9 @@ void Camera::DrawImguiWindow()
 
 		if (changed)
 			UpdatePerspectiveMatrix();
-
-		ImGui::End();
 	}
+
+	ImGui::End();
 }
 
 DirectX::XMMATRIX Camera::GetTransformMatrix() const
