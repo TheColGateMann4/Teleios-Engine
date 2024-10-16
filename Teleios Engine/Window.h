@@ -20,6 +20,14 @@ public:
 	unsigned int GetWidth() const;
 	unsigned int GetHeight() const;
 
+public:
+	void LockCursor(bool lock, bool updateStatus = true);
+	void ShowCursor(bool show, bool updateStatus = true);
+
+public:
+	void OnFocusGain();
+	void OnLFocusLose();
+
 private:
 	class WindowClass
 	{

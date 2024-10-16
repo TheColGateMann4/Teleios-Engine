@@ -98,6 +98,40 @@ UINT32 Window::GetHeight() const
 	return m_height;
 }
 
+void Window::LockCursor(bool lock, bool updateStatus)
+{
+	if (updateStatus)
+		m_lockCursor = lock;
+
+	if (lock)
+	{
+		RECT cursorClipRect = {};
+
+		::GetClientRect(m_hWnd, &cursorClipRect);
+		::MapWindowPoints(m_hWnd, HWND_DESKTOP, reinterpret_cast<POINT*>(&cursorClipRect), 2);
+
+		if (::ClipCursor(&cursorClipRect) == 0)
+			THROW_LAST_ERROR;
+	}
+	else
+	{
+		if (::ClipCursor(nullptr) == 0)
+			THROW_LAST_ERROR;
+	}
+
+}
+
+void Window::ShowCursor(bool show, bool updateStatus)
+{
+	if(updateStatus)
+		m_showCursor = show;
+
+	if (show)
+		while (::ShowCursor(show) < 0);
+	else
+		while (::ShowCursor(show) >= 0);
+}
+
 /*
 		Window Class
 */
