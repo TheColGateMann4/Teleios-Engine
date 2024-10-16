@@ -1,6 +1,7 @@
 #include "Camera.h"
 #include "Macros/ErrorMacros.h"
 #include "Graphics.h"
+#include "Input.h"
 
 #include <imgui.h>
 
@@ -23,6 +24,27 @@ Camera::Camera(Graphics& graphics, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3
 	}
 
 	m_perspective = DirectX::XMMatrixPerspectiveFovLH(m_settings.FovAngleY, m_settings.AspectRatio, m_settings.NearZ, m_settings.FarZ);
+}
+
+void Camera::Update(const Input& input)
+{
+	// rotation
+	{
+		POINTS lookOffset = input.GetMouseDelta();
+		std::swap(lookOffset.x, lookOffset.y);
+
+		Look(lookOffset);
+	}
+
+	// position
+	{
+		DirectX::XMFLOAT3 direction = {};
+		direction.x = float(input.GetKey(KEY_E)) - float(input.GetKey(KEY_A));
+		direction.y = float(input.GetKey(VK_SPACE)) - float(input.GetKey(VK_CONTROL));
+		direction.z = float(input.GetKey(KEY_W)) - float(input.GetKey(KEY_S));
+
+		Move(direction, input.GetKey(VK_SHIFT));
+	}
 }
 
 void Camera::DrawImguiWindow()
@@ -57,4 +79,31 @@ DirectX::XMMATRIX Camera::GetTransformMatrix() const
 DirectX::XMMATRIX Camera::GetPerspectiveMatrix() const
 {
 	return m_perspective;
+}
+
+void Camera::Look(POINTS lookOffset, bool multiplyBySensivity)
+{
+	float multipler = (multiplyBySensivity ? m_sensivity : 1.0f);
+
+	m_rotation.x += lookOffset.x * multipler;
+	m_rotation.y += lookOffset.y * multipler;
+}
+
+void Camera::Move(DirectX::XMFLOAT3 direction, bool isFast)
+{
+	float multipler = (isFast ? m_fastSpeed : m_speed);
+
+	direction.x *= multipler;
+	direction.y *= multipler;
+	direction.z *= multipler;
+
+	DirectX::FXMVECTOR vRotation = DirectX::XMLoadFloat3(&m_rotation);
+	DirectX::XMVECTOR vPosition = DirectX::XMLoadFloat3(&m_position);
+	DirectX::XMVECTOR vDirection = DirectX::XMLoadFloat3(&direction);
+
+	vDirection = DirectX::XMVector3Transform(vDirection, DirectX::XMMatrixRotationRollPitchYawFromVector(vRotation));
+
+	vPosition = DirectX::XMVectorAdd(vPosition, vDirection);
+
+	DirectX::XMStoreFloat3(&m_position, vPosition);
 }

@@ -54,6 +54,8 @@ void Application::Update()
 	camera->DrawImguiWindow();
 
 
+	camera->Update(window.input);
+
 	triangle->Update(window.graphics, *camera);
 
 	triangle->Draw(window.graphics);
