@@ -59,7 +59,7 @@ void Application::Update()
 	camera->DrawImguiWindow();
 
 
-	camera->Update(window.input);
+	camera->Update(window.input, window.GetCursorLocked());
 
 	triangle->Update(window.graphics, *camera);
 

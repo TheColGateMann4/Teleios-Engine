@@ -26,9 +26,10 @@ Camera::Camera(Graphics& graphics, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3
 	UpdatePerspectiveMatrix();
 }
 
-void Camera::Update(const Input& input)
+void Camera::Update(const Input& input, bool cursorLocked)
 {
 	// rotation
+	if(cursorLocked)
 	{
 		POINTS lookOffset = input.GetMouseDelta();
 		std::swap(lookOffset.x, lookOffset.y);
