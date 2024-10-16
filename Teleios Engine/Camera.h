@@ -33,6 +33,9 @@ public:
 	void Move(DirectX::XMFLOAT3 direction, bool isFast = false);
 
 private:
+	void UpdatePerspectiveMatrix();
+
+private:
 	DirectX::XMFLOAT3 m_position;
 	DirectX::XMFLOAT3 m_rotation;
 	DirectX::XMMATRIX m_perspective;
