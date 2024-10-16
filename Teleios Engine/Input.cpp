@@ -19,7 +19,7 @@ void Input::Keys::DrawImguiWindow() const
 
 		UINT keyScanCode = MapVirtualKeyA(keyEvent.first, MAPVK_VK_TO_VSC);
 
-		if(keyScanCode != 0) // skipping buttons that don't belong to scan code list
+		if(keyScanCode != 0 && keyEvent.first != VK_LWIN && keyEvent.first != VK_RWIN) // skipping buttons that don't belong to scan code list
 		{
 			std::string keyName(32, '\0');
 
