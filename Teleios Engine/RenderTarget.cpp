@@ -30,7 +30,7 @@ RenderTarget::RenderTarget(Graphics& graphics, ID3D12Resource* pResource, DXGI_F
 	// creating render target view (if it is back buffer then we are creating first(out of two) render target view's here)
 	{
 		D3D12_RENDER_TARGET_VIEW_DESC renderTargetViewDesc = {};
-		renderTargetViewDesc.Format = graphics.GetRenderTargetFormat();
+		renderTargetViewDesc.Format = m_format;
 		renderTargetViewDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
 		renderTargetViewDesc.Texture2D = D3D12_TEX2D_RTV{};
 
@@ -83,7 +83,7 @@ BackBufferRenderTarget::BackBufferRenderTarget(Graphics& graphics, DXGI_FORMAT f
 	// creating second render target view
 	{
 		D3D12_RENDER_TARGET_VIEW_DESC renderTargetViewDesc = {};
-		renderTargetViewDesc.Format = graphics.GetRenderTargetFormat();
+		renderTargetViewDesc.Format = m_format;
 		renderTargetViewDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
 		renderTargetViewDesc.Texture2D = D3D12_TEX2D_RTV{ 0,0 };
 
