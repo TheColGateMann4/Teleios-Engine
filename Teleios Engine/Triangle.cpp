@@ -170,7 +170,7 @@ Triangle::Triangle(Graphics& graphics)
 			m_pipelineState->SetNumRenderTargets(1);
 
 			// RTVFormats
-			m_pipelineState->SetRenderTargetFormat(0, graphics.GetColorSpace());
+			m_pipelineState->SetRenderTargetFormat(0, graphics.GetBackBuffer()->GetFormat());
 			
 			// DSVFormats
 			m_pipelineState->SetDepthStencilFormat(graphics.GetDepthStencil()->GetFormat());
