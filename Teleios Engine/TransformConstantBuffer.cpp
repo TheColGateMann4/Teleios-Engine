@@ -15,7 +15,7 @@ TransformConstantBuffer::TransformConstantBuffer(Graphics& graphics, Triangle* p
 	layout.AddElement<DynamicConstantBuffer::ElementType::Matrix>("transformInCameraSpace");
 	layout.AddElement<DynamicConstantBuffer::ElementType::Matrix>("transformInCameraView");
 
-	m_buffer = std::make_shared<NonCachedConstantBuffer>(graphics, layout, TargetShader::VertexShader, 0);
+	m_buffer = std::make_shared<NonCachedConstantBuffer>(graphics, layout, ShaderVisibilityGraphic::VertexShader, 0);
 }
 
 void TransformConstantBuffer::Update(Graphics& graphics, Camera& camera)

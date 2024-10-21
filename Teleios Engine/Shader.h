@@ -2,16 +2,7 @@
 #include "includes/CppIncludes.h"
 #include "includes/DirectXIncludes.h"
 #include "includes/WRLNoWarnings.h"
-
-enum ShaderType
-{
-	PixelShader,
-	VertexShader,
-	ComputeShader,
-	HullShader,
-	DomainShader,
-	GeometryShader
-};
+#include "TargetShaders.h"
 
 #ifdef _DEBUG
 
@@ -24,7 +15,6 @@ static std::string GetShaderVersion(ShaderType type);
 class Shader
 {
 public:
-	// leaving entryPointName as default will make class select proper entryPoint name for a shader
 	Shader(const char* name, ShaderType type, const char* entryPointName = nullptr);
 
 public:

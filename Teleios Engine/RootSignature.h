@@ -6,16 +6,6 @@
 class RootSignature
 {
 public:
-	enum class ParameterType
-	{
-		DescriptorTable = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE,
-		Bit32Constants = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS,
-		ConstBufferView = D3D12_ROOT_PARAMETER_TYPE_CBV,
-		ShaderResourceView = D3D12_ROOT_PARAMETER_TYPE_SRV,
-		UnorderedAccessView = D3D12_ROOT_PARAMETER_TYPE_UAV
-	};
-
-public:
 	RootSignature();
 
 public:
@@ -30,7 +20,7 @@ public:
 	// uav
 	// constants
 
-	void AddStaticSampler(UINT registerNum, TargetShader target);
+	void AddStaticSampler(UINT registerNum, ShaderVisibilityGraphic target);
 
 private:
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> pRootSignature;

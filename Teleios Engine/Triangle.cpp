@@ -96,8 +96,8 @@ Triangle::Triangle(Graphics& graphics)
 	m_vertexBuffer = std::make_shared<VertexBuffer>(graphics, vertices.data(), vertices.size(), sizeof(vertices.at(0)));
 	m_indexBuffer = std::make_shared<IndexBuffer>(graphics, indices);
 
-	Shader pixelShader("PS_Texture", PixelShader);
-	Shader vertexShader("VS", VertexShader);
+	Shader pixelShader("PS_Texture", ShaderType::PixelShader);
+	Shader vertexShader("VS", ShaderType::VertexShader);
 	BlendState blendState = {};
 	RasterizerState rasterizerState = {};
 	DepthStencilState depthStencilState = {};
@@ -105,6 +105,7 @@ Triangle::Triangle(Graphics& graphics)
 	RootSignature rootSignature;
 	transformConstantBuffer = std::make_shared<TransformConstantBuffer>(graphics, this);
 
+	{
 	DynamicConstantBuffer::ConstantBufferLayout layout;
 	layout.AddElement<DynamicConstantBuffer::ElementType::Float>("texcoordsScale");
 	layout.AddElement<DynamicConstantBuffer::ElementType::Float>("brightness");
@@ -113,8 +114,11 @@ Triangle::Triangle(Graphics& graphics)
 	*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("texcoordsScale") = 1.0f;
 	*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("brightness") = 1.0f;
 
-	constantBuffer = std::make_shared<CachedConstantBuffer>(graphics, bufferData);
+		constantBuffer = std::make_shared<CachedConstantBuffer>(graphics, bufferData, ShaderVisibilityGraphic::PixelShader, 1);
+
 	constantBuffer->Update(graphics);
+	}
+
 
 	texture = std::make_shared<Texture>(graphics, L"brickwall.jpg");
 
@@ -124,7 +128,7 @@ Triangle::Triangle(Graphics& graphics)
 	    rootSignature.AddConstBufferViewParameter(transformConstantBuffer->GetBuffer());
 	    rootSignature.AddDescriptorTableParameter(texture.get());
 
-		rootSignature.AddStaticSampler(0, TargetShader::PixelShader);
+		rootSignature.AddStaticSampler(0, ShaderVisibilityGraphic::PixelShader);
 
 		rootSignature.Initialize(graphics);
 	}

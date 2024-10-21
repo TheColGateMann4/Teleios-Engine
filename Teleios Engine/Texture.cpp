@@ -4,7 +4,7 @@
 
 #include <DirectXTex/DirectXTex.h>
 
-Texture::Texture(Graphics& graphics, const wchar_t* path, TargetShader target, UINT slot)
+Texture::Texture(Graphics& graphics, const wchar_t* path, ShaderVisibilityGraphic target, UINT slot)
 	:
 #ifdef _DEBUG
 	m_path(std::wstring(L"../../Images/") + path),
@@ -14,7 +14,7 @@ Texture::Texture(Graphics& graphics, const wchar_t* path, TargetShader target, U
 	m_target(target),
 	m_slot(slot)
 {
-	D3D12_RESOURCE_STATES resourceStateFlag = (target == TargetShader::PixelShader) ? D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE : D3D12_RESOURCE_STATE_ALL_SHADER_RESOURCE;
+	D3D12_RESOURCE_STATES resourceStateFlag = (target == ShaderVisibilityGraphic::PixelShader) ? D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE : D3D12_RESOURCE_STATE_ALL_SHADER_RESOURCE;
 
 	HRESULT hr;
 
@@ -122,7 +122,7 @@ UINT Texture::GetRootIndex() const
 	return m_rootNodeIndex;
 }
 
-TargetShader Texture::GetTarget() const
+ShaderVisibilityGraphic Texture::GetTarget() const
 {
 	return m_target;
 }

@@ -7,17 +7,17 @@ constexpr const char* GetDefaultEntryPointName(ShaderType type)
 {
 	switch (type)
 	{
-		case PixelShader:
+		case ShaderType::PixelShader:
 			return "PSMain";
-		case VertexShader:
+		case ShaderType::VertexShader:
 			return "VSMain";
-		case ComputeShader:
+		case ShaderType::ComputeShader:
 			return "CSMain";
-		case HullShader:
+		case ShaderType::HullShader:
 			return "HSMain";
-		case DomainShader:
+		case ShaderType::DomainShader:
 			return "DSMain";
-		case GeometryShader:
+		case ShaderType::GeometryShader:
 			return "GSMain";
 	}
 }
@@ -28,17 +28,17 @@ std::string GetShaderVersion(ShaderType type)
 
 	switch (type)
 	{
-		case PixelShader:
+		case ShaderType::PixelShader:
 			result = "ps"; break;
-		case VertexShader:
+		case ShaderType::VertexShader:
 			result = "vs"; break;
-		case ComputeShader:
+		case ShaderType::ComputeShader:
 			result = "cs"; break;
-		case HullShader:
+		case ShaderType::HullShader:
 			result = "hs"; break;
-		case DomainShader:
+		case ShaderType::DomainShader:
 			result = "ds"; break;
-		case GeometryShader:
+		case ShaderType::GeometryShader:
 			result = "gs"; break;
 	}
 

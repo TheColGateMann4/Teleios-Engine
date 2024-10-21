@@ -2,7 +2,7 @@
 #include "Macros/ErrorMacros.h"
 #include "Graphics.h"
 
-ConstantBuffer::ConstantBuffer(Graphics& graphics, const DynamicConstantBuffer::ConstantBufferLayout& layout, TargetShader target, UINT slot)
+ConstantBuffer::ConstantBuffer(Graphics& graphics, const DynamicConstantBuffer::ConstantBufferLayout& layout, ShaderVisibilityGraphic target, UINT slot)
 	:
 	m_target(target),
 	m_slot(slot)
@@ -78,7 +78,7 @@ UINT ConstantBuffer::GetRootIndex() const
 	return m_rootIndex;
 }
 
-TargetShader ConstantBuffer::GetTarget() const
+ShaderVisibilityGraphic ConstantBuffer::GetTarget() const
 {
 	return m_target;
 }
@@ -93,7 +93,7 @@ D3D12_GPU_VIRTUAL_ADDRESS ConstantBuffer::GetGPUAddress() const
 	return pConstBuffer->GetGPUVirtualAddress();
 }
 
-NonCachedConstantBuffer::NonCachedConstantBuffer(Graphics& graphics, DynamicConstantBuffer::ConstantBufferLayout& layout, TargetShader target, UINT slot)
+NonCachedConstantBuffer::NonCachedConstantBuffer(Graphics& graphics, DynamicConstantBuffer::ConstantBufferLayout& layout, ShaderVisibilityGraphic target, UINT slot)
 	:
 	ConstantBuffer(graphics, layout.GetFinished(), target, slot),
 	m_layout(layout)
@@ -131,7 +131,7 @@ void NonCachedConstantBuffer::Update(Graphics& graphics, void* data, size_t size
 	}
 }
 
-CachedConstantBuffer::CachedConstantBuffer(Graphics& graphics, DynamicConstantBuffer::ConstantBufferData& data, TargetShader target, UINT slot)
+CachedConstantBuffer::CachedConstantBuffer(Graphics& graphics, DynamicConstantBuffer::ConstantBufferData& data, ShaderVisibilityGraphic target, UINT slot)
 	:
 	ConstantBuffer(graphics, data.GetLayout(), target, slot),
 	m_data(data)

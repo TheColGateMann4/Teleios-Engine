@@ -1,7 +1,7 @@
 #pragma once
 #include "includes/DirectXIncludes.h";
 
-enum class TargetShader
+enum class ShaderVisibilityGraphic
 {
 	AllShaders = D3D12_SHADER_VISIBILITY_ALL,
 	PixelShader = D3D12_SHADER_VISIBILITY_PIXEL,
@@ -9,4 +9,14 @@ enum class TargetShader
 	HullShader = D3D12_SHADER_VISIBILITY_HULL,
 	DomainShader = D3D12_SHADER_VISIBILITY_DOMAIN,
 	GeometryShader = D3D12_SHADER_VISIBILITY_GEOMETRY
+};
+
+enum class ShaderType
+{
+	PixelShader,
+	VertexShader,
+	ComputeShader,
+	HullShader,
+	DomainShader,
+	GeometryShader
 };

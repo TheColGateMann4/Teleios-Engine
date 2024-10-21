@@ -10,13 +10,13 @@ class Graphics;
 class ConstantBuffer
 {
 public:
-	ConstantBuffer(Graphics& graphics, const DynamicConstantBuffer::ConstantBufferLayout& layout, TargetShader target = TargetShader::PixelShader, UINT slot = 0);
+	ConstantBuffer(Graphics& graphics, const DynamicConstantBuffer::ConstantBufferLayout& layout, ShaderVisibilityGraphic target = ShaderVisibilityGraphic::PixelShader, UINT slot = 0);
 
 public:
 	void SetRootIndex(UINT rootIndex);
 
 	UINT GetRootIndex() const;
-	TargetShader GetTarget() const;
+	ShaderVisibilityGraphic GetTarget() const;
 	UINT GetSlot() const;
 
 	D3D12_GPU_VIRTUAL_ADDRESS GetGPUAddress() const;
@@ -26,7 +26,7 @@ protected:
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> pDescriptorHeap;
 	UINT m_rootIndex = 0;
 	bool m_initializedRootIndex = false;
-	TargetShader m_target;
+	ShaderVisibilityGraphic m_target;
 	UINT m_slot;
 };
 
@@ -34,7 +34,7 @@ protected:
 class NonCachedConstantBuffer : public ConstantBuffer
 {
 public:
-	NonCachedConstantBuffer(Graphics& graphics, DynamicConstantBuffer::ConstantBufferLayout& layout, TargetShader target = TargetShader::PixelShader, UINT slot = 0);
+	NonCachedConstantBuffer(Graphics& graphics, DynamicConstantBuffer::ConstantBufferLayout& layout, ShaderVisibilityGraphic target = ShaderVisibilityGraphic::PixelShader, UINT slot = 0);
 
 	void Update(Graphics& graphics, void* data, size_t size);
 
@@ -45,7 +45,7 @@ private:
 class CachedConstantBuffer : public ConstantBuffer
 {
 public:
-	CachedConstantBuffer(Graphics& graphics, DynamicConstantBuffer::ConstantBufferData& data, TargetShader target = TargetShader::PixelShader, UINT slot = 0);
+	CachedConstantBuffer(Graphics& graphics, DynamicConstantBuffer::ConstantBufferData& data, ShaderVisibilityGraphic target = ShaderVisibilityGraphic::PixelShader, UINT slot = 0);
 
 	void Update(Graphics& graphics);
 

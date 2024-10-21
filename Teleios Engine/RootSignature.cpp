@@ -94,7 +94,7 @@ void RootSignature::AddDescriptorTableParameter(Texture* texture)
 	m_rootSignatureDesc.pParameters = m_rootParameters.data();
 }
 
-void RootSignature::AddStaticSampler(UINT registerNum, TargetShader target)
+void RootSignature::AddStaticSampler(UINT registerNum, ShaderVisibilityGraphic target)
 {
 	m_rootSignatureDesc.NumStaticSamplers++;
 	
