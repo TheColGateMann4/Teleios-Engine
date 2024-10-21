@@ -3,9 +3,7 @@
 
 void Graphics::Initialize(HWND hWnd, DXGI_FORMAT renderTargetFormat)
 {
-	m_renderTargetFormat = renderTargetFormat;
-
-	THROW_INTERNAL_ERROR_IF("Given color space is not valid swap chain buffer format", !CheckValidRenderTargetFormat(m_renderTargetFormat));
+	THROW_INTERNAL_ERROR_IF("Given color space is not valid swap chain buffer format", !CheckValidRenderTargetFormat(renderTargetFormat));
 
 	// Initializing pipeline components
 	{
@@ -59,7 +57,7 @@ void Graphics::Initialize(HWND hWnd, DXGI_FORMAT renderTargetFormat)
 			DXGI_SWAP_CHAIN_DESC swapChainDesc = {};
 			swapChainDesc.BufferDesc.Width = 0;
 			swapChainDesc.BufferDesc.Height = 0;
-			swapChainDesc.BufferDesc.Format = m_renderTargetFormat;
+			swapChainDesc.BufferDesc.Format = renderTargetFormat;
 			swapChainDesc.BufferDesc.RefreshRate.Numerator = 1;
 			swapChainDesc.BufferDesc.RefreshRate.Denominator = 144;
 			swapChainDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
@@ -93,7 +91,7 @@ void Graphics::Initialize(HWND hWnd, DXGI_FORMAT renderTargetFormat)
 				m_height = renderTargetDesc.Height;
 			}
 
-			m_backBuffer = std::make_shared<BackBufferRenderTarget>(*this, m_renderTargetFormat, pFirstBuffer.Get(), pSecondBuffer.Get());
+			m_backBuffer = std::make_shared<BackBufferRenderTarget>(*this, renderTargetFormat, pFirstBuffer.Get(), pSecondBuffer.Get());
 		}
 
 		// initializing depth stencil view
@@ -168,11 +166,6 @@ BackBufferRenderTarget* Graphics::GetBackBuffer()
 DepthStencilView* Graphics::GetDepthStencil()
 {
 	return m_depthStencilView.get();
-}
-
-DXGI_FORMAT Graphics::GetRenderTargetFormat() const noexcept
-{
-	return m_renderTargetFormat;
 }
 
 unsigned int Graphics::GetWidth() const noexcept

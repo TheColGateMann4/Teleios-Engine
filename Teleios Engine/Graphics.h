@@ -15,7 +15,7 @@
 class Graphics
 {
 public:
-	void Initialize(HWND hWnd, DXGI_FORMAT colorSpace);
+	void Initialize(HWND hWnd, DXGI_FORMAT renderTargetFormat);
 
 public:
 	unsigned int GetCurrentBackBufferIndex();
@@ -39,7 +39,6 @@ public:
 	InfoQueue* GetInfoQueue();
 #endif
 
-	DXGI_FORMAT GetRenderTargetFormat() const noexcept;
 	unsigned int GetWidth() const noexcept;
 	unsigned int GetHeight() const noexcept;
 
@@ -63,7 +62,6 @@ private:
 	std::shared_ptr<DepthStencilView> m_depthStencilView;
 
 private:
-	DXGI_FORMAT m_renderTargetFormat;
 	unsigned int m_width;
 	unsigned int m_height;
 };
