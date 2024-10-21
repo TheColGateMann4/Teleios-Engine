@@ -1,11 +1,11 @@
 #include "Graphics.h"
 #include "Macros/ErrorMacros.h"
 
-void Graphics::Initialize(HWND hWnd, DXGI_FORMAT colorSpace)
+void Graphics::Initialize(HWND hWnd, DXGI_FORMAT renderTargetFormat)
 {
-	m_colorSpace = colorSpace;
+	m_renderTargetFormat = renderTargetFormat;
 
-	THROW_INTERNAL_ERROR_IF("Given color space is not valid swap chain buffer format", !CheckValidColorSpace(m_colorSpace));
+	THROW_INTERNAL_ERROR_IF("Given color space is not valid swap chain buffer format", !CheckValidRenderTargetFormat(m_renderTargetFormat));
 
 	// Initializing pipeline components
 	{
@@ -59,7 +59,7 @@ void Graphics::Initialize(HWND hWnd, DXGI_FORMAT colorSpace)
 			DXGI_SWAP_CHAIN_DESC swapChainDesc = {};
 			swapChainDesc.BufferDesc.Width = 0;
 			swapChainDesc.BufferDesc.Height = 0;
-			swapChainDesc.BufferDesc.Format = m_colorSpace;
+			swapChainDesc.BufferDesc.Format = m_renderTargetFormat;
 			swapChainDesc.BufferDesc.RefreshRate.Numerator = 1;
 			swapChainDesc.BufferDesc.RefreshRate.Denominator = 144;
 			swapChainDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
@@ -93,7 +93,7 @@ void Graphics::Initialize(HWND hWnd, DXGI_FORMAT colorSpace)
 				m_height = renderTargetDesc.Height;
 			}
 
-			m_backBuffer = std::make_shared<BackBufferRenderTarget>(*this, pFirstBuffer.Get(), pSecondBuffer.Get());
+			m_backBuffer = std::make_shared<BackBufferRenderTarget>(*this, m_renderTargetFormat, pFirstBuffer.Get(), pSecondBuffer.Get());
 		}
 
 		// initializing depth stencil view
@@ -170,9 +170,9 @@ DepthStencilView* Graphics::GetDepthStencil()
 	return m_depthStencilView.get();
 }
 
-DXGI_FORMAT Graphics::GetColorSpace() const noexcept
+DXGI_FORMAT Graphics::GetRenderTargetFormat() const noexcept
 {
-	return m_colorSpace;
+	return m_renderTargetFormat;
 }
 
 unsigned int Graphics::GetWidth() const noexcept
@@ -189,7 +189,7 @@ unsigned int Graphics::GetHeight() const noexcept
 #pragma warning(push)
 #pragma warning(disable: 4061) // turning off warnings for default statement handling unhandled values by cases
 
-constexpr bool Graphics::CheckValidColorSpace(DXGI_FORMAT format)
+constexpr bool Graphics::CheckValidRenderTargetFormat(DXGI_FORMAT format)
 {
 	switch(format)
 	{

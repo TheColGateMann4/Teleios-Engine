@@ -39,12 +39,12 @@ public:
 	InfoQueue* GetInfoQueue();
 #endif
 
-	DXGI_FORMAT GetColorSpace() const noexcept;
+	DXGI_FORMAT GetRenderTargetFormat() const noexcept;
 	unsigned int GetWidth() const noexcept;
 	unsigned int GetHeight() const noexcept;
 
 private:
-	static constexpr bool CheckValidColorSpace(DXGI_FORMAT format);
+	static constexpr bool CheckValidRenderTargetFormat(DXGI_FORMAT format);
 
 private:
 	Microsoft::WRL::ComPtr<IDXGIFactory4> pFactory;
@@ -63,7 +63,7 @@ private:
 	std::shared_ptr<DepthStencilView> m_depthStencilView;
 
 private:
-	DXGI_FORMAT m_colorSpace;
+	DXGI_FORMAT m_renderTargetFormat;
 	unsigned int m_width;
 	unsigned int m_height;
 };
