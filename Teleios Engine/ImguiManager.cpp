@@ -36,7 +36,7 @@ ImguiManager::ImguiManager(Graphics& graphics, HWND hWnd)
 		ImGui_ImplDX12_Init(
 			graphics.GetDevice(),
 			1,
-			graphics.GetColorSpace(),
+			graphics.GetRenderTargetFormat(),
 			pDescriptorHeap.Get(),
 			pDescriptorHeap->GetCPUDescriptorHandleForHeapStart(),
 			pDescriptorHeap->GetGPUDescriptorHandleForHeapStart()
