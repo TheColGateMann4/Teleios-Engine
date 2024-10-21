@@ -3,6 +3,8 @@
 #include "Graphics.h"
 
 DepthStencilView::DepthStencilView(Graphics& graphics)
+	:
+	m_format(DXGI_FORMAT_D24_UNORM_S8_UINT) // 24 bytes of depth, and 8 bytes of stencil
 {
 	HRESULT hr;
 
@@ -22,13 +24,13 @@ DepthStencilView::DepthStencilView(Graphics& graphics)
 		resourceDesc.Height = graphics.GetHeight();
 		resourceDesc.DepthOrArraySize = 1;
 		resourceDesc.MipLevels = 1;
-		resourceDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT; // 24 bytes of depth, and 8 bytes of stencil
+		resourceDesc.Format = m_format;
 		resourceDesc.SampleDesc = DXGI_SAMPLE_DESC{1, 0};
 		resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
 		resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
 
 		D3D12_CLEAR_VALUE clearValue = {};
-		clearValue.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+		clearValue.Format = m_format;
 		clearValue.DepthStencil = {1.0f, 0}; // depth 1.0f, stencil 0
 
 		THROW_ERROR(graphics.GetDevice()->CreateCommittedResource(
@@ -60,7 +62,7 @@ DepthStencilView::DepthStencilView(Graphics& graphics)
 	// creating view
 	{
 		D3D12_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc = {};
-		depthStencilViewDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+		depthStencilViewDesc.Format = m_format;
 		depthStencilViewDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
 		depthStencilViewDesc.Flags = D3D12_DSV_FLAG_NONE;
 		depthStencilViewDesc.Texture2D.MipSlice = 0;
@@ -76,4 +78,9 @@ DepthStencilView::DepthStencilView(Graphics& graphics)
 const D3D12_CPU_DESCRIPTOR_HANDLE* DepthStencilView::GetDescriptor() const
 {
 	return &m_descriptor;
+}
+
+DXGI_FORMAT DepthStencilView::GetFormat() const
+{
+	return m_format;
 }
