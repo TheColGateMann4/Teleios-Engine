@@ -68,8 +68,9 @@ void PipelineState::SetNumRenderTargets(UINT numRenderTargets)
 
 void PipelineState::SetRenderTargetFormat(UINT index, DXGI_FORMAT renderTargetFormat)
 {
-	THROW_INTERNAL_ERROR_IF("index of render target formats exceeded", index > 7);
-	THROW_INTERNAL_ERROR_IF("index of defined render target formats exceeded. Perhaps didn't set SetNumRenderTargets", index > m_desc.NumRenderTargets - 1);
+	THROW_OBJECT_STATE_ERROR_IF("Index of render target formats exceeded", index > 7);
+	THROW_OBJECT_STATE_ERROR_IF("Didn't set number of render targets", m_desc.NumRenderTargets == 0);
+	THROW_OBJECT_STATE_ERROR_IF("Index of defined render targets exceeded", index > m_desc.NumRenderTargets - 1);
 
 	m_desc.RTVFormats[index] = renderTargetFormat;
 }
@@ -97,7 +98,7 @@ void PipelineState::Finish(Graphics& graphics)
 
 ID3D12PipelineState* PipelineState::Get() const
 {
-	THROW_INTERNAL_ERROR_IF("Tried to use unfinished Pipeline State", !m_finished);
+	THROW_OBJECT_STATE_ERROR_IF("Tried to use unfinished Pipeline State", !m_finished);
 
 	return pPipelineState.Get();
 }

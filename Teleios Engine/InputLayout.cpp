@@ -7,7 +7,7 @@ InputLayout::InputLayout(std::vector<Item>& layout)
 {
 	size_t layoutSize = layout.size();
 
-	THROW_INTERNAL_ERROR_IF("Input layout cannot exceed 15 elements", layout.size() > 15);
+	THROW_OBJECT_STATE_ERROR_IF("Input layout cannot exceed 15 elements", layout.size() > 15);
 
 	size_t accumulatedAlignedOffset = 0;
 

@@ -98,7 +98,7 @@ namespace DynamicConstantBuffer
 		template<ElementType elementType>
 		void AddElement(const char* name)
 		{
-			THROW_INTERNAL_ERROR_IF("Cannot add element to layout that has been finished", m_finished);
+			THROW_OBJECT_STATE_ERROR_IF("Layout was unfinished", m_finished);
 
 			LayoutElement element = {};
 			element.type = elementType;

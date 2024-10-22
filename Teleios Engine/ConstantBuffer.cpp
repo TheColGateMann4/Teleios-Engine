@@ -103,7 +103,7 @@ NonCachedConstantBuffer::NonCachedConstantBuffer(Graphics& graphics, DynamicCons
 
 void NonCachedConstantBuffer::Update(Graphics& graphics, void* data, size_t size)
 {
-	THROW_INTERNAL_ERROR_IF("data passed to ConstantBuffer::SetData is invalid", size > m_layout.GetSize() || data == nullptr);
+	THROW_OBJECT_STATE_ERROR_IF("Data is invalid", size > m_layout.GetSize() || data == nullptr);
 
 	HRESULT hr;
 

@@ -3,7 +3,7 @@
 
 DynamicConstantBuffer::ConstantBufferLayout& DynamicConstantBuffer::ConstantBufferLayout::GetFinished()
 {
-	THROW_INTERNAL_ERROR_IF("Cannot finish empty layout", m_elements.empty());
+	THROW_OBJECT_STATE_ERROR_IF("Layout was empty", m_elements.empty());
 
 	m_finished = true;
 
@@ -14,25 +14,25 @@ DynamicConstantBuffer::ConstantBufferLayout& DynamicConstantBuffer::ConstantBuff
 
 unsigned int DynamicConstantBuffer::ConstantBufferLayout::GetSize() const
 {
-	THROW_INTERNAL_ERROR_IF("Cannot get size of layout that is not finished", !m_finished);
+	THROW_OBJECT_STATE_ERROR_IF("Layout was unfinished", !m_finished);
 
 	return m_alignedSize;
 }
 
 const DynamicConstantBuffer::ConstantBufferLayout::LayoutElement& DynamicConstantBuffer::ConstantBufferLayout::GetElement(unsigned int index) const
 {
-	THROW_INTERNAL_ERROR_IF("Cannot get element from layout that is not finished", !m_finished);
-	THROW_INTERNAL_ERROR_IF("There were no added elements in layout", m_elements.empty());
-	THROW_INTERNAL_ERROR_IF("Tried to access element outside layout range", index > m_size - 1);
+	THROW_OBJECT_STATE_ERROR_IF("Layout was unfinished", !m_finished);
+	THROW_OBJECT_STATE_ERROR_IF("Layout was empty", m_elements.empty());
+	THROW_OBJECT_STATE_ERROR_IF("Index exceeded layout range", index > m_size - 1);
 
 	return m_elements.at(index);
 }
 
 const DynamicConstantBuffer::ConstantBufferLayout::LayoutElement& DynamicConstantBuffer::ConstantBufferLayout::GetElement(const char* name) const
 {
-	THROW_INTERNAL_ERROR_IF("Cannot get element from layout that is not finished", !m_finished);
-	THROW_INTERNAL_ERROR_IF("There were no added elements in layout", m_elements.empty());
-	THROW_INTERNAL_ERROR_IF("Empty name was passed", name == nullptr);
+	THROW_OBJECT_STATE_ERROR_IF("Layout was unfinished", !m_finished);
+	THROW_OBJECT_STATE_ERROR_IF("Layout was empty", m_elements.empty());
+	THROW_OBJECT_STATE_ERROR_IF("Empty name was passed", name == nullptr);
 
 	for (const auto& element : m_elements)
 		if (strcmp(name, element.name) == 0)

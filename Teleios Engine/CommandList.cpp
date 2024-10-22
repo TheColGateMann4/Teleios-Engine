@@ -24,7 +24,7 @@ CommandList::CommandList(Graphics& graphics, D3D12_COMMAND_LIST_TYPE type, ID3D1
 
 void CommandList::Open(Graphics& graphics, ID3D12PipelineState* pPipelineState)
 {
-	THROW_INTERNAL_ERROR_IF("Cannot call Open when command list is not initialized", !m_initialized);
+	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
 
 	HRESULT hr;
 
@@ -35,7 +35,7 @@ void CommandList::Open(Graphics& graphics, ID3D12PipelineState* pPipelineState)
 
 void CommandList::Close(Graphics& graphics)
 {
-	THROW_INTERNAL_ERROR_IF("Cannot call Close when command list is not initialized", !m_initialized);
+	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
 
 	HRESULT hr;
 
@@ -44,7 +44,7 @@ void CommandList::Close(Graphics& graphics)
 
 void CommandList::DrawIndexed(Graphics& graphics, unsigned int indices)
 {
-	THROW_INTERNAL_ERROR_IF("Cannot call DrawIndexed when command list is not initialized", !m_initialized);
+	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
 
 	THROW_INFO_ERROR(pCommandList->DrawIndexedInstanced(indices, 1, 0, 0, 0));
 }
@@ -56,8 +56,8 @@ ID3D12GraphicsCommandList* CommandList::Get()
 
 void CommandList::ResourceBarrier(Graphics& graphics, RenderTarget* renderTarget, D3D12_RESOURCE_STATES previousState, D3D12_RESOURCE_STATES afterState) const
 {
-	THROW_INTERNAL_ERROR_IF("Cannot call ResourceBarrier when command list is not initialized", !m_initialized);
-	THROW_INTERNAL_ERROR_IF("Cannot call ResourceBarrier on bundle command list object", m_type == D3D12_COMMAND_LIST_TYPE_BUNDLE);
+	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
+	THROW_OBJECT_STATE_ERROR_IF("Non-direct command list object", m_type != D3D12_COMMAND_LIST_TYPE_DIRECT);
 
 	// marking out current front buffer as the one that will be changing states, from present back to render target
 	{
@@ -76,8 +76,8 @@ void CommandList::ResourceBarrier(Graphics& graphics, RenderTarget* renderTarget
 
 void CommandList::SetRenderTarget(Graphics& graphics, RenderTarget* renderTarget, DepthStencilView* depthStencilView)
 {
-	THROW_INTERNAL_ERROR_IF("Cannot call SetRenderTarget when command list is not initialized", !m_initialized);
-	THROW_INTERNAL_ERROR_IF("Cannot call ResourceBarrier on bundle command list object", m_type == D3D12_COMMAND_LIST_TYPE_BUNDLE);
+	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
+	THROW_OBJECT_STATE_ERROR_IF("Non-direct command list object", m_type != D3D12_COMMAND_LIST_TYPE_DIRECT);
 
 	// binding render target to command list
 	{
@@ -91,42 +91,42 @@ void CommandList::SetRenderTarget(Graphics& graphics, RenderTarget* renderTarget
 
 void CommandList::SetVertexBuffer(Graphics& graphics, VertexBuffer* vertexBuffer)
 {
-	THROW_INTERNAL_ERROR_IF("Cannot call SetVertexBuffer when command list is not initialized", !m_initialized);
+	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
 
 	THROW_INFO_ERROR(pCommandList->IASetVertexBuffers(0, 1, vertexBuffer->Get()));
 }
 
 void CommandList::SetIndexBuffer(Graphics& graphics, IndexBuffer* indexBuffer)
 {
-	THROW_INTERNAL_ERROR_IF("Cannot call SetIndexBuffer when command list is not initialized", !m_initialized);
+	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
 
 	THROW_INFO_ERROR(pCommandList->IASetIndexBuffer(indexBuffer->Get()));
 }
 
 void CommandList::SetPrimitiveTopology(Graphics& graphics, D3D_PRIMITIVE_TOPOLOGY primitiveTechnology)
 {
-	THROW_INTERNAL_ERROR_IF("Cannot call SetPrimitiveTopology when command list is not initialized", !m_initialized);
+	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
 
 	THROW_INFO_ERROR(pCommandList->IASetPrimitiveTopology(primitiveTechnology));
 }
 
 void CommandList::SetRootSignature(Graphics& graphics, RootSignature* rootSignature)
 {
-	THROW_INTERNAL_ERROR_IF("Cannot call SetRootSignature when command list is not initialized", !m_initialized);
+	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
 
 	THROW_INFO_ERROR(pCommandList->SetGraphicsRootSignature(rootSignature->Get()));
 }
 
 void CommandList::SetConstBufferView(Graphics& graphics, ConstantBuffer* constBuffer)
 {
-	THROW_INTERNAL_ERROR_IF("Cannot call ExecuteBundle when command list is not initialized", !m_initialized);
+	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
 
 	THROW_INFO_ERROR(pCommandList->SetGraphicsRootConstantBufferView(constBuffer->GetRootIndex(), constBuffer->GetGPUAddress()));
 }
 
 void CommandList::SetDescriptorHeap(Graphics& graphics, Texture* texture)
 {
-	THROW_INTERNAL_ERROR_IF("Cannot call SetDescriptorHeap when command list is not initialized", !m_initialized);
+	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
 
 	ID3D12DescriptorHeap* descriptorHeaps[] = { texture->GetDescriptorHeap()};
 
@@ -135,23 +135,23 @@ void CommandList::SetDescriptorHeap(Graphics& graphics, Texture* texture)
 
 void CommandList::SetDescriptorTable(Graphics& graphics, Texture* texture)
 {
-	THROW_INTERNAL_ERROR_IF("Cannot call SetDescriptorTable when command list is not initialized", !m_initialized);
+	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
 
 	THROW_INFO_ERROR(pCommandList->SetGraphicsRootDescriptorTable(texture->GetRootIndex(), texture->GetGPUDescriptor()));
 }
 
 void CommandList::ExecuteBundle(Graphics& graphics, CommandList* commandList)
 {
-	THROW_INTERNAL_ERROR_IF("Cannot call ExecuteBundle when command list is not initialized", !m_initialized);
-	THROW_INTERNAL_ERROR_IF("Cannot call ExecuteBundle on non-direct command list object", m_type != D3D12_COMMAND_LIST_TYPE_DIRECT);
+	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
+	THROW_OBJECT_STATE_ERROR_IF("Non-direct command list object", m_type != D3D12_COMMAND_LIST_TYPE_DIRECT);
 
 	THROW_INFO_ERROR(pCommandList->ExecuteBundle(commandList->Get()));
 }
 
 void CommandList::ClearRenderTargetView(Graphics& graphics, RenderTarget* renderTarget)
 {
-	THROW_INTERNAL_ERROR_IF("Cannot call ClearRenderTargetView when command list is not initialized", !m_initialized);
-	THROW_INTERNAL_ERROR_IF("Cannot call ClearRenderTargetView on non-direct command list object", m_type != D3D12_COMMAND_LIST_TYPE_DIRECT);
+	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
+	THROW_OBJECT_STATE_ERROR_IF("Non-direct command list object", m_type != D3D12_COMMAND_LIST_TYPE_DIRECT);
 
 	FLOAT clearColor[] = { 0.01f, 0.02f, 0.03f, 1.0f };
 
@@ -165,9 +165,8 @@ void CommandList::ClearRenderTargetView(Graphics& graphics, RenderTarget* render
 
 void CommandList::ClearDepthStencilView(Graphics& graphics, DepthStencilView* depthStencilView)
 {
-	THROW_INTERNAL_ERROR_IF("Cannot call ClearDepthStencilView when command list is not initialized", !m_initialized);
-	THROW_INTERNAL_ERROR_IF("Cannot call ClearDepthStencilView on non-direct command list object", m_type != D3D12_COMMAND_LIST_TYPE_DIRECT);
-
+	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
+	THROW_OBJECT_STATE_ERROR_IF("Non-direct command list object", m_type != D3D12_COMMAND_LIST_TYPE_DIRECT);
 
 	THROW_INFO_ERROR(pCommandList->ClearDepthStencilView(
 		*graphics.GetDepthStencil()->GetDescriptor(),

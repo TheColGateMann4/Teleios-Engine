@@ -3,7 +3,7 @@
 
 void Graphics::Initialize(HWND hWnd, DXGI_FORMAT renderTargetFormat)
 {
-	THROW_INTERNAL_ERROR_IF("Given color space is not valid swap chain buffer format", !CheckValidRenderTargetFormat(renderTargetFormat));
+	THROW_OBJECT_STATE_ERROR_IF("Given format is not valid swap chain buffer", !CheckValidRenderTargetFormat(renderTargetFormat));
 
 	// Initializing pipeline components
 	{
