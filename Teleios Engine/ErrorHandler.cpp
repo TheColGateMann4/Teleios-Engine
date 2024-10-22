@@ -262,3 +262,43 @@ const char* ErrorHandler::InfoException::GetErrorType()
 }
 
 #endif
+
+ErrorHandler::ObjectStateException::ObjectStateException(unsigned int line, const char* file, const char* function, std::string errorString)
+	:
+	InternalException(line, file, function, errorString)
+{
+
+}
+
+std::string ErrorHandler::ObjectStateException::what()
+{
+	std::string result = {};
+
+	result += GetErrorType();
+
+	{
+		result += "\n[Error Name] ";
+
+		result += "Ran into exception when calling ";
+		result += GetFunction();
+		result += ". ";
+
+		result += GetErrorString();
+	}
+
+	result += "\n\n[File] ";
+	result += GetFile();
+
+	result += "\n[Line] ";
+	result += std::to_string(GetLine()).c_str();
+
+	result += "\n[Function] ";
+	result += GetFunction();
+
+	return result;
+}
+
+const char* ErrorHandler::ObjectStateException::GetErrorType()
+{
+	return "OBJECT_STATE_EXCEPTION";
+}

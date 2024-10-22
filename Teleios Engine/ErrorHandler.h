@@ -100,6 +100,17 @@ namespace ErrorHandler
 	};
 #endif
 
+	class ObjectStateException : public InternalException
+	{
+	public:
+		ObjectStateException(unsigned int line, const char* file, const char* function, std::string errorString);
+
+	public:
+		virtual std::string what() override;
+
+		virtual const char* GetErrorType() override;
+	};
+
 	static void ThrowError(const char* title, const char* text) noexcept
 	{
 		MessageBoxA(NULL, text, title, MB_OK | MB_ICONEXCLAMATION);
