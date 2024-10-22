@@ -116,7 +116,8 @@ CachedConstantBuffer::CachedConstantBuffer(Graphics& graphics, DynamicConstantBu
 	ConstantBuffer(graphics, data.GetLayout(), targets),
 	m_data(data)
 {
-	
+	// since we already pass the data to cached constant buffer, we surely want it updated on gpu side
+	Update(graphics);
 }
 
 void CachedConstantBuffer::Update(Graphics& graphics)
