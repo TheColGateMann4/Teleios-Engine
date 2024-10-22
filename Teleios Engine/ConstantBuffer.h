@@ -4,37 +4,32 @@
 #include "includes/WRLNoWarnings.h"
 #include "TargetShaders.h"
 #include "DynamicConstantBuffer.h"
+#include "RootSignatureResource.h"
 
 class Graphics;
 
-class ConstantBuffer
+class ConstantBuffer : public RootSignatureResource
 {
 public:
-	ConstantBuffer(Graphics& graphics, const DynamicConstantBuffer::ConstantBufferLayout& layout, ShaderVisibilityGraphic target = ShaderVisibilityGraphic::PixelShader, UINT slot = 0);
+	ConstantBuffer(Graphics& graphics, const DynamicConstantBuffer::ConstantBufferLayout& layout, std::vector<TargetSlotAndShader> targets = { {ShaderVisibilityGraphic::PixelShader, 0} });
 
 public:
-	void SetRootIndex(UINT rootIndex);
-
-	UINT GetRootIndex() const;
-	ShaderVisibilityGraphic GetTarget() const;
-	UINT GetSlot() const;
+	virtual std::vector<TargetSlotAndShader>& GetTargets() override;
 
 	D3D12_GPU_VIRTUAL_ADDRESS GetGPUAddress() const;
 
 protected:
 	Microsoft::WRL::ComPtr<ID3D12Resource> pConstBuffer;
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> pDescriptorHeap;
-	UINT m_rootIndex = 0;
 	bool m_initializedRootIndex = false;
-	ShaderVisibilityGraphic m_target;
-	UINT m_slot;
+	std::vector<TargetSlotAndShader> m_targets;
 };
 
 
 class NonCachedConstantBuffer : public ConstantBuffer
 {
 public:
-	NonCachedConstantBuffer(Graphics& graphics, DynamicConstantBuffer::ConstantBufferLayout& layout, ShaderVisibilityGraphic target = ShaderVisibilityGraphic::PixelShader, UINT slot = 0);
+	NonCachedConstantBuffer(Graphics& graphics, DynamicConstantBuffer::ConstantBufferLayout& layout, std::vector<TargetSlotAndShader> targets = { {ShaderVisibilityGraphic::PixelShader, 0} });
 
 	void Update(Graphics& graphics, void* data, size_t size);
 
@@ -45,7 +40,7 @@ private:
 class CachedConstantBuffer : public ConstantBuffer
 {
 public:
-	CachedConstantBuffer(Graphics& graphics, DynamicConstantBuffer::ConstantBufferData& data, ShaderVisibilityGraphic target = ShaderVisibilityGraphic::PixelShader, UINT slot = 0);
+	CachedConstantBuffer(Graphics& graphics, DynamicConstantBuffer::ConstantBufferData& data, std::vector<TargetSlotAndShader> targets = { {ShaderVisibilityGraphic::PixelShader, 0} });
 
 	void Update(Graphics& graphics);
 

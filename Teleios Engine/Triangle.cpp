@@ -114,7 +114,7 @@ Triangle::Triangle(Graphics& graphics)
 	*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("texcoordsScale") = 1.0f;
 	*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("brightness") = 1.0f;
 
-		constantBuffer = std::make_shared<CachedConstantBuffer>(graphics, bufferData, ShaderVisibilityGraphic::PixelShader, 1);
+		constantBuffer = std::make_shared<CachedConstantBuffer>(graphics, bufferData, std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::PixelShader, 2}});
 
 	constantBuffer->Update(graphics);
 	}

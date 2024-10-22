@@ -2,18 +2,16 @@
 #include "includes/DirectXIncludes.h"
 #include "includes/WRLNoWarnings.h"
 #include "TargetShaders.h"
+#include "RootSignatureResource.h"
 
-class Texture
+class Texture : public RootSignatureResource
 {
 public:
-	Texture(class Graphics& graphics, const wchar_t* path, ShaderVisibilityGraphic target = ShaderVisibilityGraphic::PixelShader, UINT slot = 0);
+	Texture(class Graphics& graphics, const wchar_t* path, std::vector<TargetSlotAndShader> targets = { {ShaderVisibilityGraphic::PixelShader, 0} });
 
 public:
-	void SetRootIndex(UINT index);
+	virtual std::vector<TargetSlotAndShader>& GetTargets() override;
 
-	UINT GetRootIndex() const;
-	ShaderVisibilityGraphic GetTarget() const;
-	UINT GetSlot() const;
 	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUDescriptor() const;
 	ID3D12DescriptorHeap* GetDescriptorHeap() const;
 
@@ -25,7 +23,5 @@ private:
 	std::wstring m_path;
 	bool m_isAlphaOpaque = false;
 	DXGI_FORMAT m_format = DXGI_FORMAT_UNKNOWN;
-	UINT m_rootNodeIndex = 0;
-	ShaderVisibilityGraphic m_target;
-	UINT m_slot;
+	std::vector<TargetSlotAndShader> m_targets;
 };

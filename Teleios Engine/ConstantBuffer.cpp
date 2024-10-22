@@ -2,10 +2,9 @@
 #include "Macros/ErrorMacros.h"
 #include "Graphics.h"
 
-ConstantBuffer::ConstantBuffer(Graphics& graphics, const DynamicConstantBuffer::ConstantBufferLayout& layout, ShaderVisibilityGraphic target, UINT slot)
+ConstantBuffer::ConstantBuffer(Graphics& graphics, const DynamicConstantBuffer::ConstantBufferLayout& layout, std::vector<TargetSlotAndShader> targets)
 	:
-	m_target(target),
-	m_slot(slot)
+	m_targets(targets)
 {
 	HRESULT hr;
 
@@ -64,28 +63,9 @@ ConstantBuffer::ConstantBuffer(Graphics& graphics, const DynamicConstantBuffer::
 	}
 }
 
-void ConstantBuffer::SetRootIndex(UINT rootIndex)
+std::vector<TargetSlotAndShader>& ConstantBuffer::GetTargets()
 {
-	m_initializedRootIndex = true;
-
-	m_rootIndex = rootIndex;
-}
-
-UINT ConstantBuffer::GetRootIndex() const
-{
-	THROW_INTERNAL_ERROR_IF("Tried to get root index without setting it beforehand", !m_initializedRootIndex);
-
-	return m_rootIndex;
-}
-
-ShaderVisibilityGraphic ConstantBuffer::GetTarget() const
-{
-	return m_target;
-}
-
-UINT ConstantBuffer::GetSlot() const
-{
-	return m_slot;
+	return m_targets;
 }
 
 D3D12_GPU_VIRTUAL_ADDRESS ConstantBuffer::GetGPUAddress() const
@@ -93,9 +73,9 @@ D3D12_GPU_VIRTUAL_ADDRESS ConstantBuffer::GetGPUAddress() const
 	return pConstBuffer->GetGPUVirtualAddress();
 }
 
-NonCachedConstantBuffer::NonCachedConstantBuffer(Graphics& graphics, DynamicConstantBuffer::ConstantBufferLayout& layout, ShaderVisibilityGraphic target, UINT slot)
+NonCachedConstantBuffer::NonCachedConstantBuffer(Graphics& graphics, DynamicConstantBuffer::ConstantBufferLayout& layout, std::vector<TargetSlotAndShader> targets)
 	:
-	ConstantBuffer(graphics, layout.GetFinished(), target, slot),
+	ConstantBuffer(graphics, layout.GetFinished(), targets),
 	m_layout(layout)
 {
 
@@ -131,9 +111,9 @@ void NonCachedConstantBuffer::Update(Graphics& graphics, void* data, size_t size
 	}
 }
 
-CachedConstantBuffer::CachedConstantBuffer(Graphics& graphics, DynamicConstantBuffer::ConstantBufferData& data, ShaderVisibilityGraphic target, UINT slot)
+CachedConstantBuffer::CachedConstantBuffer(Graphics& graphics, DynamicConstantBuffer::ConstantBufferData& data, std::vector<TargetSlotAndShader> targets)
 	:
-	ConstantBuffer(graphics, data.GetLayout(), target, slot),
+	ConstantBuffer(graphics, data.GetLayout(), targets),
 	m_data(data)
 {
 	

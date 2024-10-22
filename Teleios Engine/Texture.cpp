@@ -4,17 +4,20 @@
 
 #include <DirectXTex/DirectXTex.h>
 
-Texture::Texture(Graphics& graphics, const wchar_t* path, ShaderVisibilityGraphic target, UINT slot)
+Texture::Texture(Graphics& graphics, const wchar_t* path, std::vector<TargetSlotAndShader> targets)
 	:
 #ifdef _DEBUG
 	m_path(std::wstring(L"../../Images/") + path),
 #else
 	m_path(std::wstring(L"Images/") + path),
 #endif
-	m_target(target),
-	m_slot(slot)
+	m_targets(targets)
 {
-	D3D12_RESOURCE_STATES resourceStateFlag = (target == ShaderVisibilityGraphic::PixelShader) ? D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE : D3D12_RESOURCE_STATE_ALL_SHADER_RESOURCE;
+	D3D12_RESOURCE_STATES resourceStateFlag = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+
+	for (const auto& targetShader : m_targets)
+		if (targetShader.target != ShaderVisibilityGraphic::PixelShader)
+			resourceStateFlag = D3D12_RESOURCE_STATE_ALL_SHADER_RESOURCE;
 
 	HRESULT hr;
 
@@ -112,24 +115,9 @@ Texture::Texture(Graphics& graphics, const wchar_t* path, ShaderVisibilityGraphi
 	}
 }
 
-void Texture::SetRootIndex(UINT index)
+std::vector<TargetSlotAndShader>& Texture::GetTargets()
 {
-	m_rootNodeIndex = index;
-}
-
-UINT Texture::GetRootIndex() const
-{
-	return m_rootNodeIndex;
-}
-
-ShaderVisibilityGraphic Texture::GetTarget() const
-{
-	return m_target;
-}
-
-UINT Texture::GetSlot() const
-{
-	return m_slot;
+	return m_targets;
 }
 
 D3D12_GPU_DESCRIPTOR_HANDLE Texture::GetGPUDescriptor() const
