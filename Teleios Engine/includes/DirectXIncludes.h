@@ -6,6 +6,10 @@
 
 #define USED_SHADER_MODEL "5_1"
 
+#ifdef _DEBUG
+	#define D3DCOMPILE_DEBUG 1
+#endif
+
 //	//DirectXTex
 //	#include <DirectXTex/DirectXTex.h>
 //	#include <ScreenGrab/Screengrab12.h>
