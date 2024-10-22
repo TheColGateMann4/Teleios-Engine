@@ -24,6 +24,7 @@
 
 #define THROW_INTERNAL_ERROR(errorString)				 				  throw ErrorHandler::InternalException{ __LINE__, __FILE__, __FUNCTION__, errorString};
 #define THROW_INTERNAL_ERROR_IF(errorString, statement)		if(statement) throw ErrorHandler::InternalException{ __LINE__, __FILE__, __FUNCTION__, errorString};
+#define THROW_OBJECT_STATE_ERROR_IF(errorString, statement) if(statement) throw ErrorHandler::ObjectStateException{ __LINE__, __FILE__, __FUNCTION__, errorString};
 
 #ifdef _DEBUG
 	#define THROW_BLOB_ERROR(statement)\
