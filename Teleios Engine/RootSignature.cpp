@@ -19,7 +19,7 @@ RootSignature::RootSignature()
 
 ID3D12RootSignature* RootSignature::Get() const
 {
-	THROW_INTERNAL_ERROR_IF("Tried to call Get without on unfinishied root signature object", !m_finished);
+	THROW_OBJECT_STATE_ERROR_IF("Object was not finished", !m_finished);
 
 	return pRootSignature.Get();
 }
@@ -48,48 +48,75 @@ void RootSignature::Initialize(Graphics& graphics)
 	m_finished = true;
 }
 
+void RootSignature::AddResource(RootSignatureTypedResource typedResource)
+{
+	switch(typedResource.type)
+	{
+		case RootSignatureResourceType::type_constBufferView:
+		{
+			AddConstBufferViewParameter(static_cast<ConstantBuffer*>(typedResource.resource));
+			break;
+		}
+		case RootSignatureResourceType::type_texture:
+		{
+			AddDescriptorTableParameter(static_cast<Texture*>(typedResource.resource));
+			break;
+		}
+	}
+}
+
 void RootSignature::AddConstBufferViewParameter(ConstantBuffer* constantBuffer)
 {
-	constantBuffer->SetRootIndex(m_rootSignatureDesc.NumParameters);
+	auto& targets = constantBuffer->GetTargets();
 
-	m_rootSignatureDesc.NumParameters++;
+	for(auto& targetShader : targets)
+	{
+		targetShader.rootIndex = m_rootSignatureDesc.NumParameters;
 
-	D3D12_ROOT_PARAMETER rootParameter = {};
-	rootParameter.ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	rootParameter.Descriptor = {};
-	rootParameter.Descriptor.ShaderRegister = constantBuffer->GetSlot();
-	rootParameter.Descriptor.RegisterSpace = 0;
-	rootParameter.ShaderVisibility = D3D12_SHADER_VISIBILITY(constantBuffer->GetTarget());
+		m_rootSignatureDesc.NumParameters++;
 
-	m_rootParameters.push_back(rootParameter);
+		D3D12_ROOT_PARAMETER rootParameter = {};
+		rootParameter.ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+		rootParameter.Descriptor = {};
+		rootParameter.Descriptor.ShaderRegister = targetShader.slot;
+		rootParameter.Descriptor.RegisterSpace = 0;
+		rootParameter.ShaderVisibility = D3D12_SHADER_VISIBILITY(targetShader.target);
+
+		m_rootParameters.push_back(rootParameter);
+	}
 
 	m_rootSignatureDesc.pParameters = m_rootParameters.data();
 }
 
 void RootSignature::AddDescriptorTableParameter(Texture* texture)
 {
-	texture->SetRootIndex(m_rootSignatureDesc.NumParameters);
+	auto& targets = texture->GetTargets();
 
-	m_rootSignatureDesc.NumParameters++;
+	for (auto& targetShader : targets)
+	{
+		targetShader.rootIndex = m_rootSignatureDesc.NumParameters;
 
-	D3D12_DESCRIPTOR_RANGE descriptorRange = {};
-	descriptorRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-	descriptorRange.NumDescriptors = 1;
-	descriptorRange.BaseShaderRegister = texture->GetSlot();
-	descriptorRange.RegisterSpace = 0;
-	descriptorRange.OffsetInDescriptorsFromTableStart = 0;
-	
-	m_descriptorTableRanges.push_back(descriptorRange);
+		m_rootSignatureDesc.NumParameters++;
+
+		D3D12_DESCRIPTOR_RANGE descriptorRange = {};
+		descriptorRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+		descriptorRange.NumDescriptors = 1;
+		descriptorRange.BaseShaderRegister = targetShader.slot;
+		descriptorRange.RegisterSpace = 0;
+		descriptorRange.OffsetInDescriptorsFromTableStart = 0;
+
+		m_descriptorTableRanges.push_back(descriptorRange);
 
 
-	D3D12_ROOT_PARAMETER rootParameter = {};
-	rootParameter.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-	rootParameter.DescriptorTable = {};
-	rootParameter.DescriptorTable.NumDescriptorRanges++;
-	rootParameter.DescriptorTable.pDescriptorRanges = m_descriptorTableRanges.data();
-	rootParameter.ShaderVisibility = D3D12_SHADER_VISIBILITY(texture->GetTarget());
+		D3D12_ROOT_PARAMETER rootParameter = {};
+		rootParameter.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+		rootParameter.DescriptorTable = {};
+		rootParameter.DescriptorTable.NumDescriptorRanges++;
+		rootParameter.DescriptorTable.pDescriptorRanges = m_descriptorTableRanges.data();
+		rootParameter.ShaderVisibility = D3D12_SHADER_VISIBILITY(targetShader.target);
 
-	m_rootParameters.push_back(rootParameter);
+		m_rootParameters.push_back(rootParameter);
+	}
 
 	m_rootSignatureDesc.pParameters = m_rootParameters.data();
 }
