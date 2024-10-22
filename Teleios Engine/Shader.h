@@ -20,7 +20,7 @@ public:
 public:
 	void Reload();
 
-	ID3DBlob* GetShaderBlob() const;
+	D3D12_SHADER_BYTECODE GetShaderByteCode() const;
 
 private:
 	Microsoft::WRL::ComPtr<ID3DBlob> pShaderCode;

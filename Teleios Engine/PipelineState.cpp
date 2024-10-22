@@ -102,10 +102,10 @@ ID3D12PipelineState* PipelineState::Get() const
 	return pPipelineState.Get();
 }
 
-void PipelineState::SetShaderData(Shader* shader, D3D12_SHADER_BYTECODE* shaderByteCode)
+void PipelineState::SetShaderData(Shader* shader, D3D12_SHADER_BYTECODE* shaderDescByteCode)
 {
-	ID3DBlob* blob = shader->GetShaderBlob();
+	D3D12_SHADER_BYTECODE shaderByteCode = shader->GetShaderByteCode();
 
-	shaderByteCode->BytecodeLength = blob->GetBufferSize();
-	shaderByteCode->pShaderBytecode = blob->GetBufferPointer();
+	shaderDescByteCode->BytecodeLength = shaderByteCode.BytecodeLength;
+	shaderDescByteCode->pShaderBytecode = shaderByteCode.pShaderBytecode;
 }

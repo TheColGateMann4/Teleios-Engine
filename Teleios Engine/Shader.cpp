@@ -115,7 +115,11 @@ Shader::Shader(const char* name, ShaderType type, const char*)
 #endif
 
 
-ID3DBlob* Shader::GetShaderBlob() const
+D3D12_SHADER_BYTECODE Shader::GetShaderByteCode() const
 {
-	return pShaderCode.Get();
+	D3D12_SHADER_BYTECODE shaderBytecode = {};
+	shaderBytecode.pShaderBytecode = pShaderCode->GetBufferPointer();
+	shaderBytecode.BytecodeLength = pShaderCode->GetBufferSize();
+
+	return shaderBytecode;
 }

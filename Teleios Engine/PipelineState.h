@@ -45,7 +45,7 @@ public:
 	ID3D12PipelineState* Get() const;
 
 private:
-	static void SetShaderData(Shader* shader, D3D12_SHADER_BYTECODE* shaderByteCode);
+	static void SetShaderData(Shader* shader, D3D12_SHADER_BYTECODE* shaderDescByteCode);
 
 private:
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> pPipelineState;
