@@ -1,10 +1,11 @@
 #include "ErrorHandler.h"
 #include "Includes/DirectXIncludes.h"
 
-ErrorHandler::Exception::Exception(unsigned int line, const char* file)
+ErrorHandler::Exception::Exception(unsigned int line, const char* file, const char* function)
 	:
 	m_line(line),
-	m_file(file)
+	m_file(file),
+	m_function(function)
 {
 
 }
@@ -20,6 +21,9 @@ std::string ErrorHandler::Exception::what()
 
 	result += "\n[Line] ";
 	result += std::to_string(GetLine()).c_str();
+
+	result += "\n[Function] ";
+	result += GetFunction();
 
 	return result;
 }
@@ -39,13 +43,20 @@ const char* ErrorHandler::Exception::GetFile()
 	return m_file;
 }
 
+const char* ErrorHandler::Exception::GetFunction()
+{
+	return m_function;
+}
+
+
+
 /*
 		STANDARD EXCEPTION
 */
 
-ErrorHandler::StandardException::StandardException(unsigned int line, const char* file, HRESULT hr)
+ErrorHandler::StandardException::StandardException(unsigned int line, const char* file, const char* function, HRESULT hr)
 	:
-	Exception(line, file),
+	Exception(line, file, function),
 	m_hr(hr)
 {
 
@@ -67,8 +78,12 @@ std::string ErrorHandler::StandardException::what()
 
 	result += "\n[File] ";
 	result += GetFile();
+
 	result += "\n[Line] ";
 	result += std::to_string(GetLine()).c_str();
+
+	result += "\n[Function] ";
+	result += GetFunction();
 
 	return result;
 }
@@ -112,9 +127,9 @@ std::string ErrorHandler::StandardException::TranslateErrorCode(HRESULT hr)
 		INTERNAL EXCEPTION
 */
 
-ErrorHandler::InternalException::InternalException(unsigned int line, const char* file, std::string errorString)
+ErrorHandler::InternalException::InternalException(unsigned int line, const char* file, const char* function, std::string errorString)
 	: 
-	Exception(line, file),
+	Exception(line, file, function),
 	m_errorString(errorString)
 {
 
@@ -135,6 +150,9 @@ std::string ErrorHandler::InternalException::what()
 	result += "\n[Line] ";
 	result += std::to_string(GetLine()).c_str();
 
+	result += "\n[Function] ";
+	result += GetFunction();
+
 	return result;
 }
 
@@ -152,9 +170,9 @@ std::string ErrorHandler::InternalException::GetErrorString()
 		NO GFX EXCEPTION 
 */
 
-ErrorHandler::NoGFXException::NoGFXException(unsigned int line, const char* file)
+ErrorHandler::NoGFXException::NoGFXException(unsigned int line, const char* file, const char* function)
 	: 
-	Exception(line, file)
+	Exception(line, file, function)
 {
 
 }
@@ -169,9 +187,9 @@ const char* ErrorHandler::NoGFXException::GetErrorType()
 */
 #ifdef _DEBUG
 
-ErrorHandler::BlobMsgException::BlobMsgException(unsigned int line, const char* file, ::ID3DBlob* pErrorMessages)
+ErrorHandler::BlobMsgException::BlobMsgException(unsigned int line, const char* file, const char* function, ::ID3DBlob* pErrorMessages)
 	:
-	Exception(line, file),
+	Exception(line, file, function),
 	m_length(pErrorMessages->GetBufferSize()),
 	m_errorMessages(m_length, '\0')
 {
@@ -190,6 +208,9 @@ std::string ErrorHandler::BlobMsgException::what()
 	result += "\n[Line] ";
 	result += std::to_string(GetLine()).c_str();
 
+	result += "\n[Function] ";
+	result += GetFunction();
+
 	result += "\n[Error Messages] ";
 	result += m_errorMessages.c_str();
 
@@ -205,9 +226,9 @@ const char* ErrorHandler::BlobMsgException::GetErrorType()
 			INFO EXCEPTION
 */
 
-ErrorHandler::InfoException::InfoException(unsigned int line, const char* file, std::vector<std::string> messages)
+ErrorHandler::InfoException::InfoException(unsigned int line, const char* file, const char* function, std::vector<std::string> messages)
 	:
-	Exception(line, file),
+	Exception(line, file, function),
 	m_messages(messages)
 {
 
@@ -224,6 +245,9 @@ std::string ErrorHandler::InfoException::what()
 
 	result += "\n[Line] ";
 	result += std::to_string(GetLine()).c_str();
+
+	result += "\n[Function] ";
+	result += GetFunction();
 
 	result += "\n[Messages]: \n\n";
 	for (const auto& message : m_messages)

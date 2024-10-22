@@ -11,7 +11,7 @@ namespace ErrorHandler
 	class Exception
 	{
 	public:
-		Exception(unsigned int line, const char* file);
+		Exception(unsigned int line, const char* file, const char* function);
 
 		virtual ~Exception() = default;
 
@@ -22,16 +22,18 @@ namespace ErrorHandler
 
 		unsigned int GetLine();
 		const char* GetFile();
+		const char* GetFunction();
 
 	protected:
 		unsigned int m_line;
 		const char* m_file;
+		const char* m_function;
 	};
 
 	class StandardException : public Exception
 	{
 	public:
-		StandardException(unsigned int line, const char* file, HRESULT hr);
+		StandardException(unsigned int line, const char* file, const char* function, HRESULT hr);
 
 	public:
 		virtual std::string what() override;
@@ -51,7 +53,7 @@ namespace ErrorHandler
 	class InternalException : public Exception
 	{
 	public:
-		InternalException(unsigned int line, const char* file, std::string errorString);
+		InternalException(unsigned int line, const char* file, const char* function, std::string errorString);
 
 	public:
 		virtual std::string what() override;
@@ -66,7 +68,7 @@ namespace ErrorHandler
 	class NoGFXException : public Exception
 	{
 	public:
-		NoGFXException(unsigned int line, const char* file);
+		NoGFXException(unsigned int line, const char* file, const char* function);
 
 		virtual const char* GetErrorType() override;
 	};
@@ -75,7 +77,7 @@ namespace ErrorHandler
 	class BlobMsgException : public Exception
 	{
 	public:
-		BlobMsgException(unsigned int line, const char* file, ::ID3DBlob* pErrorMessages);
+		BlobMsgException(unsigned int line, const char* file, const char* function, ::ID3DBlob* pErrorMessages);
 
 	public:
 		virtual std::string what() override;
@@ -88,7 +90,7 @@ namespace ErrorHandler
 	class InfoException : public Exception
 	{
 	public:
-		InfoException(unsigned int line, const char* file, std::vector<std::string> messages);
+		InfoException(unsigned int line, const char* file, const char* function, std::vector<std::string> messages);
 
 	public:
 		virtual std::string what() override;
