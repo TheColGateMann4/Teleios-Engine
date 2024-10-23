@@ -7,7 +7,9 @@
 Application::Application(unsigned int width, unsigned int height, const char* name)
 	:
 	m_name(name),
-	window(width, height, m_name, DXGI_FORMAT_R16G16B16A16_FLOAT)
+	window(width, height, m_name, DXGI_FORMAT_R16G16B16A16_FLOAT),
+	pipeline(window.graphics),
+	imguiLayer(window.graphics)
 {
 
 };
@@ -38,8 +40,9 @@ int Application::Run()
 
 void Application::InitializeScene()
 {
-	triangle = std::make_shared<Triangle>(window.graphics);
 	camera = std::make_shared<Camera>(window.graphics);
+	pointLight = std::make_shared<PointLight>(window.graphics, pipeline);
+	triangle = std::make_shared<Triangle>(window.graphics, pipeline);
 }
 
 void Application::Update()
@@ -52,19 +55,46 @@ void Application::Update()
 		window.ShowCursor(!window.GetCursorVisibility());
 	}
 
-	window.input.DrawImguiWindow();
+	// initializing imgui windows
+	{
+		window.input.DrawImguiWindow();
 
-	triangle->DrawImguiWindow(window.graphics);
+		triangle->DrawImguiWindow(window.graphics);
 
-	camera->DrawImguiWindow();
+		camera->DrawImguiWindow();
 
+		pointLight->DrawImguiWindow(window.graphics);
+	}
 
-	camera->Update(window.input, window.GetCursorLocked());
+	// making imgui get its accumulated commands and heaps ready
+	imguiLayer.Render();
 
-	triangle->Update(window.graphics, *camera);
+	// updating objects
+	{
+		camera->Update(window.input, window.GetCursorLocked());
 
-	triangle->Draw(window.graphics);
+		triangle->Update(window.graphics, *camera);
+	}
 
+	// rendering 
+	{
+		// opening graphics command list and clearning allocator
+		pipeline.GetGraphicCommandList()->Open(window.graphics);
+
+		// drawing objects
+		{
+			triangle->Draw(window.graphics, pipeline);
+		}
+
+		// drawing imgui layer
+		imguiLayer.Draw(window.graphics, pipeline);
+
+		// closing graphics command list
+		pipeline.GetGraphicCommandList()->Close(window.graphics);
+	}
+
+	// executing command lists
+	pipeline.Execute(window.graphics);
 	
 	window.graphics.FinishFrame();
 

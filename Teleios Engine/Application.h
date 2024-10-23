@@ -1,8 +1,11 @@
 #pragma once
 #include "Includes/CppIncludes.h"
 #include "Window.h"
+#include "Pipeline.h"
+#include "ImguiLayer.h"
 #include "Triangle.h"
 #include "Camera.h"
+#include "PointLight.h"
 
 class Application
 {
@@ -23,7 +26,10 @@ private:
 
 private:
 	Window window;
+	Pipeline pipeline;
+	ImguiLayer imguiLayer;
 
 	std::shared_ptr<Triangle> triangle;
 	std::shared_ptr<Camera> camera;
+	std::shared_ptr<PointLight> pointLight;
 };
