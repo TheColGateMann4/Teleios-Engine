@@ -10,6 +10,7 @@ class VertexBuffer;
 class RootSignature;
 class ConstantBuffer;
 class Texture;
+struct RootSignatureTypedResource;
 
 class CommandList
 {
@@ -54,6 +55,9 @@ public:
 	void ClearDepthStencilView(Graphics& graphics, DepthStencilView* depthStencilView);
 
 	void SetPipelineState(Graphics& graphics, PipelineState* pPipelineState);
+
+	void SetRootResource(Graphics& graphics, RootSignatureTypedResource typedRootResource);
+
 private:
 	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> pCommandList;
 	Microsoft::WRL::ComPtr<ID3D12CommandAllocator> m_pCommandAllocator;

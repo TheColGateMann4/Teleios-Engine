@@ -199,3 +199,20 @@ void CommandList::SetPipelineState(Graphics& graphics, PipelineState* pPipelineS
 
 	THROW_INFO_ERROR(pCommandList->SetPipelineState(pPipelineState->Get()));
 }
+
+void CommandList::SetRootResource(Graphics& graphics, RootSignatureTypedResource typedRootResource)
+{
+	switch (typedRootResource.type)
+	{
+		case RootSignatureResourceType::type_constBufferView:
+		{
+			SetConstBufferView(graphics, static_cast<ConstantBuffer*>(typedRootResource.resource));
+			break;
+		}
+		case RootSignatureResourceType::type_texture:
+		{
+			SetDescriptorHeap(graphics, static_cast<Texture*>(typedRootResource.resource));
+			break;
+		}
+	}
+}
