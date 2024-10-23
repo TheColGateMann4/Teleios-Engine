@@ -114,11 +114,6 @@ unsigned int Graphics::GetCurrentBackBufferIndex()
 	return swapChain3->GetCurrentBackBufferIndex();
 }
 
-void Graphics::GetImguiCommands(ID3D12GraphicsCommandList* pCommandList)
-{
-	m_imguiManager->GetImguiCommands(*this, pCommandList);
-}
-
 void Graphics::BeginFrame()
 {
 	m_imguiManager->BeginFrame();

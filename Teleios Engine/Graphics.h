@@ -20,8 +20,6 @@ public:
 public:
 	unsigned int GetCurrentBackBufferIndex();
 
-	void GetImguiCommands(ID3D12GraphicsCommandList* pCommandList);
-
 	void BeginFrame();
 	void FinishFrame();
 
