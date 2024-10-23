@@ -96,8 +96,8 @@ Triangle::Triangle(Graphics& graphics, Pipeline& pipeline)
 	m_vertexBuffer = std::make_shared<VertexBuffer>(graphics, vertices.data(), vertices.size(), sizeof(vertices.at(0)));
 	m_indexBuffer = std::make_shared<IndexBuffer>(graphics, indices);
 
-	Shader pixelShader("PS_Texture", ShaderType::PixelShader);
-	Shader vertexShader("VS", ShaderType::VertexShader);
+	Shader pixelShader("PS_Phong", ShaderType::PixelShader);
+	Shader vertexShader("VS_Phong", ShaderType::VertexShader);
 	BlendState blendState = {};
 	RasterizerState rasterizerState = {};
 	DepthStencilState depthStencilState = {};
@@ -264,7 +264,6 @@ void Triangle::DrawImguiWindow(Graphics& graphics)
 			};
 
 		checkChanged(ImGui::SliderFloat("Texcoords Scale", constantBuffer->GetData().GetValuePointer<DynamicConstantBuffer::ElementType::Float>("texcoordsScale"), 0.1f, 10.0f));
-		checkChanged(ImGui::SliderFloat("Brightness", constantBuffer->GetData().GetValuePointer<DynamicConstantBuffer::ElementType::Float>("brightness"), 0.01f, 5.0f));
 
 		if (changed)
 			constantBuffer->Update(graphics);
