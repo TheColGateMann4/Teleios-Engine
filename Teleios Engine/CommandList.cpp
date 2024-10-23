@@ -192,3 +192,10 @@ void CommandList::ClearDepthStencilView(Graphics& graphics, DepthStencilView* de
 		nullptr
 	));
 };
+
+void CommandList::SetPipelineState(Graphics& graphics, PipelineState* pPipelineState)
+{
+	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
+
+	THROW_INFO_ERROR(pCommandList->SetPipelineState(pPipelineState->Get()));
+}

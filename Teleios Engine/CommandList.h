@@ -53,6 +53,7 @@ public:
 
 	void ClearDepthStencilView(Graphics& graphics, DepthStencilView* depthStencilView);
 
+	void SetPipelineState(Graphics& graphics, PipelineState* pPipelineState);
 private:
 	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> pCommandList;
 	Microsoft::WRL::ComPtr<ID3D12CommandAllocator> m_pCommandAllocator;
