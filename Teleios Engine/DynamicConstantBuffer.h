@@ -158,7 +158,7 @@ namespace DynamicConstantBuffer
 		unsigned int GetNewElementOffset() const
 		{
 			float numPacks = float(m_size) / float(alignment); // number of packs so far we went through
-			unsigned int sizeOfLastPack = (UINT32(numPacks - std::floor(numPacks))) * alignment;
+			unsigned int sizeOfLastPack = (numPacks - std::floor(numPacks)) * alignment;
 			unsigned int lastPackSizeWithNewElement = sizeOfLastPack + GetNewElementSize<elementType>();
 
 			return lastPackSizeWithNewElement > alignment ? std::ceil(numPacks) * alignment : m_size;
