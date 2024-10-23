@@ -10,7 +10,7 @@ CommandList::CommandList(Graphics& graphics, D3D12_COMMAND_LIST_TYPE type, ID3D1
 	:
 	m_type(type),
 	m_initialized(true),
-	m_closed(true)
+	m_open(false)
 {
 	HRESULT hr;
 	
@@ -31,6 +31,8 @@ void CommandList::Open(Graphics& graphics, ID3D12PipelineState* pPipelineState)
 	THROW_ERROR(m_pCommandAllocator->Reset());
 
 	THROW_ERROR(pCommandList->Reset(m_pCommandAllocator.Get(), pPipelineState));
+
+	m_open = true;
 }
 
 void CommandList::Close(Graphics& graphics)
@@ -40,6 +42,8 @@ void CommandList::Close(Graphics& graphics)
 	HRESULT hr;
 
 	THROW_ERROR(pCommandList->Close());
+
+	m_open = false;
 }
 
 void CommandList::DrawIndexed(Graphics& graphics, unsigned int indices)
@@ -52,6 +56,11 @@ void CommandList::DrawIndexed(Graphics& graphics, unsigned int indices)
 ID3D12GraphicsCommandList* CommandList::Get()
 {
 	return pCommandList.Get();
+}
+
+bool CommandList::IsOpen() const
+{
+	return m_open;
 }
 
 void CommandList::ResourceBarrier(Graphics& graphics, RenderTarget* renderTarget, D3D12_RESOURCE_STATES previousState, D3D12_RESOURCE_STATES afterState) const

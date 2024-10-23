@@ -26,6 +26,8 @@ public:
 	
 	ID3D12GraphicsCommandList* Get();
 
+	bool IsOpen() const;
+
 public:
 	void ResourceBarrier(Graphics& graphics, RenderTarget* renderTarget, D3D12_RESOURCE_STATES previousState, D3D12_RESOURCE_STATES afterState) const;
 	
@@ -56,6 +58,6 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12CommandAllocator> m_pCommandAllocator;
 	D3D12_COMMAND_LIST_TYPE m_type;
 	bool m_initialized;
-	bool m_closed;
+	bool m_open;
 };
 
