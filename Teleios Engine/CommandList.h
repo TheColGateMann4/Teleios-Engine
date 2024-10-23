@@ -3,6 +3,8 @@
 #include "includes/WRLNoWarnings.h"
 
 class Graphics;
+class PipelineState;
+
 class RenderTarget;
 class DepthStencilView;
 class IndexBuffer;
@@ -15,11 +17,11 @@ struct RootSignatureTypedResource;
 class CommandList
 {
 public:
-	CommandList(Graphics& graphics, D3D12_COMMAND_LIST_TYPE type,ID3D12PipelineState* pPipelineState = nullptr);
+	CommandList(Graphics& graphics, D3D12_COMMAND_LIST_TYPE type, PipelineState* pPipelineState = nullptr);
 
 public:
 	// this function is used to open CommandList, it also resets local allocator
-	void Open(Graphics& graphics, ID3D12PipelineState* pPipelineState = nullptr);
+	void Open(Graphics& graphics, PipelineState* pPipelineState = nullptr);
 
 	void Close(Graphics& graphics);
 

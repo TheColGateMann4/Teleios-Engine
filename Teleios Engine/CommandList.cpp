@@ -1,12 +1,14 @@
 #include "CommandList.h"
 #include "Graphics.h"
+#include "PipelineState.h"
 #include "Macros/ErrorMacros.h"
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
 #include "ConstantBuffer.h"
 #include "Texture.h"
+#include "RootSignatureResource.h"
 
-CommandList::CommandList(Graphics& graphics, D3D12_COMMAND_LIST_TYPE type, ID3D12PipelineState* pPipelineState)
+CommandList::CommandList(Graphics& graphics, D3D12_COMMAND_LIST_TYPE type, PipelineState* pPipelineState)
 	:
 	m_type(type),
 	m_initialized(true),
@@ -17,20 +19,23 @@ CommandList::CommandList(Graphics& graphics, D3D12_COMMAND_LIST_TYPE type, ID3D1
 	//creating command allocator for given command list type
 	THROW_ERROR(graphics.GetDevice()->CreateCommandAllocator(type, IID_PPV_ARGS(&m_pCommandAllocator)));
 
-	THROW_ERROR(graphics.GetDevice()->CreateCommandList(0, type, m_pCommandAllocator.Get(), pPipelineState, IID_PPV_ARGS(&pCommandList)));
+	ID3D12PipelineState* pipelineState = (pPipelineState == nullptr) ? nullptr : pPipelineState->Get();
+
+	THROW_ERROR(graphics.GetDevice()->CreateCommandList(0, type, m_pCommandAllocator.Get(), pipelineState, IID_PPV_ARGS(&pCommandList)));
 
 	THROW_ERROR(pCommandList->Close());
 }
 
-void CommandList::Open(Graphics& graphics, ID3D12PipelineState* pPipelineState)
+void CommandList::Open(Graphics& graphics, PipelineState* pPipelineState)
 {
 	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
 
 	HRESULT hr;
+	ID3D12PipelineState* pipelineState = (pPipelineState == nullptr) ? nullptr : pPipelineState->Get();
 
 	THROW_ERROR(m_pCommandAllocator->Reset());
 
-	THROW_ERROR(pCommandList->Reset(m_pCommandAllocator.Get(), pPipelineState));
+	THROW_ERROR(pCommandList->Reset(m_pCommandAllocator.Get(), pipelineState));
 
 	m_open = true;
 }
@@ -167,7 +172,7 @@ void CommandList::ClearRenderTargetView(Graphics& graphics, RenderTarget* render
 {
 	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
 	THROW_OBJECT_STATE_ERROR_IF("Non-direct command list object", m_type != D3D12_COMMAND_LIST_TYPE_DIRECT);
-
+	
 	FLOAT clearColor[] = { 0.01f, 0.02f, 0.03f, 1.0f };
 
 	THROW_INFO_ERROR(pCommandList->ClearRenderTargetView(
