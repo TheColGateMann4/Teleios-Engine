@@ -82,7 +82,8 @@ namespace DynamicConstantBuffer
 
 	class ConstantBufferLayout
 	{
-		static constexpr unsigned int alignment = 256;
+		static constexpr unsigned int alignment = 16;
+		static constexpr unsigned int bufferSizeAlignment = 256;
 
 		struct LayoutElement
 		{
