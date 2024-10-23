@@ -1,5 +1,6 @@
 #include "Triangle.h"
 #include "Graphics.h"
+#include "Pipeline.h"
 #include "Macros/ErrorMacros.h"
 
 #include "Shader.h"
@@ -13,10 +14,9 @@
 
 #include <imgui.h>
 
-Triangle::Triangle(Graphics& graphics)
+Triangle::Triangle(Graphics& graphics, Pipeline& pipeline)
 {
 	m_bundleCommandList = std::make_unique<CommandList>(graphics, D3D12_COMMAND_LIST_TYPE_BUNDLE);
-	m_directCommandList = std::make_unique<CommandList>(graphics, D3D12_COMMAND_LIST_TYPE_DIRECT);
 
 	struct Vertice
 	{
@@ -204,15 +204,15 @@ Triangle::Triangle(Graphics& graphics)
 	m_bundleCommandList->Close(graphics);
 }
 
-void Triangle::Draw(Graphics& graphics) const
+void Triangle::Draw(Graphics& graphics, Pipeline& pipeline) const
 {
-	graphics.GetImguiManager()->Render();
+	CommandList* directCommandList = pipeline.GetGraphicCommandList();
 
-	m_directCommandList->Open(graphics, m_pipelineState->Get());
+	directCommandList->SetPipelineState(graphics, m_pipelineState.get());
 
-	m_directCommandList->ResourceBarrier(graphics, graphics.GetBackBuffer(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+	directCommandList->ResourceBarrier(graphics, graphics.GetBackBuffer(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
 
-	m_directCommandList->SetRenderTarget(graphics, graphics.GetBackBuffer(), graphics.GetDepthStencil());
+	directCommandList->SetRenderTarget(graphics, graphics.GetBackBuffer(), graphics.GetDepthStencil());
 
 	{
 		D3D12_VIEWPORT viewport = {};
@@ -223,35 +223,25 @@ void Triangle::Draw(Graphics& graphics) const
 		viewport.MinDepth = 0.0f;
 		viewport.MaxDepth = 1.0f;
 
-		m_directCommandList->Get()->RSSetViewports(1, &viewport);
+		directCommandList->Get()->RSSetViewports(1, &viewport);
 
 		D3D12_RECT viewportRect = {};
 		viewportRect.left = viewportRect.top = 0;
 		viewportRect.bottom = graphics.GetHeight();
 		viewportRect.right = graphics.GetWidth();
 
-		m_directCommandList->Get()->RSSetScissorRects(1, &viewportRect);
+		directCommandList->Get()->RSSetScissorRects(1, &viewportRect);
 	}
 
-	m_directCommandList->ClearRenderTargetView(graphics, graphics.GetBackBuffer());
+	directCommandList->ClearRenderTargetView(graphics, graphics.GetBackBuffer());
 
-	m_directCommandList->ClearDepthStencilView(graphics, graphics.GetDepthStencil());
+	directCommandList->ClearDepthStencilView(graphics, graphics.GetDepthStencil());
 
-	m_directCommandList->SetDescriptorHeap(graphics, texture.get());
+	directCommandList->SetDescriptorHeap(graphics, texture.get());
 
-	m_directCommandList->ExecuteBundle(graphics, m_bundleCommandList.get());
-	
-	graphics.GetImguiCommands(m_directCommandList->Get());
+	directCommandList->ExecuteBundle(graphics, m_bundleCommandList.get());
 
-	m_directCommandList->ResourceBarrier(graphics, graphics.GetBackBuffer(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
-
-	m_directCommandList->Close(graphics);
-
-	// making this as temporary, later we will probably save points to some CommandQueue class and execute them from there
-
-	ID3D12CommandList* ppCommandLists[] = { m_directCommandList->Get() };
-
-	graphics.GetCommandQueue()->ExecuteCommandLists(1, ppCommandLists);
+	directCommandList->ResourceBarrier(graphics, graphics.GetBackBuffer(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 }
 
 void Triangle::Update(Graphics& graphics, Camera& camera)

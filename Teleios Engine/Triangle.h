@@ -12,15 +12,16 @@
 #include "TransformConstantBuffer.h"
 
 class Graphics;
+class Pipeline;
 class Camera;
 
 class Triangle
 {
 public:
-	Triangle(Graphics& graphics);
+	Triangle(Graphics& graphics, Pipeline& pipeline);
 
 public:
-	void Draw(Graphics& graphics) const;
+	void Draw(Graphics& graphics, Pipeline& pipeline) const;
 
 	void Update(Graphics& graphics, Camera& camera);
 
@@ -30,8 +31,6 @@ public:
 
 private:
 	std::unique_ptr<CommandList> m_bundleCommandList;
-	std::unique_ptr<CommandList> m_directCommandList;
-
 	std::unique_ptr<PipelineState> m_pipelineState;
 
 	std::shared_ptr<VertexBuffer> m_vertexBuffer;
