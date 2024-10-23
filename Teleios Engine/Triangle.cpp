@@ -104,15 +104,13 @@ Triangle::Triangle(Graphics& graphics, Pipeline& pipeline)
 	InputLayout inputLayout(layoutElements);
 	RootSignature rootSignature;
 	transformConstantBuffer = std::make_shared<TransformConstantBuffer>(graphics, this);
-
+	RootSignatureTypedResource lightBuffer = pipeline.GetStaticRootResource("lightBuffer");
 	{
 	DynamicConstantBuffer::ConstantBufferLayout layout;
 	layout.AddElement<DynamicConstantBuffer::ElementType::Float>("texcoordsScale");
-	layout.AddElement<DynamicConstantBuffer::ElementType::Float>("brightness");
 
 	DynamicConstantBuffer::ConstantBufferData bufferData(layout);
 	*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("texcoordsScale") = 1.0f;
-	*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("brightness") = 1.0f;
 
 		constantBuffer = std::make_shared<CachedConstantBuffer>(graphics, bufferData, std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::PixelShader, 2}});
 	}
@@ -127,6 +125,8 @@ Triangle::Triangle(Graphics& graphics, Pipeline& pipeline)
 	    rootSignature.AddDescriptorTableParameter(texture.get());
 
 		rootSignature.AddStaticSampler(0, ShaderVisibilityGraphic::PixelShader);
+
+		rootSignature.AddResource(lightBuffer);
 
 		rootSignature.Initialize(graphics);
 	}
@@ -179,7 +179,7 @@ Triangle::Triangle(Graphics& graphics, Pipeline& pipeline)
 
 		m_pipelineState->Finish(graphics); // Finish() call gets object from desc it made up
 
-		m_bundleCommandList->Open(graphics, m_pipelineState->Get());
+		m_bundleCommandList->Open(graphics, m_pipelineState.get());
 	}
 	
 
@@ -194,6 +194,8 @@ Triangle::Triangle(Graphics& graphics, Pipeline& pipeline)
 	m_bundleCommandList->SetConstBufferView(graphics, constantBuffer.get());
 
 	m_bundleCommandList->SetConstBufferView(graphics, transformConstantBuffer->GetBuffer());
+
+	m_bundleCommandList->SetRootResource(graphics, lightBuffer);
 
 	m_bundleCommandList->SetDescriptorHeap(graphics, texture.get());
 
