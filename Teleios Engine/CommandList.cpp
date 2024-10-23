@@ -130,7 +130,10 @@ void CommandList::SetConstBufferView(Graphics& graphics, ConstantBuffer* constBu
 {
 	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
 
-	THROW_INFO_ERROR(pCommandList->SetGraphicsRootConstantBufferView(constBuffer->GetRootIndex(), constBuffer->GetGPUAddress()));
+	auto& targets = constBuffer->GetTargets();
+
+	for (auto& targetShader : targets)
+		THROW_INFO_ERROR(pCommandList->SetGraphicsRootConstantBufferView(targetShader.rootIndex, constBuffer->GetGPUAddress()));
 }
 
 void CommandList::SetDescriptorHeap(Graphics& graphics, Texture* texture)
@@ -146,7 +149,10 @@ void CommandList::SetDescriptorTable(Graphics& graphics, Texture* texture)
 {
 	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
 
-	THROW_INFO_ERROR(pCommandList->SetGraphicsRootDescriptorTable(texture->GetRootIndex(), texture->GetGPUDescriptor()));
+	auto& targets = texture->GetTargets();
+
+	for (auto& targetShader : targets)
+		THROW_INFO_ERROR(pCommandList->SetGraphicsRootDescriptorTable(targetShader.rootIndex, texture->GetGPUDescriptor()));
 }
 
 void CommandList::ExecuteBundle(Graphics& graphics, CommandList* commandList)
