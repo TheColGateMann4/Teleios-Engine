@@ -58,22 +58,15 @@ void ImguiManager::BeginFrame()
 	ImGui::NewFrame();
 }
 
-void ImguiManager::Render()
-{
-	ImGui::Render();
-}
-
-void ImguiManager::GetImguiCommands(Graphics& graphics, ID3D12GraphicsCommandList* pCommandList)
-{
-	THROW_INFO_ERROR(pCommandList->SetDescriptorHeaps(1, pDescriptorHeap.GetAddressOf()));
-
-	ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), pCommandList);
-}
-
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 LRESULT ImguiManager::HandleMessages(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam))
 		return true;
+}
+
+ID3D12DescriptorHeap* const* ImguiManager::GetAddressOfDescriptorHeap() const
+{
+	return pDescriptorHeap.GetAddressOf();
 }
