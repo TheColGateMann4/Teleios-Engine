@@ -106,11 +106,11 @@ Triangle::Triangle(Graphics& graphics, Pipeline& pipeline)
 	transformConstantBuffer = std::make_shared<TransformConstantBuffer>(graphics, this);
 	RootSignatureTypedResource lightBuffer = pipeline.GetStaticRootResource("lightBuffer");
 	{
-	DynamicConstantBuffer::ConstantBufferLayout layout;
-	layout.AddElement<DynamicConstantBuffer::ElementType::Float>("texcoordsScale");
+		DynamicConstantBuffer::ConstantBufferLayout layout;
+		layout.AddElement<DynamicConstantBuffer::ElementType::Float>("texcoordsScale");
 
-	DynamicConstantBuffer::ConstantBufferData bufferData(layout);
-	*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("texcoordsScale") = 1.0f;
+		DynamicConstantBuffer::ConstantBufferData bufferData(layout);
+		*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("texcoordsScale") = 1.0f;
 
 		constantBuffer = std::make_shared<CachedConstantBuffer>(graphics, bufferData, std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::PixelShader, 2}});
 	}
