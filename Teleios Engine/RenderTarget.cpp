@@ -6,10 +6,11 @@
 			// Render Target
 */
 
-RenderTarget::RenderTarget(Graphics& graphics, ID3D12Resource* pResource, DXGI_FORMAT format, bool isBackBuffer)
+RenderTarget::RenderTarget(Graphics& graphics, ID3D12Resource* pResource, DXGI_FORMAT format, bool isBackBuffer, D3D12_RESOURCE_STATES resourceState)
 	:
 	m_sizeOfDescriptor(graphics.GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV)),
-	m_format(format)
+	m_format(format),
+	m_state(resourceState)
 {
 	HRESULT hr;
 
@@ -40,16 +41,16 @@ RenderTarget::RenderTarget(Graphics& graphics, ID3D12Resource* pResource, DXGI_F
 	}
 }
 
-RenderTarget::RenderTarget(Graphics& graphics, ID3D12Resource* pResource, DXGI_FORMAT format)
+RenderTarget::RenderTarget(Graphics& graphics, ID3D12Resource* pResource, DXGI_FORMAT format, D3D12_RESOURCE_STATES resourceState)
 	:
-	RenderTarget(graphics, pResource, format, false)
+	RenderTarget(graphics, pResource, format, false, resourceState)
 {
 
 };
 
-RenderTarget::RenderTarget(Graphics& graphics, DXGI_FORMAT format)
+RenderTarget::RenderTarget(Graphics& graphics, DXGI_FORMAT format, D3D12_RESOURCE_STATES resourceState)
 	:
-	RenderTarget(graphics, nullptr, format)
+	RenderTarget(graphics, nullptr, format, resourceState)
 {
 
 }
@@ -69,13 +70,23 @@ DXGI_FORMAT RenderTarget::GetFormat() const
 	return m_format;
 }
 
+D3D12_RESOURCE_STATES RenderTarget::GetResourceState() const
+{
+	return m_state;
+}
+
+void RenderTarget::SetResourceState(D3D12_RESOURCE_STATES newState)
+{
+	m_state = newState;
+}
+
 /*
 			// Render Target for back buffer
 */
 
 BackBufferRenderTarget::BackBufferRenderTarget(Graphics& graphics, DXGI_FORMAT format, ID3D12Resource* pFirstBackBuffer, ID3D12Resource* pSecondBackBuffer)
 	:
-	RenderTarget(graphics, pFirstBackBuffer, format, true) // calling render target constructor with back buffer true to create descriptor with two spaces
+	RenderTarget(graphics, pFirstBackBuffer, format, true, D3D12_RESOURCE_STATE_PRESENT) // calling render target constructor with back buffer true to create descriptor with two spaces
 {
 	// saving our buffer surface for later
 	pSecondBackBuffer->QueryInterface(pSecondRenderTarget.GetAddressOf());

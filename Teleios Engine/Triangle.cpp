@@ -212,7 +212,7 @@ void Triangle::Draw(Graphics& graphics, Pipeline& pipeline) const
 
 	directCommandList->SetPipelineState(graphics, m_pipelineState.get());
 
-	directCommandList->ResourceBarrier(graphics, graphics.GetBackBuffer(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+	directCommandList->SetResourceState(graphics, graphics.GetBackBuffer(), D3D12_RESOURCE_STATE_RENDER_TARGET);
 
 	directCommandList->SetRenderTarget(graphics, graphics.GetBackBuffer(), graphics.GetDepthStencil());
 
@@ -243,7 +243,7 @@ void Triangle::Draw(Graphics& graphics, Pipeline& pipeline) const
 
 	directCommandList->ExecuteBundle(graphics, m_bundleCommandList.get());
 
-	directCommandList->ResourceBarrier(graphics, graphics.GetBackBuffer(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
+	directCommandList->SetResourceState(graphics, graphics.GetBackBuffer(), D3D12_RESOURCE_STATE_PRESENT);
 }
 
 void Triangle::Update(Graphics& graphics, Camera& camera)

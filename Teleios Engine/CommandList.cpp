@@ -68,7 +68,7 @@ bool CommandList::IsOpen() const
 	return m_open;
 }
 
-void CommandList::ResourceBarrier(Graphics& graphics, RenderTarget* renderTarget, D3D12_RESOURCE_STATES previousState, D3D12_RESOURCE_STATES afterState) const
+void CommandList::SetResourceState(Graphics& graphics, RenderTarget* renderTarget, D3D12_RESOURCE_STATES newState) const
 {
 	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
 	THROW_OBJECT_STATE_ERROR_IF("Non-direct command list object", m_type != D3D12_COMMAND_LIST_TYPE_DIRECT);
@@ -81,11 +81,13 @@ void CommandList::ResourceBarrier(Graphics& graphics, RenderTarget* renderTarget
 		resourceBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 		resourceBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
 		resourceBarrier.Transition.pResource = pCurrFrontBuffer;
-		resourceBarrier.Transition.StateBefore = previousState;
-		resourceBarrier.Transition.StateAfter = afterState;
+		resourceBarrier.Transition.StateBefore = renderTarget->GetResourceState();
+		resourceBarrier.Transition.StateAfter = newState;
 
 		THROW_INFO_ERROR(pCommandList->ResourceBarrier(1, &resourceBarrier));
 	}
+
+	renderTarget->SetResourceState(newState);
 }
 
 void CommandList::SetRenderTarget(Graphics& graphics, RenderTarget* renderTarget, DepthStencilView* depthStencilView)

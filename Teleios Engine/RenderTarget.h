@@ -7,11 +7,11 @@ class Graphics;
 class RenderTarget
 {
 protected:
-	RenderTarget(Graphics& graphics, ID3D12Resource* pResource, DXGI_FORMAT format, bool isBackBuffer);
+	RenderTarget(Graphics& graphics, ID3D12Resource* pResource, DXGI_FORMAT format, bool isBackBuffer, D3D12_RESOURCE_STATES resourceState);
 
 public:
-	RenderTarget(Graphics& graphics, ID3D12Resource* pResource, DXGI_FORMAT format);
-	RenderTarget(Graphics& graphics, DXGI_FORMAT format);
+	RenderTarget(Graphics& graphics, ID3D12Resource* pResource, DXGI_FORMAT format, D3D12_RESOURCE_STATES resourceState = D3D12_RESOURCE_STATE_RENDER_TARGET);
+	RenderTarget(Graphics& graphics, DXGI_FORMAT format, D3D12_RESOURCE_STATES resourceState = D3D12_RESOURCE_STATE_RENDER_TARGET);
 
 public:
 	virtual const D3D12_CPU_DESCRIPTOR_HANDLE* GetDescriptor(Graphics& graphics) const;
@@ -19,12 +19,16 @@ public:
 
 	DXGI_FORMAT GetFormat() const;
 
+	D3D12_RESOURCE_STATES GetResourceState() const;
+	void SetResourceState(D3D12_RESOURCE_STATES newState);
+
 protected:
 	Microsoft::WRL::ComPtr<ID3D12Resource> pRenderTarget;
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> pDescriptorHeap;
 	D3D12_CPU_DESCRIPTOR_HANDLE m_descriptorHandle;
 	UINT m_sizeOfDescriptor;
 	DXGI_FORMAT m_format;
+	D3D12_RESOURCE_STATES m_state;
 };
 
 class BackBufferRenderTarget : public RenderTarget
