@@ -17,11 +17,9 @@ public:
 
 	void Draw(Graphics& graphics, Pipeline& pipeline);
 
-	void SetCaptureInput(bool captureInput);
+	void ToggleCaptureInput(bool captureInput);
 
 private:
-	uint8_t GetBitNum(enum ImGuiConfigFlags_ flag);
-
 	void GetImguiCommands(Graphics& graphics, ID3D12GraphicsCommandList* pDirectCommandList);
 
 private:
