@@ -53,6 +53,8 @@ void Application::Update()
 	{
 		window.LockCursor(!window.GetCursorLocked());
 		window.ShowCursor(!window.GetCursorVisibility());
+
+		imguiLayer.SetCaptureInput(!window.GetCursorLocked()); // cursorLocked got negated inside lockCursorFunction
 	}
 
 	// initializing imgui windows
