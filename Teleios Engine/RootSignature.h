@@ -4,6 +4,11 @@
 #include "TargetShaders.h"
 #include "RootSignatureResource.h"
 
+class Graphics;
+class ConstantBuffer;
+class Texture;
+class StaticSampler;
+
 class RootSignature
 {
 public:
@@ -12,18 +17,18 @@ public:
 public:
 	ID3D12RootSignature* Get() const;
 
-	void Initialize(class Graphics& graphics);
+	void Initialize(Graphics& graphics);
 
 	void AddResource(RootSignatureTypedResource typedResource);
 
 	// returns rootIndex that was used
-	void AddConstBufferViewParameter(class ConstantBuffer* constantBuffer);
-	void AddDescriptorTableParameter(class Texture* texture);
+	void AddConstBufferViewParameter(ConstantBuffer* constantBuffer);
+	void AddDescriptorTableParameter(Texture* texture);
 	//srv
 	// uav
 	// constants
 
-	void AddStaticSampler(UINT registerNum, ShaderVisibilityGraphic target);
+	void AddStaticSampler(StaticSampler* staticSampler);
 
 private:
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> pRootSignature;
