@@ -22,7 +22,10 @@ public:
 
     const D3D12_INDEX_BUFFER_VIEW* Get() const;
 
+    size_t GetIndexCount() const;
+
 private:
     Microsoft::WRL::ComPtr<ID3D12Resource> pIndexBuffer;
     D3D12_INDEX_BUFFER_VIEW m_indexBufferView;
+    size_t m_indexCount;
 };

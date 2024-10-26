@@ -4,6 +4,8 @@
 #include "CommandList.h"
 
 IndexBuffer::IndexBuffer(Graphics& graphics, void* pData, size_t indexCount, DXGI_FORMAT dataFormat)
+    :
+    m_indexCount(indexCount)
 {
     THROW_OBJECT_STATE_ERROR_IF("Haven't handled other indice formats", dataFormat != DXGI_FORMAT_R32_UINT && dataFormat != DXGI_FORMAT_R16_UINT);
 
@@ -96,4 +98,9 @@ void IndexBuffer::BindToCommandList(Graphics& graphics, CommandList* commandList
 const D3D12_INDEX_BUFFER_VIEW* IndexBuffer::Get() const
 {
     return &m_indexBufferView;
+}
+
+size_t IndexBuffer::GetIndexCount() const
+{
+    return m_indexCount;
 }
