@@ -3,10 +3,13 @@
 #include "Graphics.h"
 #include "CommandList.h"
 
-IndexBuffer::IndexBuffer(Graphics& graphics, void* pData, size_t dataSize, DXGI_FORMAT dataFormat)
+IndexBuffer::IndexBuffer(Graphics& graphics, void* pData, size_t indexCount, DXGI_FORMAT dataFormat)
 {
-    HRESULT hr;
+    THROW_OBJECT_STATE_ERROR_IF("Haven't handled other indice formats", dataFormat != DXGI_FORMAT_R32_UINT && dataFormat != DXGI_FORMAT_R16_UINT);
 
+    HRESULT hr;
+    uint8_t structureSize = dataFormat == DXGI_FORMAT_R32_UINT ? 4 : 2; // 4bytes for 32bits and 2bytes for 16bits
+    size_t dataSize = indexCount * structureSize;
 
     // initializing vertex buffer resource
     {
@@ -73,14 +76,14 @@ IndexBuffer::IndexBuffer(Graphics& graphics, void* pData, size_t dataSize, DXGI_
 
 IndexBuffer::IndexBuffer(Graphics& graphics, std::vector<unsigned int> indices)
 	:
-	IndexBuffer(graphics, indices.data(), indices.size() * sizeof(indices.at(0)), DXGI_FORMAT_R32_UINT)
+	IndexBuffer(graphics, indices.data(), indices.size(), DXGI_FORMAT_R32_UINT)
 {
 
 }
 
 IndexBuffer::IndexBuffer(Graphics& graphics, std::vector<unsigned short> indices)
     :
-    IndexBuffer(graphics, indices.data(), indices.size() * sizeof(indices.at(0)), DXGI_FORMAT_R16_UINT)
+    IndexBuffer(graphics, indices.data(), indices.size(), DXGI_FORMAT_R16_UINT)
 {
 
 }

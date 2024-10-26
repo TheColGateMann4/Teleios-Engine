@@ -10,7 +10,7 @@ class CommandList;
 class IndexBuffer : public Bindable, public CommandListBindable
 {
 private:
-    IndexBuffer(Graphics& graphics, void* pData, size_t dataSize, DXGI_FORMAT dataFormat);
+    IndexBuffer(Graphics& graphics, void* pData, size_t indexCount, DXGI_FORMAT dataFormat);
 
 public:
     IndexBuffer(Graphics& graphics, std::vector<unsigned int> indices);
