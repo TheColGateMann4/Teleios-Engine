@@ -106,9 +106,8 @@ Triangle::Triangle(Graphics& graphics, Pipeline& pipeline, DirectX::XMFLOAT3 pos
 	AddBindable(std::make_shared<InputLayout>(layoutElements));
 	AddBindable(std::make_shared<PrimitiveTechnology>(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE));
 
-	AddStaticRootBindable(pipeline, "lightBuffer");
+	AddStaticBindable(pipeline, "lightBuffer");
 
-	RootSignatureTypedResource lightBuffer = pipeline.GetStaticRootResource("lightBuffer");
 	{
 		DynamicConstantBuffer::ConstantBufferLayout layout;
 		layout.AddElement<DynamicConstantBuffer::ElementType::Float>("texcoordsScale");

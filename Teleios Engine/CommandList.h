@@ -58,8 +58,6 @@ public:
 
 	void SetPipelineState(Graphics& graphics, PipelineState* pPipelineState);
 
-	void SetRootResource(Graphics& graphics, RootSignatureTypedResource typedRootResource);
-
 private:
 	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> pCommandList;
 	Microsoft::WRL::ComPtr<ID3D12CommandAllocator> m_pCommandAllocator;

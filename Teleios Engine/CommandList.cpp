@@ -6,7 +6,6 @@
 #include "IndexBuffer.h"
 #include "ConstantBuffer.h"
 #include "Texture.h"
-#include "RootSignatureResource.h"
 
 CommandList::CommandList(Graphics& graphics, D3D12_COMMAND_LIST_TYPE type, PipelineState* pPipelineState)
 	:
@@ -205,21 +204,4 @@ void CommandList::SetPipelineState(Graphics& graphics, PipelineState* pPipelineS
 	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
 
 	THROW_INFO_ERROR(pCommandList->SetPipelineState(pPipelineState->Get()));
-}
-
-void CommandList::SetRootResource(Graphics& graphics, RootSignatureTypedResource typedRootResource)
-{
-	switch (typedRootResource.type)
-	{
-		case RootSignatureResourceType::type_constBufferView:
-		{
-			SetConstBufferView(graphics, static_cast<ConstantBuffer*>(typedRootResource.resource));
-			break;
-		}
-		case RootSignatureResourceType::type_texture:
-		{
-			SetDescriptorHeap(graphics, static_cast<Texture*>(typedRootResource.resource));
-			break;
-		}
-	}
 }

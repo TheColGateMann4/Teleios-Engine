@@ -162,6 +162,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
+    <ClCompile Include="Bindable.cpp" />
     <ClCompile Include="BlendState.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="CommandList.cpp" />
@@ -185,12 +186,15 @@
     <ClCompile Include="Pipeline.cpp" />
     <ClCompile Include="PipelineState.cpp" />
     <ClCompile Include="PointLight.cpp" />
+    <ClCompile Include="PrimitiveTechnology.cpp" />
     <ClCompile Include="RasterizerState.cpp" />
     <ClCompile Include="RenderTarget.cpp" />
     <ClCompile Include="RootSignature.cpp" />
     <ClCompile Include="RootSignatureResource.cpp" />
+    <ClCompile Include="Sampler.cpp" />
     <ClCompile Include="SceneObject.cpp" />
     <ClCompile Include="Shader.cpp" />
+    <ClCompile Include="Sphere.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="TransformConstantBuffer.cpp" />
     <ClCompile Include="Triangle.cpp" />
@@ -199,6 +203,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
+    <ClInclude Include="Bindable.h" />
     <ClInclude Include="BlendState.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="CommandList.h" />
@@ -220,12 +225,14 @@
     <ClInclude Include="Pipeline.h" />
     <ClInclude Include="PipelineState.h" />
     <ClInclude Include="PointLight.h" />
+    <ClInclude Include="PrimitiveTechnology.h" />
     <ClInclude Include="RasterizerState.h" />
     <ClInclude Include="RenderTarget.h" />
     <ClInclude Include="RootSignature.h" />
-    <ClInclude Include="RootSignatureResource.h" />
+    <ClInclude Include="Sampler.h" />
     <ClInclude Include="SceneObject.h" />
     <ClInclude Include="Shader.h" />
+    <ClInclude Include="Sphere.h" />
     <ClInclude Include="TargetShaders.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="TransformConstantBuffer.h" />

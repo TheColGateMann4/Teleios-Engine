@@ -24,7 +24,7 @@ PointLight::PointLight(Graphics& graphics, Pipeline& pipeline, DirectX::XMFLOAT3
 
 	m_lightBuffer = std::make_shared<CachedConstantBuffer>(graphics, bufferData, std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::PixelShader, 0}});
 
-	pipeline.AddStaticRootResource("lightBuffer", RootSignatureResourceType::type_constBufferView, m_lightBuffer.get());
+	pipeline.AddStaticResource("lightBuffer", m_lightBuffer.get());
 }
 
 void PointLight::DrawImguiWindow(Graphics& graphics, bool isLayerVisible)

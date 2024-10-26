@@ -2,7 +2,6 @@
 #include "includes/DirectXIncludes.h"
 #include "includes/WRLNoWarnings.h"
 #include "TargetShaders.h"
-#include "RootSignatureResource.h"
 #include "Bindable.h"
 
 class CommandList;

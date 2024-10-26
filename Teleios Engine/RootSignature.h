@@ -2,7 +2,6 @@
 #include "includes/DirectXIncludes.h"
 #include "includes/WRLNoWarnings.h"
 #include "TargetShaders.h"
-#include "RootSignatureResource.h"
 
 class Graphics;
 class ConstantBuffer;
@@ -18,8 +17,6 @@ public:
 	ID3D12RootSignature* Get() const;
 
 	void Initialize(Graphics& graphics);
-
-	void AddResource(RootSignatureTypedResource typedResource);
 
 	// returns rootIndex that was used
 	void AddConstBufferViewParameter(ConstantBuffer* constantBuffer);

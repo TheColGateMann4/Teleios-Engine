@@ -25,7 +25,7 @@ public:
 	virtual ~SceneObject() = default;
 
 protected:
-	void AddStaticRootBindable(Pipeline& pipeline, const char* bindableName);
+	void AddStaticBindable(Pipeline& pipeline, const char* bindableName);
 
 	void AddBindable(std::shared_ptr<Bindable> bindable);
 

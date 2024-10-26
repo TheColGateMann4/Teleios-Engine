@@ -13,7 +13,7 @@ CommandList* Pipeline::GetGraphicCommandList() const
 	return m_graphicsCommandList.get();
 }
 
-RootSignatureTypedResource Pipeline::GetStaticRootResource(const char* resourceName) const
+Bindable* Pipeline::GetStaticResource(const char* resourceName) const
 {
 	for (auto& typedResource : m_staticResources)
 		if (strcmp(resourceName, typedResource.first) == 0)
@@ -22,12 +22,12 @@ RootSignatureTypedResource Pipeline::GetStaticRootResource(const char* resourceN
 	THROW_INTERNAL_ERROR("Could not find resource with given name");
 }
 
-void Pipeline::AddStaticRootResource(const char* resourceName, RootSignatureResourceType resourceType, RootSignatureResource* pResource)
+void Pipeline::AddStaticResource(const char* resourceName, Bindable* bindable)
 {
 	THROW_OBJECT_STATE_ERROR_IF("Cannot add object with nullptr name", resourceName == nullptr);
-	THROW_OBJECT_STATE_ERROR_IF("Cannot add typedObject without object itself", pResource == nullptr);
+	THROW_OBJECT_STATE_ERROR_IF("Cannot add typedObject without object itself", bindable == nullptr);
 
-	m_staticResources.push_back({ resourceName, { resourceType, pResource } });
+	m_staticResources.push_back({ resourceName, bindable });
 }
 
 void Pipeline::Execute(Graphics& graphics)

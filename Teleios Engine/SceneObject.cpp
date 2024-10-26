@@ -15,9 +15,9 @@ SceneObject::SceneObject(DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation)
 
 }
 
-void SceneObject::AddStaticRootBindable(Pipeline& pipeline, const char* bindableName)
+void SceneObject::AddStaticBindable(Pipeline& pipeline, const char* bindableName)
 {
-	SegregateBindable(pipeline.GetStaticRootResource(bindableName).resource);
+	SegregateBindable(pipeline.GetStaticResource(bindableName));
 }
 
 void SceneObject::AddBindable(std::shared_ptr<Bindable> bindable)

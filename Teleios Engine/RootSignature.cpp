@@ -49,23 +49,6 @@ void RootSignature::Initialize(Graphics& graphics)
 	m_finished = true;
 }
 
-void RootSignature::AddResource(RootSignatureTypedResource typedResource)
-{
-	switch(typedResource.type)
-	{
-		case RootSignatureResourceType::type_constBufferView:
-		{
-			AddConstBufferViewParameter(static_cast<ConstantBuffer*>(typedResource.resource));
-			break;
-		}
-		case RootSignatureResourceType::type_texture:
-		{
-			AddDescriptorTableParameter(static_cast<Texture*>(typedResource.resource));
-			break;
-		}
-	}
-}
-
 void RootSignature::AddConstBufferViewParameter(ConstantBuffer* constantBuffer)
 {
 	auto& targets = constantBuffer->GetTargets();
