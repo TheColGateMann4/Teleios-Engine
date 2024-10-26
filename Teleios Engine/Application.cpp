@@ -1,8 +1,6 @@
 #include "Application.h"
 #include "Macros/ErrorMacros.h"
-#include <backend/imgui_impl_dx12.h>
-#include <backend/imgui_impl_win32.h>
-#include <imgui.h>
+#include "Triangle.h"
 
 Application::Application(unsigned int width, unsigned int height, const char* name)
 	:
@@ -42,7 +40,10 @@ void Application::InitializeScene()
 {
 	camera = std::make_shared<Camera>(window.graphics);
 	pointLight = std::make_shared<PointLight>(window.graphics, pipeline);
-	triangle = std::make_shared<Triangle>(window.graphics, pipeline);
+	sceneObjects.push_back(std::make_shared<Triangle>(window.graphics, pipeline));
+
+	for (auto& sceneObject : sceneObjects)
+		sceneObject->Initialize(window.graphics);
 }
 
 void Application::Update()
@@ -67,7 +68,8 @@ void Application::Update()
 	{
 		window.input.DrawImguiWindow(imguiLayer.IsVisible());
 
-		triangle->DrawImguiWindow(window.graphics, imguiLayer.IsVisible());
+		for (auto& sceneObject : sceneObjects)
+			sceneObject->DrawImguiWindow(window.graphics, imguiLayer.IsVisible());
 
 		camera->DrawImguiWindow(imguiLayer.IsVisible());
 
@@ -83,24 +85,55 @@ void Application::Update()
 	{
 		camera->Update(window.input, window.GetCursorLocked());
 
-		triangle->Update(window.graphics, *camera);
+		for (auto& sceneObject : sceneObjects)
+			sceneObject->UpdateTransformMatrix(window.graphics, *camera);
+
+		for (auto& sceneObject : sceneObjects)
+			sceneObject->Update(window.graphics);
 	}
 
 	// rendering 
 	{
-		// opening graphics command list and clearning allocator
-		pipeline.GetGraphicCommandList()->Open(window.graphics);
+		
+		CommandList* commandList = pipeline.GetGraphicCommandList(); 
+		commandList->Open(window.graphics);	// opening graphics command list and clearning allocator
 
-		// drawing objects
+		// setting render target
+		commandList->SetRenderTarget(window.graphics, window.graphics.GetBackBuffer(), window.graphics.GetDepthStencil());
+
+		commandList->SetResourceState(window.graphics, window.graphics.GetBackBuffer(), D3D12_RESOURCE_STATE_RENDER_TARGET); // setting backbuffer state to renderTarget on drawing time
+
 		{
-			triangle->Draw(window.graphics, pipeline);
+			D3D12_VIEWPORT viewport = {};
+			viewport.TopLeftX = 0;
+			viewport.TopLeftY = 0;
+			viewport.Width = window.graphics.GetWidth();
+			viewport.Height = window.graphics.GetHeight();
+			viewport.MinDepth = 0.0f;
+			viewport.MaxDepth = 1.0f;
+
+			commandList->Get()->RSSetViewports(1, &viewport); // setting viewports
+
+			D3D12_RECT viewportRect = {};
+			viewportRect.left = viewportRect.top = 0;
+			viewportRect.bottom = window.graphics.GetHeight();
+			viewportRect.right = window.graphics.GetWidth();
+
+			commandList->Get()->RSSetScissorRects(1, &viewportRect); // setting scissor rects
 		}
+
+		commandList->ClearRenderTargetView(window.graphics, window.graphics.GetBackBuffer()); // clearning render target from previous frames
+		commandList->ClearDepthStencilView(window.graphics, window.graphics.GetDepthStencil()); // clearning depth stencil from previous frames
+
+		// drawing scene objects
+		for (auto& sceneObject : sceneObjects)
+			sceneObject->Draw(window.graphics, pipeline);
 
 		// drawing imgui layer
 		imguiLayer.Draw(window.graphics, pipeline);
 
-		// closing graphics command list
-		pipeline.GetGraphicCommandList()->Close(window.graphics);
+		commandList->SetResourceState(window.graphics, window.graphics.GetBackBuffer(), D3D12_RESOURCE_STATE_PRESENT); // setting backbuffer state to present since we finished drawing
+		commandList->Close(window.graphics); // closing graphics command list
 	}
 
 	// executing command lists

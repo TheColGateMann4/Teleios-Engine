@@ -3,7 +3,7 @@
 #include "Window.h"
 #include "Pipeline.h"
 #include "ImguiLayer.h"
-#include "Triangle.h"
+#include "SceneObject.h"
 #include "Camera.h"
 #include "PointLight.h"
 
@@ -29,7 +29,7 @@ private:
 	Pipeline pipeline;
 	ImguiLayer imguiLayer;
 
-	std::shared_ptr<Triangle> triangle;
+	std::vector<std::shared_ptr<SceneObject>> sceneObjects;
 	std::shared_ptr<Camera> camera;
 	std::shared_ptr<PointLight> pointLight;
 };
