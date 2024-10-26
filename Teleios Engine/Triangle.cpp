@@ -9,6 +9,8 @@
 #include "DepthStencilState.h"
 #include "InputLayout.h"
 #include "ConstantBuffer.h"
+#include "PrimitiveTechnology.h"
+#include "Sampler.h"
 
 #include "DynamicConstantBuffer.h"
 
@@ -18,8 +20,6 @@ Triangle::Triangle(Graphics& graphics, Pipeline& pipeline, DirectX::XMFLOAT3 pos
 	:
 	SceneObject(position, rotation)
 {
-	m_bundleCommandList = std::make_unique<CommandList>(graphics, D3D12_COMMAND_LIST_TYPE_BUNDLE);
-
 	struct Vertice
 	{
 		DirectX::XMFLOAT3 position;
@@ -94,18 +94,20 @@ Triangle::Triangle(Graphics& graphics, Pipeline& pipeline, DirectX::XMFLOAT3 pos
 		20,23,22,
 	};
 
+	SetVertexBuffer(std::make_shared<VertexBuffer>(graphics, vertices.data(), vertices.size(), sizeof(vertices.at(0))));
+	SetIndexBuffer(std::make_shared<IndexBuffer>(graphics, indices));
+	SetTransformConstantBuffer(std::make_shared<TransformConstantBuffer>(graphics, this));
 
-	m_vertexBuffer = std::make_shared<VertexBuffer>(graphics, vertices.data(), vertices.size(), sizeof(vertices.at(0)));
-	m_indexBuffer = std::make_shared<IndexBuffer>(graphics, indices);
+	AddBindable(std::make_shared<Shader>("PS_Phong", ShaderType::PixelShader));
+	AddBindable(std::make_shared<Shader>("VS_Phong", ShaderType::VertexShader));
+	AddBindable(std::make_shared<BlendState>());
+	AddBindable(std::make_shared<RasterizerState>());
+	AddBindable(std::make_shared<DepthStencilState>());
+	AddBindable(std::make_shared<InputLayout>(layoutElements));
+	AddBindable(std::make_shared<PrimitiveTechnology>(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE));
 
-	Shader pixelShader("PS_Phong", ShaderType::PixelShader);
-	Shader vertexShader("VS_Phong", ShaderType::VertexShader);
-	BlendState blendState = {};
-	RasterizerState rasterizerState = {};
-	DepthStencilState depthStencilState = {};
-	InputLayout inputLayout(layoutElements);
-	RootSignature rootSignature;
-	transformConstantBuffer = std::make_shared<TransformConstantBuffer>(graphics, this);
+	AddStaticRootBindable(pipeline, "lightBuffer");
+
 	RootSignatureTypedResource lightBuffer = pipeline.GetStaticRootResource("lightBuffer");
 	{
 		DynamicConstantBuffer::ConstantBufferLayout layout;
@@ -114,144 +116,15 @@ Triangle::Triangle(Graphics& graphics, Pipeline& pipeline, DirectX::XMFLOAT3 pos
 		DynamicConstantBuffer::ConstantBufferData bufferData(layout);
 		*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("texcoordsScale") = 1.0f;
 
-		constantBuffer = std::make_shared<CachedConstantBuffer>(graphics, bufferData, std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::PixelShader, 2}});
+		std::shared_ptr<CachedConstantBuffer> constBuffer =  std::make_shared<CachedConstantBuffer>(graphics, bufferData, std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::PixelShader, 2}});
+		m_constantBuffer = constBuffer.get();
+
+		AddBindable(constBuffer);
 	}
 
+	AddBindable(std::make_shared<Texture>(graphics, L"brickwall.jpg"));
 
-	texture = std::make_shared<Texture>(graphics, L"brickwall.jpg");
-
-	// initializing root signature
-	{
-	    rootSignature.AddConstBufferViewParameter(constantBuffer.get());
-	    rootSignature.AddConstBufferViewParameter(transformConstantBuffer->GetBuffer());
-	    rootSignature.AddDescriptorTableParameter(texture.get());
-
-		rootSignature.AddStaticSampler(0, ShaderVisibilityGraphic::PixelShader);
-
-		rootSignature.AddResource(lightBuffer);
-
-		rootSignature.Initialize(graphics);
-	}
-
-	// initialize pipeline state object
-	{
-		m_pipelineState = std::make_unique<PipelineState>();
-
-		// setting up pipeline state desc
-		{
-			// pRootSignature 
-			m_pipelineState->SetRootSignature(&rootSignature);
-
-			// Pixel Shader
-			m_pipelineState->SetPixelShader(&pixelShader);
-
-			// Vertex Shader
-			m_pipelineState->SetVertexShader(&vertexShader);
-
-			// BlendState 
-			m_pipelineState->SetBlendState(&blendState);
-
-			// SampleMask 
-			m_pipelineState->SetSampleMask(0xffffffff);
-
-			// RasterizerState 
-			m_pipelineState->SetRasterizerState(&rasterizerState);
-			
-			// DepthStencilState
-			m_pipelineState->SetDepthStencilState(&depthStencilState);
-
-			// InputLayout 
-			m_pipelineState->SetInputLayout(&inputLayout);
-
-			// PrimitiveTopologyType 
-			m_pipelineState->SetPrimitiveTechnologyType(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE);
-
-			// NumRenderTargets 
-			m_pipelineState->SetNumRenderTargets(1);
-
-			// RTVFormats
-			m_pipelineState->SetRenderTargetFormat(0, graphics.GetBackBuffer()->GetFormat());
-			
-			// DSVFormats
-			m_pipelineState->SetDepthStencilFormat(graphics.GetDepthStencil()->GetFormat());
-
-			// SampleDesc
-			m_pipelineState->SetSampleDesc(1, 0);
-		}
-
-		m_pipelineState->Finish(graphics); // Finish() call gets object from desc it made up
-
-		m_bundleCommandList->Open(graphics, m_pipelineState.get());
-	}
-	
-
-	m_bundleCommandList->SetPrimitiveTopology(graphics, D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-	m_bundleCommandList->SetVertexBuffer(graphics, m_vertexBuffer.get());
-
-	m_bundleCommandList->SetIndexBuffer(graphics, m_indexBuffer.get());
-
-	m_bundleCommandList->SetRootSignature(graphics, &rootSignature);
-
-	m_bundleCommandList->SetConstBufferView(graphics, constantBuffer.get());
-
-	m_bundleCommandList->SetConstBufferView(graphics, transformConstantBuffer->GetBuffer());
-
-	m_bundleCommandList->SetRootResource(graphics, lightBuffer);
-
-	m_bundleCommandList->SetDescriptorHeap(graphics, texture.get());
-
-	m_bundleCommandList->SetDescriptorTable(graphics, texture.get());
-
-	m_bundleCommandList->DrawIndexed(graphics, indices.size());
-
-	m_bundleCommandList->Close(graphics);
-}
-
-void Triangle::Draw(Graphics& graphics, Pipeline& pipeline) const
-{
-	CommandList* directCommandList = pipeline.GetGraphicCommandList();
-
-	directCommandList->SetPipelineState(graphics, m_pipelineState.get());
-
-	directCommandList->SetResourceState(graphics, graphics.GetBackBuffer(), D3D12_RESOURCE_STATE_RENDER_TARGET);
-
-	directCommandList->SetRenderTarget(graphics, graphics.GetBackBuffer(), graphics.GetDepthStencil());
-
-	{
-		D3D12_VIEWPORT viewport = {};
-		viewport.TopLeftX = 0;
-		viewport.TopLeftY = 0;
-		viewport.Width = graphics.GetWidth();
-		viewport.Height = graphics.GetHeight();
-		viewport.MinDepth = 0.0f;
-		viewport.MaxDepth = 1.0f;
-
-		directCommandList->Get()->RSSetViewports(1, &viewport);
-
-		D3D12_RECT viewportRect = {};
-		viewportRect.left = viewportRect.top = 0;
-		viewportRect.bottom = graphics.GetHeight();
-		viewportRect.right = graphics.GetWidth();
-
-		directCommandList->Get()->RSSetScissorRects(1, &viewportRect);
-	}
-
-	directCommandList->ClearRenderTargetView(graphics, graphics.GetBackBuffer());
-
-	directCommandList->ClearDepthStencilView(graphics, graphics.GetDepthStencil());
-
-	directCommandList->SetDescriptorHeap(graphics, texture.get());
-
-	directCommandList->ExecuteBundle(graphics, m_bundleCommandList.get());
-
-	directCommandList->SetResourceState(graphics, graphics.GetBackBuffer(), D3D12_RESOURCE_STATE_PRESENT);
-}
-
-void Triangle::Update(Graphics& graphics, Camera& camera)
-{
-	//updating transform constant buffer
-	transformConstantBuffer->Update(graphics, camera);
+	AddBindable(std::make_shared<StaticSampler>(D3D12_FILTER_MIN_MAG_MIP_POINT));
 }
 
 void Triangle::DrawImguiWindow(Graphics& graphics, bool isLayerVisible)
@@ -268,20 +141,11 @@ void Triangle::DrawImguiWindow(Graphics& graphics, bool isLayerVisible)
 				changed = changed || expressionReturn;
 			};
 
-		checkChanged(ImGui::SliderFloat("Texcoords Scale", constantBuffer->GetData().GetValuePointer<DynamicConstantBuffer::ElementType::Float>("texcoordsScale"), 0.1f, 10.0f));
+		checkChanged(ImGui::SliderFloat("Texcoords Scale", m_constantBuffer->GetData().GetValuePointer<DynamicConstantBuffer::ElementType::Float>("texcoordsScale"), 0.1f, 10.0f));
 
 		if (changed)
-			constantBuffer->Update(graphics);
+			m_constantBuffer->Update(graphics);
 	}
 
 	ImGui::End();
-}
-
-DirectX::XMMATRIX Triangle::GetTransformMatrix() const
-{
-	DirectX::FXMVECTOR vecPosition = DirectX::XMLoadFloat3(&m_position);
-	DirectX::FXMVECTOR vecRotation = DirectX::XMLoadFloat3(&m_rotation);
-
-	//  multiplying position matrix by rotation matrix
-	return DirectX::XMMatrixTranslationFromVector(vecPosition) * DirectX::XMMatrixRotationRollPitchYawFromVector(vecRotation);
 }

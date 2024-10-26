@@ -11,11 +11,8 @@ public:
 	Triangle(Graphics& graphics, Pipeline& pipeline, DirectX::XMFLOAT3 position = {0.0f, 0.0f, 0.0f}, DirectX::XMFLOAT3 rotation = { 0.0f, 0.0f, 0.0f });
 
 public:
-	virtual void Draw(Graphics& graphics, Pipeline& pipeline) const override;
-
-	virtual void Update(Graphics& graphics, Camera& camera) override;
-
 	virtual void DrawImguiWindow(Graphics& graphics, bool isLayerVisible) override;
 
-	virtual DirectX::XMMATRIX GetTransformMatrix() const override;
+private:
+	CachedConstantBuffer* m_constantBuffer;
 };
