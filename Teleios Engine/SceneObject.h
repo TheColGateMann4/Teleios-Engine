@@ -11,6 +11,8 @@
 #include "ConstantBuffer.h"
 #include "TransformConstantBuffer.h"
 
+#include "Bindable.h"
+
 class Pipeline;
 class Camera;
 
@@ -22,24 +24,48 @@ protected:
 public:
 	virtual ~SceneObject() = default;
 
-public:
-	virtual void Draw(Graphics& graphics, Pipeline& pipeline) const = 0;
+protected:
+	void AddStaticRootBindable(Pipeline& pipeline, const char* bindableName);
 
-	virtual void Update(Graphics& graphics, Camera& camera) = 0;
+	void AddBindable(std::shared_ptr<Bindable> bindable);
+
+	void SetVertexBuffer(std::shared_ptr<VertexBuffer> vertexBuffer);
+
+	void SetIndexBuffer(std::shared_ptr<IndexBuffer> indexBuffer);
+
+	void SetTransformConstantBuffer(std::shared_ptr<TransformConstantBuffer> transformConstantBuffer);
+
+private:
+	void SegregateBindable(Bindable* bindable);
+
+public:
+	void Initialize(Graphics& graphics);
+
+	void Draw(Graphics& graphics, Pipeline& pipeline) const;
+
+	virtual void Update(Graphics& graphics);
 
 	virtual void DrawImguiWindow(Graphics& graphics, bool isLayerVisible);
 
-	virtual DirectX::XMMATRIX GetTransformMatrix() const = 0;
+	void UpdateTransformMatrix(Graphics& graphics, Camera& camera);
+
+	DirectX::XMMATRIX GetTransformMatrix() const;
 
 protected:
 	std::unique_ptr<CommandList> m_bundleCommandList;
 	std::unique_ptr<PipelineState> m_pipelineState;
 
-	std::shared_ptr<VertexBuffer> m_vertexBuffer;
-	std::shared_ptr<IndexBuffer> m_indexBuffer;
-	std::shared_ptr<Texture> texture;
-	std::shared_ptr<CachedConstantBuffer> constantBuffer;
-	std::shared_ptr<TransformConstantBuffer> transformConstantBuffer;
+protected:
+	std::vector<std::shared_ptr<Bindable>> m_bindables;
+
+	std::vector<CommandListBindable*> m_commandListBindables;
+	std::vector<DirectCommandListBindable*> m_directCommandListBindables;
+	std::vector<RootSignatureBindable*> m_rootSignatureBindables;
+	std::vector<PipelineStateBindable*> m_pipelineStateBindables;
+
+	VertexBuffer* m_vertexBuffer = nullptr;
+	IndexBuffer* m_indexBuffer = nullptr;
+	TransformConstantBuffer* m_transformConstantBuffer = nullptr;
 
 protected:
 	DirectX::XMFLOAT3 m_position = { 0.0f, 0.0f, 0.0f };
