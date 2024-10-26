@@ -189,6 +189,7 @@
     <ClCompile Include="RenderTarget.cpp" />
     <ClCompile Include="RootSignature.cpp" />
     <ClCompile Include="RootSignatureResource.cpp" />
+    <ClCompile Include="SceneObject.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="TransformConstantBuffer.cpp" />
@@ -223,6 +224,7 @@
     <ClInclude Include="RenderTarget.h" />
     <ClInclude Include="RootSignature.h" />
     <ClInclude Include="RootSignatureResource.h" />
+    <ClInclude Include="SceneObject.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="TargetShaders.h" />
     <ClInclude Include="Texture.h" />

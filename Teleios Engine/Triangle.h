@@ -1,45 +1,21 @@
 #pragma once
-#include "includes/DirectXIncludes.h"
-#include "includes/WRLNoWarnings.h"
-
-#include "PipelineState.h"
-#include "CommandList.h"
-
-#include "VertexBuffer.h"
-#include "IndexBuffer.h"
-#include "Texture.h"
-#include "ConstantBuffer.h"
-#include "TransformConstantBuffer.h"
+#include "SceneObject.h"
 
 class Graphics;
 class Pipeline;
 class Camera;
 
-class Triangle
+class Triangle : public SceneObject
 {
 public:
-	Triangle(Graphics& graphics, Pipeline& pipeline);
+	Triangle(Graphics& graphics, Pipeline& pipeline, DirectX::XMFLOAT3 position = {0.0f, 0.0f, 0.0f}, DirectX::XMFLOAT3 rotation = { 0.0f, 0.0f, 0.0f });
 
 public:
-	void Draw(Graphics& graphics, Pipeline& pipeline) const;
+	virtual void Draw(Graphics& graphics, Pipeline& pipeline) const override;
 
-	void Update(Graphics& graphics, Camera& camera);
+	virtual void Update(Graphics& graphics, Camera& camera) override;
 
-	void DrawImguiWindow(Graphics& graphics);
+	virtual void DrawImguiWindow(Graphics& graphics) override;
 
-	DirectX::XMMATRIX GetTransformMatrix() const;
-
-private:
-	std::unique_ptr<CommandList> m_bundleCommandList;
-	std::unique_ptr<PipelineState> m_pipelineState;
-
-	std::shared_ptr<VertexBuffer> m_vertexBuffer;
-	std::shared_ptr<IndexBuffer> m_indexBuffer;
-	std::shared_ptr<Texture> texture;
-	std::shared_ptr<CachedConstantBuffer> constantBuffer;
-	std::shared_ptr<TransformConstantBuffer> transformConstantBuffer;
-
-private:
-	DirectX::XMFLOAT3 m_position = { 0.0f, 0.0f, 0.0f };
-	DirectX::XMFLOAT3 m_rotation = { 0.0f, 0.0f, 0.0f };
+	virtual DirectX::XMMATRIX GetTransformMatrix() const override;
 };

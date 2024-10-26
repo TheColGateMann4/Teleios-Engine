@@ -14,7 +14,9 @@
 
 #include <imgui.h>
 
-Triangle::Triangle(Graphics& graphics, Pipeline& pipeline)
+Triangle::Triangle(Graphics& graphics, Pipeline& pipeline, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation)
+	:
+	SceneObject(position, rotation)
 {
 	m_bundleCommandList = std::make_unique<CommandList>(graphics, D3D12_COMMAND_LIST_TYPE_BUNDLE);
 
