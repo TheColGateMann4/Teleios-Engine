@@ -9,6 +9,8 @@
 #include "DepthStencilState.h"
 #include "InputLayout.h"
 
+#include "TargetShaders.h"
+
 PipelineState::PipelineState()
 {
 
@@ -21,14 +23,13 @@ void PipelineState::SetRootSignature(RootSignature* rootSignature)
 	m_desc.pRootSignature = rootSignature->Get();
 }
 
-void PipelineState::SetPixelShader(Shader* pixelShader)
+void PipelineState::SetShader(Shader* shader)
 {
-	SetShaderData(pixelShader, &m_desc.PS);
-}
+	D3D12_SHADER_BYTECODE* descShaderByteCode = GetShaderPointerValue(m_desc, shader->GetType());
+	D3D12_SHADER_BYTECODE shaderByteCode = shader->GetShaderByteCode();
 
-void PipelineState::SetVertexShader(Shader* vertexShader)
-{
-	SetShaderData(vertexShader, &m_desc.VS);
+	descShaderByteCode->BytecodeLength = shaderByteCode.BytecodeLength;
+	descShaderByteCode->pShaderBytecode = shaderByteCode.pShaderBytecode;
 }
 
 void PipelineState::SetBlendState(BlendState* blendState)
@@ -103,10 +104,22 @@ ID3D12PipelineState* PipelineState::Get() const
 	return pPipelineState.Get();
 }
 
-void PipelineState::SetShaderData(Shader* shader, D3D12_SHADER_BYTECODE* shaderDescByteCode)
+D3D12_SHADER_BYTECODE* PipelineState::GetShaderPointerValue(D3D12_GRAPHICS_PIPELINE_STATE_DESC& desc, ShaderType type)
 {
-	D3D12_SHADER_BYTECODE shaderByteCode = shader->GetShaderByteCode();
+	switch (type)
+	{
+		case ShaderType::PixelShader:
+			return &desc.PS;
+		case ShaderType::VertexShader:
+			return &desc.VS;
+		case ShaderType::HullShader:
+			return &desc.HS;
+		case ShaderType::DomainShader:
+			return &desc.DS;
+		case ShaderType::GeometryShader:
+			return &desc.GS;
 
-	shaderDescByteCode->BytecodeLength = shaderByteCode.BytecodeLength;
-	shaderDescByteCode->pShaderBytecode = shaderByteCode.pShaderBytecode;
+		case ShaderType::ComputeShader:
+			THROW_INTERNAL_ERROR("Graphic pipeline does not support compute shaders");
+	}
 }

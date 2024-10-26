@@ -10,6 +10,7 @@ class BlendState;
 class RasterizerState;
 class DepthStencilState;
 class InputLayout;
+enum class ShaderType;
 
 class PipelineState
 {
@@ -18,11 +19,7 @@ public:
 
 public:
 	void SetRootSignature(RootSignature* rootSignature);
-	void SetVertexShader(Shader* vertexShader);
-	void SetPixelShader(Shader* pixelShader);
-	// DS
-	// HS
-	// GS
+	void SetShader(Shader* shader);
 	// StreamOutput
 	// IBStripCutValue
 	void SetBlendState(BlendState* blendState);
@@ -45,7 +42,7 @@ public:
 	ID3D12PipelineState* Get() const;
 
 private:
-	static void SetShaderData(Shader* shader, D3D12_SHADER_BYTECODE* shaderDescByteCode);
+	static D3D12_SHADER_BYTECODE* GetShaderPointerValue(D3D12_GRAPHICS_PIPELINE_STATE_DESC& desc, ShaderType type);
 
 private:
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> pPipelineState;
