@@ -1,4 +1,5 @@
 #include "RasterizerState.h"
+#include "PipelineState.h"
 
 RasterizerState::RasterizerState()
 {
@@ -19,4 +20,9 @@ RasterizerState::RasterizerState()
 D3D12_RASTERIZER_DESC RasterizerState::Get()
 {
 	return m_desc;
+}
+
+void RasterizerState::BindToPipelineState(Graphics& graphics, PipelineState* pipelineState)
+{
+	pipelineState->SetRasterizerState(this);
 }

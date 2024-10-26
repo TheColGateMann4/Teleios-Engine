@@ -1,4 +1,5 @@
 #include "DepthStencilState.h"
+#include "PipelineState.h"
 
 DepthStencilState::DepthStencilState()
 {
@@ -22,4 +23,9 @@ DepthStencilState::DepthStencilState()
 D3D12_DEPTH_STENCIL_DESC DepthStencilState::Get()
 {
 	return m_desc;
+}
+
+void DepthStencilState::BindToPipelineState(Graphics& graphics, PipelineState* pipelineState)
+{
+	pipelineState->SetDepthStencilState(this);
 }

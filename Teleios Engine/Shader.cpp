@@ -1,5 +1,6 @@
 #include "Shader.h"
 #include "Macros/ErrorMacros.h"
+#include "PipelineState.h"
 #include <d3dcompiler.h>
 
 #ifdef _DEBUG
@@ -122,4 +123,14 @@ D3D12_SHADER_BYTECODE Shader::GetShaderByteCode() const
 	shaderBytecode.BytecodeLength = pShaderCode->GetBufferSize();
 
 	return shaderBytecode;
+}
+
+void Shader::BindToPipelineState(Graphics& graphics, PipelineState* pipelineState)
+{
+	pipelineState->SetShader(this);
+}
+
+ShaderType Shader::GetType() const
+{
+	return m_type;
 }

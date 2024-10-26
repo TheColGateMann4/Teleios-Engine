@@ -1,6 +1,7 @@
 #include "VertexBuffer.h"
 #include "Macros/ErrorMacros.h"
 #include "Graphics.h"
+#include "CommandList.h"
 
 VertexBuffer::VertexBuffer(Graphics& graphics, void* pData, size_t numElements, size_t dataStride)
 {
@@ -69,6 +70,10 @@ VertexBuffer::VertexBuffer(Graphics& graphics, void* pData, size_t numElements, 
 	}
 }
 
+void VertexBuffer::BindToCommandList(Graphics& graphics, CommandList* commandList)
+{
+	commandList->SetVertexBuffer(graphics, this);
+}
 
 const D3D12_VERTEX_BUFFER_VIEW* VertexBuffer::Get() const
 {

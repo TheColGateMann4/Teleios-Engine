@@ -1,5 +1,6 @@
 #include "Texture.h"
 #include "Graphics.h"
+#include "CommandList.h"
 #include "Macros/ErrorMacros.h"
 
 #include <DirectXTex/DirectXTex.h>
@@ -113,6 +114,23 @@ Texture::Texture(Graphics& graphics, const wchar_t* path, std::vector<TargetSlot
 			0
 		));
 	}
+}
+
+void Texture::BindToCommandList(Graphics& graphics, CommandList* commandList)
+{
+	commandList->SetDescriptorHeap(graphics, this);
+
+	commandList->SetDescriptorTable(graphics, this);
+}
+
+void Texture::BindToDirectCommandList(Graphics& graphics, CommandList* commandList)
+{
+	commandList->SetDescriptorHeap(graphics, this);
+}
+
+void Texture::BindToRootSignature(Graphics& graphics, RootSignature* rootSignature)
+{
+	rootSignature->AddDescriptorTableParameter(this);
 }
 
 std::vector<TargetSlotAndShader>& Texture::GetTargets()

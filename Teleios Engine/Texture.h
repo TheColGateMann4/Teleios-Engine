@@ -3,13 +3,23 @@
 #include "includes/WRLNoWarnings.h"
 #include "TargetShaders.h"
 #include "RootSignatureResource.h"
+#include "Bindable.h"
 
-class Texture : public RootSignatureResource
+class CommandList;
+class RootSignature;
+
+class Texture : public Bindable, public CommandListBindable, public DirectCommandListBindable, public RootSignatureBindable
 {
 public:
 	Texture(class Graphics& graphics, const wchar_t* path, std::vector<TargetSlotAndShader> targets = { {ShaderVisibilityGraphic::PixelShader, 0} });
 
 public:
+	virtual void BindToCommandList(Graphics& graphics, CommandList* commandList) override;
+
+	virtual void BindToDirectCommandList(Graphics& graphics, CommandList* commandList) override;
+
+	virtual void BindToRootSignature(Graphics& graphics, RootSignature* rootSignature) override;
+
 	virtual std::vector<TargetSlotAndShader>& GetTargets() override;
 
 	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUDescriptor() const;

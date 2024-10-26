@@ -1,5 +1,6 @@
 #include "InputLayout.h"
 #include "Macros/ErrorMacros.h"
+#include "PipelineState.h"
 
 InputLayout::InputLayout(std::vector<Item>& layout)
 	:
@@ -26,6 +27,11 @@ InputLayout::InputLayout(std::vector<Item>& layout)
 D3D12_INPUT_LAYOUT_DESC InputLayout::Get()
 {
 	return m_desc;
+}
+
+void InputLayout::BindToPipelineState(Graphics& graphics, PipelineState* pipelineState)
+{
+	pipelineState->SetInputLayout(this);
 }
 
 D3D12_INPUT_ELEMENT_DESC InputLayout::GetItemDesc(Item item, size_t accumulatedSize)

@@ -1,6 +1,7 @@
 #include "ConstantBuffer.h"
 #include "Macros/ErrorMacros.h"
 #include "Graphics.h"
+#include "CommandList.h"
 
 ConstantBuffer::ConstantBuffer(Graphics& graphics, const DynamicConstantBuffer::ConstantBufferLayout& layout, std::vector<TargetSlotAndShader> targets)
 	:
@@ -61,6 +62,16 @@ ConstantBuffer::ConstantBuffer(Graphics& graphics, const DynamicConstantBuffer::
 			pDescriptorHeap->GetCPUDescriptorHandleForHeapStart()
 		));
 	}
+}
+
+void ConstantBuffer::BindToCommandList(Graphics& graphics, CommandList* commandList)
+{
+	commandList->SetConstBufferView(graphics, this);
+}
+
+void ConstantBuffer::BindToRootSignature(Graphics& graphics, RootSignature* rootSignature)
+{
+	rootSignature->AddConstBufferViewParameter(this);
 }
 
 std::vector<TargetSlotAndShader>& ConstantBuffer::GetTargets()

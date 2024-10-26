@@ -1,6 +1,7 @@
 #include "IndexBuffer.h"
 #include "Macros/ErrorMacros.h"
 #include "Graphics.h"
+#include "CommandList.h"
 
 IndexBuffer::IndexBuffer(Graphics& graphics, void* pData, size_t dataSize, DXGI_FORMAT dataFormat)
 {
@@ -82,6 +83,11 @@ IndexBuffer::IndexBuffer(Graphics& graphics, std::vector<unsigned short> indices
     IndexBuffer(graphics, indices.data(), indices.size() * sizeof(indices.at(0)), DXGI_FORMAT_R16_UINT)
 {
 
+}
+
+void IndexBuffer::BindToCommandList(Graphics& graphics, CommandList* commandList)
+{
+    commandList->SetIndexBuffer(graphics, this);
 }
 
 const D3D12_INDEX_BUFFER_VIEW* IndexBuffer::Get() const

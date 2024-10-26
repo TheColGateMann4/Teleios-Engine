@@ -5,7 +5,7 @@
 #include "Triangle.h"
 #include "DynamicConstantBuffer.h"
 
-TransformConstantBuffer::TransformConstantBuffer(Graphics& graphics, Triangle* pObject)
+TransformConstantBuffer::TransformConstantBuffer(Graphics& graphics, SceneObject* pObject)
 	:
 	m_pObject(pObject),
 	m_updated(false)
@@ -37,4 +37,19 @@ void TransformConstantBuffer::Update(Graphics& graphics, Camera& camera)
 NonCachedConstantBuffer* TransformConstantBuffer::GetBuffer() const
 {
 	return m_buffer.get();
+}
+
+void TransformConstantBuffer::BindToCommandList(Graphics& graphics, CommandList* commandList)
+{
+	commandList->SetConstBufferView(graphics, GetBuffer());
+}
+
+void TransformConstantBuffer::BindToRootSignature(Graphics& graphics, RootSignature* rootSignature)
+{
+	rootSignature->AddConstBufferViewParameter(m_buffer.get());
+}
+
+std::vector<TargetSlotAndShader>& TransformConstantBuffer::GetTargets()
+{
+	return m_buffer->GetTargets();
 }
