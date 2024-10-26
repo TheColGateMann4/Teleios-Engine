@@ -185,8 +185,11 @@ POINTS Input::GetMouseDelta() const
 	return mouse.GetDelta();
 }
 
-void Input::DrawImguiWindow() const
+void Input::DrawImguiWindow(bool isLayerVisible) const
 {
+	if (!isLayerVisible)
+		return;
+
 	if(ImGui::Begin("Input"))
 	{
 		mouse.DrawImguiWindow();

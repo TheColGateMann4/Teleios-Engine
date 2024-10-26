@@ -61,7 +61,7 @@ public: // Mouse interface
 	POINTS GetMouseDelta() const;
 
 public:	// Internal stuff
-	void DrawImguiWindow() const;
+	void DrawImguiWindow(bool isLayerVisible) const;
 
 	void Update();
 
