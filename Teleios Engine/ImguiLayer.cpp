@@ -34,13 +34,7 @@ void ImguiLayer::Draw(Graphics& graphics, Pipeline& pipeline)
 {
 	CommandList* directCommandList = pipeline.GetGraphicCommandList();
 
-	directCommandList->SetRenderTarget(graphics, graphics.GetBackBuffer(), graphics.GetDepthStencil());
-
-	directCommandList->SetResourceState(graphics, graphics.GetBackBuffer(), D3D12_RESOURCE_STATE_RENDER_TARGET);
-
 	GetImguiCommands(graphics, directCommandList->Get());
-
-	directCommandList->SetResourceState(graphics, graphics.GetBackBuffer(), D3D12_RESOURCE_STATE_PRESENT);
 }
 
 void ImguiLayer::ToggleCaptureInput(bool captureInput)
