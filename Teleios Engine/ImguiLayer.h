@@ -19,9 +19,21 @@ public:
 
 	void ToggleCaptureInput(bool captureInput);
 
+	void ToggleVisibility(bool newVisibility);
+
+	void ToggleDemoVisibility(bool newDemoVisibility);
+
+	void DrawDemoWindow();
+
+	bool IsDemoVisible() const;
+
+	bool IsVisible() const;
+
 private:
 	void GetImguiCommands(Graphics& graphics, ID3D12GraphicsCommandList* pDirectCommandList);
 
 private:
 	ImguiManager* m_imguiManager;
+	bool m_isVisible = true;
+	bool m_isDemoVisible = false;
 };

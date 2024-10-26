@@ -54,3 +54,32 @@ void ImguiLayer::ToggleCaptureInput(bool captureInput)
 	else
 		io.ConfigFlags |= flags;
 }
+
+
+void ImguiLayer::ToggleVisibility(bool newVisibility)
+{
+	m_isVisible = newVisibility;
+}
+
+void ImguiLayer::ToggleDemoVisibility(bool newDemoVisibility)
+{
+	m_isDemoVisible = newDemoVisibility;
+}
+
+void ImguiLayer::DrawDemoWindow()
+{
+	if (!m_isVisible || !m_isDemoVisible)
+		return;
+
+	ImGui::ShowDemoWindow(&m_isDemoVisible);
+}
+
+bool ImguiLayer::IsDemoVisible() const
+{
+	return m_isDemoVisible;
+}
+
+bool ImguiLayer::IsVisible() const
+{
+	return m_isVisible;
+}

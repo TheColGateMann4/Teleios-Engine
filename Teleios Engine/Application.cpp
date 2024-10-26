@@ -49,6 +49,10 @@ void Application::Update()
 {
 	window.graphics.BeginFrame();
 
+	if (imguiLayer.IsVisible())
+		if (window.input.GetKeyDown(VK_OEM_3)) // VK_OEM_3 in US standard keyboard is `~ key
+			imguiLayer.ToggleDemoVisibility(!imguiLayer.IsDemoVisible());
+
 	if (window.input.GetKeyDown(VK_INSERT))
 		imguiLayer.ToggleVisibility(!imguiLayer.IsVisible());
 
