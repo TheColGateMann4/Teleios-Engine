@@ -2,9 +2,8 @@
 #include "Macros/ErrorMacros.h"
 #include "Graphics.h"
 
-IndexBuffer::IndexBuffer(Graphics& graphics, std::vector<unsigned int> indices)
+IndexBuffer::IndexBuffer(Graphics& graphics, void* pData, size_t dataSize, DXGI_FORMAT dataFormat)
 {
-    size_t dataSize = indices.size() * sizeof(indices.at(0));
     HRESULT hr;
 
 
@@ -58,7 +57,7 @@ IndexBuffer::IndexBuffer(Graphics& graphics, std::vector<unsigned int> indices)
 			&pMappedData
 		));
 
-		memcpy_s(pMappedData, dataSize, indices.data(), dataSize);
+		memcpy_s(pMappedData, dataSize, pData, dataSize);
 
         pIndexBuffer->Unmap(0, &writeRange);
 	}
@@ -67,8 +66,22 @@ IndexBuffer::IndexBuffer(Graphics& graphics, std::vector<unsigned int> indices)
     {
         m_indexBufferView.BufferLocation = pIndexBuffer->GetGPUVirtualAddress();
         m_indexBufferView.SizeInBytes = dataSize;
-        m_indexBufferView.Format = DXGI_FORMAT_R32_UINT;
+        m_indexBufferView.Format = dataFormat;
     }
+}
+
+IndexBuffer::IndexBuffer(Graphics& graphics, std::vector<unsigned int> indices)
+	:
+	IndexBuffer(graphics, indices.data(), indices.size() * sizeof(indices.at(0)), DXGI_FORMAT_R32_UINT)
+{
+
+}
+
+IndexBuffer::IndexBuffer(Graphics& graphics, std::vector<unsigned short> indices)
+    :
+    IndexBuffer(graphics, indices.data(), indices.size() * sizeof(indices.at(0)), DXGI_FORMAT_R16_UINT)
+{
+
 }
 
 const D3D12_INDEX_BUFFER_VIEW* IndexBuffer::Get() const
