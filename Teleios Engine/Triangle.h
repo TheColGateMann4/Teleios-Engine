@@ -15,7 +15,7 @@ public:
 
 	virtual void Update(Graphics& graphics, Camera& camera) override;
 
-	virtual void DrawImguiWindow(Graphics& graphics) override;
+	virtual void DrawImguiWindow(Graphics& graphics, bool isLayerVisible) override;
 
 	virtual DirectX::XMMATRIX GetTransformMatrix() const override;
 };

@@ -22,7 +22,7 @@ public:
 public:
 	void Update(const Input& input, bool cursorLocked);
 
-	void DrawImguiWindow();
+	void DrawImguiWindow(bool isLayerVisible);
 
 	DirectX::XMMATRIX GetTransformMatrix() const;
 

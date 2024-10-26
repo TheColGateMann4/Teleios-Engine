@@ -27,7 +27,7 @@ public:
 
 	virtual void Update(Graphics& graphics, Camera& camera) = 0;
 
-	virtual void DrawImguiWindow(Graphics& graphics);
+	virtual void DrawImguiWindow(Graphics& graphics, bool isLayerVisible);
 
 	virtual DirectX::XMMATRIX GetTransformMatrix() const = 0;
 

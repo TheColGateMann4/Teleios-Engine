@@ -49,6 +49,9 @@ void Application::Update()
 {
 	window.graphics.BeginFrame();
 
+	if (window.input.GetKeyDown(VK_INSERT))
+		imguiLayer.ToggleVisibility(!imguiLayer.IsVisible());
+
 	if(window.input.GetKeyDown(VK_ESCAPE))
 	{
 		window.LockCursor(!window.GetCursorLocked());
@@ -58,13 +61,15 @@ void Application::Update()
 
 	// initializing imgui windows
 	{
-		window.input.DrawImguiWindow();
+		window.input.DrawImguiWindow(imguiLayer.IsVisible());
 
-		triangle->DrawImguiWindow(window.graphics);
+		triangle->DrawImguiWindow(window.graphics, imguiLayer.IsVisible());
 
-		camera->DrawImguiWindow();
+		camera->DrawImguiWindow(imguiLayer.IsVisible());
 
-		pointLight->DrawImguiWindow(window.graphics);
+		pointLight->DrawImguiWindow(window.graphics, imguiLayer.IsVisible());
+
+		imguiLayer.DrawDemoWindow();
 	}
 
 	// making imgui get its accumulated commands and heaps ready

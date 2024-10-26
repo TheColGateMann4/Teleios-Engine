@@ -27,8 +27,11 @@ PointLight::PointLight(Graphics& graphics, Pipeline& pipeline, DirectX::XMFLOAT3
 	pipeline.AddStaticRootResource("lightBuffer", RootSignatureResourceType::type_constBufferView, m_lightBuffer.get());
 }
 
-void PointLight::DrawImguiWindow(Graphics& graphics)
+void PointLight::DrawImguiWindow(Graphics& graphics, bool isLayerVisible)
 {
+	if (!isLayerVisible)
+		return;
+
 	if (ImGui::Begin("PointLight"))
 	{
 		bool changed = false;

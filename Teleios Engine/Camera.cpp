@@ -48,8 +48,11 @@ void Camera::Update(const Input& input, bool cursorLocked)
 	}
 }
 
-void Camera::DrawImguiWindow()
+void Camera::DrawImguiWindow(bool isLayerVisible)
 {
+	if (!isLayerVisible)
+		return;
+
 	if (ImGui::Begin("Camera"))
 	{
 		bool changed = false;

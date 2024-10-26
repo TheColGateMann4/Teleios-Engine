@@ -254,8 +254,11 @@ void Triangle::Update(Graphics& graphics, Camera& camera)
 	transformConstantBuffer->Update(graphics, camera);
 }
 
-void Triangle::DrawImguiWindow(Graphics& graphics)
+void Triangle::DrawImguiWindow(Graphics& graphics, bool isLayerVisible)
 {
+	if (!isLayerVisible)
+		return;
+
 	if (ImGui::Begin("Triangle"))
 	{
 		bool changed = false;

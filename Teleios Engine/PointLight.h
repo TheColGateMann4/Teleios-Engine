@@ -10,7 +10,7 @@ public:
 	PointLight(Graphics& graphics, Pipeline& pipeline, DirectX::XMFLOAT3 position = {-1.5f, 0.0f, -1.5f}, DirectX::XMFLOAT3 color = { 1.0f, 1.0f, 1.0f });
 
 public:
-	void DrawImguiWindow(Graphics& graphics);
+	void DrawImguiWindow(Graphics& graphics, bool isLayerVisible);
 
 	void Update();
 
