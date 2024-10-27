@@ -140,6 +140,16 @@ void Triangle::DrawImguiWindow(Graphics& graphics, bool isLayerVisible)
 				changed = changed || expressionReturn;
 			};
 
+		ImGui::Text("Position");
+		checkChanged(ImGui::SliderFloat("x##position", &m_position.x, -100.0f, 100.0f));
+		checkChanged(ImGui::SliderFloat("y##position", &m_position.y, -100.0f, 100.0f));
+		checkChanged(ImGui::SliderFloat("z##position", &m_position.z, -100.0f, 100.0f));
+
+		ImGui::Text("Rotation");
+		checkChanged(ImGui::SliderAngle("x##rotation", &m_rotation.x, -180.0f, 180.0f));
+		checkChanged(ImGui::SliderAngle("y##rotation", &m_rotation.y, -180.0f, 180.0f));
+		checkChanged(ImGui::SliderAngle("z##rotation", &m_rotation.z, -180, 180.0f));
+
 		checkChanged(ImGui::SliderFloat("Texcoords Scale", m_constantBuffer->GetData().GetValuePointer<DynamicConstantBuffer::ElementType::Float>("texcoordsScale"), 0.1f, 10.0f));
 
 		if (changed)
