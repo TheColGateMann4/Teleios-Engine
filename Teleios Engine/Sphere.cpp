@@ -46,12 +46,15 @@ void Sphere::UpdateMesh(Graphics& graphics)
 	}
 	else
 	{
+		size_t previousIndexCount = m_indexBuffer->GetIndexCount();
+
 		m_vertexBuffer->Update(graphics, vertices.data(), vertices.size(), sizeof(vertices.front()));
 		m_indexBuffer->Update(graphics, indices.data(), indices.size(), sizeof(indices.front()));
 
 		// if size was different in vertex and index buffers they were caused to resize. Which made new resource and previous resource views pushed to commandlist bundle are invalid
 		// thats why we re-record the bundle list with our new resources bound to it
-		RecordBundleList(graphics);
+		if(previousIndexCount != m_indexBuffer->GetIndexCount())
+			RecordBundleList(graphics);
 	}
 }
 
