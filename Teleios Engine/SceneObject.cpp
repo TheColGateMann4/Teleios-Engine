@@ -11,6 +11,9 @@
 #include "ConstantBuffer.h"
 
 SceneObject::SceneObject(DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation)
+	:
+	m_position(position),
+	m_rotation(rotation)
 {
 
 }
