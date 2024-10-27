@@ -14,7 +14,10 @@ public:
 
 	virtual void BindToCommandList(Graphics& graphics, CommandList* commandList) override;
 
-	void Update(Graphics& graphics, void* pData, size_t dataSizeInBytes);
+	void Update(Graphics& graphics, void* pData, size_t numElements, size_t dataStride);
+
+private:
+	void CreateResource(Graphics& graphics, size_t dataSize, size_t dataStride);
 
 public:
 	const D3D12_VERTEX_BUFFER_VIEW* Get() const;
@@ -22,5 +25,6 @@ public:
 private:
 	Microsoft::WRL::ComPtr<ID3D12Resource> pVertexBuffer;
 	D3D12_VERTEX_BUFFER_VIEW m_vertexBufferView;
+	size_t m_bufferSize = 0;
 };
 

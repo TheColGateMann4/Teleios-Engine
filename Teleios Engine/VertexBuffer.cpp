@@ -5,8 +5,50 @@
 
 VertexBuffer::VertexBuffer(Graphics& graphics, void* pData, size_t numElements, size_t dataStride)
 {
-	size_t dataSize = numElements * dataStride;
+	CreateResource(graphics, numElements * dataStride, dataStride);
+
+	// passing data to vetex buffer resource
+	Update(graphics, pData, numElements, dataStride);
+}
+
+void VertexBuffer::Update(Graphics& graphics, void* pData, size_t numElements, size_t dataStride)
+{
 	HRESULT hr;
+
+	size_t newDataSize = numElements * dataStride;
+
+	if(m_bufferSize != newDataSize)
+		CreateResource(graphics, newDataSize, dataStride);
+
+	// updating data itself
+	{
+		D3D12_RANGE readRange = {};
+		readRange.Begin = 0;
+		readRange.End = 0;
+
+		D3D12_RANGE writeRange = {};
+		writeRange.Begin = 0;
+		writeRange.End = m_bufferSize;
+
+		void* pMappedData = nullptr;
+
+		THROW_ERROR(pVertexBuffer->Map(
+			0,
+			&readRange,
+			&pMappedData
+		));
+
+		memcpy_s(pMappedData, m_bufferSize, pData, m_bufferSize);
+
+		pVertexBuffer->Unmap(0, &writeRange);
+	}
+}
+
+void VertexBuffer::CreateResource(Graphics& graphics, size_t dataSize, size_t dataStride)
+{
+	HRESULT hr;
+
+	m_bufferSize = dataSize;
 
 	// initializing vertex buffer resource
 	{
@@ -39,40 +81,12 @@ VertexBuffer::VertexBuffer(Graphics& graphics, void* pData, size_t numElements, 
 		));
 	}
 
-	// passing data to vetex buffer resource
-	Update(graphics, pData, dataSize);
-
 	// initializing vertex buffer view
 	{
 		m_vertexBufferView.BufferLocation = pVertexBuffer->GetGPUVirtualAddress();
 		m_vertexBufferView.SizeInBytes = dataSize;
 		m_vertexBufferView.StrideInBytes = dataStride;
 	}
-}
-
-void VertexBuffer::Update(Graphics& graphics, void* pData, size_t dataSizeInBytes)
-{
-	HRESULT hr;
-
-	D3D12_RANGE readRange = {};
-	readRange.Begin = 0;
-	readRange.End = 0;
-
-	D3D12_RANGE writeRange = {};
-	writeRange.Begin = 0;
-	writeRange.End = dataSizeInBytes;
-
-	void* pMappedData = nullptr;
-
-	THROW_ERROR(pVertexBuffer->Map(
-		0,
-		&readRange,
-		&pMappedData
-	));
-
-	memcpy_s(pMappedData, dataSizeInBytes, pData, dataSizeInBytes);
-
-	pVertexBuffer->Unmap(0, &writeRange);
 }
 
 void VertexBuffer::BindToCommandList(Graphics& graphics, CommandList* commandList)
