@@ -190,7 +190,6 @@
     <ClCompile Include="RasterizerState.cpp" />
     <ClCompile Include="RenderTarget.cpp" />
     <ClCompile Include="RootSignature.cpp" />
-    <ClCompile Include="RootSignatureResource.cpp" />
     <ClCompile Include="Sampler.cpp" />
     <ClCompile Include="SceneObject.cpp" />
     <ClCompile Include="Shader.cpp" />

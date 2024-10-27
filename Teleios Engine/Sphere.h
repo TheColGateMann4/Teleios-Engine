@@ -9,5 +9,12 @@ public:
 
 private:
 	void UpdateMesh(Graphics& graphics);
+
+	virtual void DrawImguiWindow(Graphics& graphics, bool isLayerVisible) override;
+
+private:
+	bool m_initialized = false;
+	float m_diameter = 1.0f;
+	size_t m_tesselation = 3;
 };
 
