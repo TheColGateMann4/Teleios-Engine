@@ -4,6 +4,7 @@
 
 #include "PipelineState.h"
 #include "CommandList.h"
+#include "RootSignature.h"
 
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
@@ -41,6 +42,8 @@ private:
 public:
 	void Initialize(Graphics& graphics);
 
+	void RecordBundleList(Graphics& graphics);
+
 	void Draw(Graphics& graphics, Pipeline& pipeline) const;
 
 	virtual void Update(Graphics& graphics);
@@ -54,6 +57,7 @@ public:
 protected:
 	std::unique_ptr<CommandList> m_bundleCommandList;
 	std::unique_ptr<PipelineState> m_pipelineState;
+	std::unique_ptr<RootSignature> m_rootSignature;
 
 protected:
 	std::vector<std::shared_ptr<Bindable>> m_bindables;

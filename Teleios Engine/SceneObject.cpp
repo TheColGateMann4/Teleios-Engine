@@ -70,14 +70,14 @@ void SceneObject::Initialize(Graphics& graphics)
 {
 	m_bundleCommandList = std::make_unique<CommandList>(graphics, D3D12_COMMAND_LIST_TYPE_BUNDLE);
 
-	RootSignature rootSignature;
+	m_rootSignature = std::make_unique<RootSignature>();
 
 	// initializing root signature
 	{
 		for (auto& pRootSignatureBindable : m_rootSignatureBindables)
-			pRootSignatureBindable->BindToRootSignature(graphics, &rootSignature);
+			pRootSignatureBindable->BindToRootSignature(graphics, m_rootSignature.get());
 
-		rootSignature.Initialize(graphics);
+		m_rootSignature->Initialize(graphics);
 	}
 
 	// initialize pipeline state object
@@ -89,7 +89,7 @@ void SceneObject::Initialize(Graphics& graphics)
 			for (auto& pPipelineStateBindable : m_pipelineStateBindables)
 				pPipelineStateBindable->BindToPipelineState(graphics, m_pipelineState.get());
 
-			m_pipelineState->SetRootSignature(&rootSignature);
+			m_pipelineState->SetRootSignature(m_rootSignature.get());
 
 			m_pipelineState->SetSampleMask(0xffffffff);
 
@@ -103,18 +103,9 @@ void SceneObject::Initialize(Graphics& graphics)
 		}
 
 		m_pipelineState->Finish(graphics); // Finish() call gets object from desc it made up
-
-		m_bundleCommandList->Open(graphics, m_pipelineState.get());
 	}
 
-	m_bundleCommandList->SetRootSignature(graphics, &rootSignature);
-
-	for (auto& pCommandListBindable : m_commandListBindables)
-		pCommandListBindable->BindToCommandList(graphics, m_bundleCommandList.get());
-
-	m_bundleCommandList->DrawIndexed(graphics, m_indexBuffer->GetIndexCount());
-
-	m_bundleCommandList->Close(graphics);
+	RecordBundleList(graphics);
 }
 
 void SceneObject::Draw(Graphics& graphics, Pipeline& pipeline) const
@@ -128,6 +119,24 @@ void SceneObject::Draw(Graphics& graphics, Pipeline& pipeline) const
 
 	directCommandList->ExecuteBundle(graphics, m_bundleCommandList.get());
 };
+
+void SceneObject::RecordBundleList(Graphics& graphics)
+{
+	THROW_OBJECT_STATE_ERROR_IF("BundleList was not yet initialized", !m_bundleCommandList);
+	THROW_OBJECT_STATE_ERROR_IF("PipelineState was not yet initialized", !m_pipelineState);
+	THROW_OBJECT_STATE_ERROR_IF("RootSignature was not yet initialized", !m_rootSignature);
+
+	m_bundleCommandList->Open(graphics, m_pipelineState.get());
+
+	m_bundleCommandList->SetRootSignature(graphics, m_rootSignature.get());
+
+	for (auto& pCommandListBindable : m_commandListBindables)
+		pCommandListBindable->BindToCommandList(graphics, m_bundleCommandList.get());
+
+	m_bundleCommandList->DrawIndexed(graphics, m_indexBuffer->GetIndexCount());
+
+	m_bundleCommandList->Close(graphics);
+}
 
 void SceneObject::Update(Graphics& graphics)
 {
