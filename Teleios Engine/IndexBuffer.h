@@ -20,14 +20,19 @@ public:
 public:
     virtual void BindToCommandList(Graphics& graphics, CommandList* commandList) override;
 
-    void Update(Graphics& graphics, void* pData, size_t dataSizeInBytes);
+    void Update(Graphics& graphics, void* pData, size_t numElements, size_t structureSize);
 
     const D3D12_INDEX_BUFFER_VIEW* Get() const;
 
     size_t GetIndexCount() const;
 
 private:
+    void CreateResource(Graphics& graphics, size_t numElements, size_t structureSize);
+
+private:
     Microsoft::WRL::ComPtr<ID3D12Resource> pIndexBuffer;
     D3D12_INDEX_BUFFER_VIEW m_indexBufferView;
+    DXGI_FORMAT m_dataFormat;
     size_t m_indexCount;
+    size_t m_bufferSize = 0;
 };
