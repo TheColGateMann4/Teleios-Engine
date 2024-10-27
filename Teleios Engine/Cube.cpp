@@ -1,4 +1,4 @@
-#include "Triangle.h"
+#include "Cube.h"
 #include "Graphics.h"
 #include "Pipeline.h"
 #include "Macros/ErrorMacros.h"
@@ -16,7 +16,7 @@
 
 #include <imgui.h>
 
-Triangle::Triangle(Graphics& graphics, Pipeline& pipeline, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation)
+Cube::Cube(Graphics& graphics, Pipeline& pipeline, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation)
 	:
 	SceneObject(position, rotation)
 {
@@ -126,12 +126,12 @@ Triangle::Triangle(Graphics& graphics, Pipeline& pipeline, DirectX::XMFLOAT3 pos
 	AddBindable(std::make_shared<StaticSampler>(D3D12_FILTER_MIN_MAG_MIP_POINT));
 }
 
-void Triangle::DrawImguiWindow(Graphics& graphics, bool isLayerVisible)
+void Cube::DrawImguiWindow(Graphics& graphics, bool isLayerVisible)
 {
 	if (!isLayerVisible)
 		return;
 
-	if (ImGui::Begin("Triangle"))
+	if (ImGui::Begin("Cube"))
 	{
 		bool changed = false;
 

@@ -196,7 +196,7 @@
     <ClCompile Include="Sphere.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="TransformConstantBuffer.cpp" />
-    <ClCompile Include="Triangle.cpp" />
+    <ClCompile Include="Cube.cpp" />
     <ClCompile Include="VertexBuffer.cpp" />
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
@@ -235,7 +235,7 @@
     <ClInclude Include="TargetShaders.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="TransformConstantBuffer.h" />
-    <ClInclude Include="Triangle.h" />
+    <ClInclude Include="Cube.h" />
     <ClInclude Include="VertexBuffer.h" />
     <ClInclude Include="Window.h" />
     <ClInclude Include="includes\WRLNoWarnings.h" />

@@ -54,7 +54,7 @@
     <ClCompile Include="Graphics.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Triangle.cpp">
+    <ClCompile Include="Cube.cpp">
       <Filter>Source Files\DrawableObjects</Filter>
     </ClCompile>
     <ClCompile Include="RenderTarget.cpp">
@@ -164,7 +164,7 @@
     <ClInclude Include="includes\WRLNoWarnings.h">
       <Filter>Header Files\Includes</Filter>
     </ClInclude>
-    <ClInclude Include="Triangle.h">
+    <ClInclude Include="Cube.h">
       <Filter>Header Files\DrawableObjects</Filter>
     </ClInclude>
     <ClInclude Include="RenderTarget.h">

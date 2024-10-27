@@ -2,7 +2,7 @@
 #include "Graphics.h"
 #include "TargetShaders.h"
 #include "Camera.h"
-#include "Triangle.h"
+#include "SceneObject.h"
 #include "DynamicConstantBuffer.h"
 
 TransformConstantBuffer::TransformConstantBuffer(Graphics& graphics, SceneObject* pObject)

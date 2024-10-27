@@ -1,6 +1,6 @@
 #include "Application.h"
 #include "Macros/ErrorMacros.h"
-#include "Triangle.h"
+#include "Cube.h"
 #include "Sphere.h"
 
 Application::Application(unsigned int width, unsigned int height, const char* name)
@@ -41,7 +41,7 @@ void Application::InitializeScene()
 {
 	camera = std::make_shared<Camera>(window.graphics);
 	pointLight = std::make_shared<PointLight>(window.graphics, pipeline);
-	sceneObjects.push_back(std::make_shared<Triangle>(window.graphics, pipeline));
+	sceneObjects.push_back(std::make_shared<Cube>(window.graphics, pipeline));
 	sceneObjects.push_back(std::make_shared<Sphere>(window.graphics));
 
 	for (auto& sceneObject : sceneObjects)
