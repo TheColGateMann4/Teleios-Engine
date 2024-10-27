@@ -40,27 +40,7 @@ VertexBuffer::VertexBuffer(Graphics& graphics, void* pData, size_t numElements, 
 	}
 
 	// passing data to vetex buffer resource
-	{
-		D3D12_RANGE readRange = {};
-		readRange.Begin = 0;
-		readRange.End = 0;
-		
-		D3D12_RANGE writeRange = {};
-		writeRange.Begin = 0;
-		writeRange.End = dataSize;
-
-		void* pMappedData = nullptr;
-
-		THROW_ERROR(pVertexBuffer->Map(
-			0,
-			&readRange,
-			&pMappedData
-		));
-
-		memcpy_s(pMappedData, dataSize, pData, dataSize);
-
-		pVertexBuffer->Unmap(0, &writeRange);
-	}
+	Update(graphics, pData, dataSize);
 
 	// initializing vertex buffer view
 	{
@@ -68,6 +48,31 @@ VertexBuffer::VertexBuffer(Graphics& graphics, void* pData, size_t numElements, 
 		m_vertexBufferView.SizeInBytes = dataSize;
 		m_vertexBufferView.StrideInBytes = dataStride;
 	}
+}
+
+void VertexBuffer::Update(Graphics& graphics, void* pData, size_t dataSizeInBytes)
+{
+	HRESULT hr;
+
+	D3D12_RANGE readRange = {};
+	readRange.Begin = 0;
+	readRange.End = 0;
+
+	D3D12_RANGE writeRange = {};
+	writeRange.Begin = 0;
+	writeRange.End = dataSizeInBytes;
+
+	void* pMappedData = nullptr;
+
+	THROW_ERROR(pVertexBuffer->Map(
+		0,
+		&readRange,
+		&pMappedData
+	));
+
+	memcpy_s(pMappedData, dataSizeInBytes, pData, dataSizeInBytes);
+
+	pVertexBuffer->Unmap(0, &writeRange);
 }
 
 void VertexBuffer::BindToCommandList(Graphics& graphics, CommandList* commandList)

@@ -14,6 +14,8 @@ public:
 
 	virtual void BindToCommandList(Graphics& graphics, CommandList* commandList) override;
 
+	void Update(Graphics& graphics, void* pData, size_t dataSizeInBytes);
+
 public:
 	const D3D12_VERTEX_BUFFER_VIEW* Get() const;
 
