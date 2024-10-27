@@ -159,5 +159,5 @@ DirectX::XMMATRIX SceneObject::GetTransformMatrix() const
 	DirectX::FXMVECTOR vecRotation = DirectX::XMLoadFloat3(&m_rotation);
 
 	//  multiplying position matrix by rotation matrix
-	return DirectX::XMMatrixTranslationFromVector(vecPosition) * DirectX::XMMatrixRotationRollPitchYawFromVector(vecRotation);
+	return DirectX::XMMatrixRotationRollPitchYawFromVector(vecRotation) * DirectX::XMMatrixTranslationFromVector(vecPosition);
 }
