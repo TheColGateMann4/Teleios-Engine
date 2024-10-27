@@ -20,6 +20,8 @@ public:
 public:
     virtual void BindToCommandList(Graphics& graphics, CommandList* commandList) override;
 
+    void Update(Graphics& graphics, void* pData, size_t dataSizeInBytes);
+
     const D3D12_INDEX_BUFFER_VIEW* Get() const;
 
     size_t GetIndexCount() const;

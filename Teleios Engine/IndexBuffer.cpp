@@ -46,27 +46,7 @@ IndexBuffer::IndexBuffer(Graphics& graphics, void* pData, size_t indexCount, DXG
     }
 
 	// passing data to index buffer resource
-	{
-		D3D12_RANGE readRange = {};
-		readRange.Begin = 0;
-		readRange.End = 0;
-
-		D3D12_RANGE writeRange = {};
-		writeRange.Begin = 0;
-		writeRange.End = dataSize;
-
-		void* pMappedData = nullptr;
-
-		THROW_ERROR(pIndexBuffer->Map(
-			0,
-			&readRange,
-			&pMappedData
-		));
-
-		memcpy_s(pMappedData, dataSize, pData, dataSize);
-
-        pIndexBuffer->Unmap(0, &writeRange);
-	}
+    Update(graphics, pData, dataSize);
 
     // initializing vertex buffer view
     {
@@ -93,6 +73,31 @@ IndexBuffer::IndexBuffer(Graphics& graphics, std::vector<unsigned short> indices
 void IndexBuffer::BindToCommandList(Graphics& graphics, CommandList* commandList)
 {
     commandList->SetIndexBuffer(graphics, this);
+}
+
+void IndexBuffer::Update(Graphics& graphics, void* pData, size_t dataSizeInBytes)
+{
+    HRESULT hr;
+
+	D3D12_RANGE readRange = {};
+	readRange.Begin = 0;
+	readRange.End = 0;
+
+	D3D12_RANGE writeRange = {};
+	writeRange.Begin = 0;
+	writeRange.End = dataSizeInBytes;
+
+	void* pMappedData = nullptr;
+
+	THROW_ERROR(pIndexBuffer->Map(
+		0,
+		&readRange,
+		&pMappedData
+	));
+
+	memcpy_s(pMappedData, dataSizeInBytes, pData, dataSizeInBytes);
+
+	pIndexBuffer->Unmap(0, &writeRange);
 }
 
 const D3D12_INDEX_BUFFER_VIEW* IndexBuffer::Get() const
