@@ -5,11 +5,13 @@
 
 #ifdef _DEBUG
 	#define DBG_THROW_ERROR(statement, graphics) \
-		hr = statement;\
-		if(graphics.GetInfoQueue()->GetNumMessages() != 0) \
-			throw ErrorHandler::InfoException{__LINE__ , __FILE__, __FUNCTION__, graphics.GetInfoQueue()->GetMessages()}; \
-		if(hr != S_OK) \
-			throw ErrorHandler::StandardException{ __LINE__, __FILE__, __FUNCTION__, hr }; 
+		{\
+			hr = statement;\
+			if(graphics.GetInfoQueue()->GetNumMessages() != 0) \
+				throw ErrorHandler::InfoException{__LINE__ , __FILE__, __FUNCTION__, graphics.GetInfoQueue()->GetMessages()}; \
+			if(hr != S_OK) \
+				throw ErrorHandler::StandardException{ __LINE__, __FILE__, __FUNCTION__, hr };\
+		}
 
 	#define THROW_ERROR(statement) DBG_THROW_ERROR(statement, graphics) // graphics is used name for graphics varible for now
 
