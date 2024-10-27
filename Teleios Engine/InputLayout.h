@@ -15,7 +15,8 @@ public:
 		Position4,
 		Color3,
 		Color4,
-		TexCoords
+		TexCoords,
+		Normal
 	};
 
 	struct Item

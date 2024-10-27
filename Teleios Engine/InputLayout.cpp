@@ -57,6 +57,7 @@ size_t InputLayout::GetItemSize(ItemType itemType)
 
 		case ItemType::Position3:
 		case ItemType::Color3:
+		case ItemType::Normal:
 			return sizeof(DirectX::XMFLOAT3);
 
 		case ItemType::Position4:
@@ -83,6 +84,7 @@ DXGI_FORMAT InputLayout::GetItemFormat(ItemType itemType)
 
 		case ItemType::Position3:
 		case ItemType::Color3:
+		case ItemType::Normal:
 			return DXGI_FORMAT_R32G32B32_FLOAT;
 
 		case ItemType::Position4:
