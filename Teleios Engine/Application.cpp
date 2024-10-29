@@ -96,36 +96,7 @@ void Application::Update()
 
 	// rendering 
 	{
-		
-		CommandList* commandList = pipeline.GetGraphicCommandList(); 
-		commandList->Open(window.graphics);	// opening graphics command list and clearning allocator
-
-		// setting render target
-		commandList->SetRenderTarget(window.graphics, window.graphics.GetBackBuffer(), window.graphics.GetDepthStencil());
-
-		commandList->SetResourceState(window.graphics, window.graphics.GetBackBuffer(), D3D12_RESOURCE_STATE_RENDER_TARGET); // setting backbuffer state to renderTarget on drawing time
-
-		{
-			D3D12_VIEWPORT viewport = {};
-			viewport.TopLeftX = 0;
-			viewport.TopLeftY = 0;
-			viewport.Width = window.graphics.GetWidth();
-			viewport.Height = window.graphics.GetHeight();
-			viewport.MinDepth = 0.0f;
-			viewport.MaxDepth = 1.0f;
-
-			commandList->Get()->RSSetViewports(1, &viewport); // setting viewports
-
-			D3D12_RECT viewportRect = {};
-			viewportRect.left = viewportRect.top = 0;
-			viewportRect.bottom = window.graphics.GetHeight();
-			viewportRect.right = window.graphics.GetWidth();
-
-			commandList->Get()->RSSetScissorRects(1, &viewportRect); // setting scissor rects
-		}
-
-		commandList->ClearRenderTargetView(window.graphics, window.graphics.GetBackBuffer()); // clearning render target from previous frames
-		commandList->ClearDepthStencilView(window.graphics, window.graphics.GetDepthStencil()); // clearning depth stencil from previous frames
+		pipeline.BeginRender(window.graphics);
 
 		// drawing scene objects
 		for (auto& sceneObject : sceneObjects)
@@ -134,8 +105,7 @@ void Application::Update()
 		// drawing imgui layer
 		imguiLayer.Draw(window.graphics, pipeline);
 
-		commandList->SetResourceState(window.graphics, window.graphics.GetBackBuffer(), D3D12_RESOURCE_STATE_PRESENT); // setting backbuffer state to present since we finished drawing
-		commandList->Close(window.graphics); // closing graphics command list
+		pipeline.FinishRender(window.graphics);
 	}
 
 	// executing command lists

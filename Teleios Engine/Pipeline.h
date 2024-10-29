@@ -11,6 +11,9 @@ public:
 	Pipeline(Graphics& graphics);
 
 public:
+	void BeginRender(Graphics& graphics);
+	void FinishRender(Graphics& graphics);
+
 	CommandList* GetGraphicCommandList() const;
 
 	Bindable* GetStaticResource(const char* resourceName) const;

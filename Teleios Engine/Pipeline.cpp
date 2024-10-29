@@ -8,6 +8,44 @@ Pipeline::Pipeline(Graphics& graphics)
 	m_graphicsCommandList = std::make_shared<CommandList>(graphics, D3D12_COMMAND_LIST_TYPE_DIRECT);
 }
 
+void Pipeline::BeginRender(Graphics& graphics)
+{
+	m_graphicsCommandList->Open(graphics);	// opening graphics command list and clearning allocator
+
+	// setting render target
+	m_graphicsCommandList->SetRenderTarget(graphics, graphics.GetBackBuffer(), graphics.GetDepthStencil());
+
+	m_graphicsCommandList->SetResourceState(graphics, graphics.GetBackBuffer(), D3D12_RESOURCE_STATE_RENDER_TARGET); // setting backbuffer state to renderTarget on drawing time
+
+	{
+		D3D12_VIEWPORT viewport = {};
+		viewport.TopLeftX = 0;
+		viewport.TopLeftY = 0;
+		viewport.Width = graphics.GetWidth();
+		viewport.Height = graphics.GetHeight();
+		viewport.MinDepth = 0.0f;
+		viewport.MaxDepth = 1.0f;
+
+		m_graphicsCommandList->Get()->RSSetViewports(1, &viewport); // setting viewports
+
+		D3D12_RECT viewportRect = {};
+		viewportRect.left = viewportRect.top = 0;
+		viewportRect.bottom = graphics.GetHeight();
+		viewportRect.right = graphics.GetWidth();
+
+		m_graphicsCommandList->Get()->RSSetScissorRects(1, &viewportRect); // setting scissor rects
+	}
+
+	m_graphicsCommandList->ClearRenderTargetView(graphics, graphics.GetBackBuffer()); // clearning render target from previous frames
+	m_graphicsCommandList->ClearDepthStencilView(graphics, graphics.GetDepthStencil()); // clearning depth stencil from previous frames
+}
+
+void Pipeline::FinishRender(Graphics& graphics)
+{
+	m_graphicsCommandList->SetResourceState(graphics, graphics.GetBackBuffer(), D3D12_RESOURCE_STATE_PRESENT); // setting backbuffer state to present since we finished drawing
+	m_graphicsCommandList->Close(graphics); // closing graphics command list
+}
+
 CommandList* Pipeline::GetGraphicCommandList() const
 {
 	return m_graphicsCommandList.get();
