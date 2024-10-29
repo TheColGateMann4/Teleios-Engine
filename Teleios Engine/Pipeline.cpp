@@ -68,31 +68,10 @@ void Pipeline::AddStaticResource(const char* resourceName, Bindable* bindable)
 	m_staticResources.push_back({ resourceName, bindable });
 }
 
+
 void Pipeline::Execute(Graphics& graphics)
 {
-	graphics.GetCommandQueue()->ExecuteCommandLists(GetNumberOfCommandLists(), GetCommandListPtrs().data());
+	ID3D12CommandList* pCommandLists[] = {m_graphicsCommandList->Get()};
 
-	m_currentWorkingIndex = 0;
-}
-
-size_t Pipeline::GetNumberOfCommandLists() const
-{
-	size_t result = 0;
-
-	if (m_graphicsCommandList)
-		result++;
-
-	THROW_INTERNAL_ERROR_IF("There were no initialized command lists", result == 0);
-
-	return result;
-}
-
-std::vector<ID3D12CommandList*> Pipeline::GetCommandListPtrs()
-{
-	std::vector<ID3D12CommandList*> resultCommandListPtrs;
-
-	if (m_graphicsCommandList)
-		resultCommandListPtrs.push_back(m_graphicsCommandList->Get());
-
-	return resultCommandListPtrs;
+	graphics.GetCommandQueue()->ExecuteCommandLists(_countof(pCommandLists), pCommandLists);
 }

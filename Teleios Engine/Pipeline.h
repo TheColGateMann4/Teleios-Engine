@@ -29,7 +29,6 @@ private:
 
 public:
 	std::shared_ptr<CommandList> m_graphicsCommandList;
-	size_t m_currentWorkingIndex = 0;
 
 	std::vector<std::pair<const char*, Bindable*>> m_staticResources;
 };
