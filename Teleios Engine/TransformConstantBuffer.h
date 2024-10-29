@@ -10,7 +10,7 @@ class CommandList;
 class TransformConstantBuffer : public Bindable, public CommandListBindable, public RootSignatureBindable
 {
 public:
-	TransformConstantBuffer(Graphics& graphics, SceneObject* pObject);
+	TransformConstantBuffer(Graphics& graphics, SceneObject* pObject, std::vector<TargetSlotAndShader> targets = { {ShaderVisibilityGraphic::VertexShader, 0} });
 
 public:
 	void Update(Graphics& graphics, Camera& camera);

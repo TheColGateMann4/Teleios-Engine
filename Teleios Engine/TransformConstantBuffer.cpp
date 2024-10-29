@@ -5,7 +5,7 @@
 #include "SceneObject.h"
 #include "DynamicConstantBuffer.h"
 
-TransformConstantBuffer::TransformConstantBuffer(Graphics& graphics, SceneObject* pObject)
+TransformConstantBuffer::TransformConstantBuffer(Graphics& graphics, SceneObject* pObject, std::vector<TargetSlotAndShader> targets)
 	:
 	m_pObject(pObject),
 	m_updated(false)
@@ -15,7 +15,7 @@ TransformConstantBuffer::TransformConstantBuffer(Graphics& graphics, SceneObject
 	layout.AddElement<DynamicConstantBuffer::ElementType::Matrix>("transformInCameraSpace");
 	layout.AddElement<DynamicConstantBuffer::ElementType::Matrix>("transformInCameraView");
 
-	m_buffer = std::make_shared<NonCachedConstantBuffer>(graphics, layout, std::vector<TargetSlotAndShader>{ {ShaderVisibilityGraphic::VertexShader, 0}, {ShaderVisibilityGraphic::PixelShader, 1} });
+	m_buffer = std::make_shared<NonCachedConstantBuffer>(graphics, layout, targets);
 }
 
 void TransformConstantBuffer::Update(Graphics& graphics, Camera& camera)
