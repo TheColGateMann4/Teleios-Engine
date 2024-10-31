@@ -39,7 +39,7 @@ int Application::Run()
 
 void Application::InitializeScene()
 {
-	camera = std::make_shared<Camera>(window.graphics);
+	camera = std::make_shared<Camera>(window.graphics, pipeline);
 	pointLight = std::make_shared<PointLight>(window.graphics, pipeline);
 	sceneObjects.push_back(std::make_shared<Cube>(window.graphics, pipeline));
 	sceneObjects.push_back(std::make_shared<Sphere>(window.graphics));
@@ -86,6 +86,8 @@ void Application::Update()
 	// updating objects
 	{
 		camera->Update(window.input, window.GetCursorLocked());
+
+		pointLight->Update(window.graphics, pipeline);
 
 		for (auto& sceneObject : sceneObjects)
 			sceneObject->UpdateTransformMatrix(window.graphics, *camera);

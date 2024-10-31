@@ -12,7 +12,7 @@ public:
 public:
 	void DrawImguiWindow(Graphics& graphics, bool isLayerVisible);
 
-	void Update();
+	void Update(Graphics& graphics, Pipeline& pipeline);
 
 private:
 	std::shared_ptr<CachedConstantBuffer> m_lightBuffer;
