@@ -3,6 +3,7 @@
 #include "includes/WRLNoWarnings.h"
 
 class Graphics;
+class Pipeline;
 class Input;
 
 class Camera
@@ -17,7 +18,7 @@ public:
 	};
 
 public:
-	Camera(Graphics& graphics, DirectX::XMFLOAT3 position = { 0.0f, 0.0f, -5.0f }, DirectX::XMFLOAT3 rotation = { 0.0f, 0.0f, 0.0f }, Settings* settings = nullptr);
+	Camera(Graphics& graphics, Pipeline& pipeline, DirectX::XMFLOAT3 position = { 0.0f, 0.0f, -5.0f }, DirectX::XMFLOAT3 rotation = { 0.0f, 0.0f, 0.0f }, Settings* settings = nullptr);
 
 public:
 	void Update(const Input& input, bool cursorLocked);

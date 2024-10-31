@@ -1,15 +1,18 @@
 #include "Camera.h"
 #include "Macros/ErrorMacros.h"
 #include "Graphics.h"
+#include "Pipeline.h"
 #include "Input.h"
 
 #include <imgui.h>
 
-Camera::Camera(Graphics& graphics, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation, Settings* settings)
+Camera::Camera(Graphics& graphics, Pipeline& pipeline, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation, Settings* settings)
 	:
 	m_position(position),
 	m_rotation(rotation)
 {
+	pipeline.SetCurrentCamera(this);
+
 	if (settings != nullptr)
 	{
 		m_settings = *settings;

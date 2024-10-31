@@ -68,6 +68,15 @@ void Pipeline::AddStaticResource(const char* resourceName, Bindable* bindable)
 	m_staticResources.push_back({ resourceName, bindable });
 }
 
+Camera* Pipeline::GetCurrentCamera()
+{
+	return m_camera;
+}
+
+void Pipeline::SetCurrentCamera(Camera* newCurrentCamera)
+{
+	m_camera = newCurrentCamera;
+}
 
 void Pipeline::Execute(Graphics& graphics)
 {

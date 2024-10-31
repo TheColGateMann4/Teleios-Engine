@@ -4,6 +4,7 @@
 
 class ID3D12CommandList;
 class Bindable;
+class Camera;
 
 class Pipeline
 {
@@ -21,6 +22,10 @@ public:
 	void AddStaticResource(const char* resourceName, Bindable* bindable);
 
 public:
+	Camera* GetCurrentCamera();
+	void SetCurrentCamera(Camera* newCurrentCamera);
+
+public:
 	void Execute(Graphics& graphics);
 
 private:
@@ -31,4 +36,5 @@ public:
 	std::shared_ptr<CommandList> m_graphicsCommandList;
 
 	std::vector<std::pair<const char*, Bindable*>> m_staticResources;
+	Camera* m_camera;
 };
