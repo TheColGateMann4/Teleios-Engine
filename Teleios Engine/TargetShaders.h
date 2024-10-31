@@ -1,5 +1,5 @@
 #pragma once
-#include "includes/DirectXIncludes.h";
+#include "includes/DirectXIncludes.h"
 
 enum class ShaderVisibilityGraphic
 {
