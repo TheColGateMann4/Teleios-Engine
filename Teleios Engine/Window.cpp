@@ -205,7 +205,7 @@ HINSTANCE Window::WindowClass::GetInstance() noexcept
 		Functions fed to winapi that will be called from there
 */
 
-LRESULT WINAPI Window::HandleStartMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept
+LRESULT WINAPI Window::HandleStartMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	if (msg == WM_CREATE)
 	{
@@ -222,14 +222,14 @@ LRESULT WINAPI Window::HandleStartMessage(HWND hWnd, UINT msg, WPARAM wParam, LP
 	return DefWindowProcA(hWnd, msg, wParam, lParam);
 }
 
-LRESULT WINAPI Window::MessageHub(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept
+LRESULT WINAPI Window::MessageHub(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	Window* pWindow = reinterpret_cast<Window*>(GetWindowLongPtrA(hWnd, GWLP_USERDATA));
 
 	return pWindow->HandleMessage(hWnd, msg, wParam, lParam);
 }
 
-LRESULT Window::HandleMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept
+LRESULT Window::HandleMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	graphics.GetImguiManager()->HandleMessages(hWnd, msg, wParam, lParam);
 
