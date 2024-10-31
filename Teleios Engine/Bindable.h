@@ -17,10 +17,8 @@ struct TargetSlotAndShader
 
 class Bindable
 {
-	virtual void VTableRequirement() // for now we will keep it this way. Later on we are gonna do some bindable list type system
-	{
-
-	}
+public:
+	virtual ~Bindable() = default;
 };
 
 
