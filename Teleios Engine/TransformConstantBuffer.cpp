@@ -2,10 +2,10 @@
 #include "Graphics.h"
 #include "TargetShaders.h"
 #include "Camera.h"
-#include "SceneObject.h"
+#include "Drawable.h"
 #include "DynamicConstantBuffer.h"
 
-TransformConstantBuffer::TransformConstantBuffer(Graphics& graphics, SceneObject* pObject, std::vector<TargetSlotAndShader> targets)
+TransformConstantBuffer::TransformConstantBuffer(Graphics& graphics, Drawable* pObject, std::vector<TargetSlotAndShader> targets)
 	:
 	m_pObject(pObject),
 	m_updated(false)

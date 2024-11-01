@@ -4,13 +4,13 @@
 
 class Graphics;
 class Camera;
-class SceneObject;
+class Drawable;
 class CommandList;
 
 class TransformConstantBuffer : public Bindable, public CommandListBindable, public RootSignatureBindable
 {
 public:
-	TransformConstantBuffer(Graphics& graphics, SceneObject* pObject, std::vector<TargetSlotAndShader> targets = { {ShaderVisibilityGraphic::VertexShader, 0} });
+	TransformConstantBuffer(Graphics& graphics, Drawable* pObject, std::vector<TargetSlotAndShader> targets = { {ShaderVisibilityGraphic::VertexShader, 0} });
 
 public:
 	void Update(Graphics& graphics, Camera& camera);
@@ -25,6 +25,6 @@ public:
 
 private:
 	std::shared_ptr<NonCachedConstantBuffer> m_buffer;
-	SceneObject* m_pObject;
+	Drawable* m_pObject;
 	bool m_updated;
 };
