@@ -11,10 +11,15 @@
 
 #include <imgui.h>
 
-Sphere::Sphere(Graphics& graphics, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation)
+Sphere::Sphere(Graphics& graphics, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation, float diameter, size_t tesselation)
 	:
-	SceneObject(position, rotation)
+	Drawable(position, rotation),
+	m_initialized(false),
+	m_diameter(diameter),
+	m_tesselation(tesselation)
 {
+	AddMesh(this);
+
 	std::vector<InputLayout::Item> layoutElements = { {"POSITION", InputLayout::ItemType::Position3}, {"NORMAL", InputLayout::ItemType::Normal}, {"TEXCOORDS", InputLayout::ItemType::TexCoords} };
 	AddBindable(std::make_shared<InputLayout>(layoutElements));
 
