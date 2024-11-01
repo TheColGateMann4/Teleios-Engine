@@ -18,8 +18,10 @@
 
 Cube::Cube(Graphics& graphics, Pipeline& pipeline, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation)
 	:
-	SceneObject(position, rotation)
+	Drawable(position, rotation)
 {
+	AddMesh(this);
+
 	struct Vertice
 	{
 		DirectX::XMFLOAT3 position;
