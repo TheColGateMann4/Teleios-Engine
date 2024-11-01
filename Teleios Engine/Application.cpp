@@ -82,7 +82,7 @@ void Application::Update()
 
 	// updating objects
 	{
-		camera->Update(window.input, window.GetCursorLocked());
+		camera->Update(window.input, window.GetCursorLocked()); // it is important that active camera gets updated before other objects, since for example pointlight checks if position or rotation was updated to determine if constant buffer should be updated
 
 		for (auto& sceneObject : sceneObjects)
 			sceneObject->UpdateTransformMatrix(window.graphics, *camera);

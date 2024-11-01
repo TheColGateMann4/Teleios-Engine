@@ -8,7 +8,8 @@ PointLight::PointLight(Graphics& graphics, Pipeline& pipeline, DirectX::XMFLOAT3
 	:
 	m_position(position),
 	m_color(color),
-	m_model(graphics, m_position, {0.0f, 0.0f, 0.0f}, 0.5f, 21)
+	m_model(graphics, m_position, {0.0f, 0.0f, 0.0f}, 0.5f, 21),
+	m_transformChanged(true)
 {
 	AddMesh(&m_model);
 	
@@ -40,22 +41,32 @@ void PointLight::DrawImguiWindow(Graphics& graphics, bool isLayerVisible)
 
 	if (ImGui::Begin("PointLight"))
 	{
+		bool changed = false;
+
+		auto checkChanged = [](bool& checkValue, bool expressionReturn) mutable
+			{
+				checkValue = checkValue || expressionReturn;
+			};
+
 		ImGui::Text("Position");
-		ImGui::SliderFloat("x##position", &m_position.x, -100.0f, 100.0f);
-		ImGui::SliderFloat("y##position", &m_position.y, -100.0f, 100.0f);
-		ImGui::SliderFloat("z##position", &m_position.z, -100.0f, 100.0f);
+		checkChanged(m_transformChanged, ImGui::SliderFloat("x##position", &m_position.x, -100.0f, 100.0f));
+		checkChanged(m_transformChanged, ImGui::SliderFloat("y##position", &m_position.y, -100.0f, 100.0f));
+		checkChanged(m_transformChanged, ImGui::SliderFloat("z##position", &m_position.z, -100.0f, 100.0f));
 
 		ImGui::NewLine();
 
 		ImGui::Text("Colors");
-		ImGui::ColorEdit3("Diffuse", reinterpret_cast<float*>(m_lightBuffer->GetData().GetValuePointer<DynamicConstantBuffer::ElementType::Float3>("diffuseColor")));
+		checkChanged(changed, ImGui::ColorEdit3("Diffuse", reinterpret_cast<float*>(m_lightBuffer->GetData().GetValuePointer<DynamicConstantBuffer::ElementType::Float3>("diffuseColor"))));
 
 		ImGui::NewLine();
 
 		ImGui::Text("Attenuation");
-		ImGui::SliderFloat("quadratic", m_lightBuffer->GetData().GetValuePointer<DynamicConstantBuffer::ElementType::Float>("attenuationQuadratic"), 1.8f, 0.000002f);
-		ImGui::SliderFloat("linear", m_lightBuffer->GetData().GetValuePointer<DynamicConstantBuffer::ElementType::Float>("attenuationLinear"), 0.7f, 0.00007f);
-		ImGui::SliderFloat("constant", m_lightBuffer->GetData().GetValuePointer<DynamicConstantBuffer::ElementType::Float>("attenuationConstant"), 0.001f, 10.0f);
+		checkChanged(changed, ImGui::SliderFloat("quadratic", m_lightBuffer->GetData().GetValuePointer<DynamicConstantBuffer::ElementType::Float>("attenuationQuadratic"), 1.8f, 0.000002f));
+		checkChanged(changed, ImGui::SliderFloat("linear", m_lightBuffer->GetData().GetValuePointer<DynamicConstantBuffer::ElementType::Float>("attenuationLinear"), 0.7f, 0.00007f));
+		checkChanged(changed, ImGui::SliderFloat("constant", m_lightBuffer->GetData().GetValuePointer<DynamicConstantBuffer::ElementType::Float>("attenuationConstant"), 0.001f, 10.0f));
+
+		if(!m_transformChanged && changed)
+			m_lightBuffer->Update(graphics);
 	}
 
 	ImGui::End();
@@ -64,9 +75,12 @@ void PointLight::DrawImguiWindow(Graphics& graphics, bool isLayerVisible)
 void PointLight::Update(Graphics& graphics, Pipeline& pipeline)
 {
 	// updating light constant buffer with light position in camera space
+	Camera* activeCamera = pipeline.GetCurrentCamera();
+
+	if (m_transformChanged || activeCamera->ViewChanged())
 	{
 		DirectX::XMVECTOR vPosition = DirectX::XMLoadFloat3(&m_position);
-		DirectX::XMVECTOR vResultPosition = DirectX::XMVector3Transform(vPosition, pipeline.GetCurrentCamera()->GetTransformMatrix());
+		DirectX::XMVECTOR vResultPosition = DirectX::XMVector3Transform(vPosition, activeCamera->GetTransformMatrix());
 		DirectX::XMFLOAT3 resultPosition;
 
 		DirectX::XMStoreFloat3(&resultPosition, vResultPosition);
@@ -74,6 +88,8 @@ void PointLight::Update(Graphics& graphics, Pipeline& pipeline)
 		*m_lightBuffer->GetData().GetValuePointer<DynamicConstantBuffer::ElementType::Float3>("lightPosition") = resultPosition;
 
 		m_lightBuffer->Update(graphics);
+
+		m_transformChanged = false;
 	}
 
 	// dragging our model with us

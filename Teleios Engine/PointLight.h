@@ -23,5 +23,6 @@ private:
 	
 	std::shared_ptr<CachedConstantBuffer> m_lightBuffer;
 	Sphere m_model;
+	bool m_transformChanged;
 };
 

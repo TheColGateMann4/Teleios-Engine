@@ -9,7 +9,8 @@
 Camera::Camera(Graphics& graphics, Pipeline& pipeline, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation, Settings* settings)
 	:
 	m_position(position),
-	m_rotation(rotation)
+	m_rotation(rotation),
+	m_viewChanged(false)
 {
 	pipeline.SetCurrentCamera(this);
 
@@ -37,6 +38,8 @@ void Camera::Update(const Input& input, bool cursorLocked)
 		POINTS lookOffset = input.GetMouseDelta();
 		std::swap(lookOffset.x, lookOffset.y);
 
+		m_viewChanged |= lookOffset.x != 0 || lookOffset.y != 0;
+
 		Look(lookOffset);
 	}
 
@@ -47,12 +50,17 @@ void Camera::Update(const Input& input, bool cursorLocked)
 		direction.y = float(input.GetKey(VK_SPACE)) - float(input.GetKey(VK_CONTROL));
 		direction.z = float(input.GetKey(KEY_W)) - float(input.GetKey(KEY_S));
 
+		m_viewChanged |= direction.x != 0.0f || direction.y != 0.0f || direction.z != 0.0f;
+
 		Move(direction, input.GetKey(VK_SHIFT));
 	}
 }
 
 void Camera::DrawImguiWindow(bool isLayerVisible)
 {
+	// we are reseting viewChanged value here since its the first function where it can be changed
+	m_viewChanged = false;
+
 	if (!isLayerVisible)
 		return;
 
@@ -60,18 +68,18 @@ void Camera::DrawImguiWindow(bool isLayerVisible)
 	{
 		bool changed = false;
 
-		auto checkChanged = [&changed](bool expressionReturn) mutable
+		auto checkChanged = [](bool& checkValue, bool expressionReturn) mutable
 			{
-				changed = changed || expressionReturn;
+				checkValue = checkValue || expressionReturn;
 			};
 
 		ImGui::Text("Position & Rotation:");
-		ImGui::SliderFloat("PositionX", &m_position.x, -10.0f, 10.0f);
-		ImGui::SliderFloat("PositionY", &m_position.y, -10.0f, 10.0f);
-		ImGui::SliderFloat("PositionZ", &m_position.z, -10.0f, 10.0f);
+		checkChanged(m_viewChanged, ImGui::SliderFloat("PositionX", &m_position.x, -10.0f, 10.0f));
+		checkChanged(m_viewChanged, ImGui::SliderFloat("PositionY", &m_position.y, -10.0f, 10.0f));
+		checkChanged(m_viewChanged, ImGui::SliderFloat("PositionZ", &m_position.z, -10.0f, 10.0f));
 
-		ImGui::SliderAngle("Pitch", &m_rotation.x, -90.0f, 90.0f);
-		ImGui::SliderAngle("Yaw", &m_rotation.y, -180.0f, 180.0f);
+		checkChanged(m_viewChanged, ImGui::SliderAngle("Pitch", &m_rotation.x, -90.0f, 90.0f));
+		checkChanged(m_viewChanged, ImGui::SliderAngle("Yaw", &m_rotation.y, -180.0f, 180.0f));
 
 		ImGui::NewLine();
 
@@ -83,10 +91,10 @@ void Camera::DrawImguiWindow(bool isLayerVisible)
 		ImGui::NewLine();
 
 		ImGui::Text("View Options:");
-		checkChanged(ImGui::SliderAngle("Fov", &m_settings.FovAngleY, 1.0f, 179.0f));
-		checkChanged(ImGui::SliderFloat("AspectRatio", &m_settings.AspectRatio, 0.1f, 2.0f));
-		checkChanged(ImGui::SliderFloat("NearZ", &m_settings.NearZ, 0.001f, 100.0f));
-		checkChanged(ImGui::SliderFloat("FarZ", &m_settings.FarZ, m_settings.NearZ + 0.01f, 800.0f));
+		checkChanged(changed, ImGui::SliderAngle("Fov", &m_settings.FovAngleY, 1.0f, 179.0f));
+		checkChanged(changed, ImGui::SliderFloat("AspectRatio", &m_settings.AspectRatio, 0.1f, 2.0f));
+		checkChanged(changed, ImGui::SliderFloat("NearZ", &m_settings.NearZ, 0.001f, 100.0f));
+		checkChanged(changed, ImGui::SliderFloat("FarZ", &m_settings.FarZ, m_settings.NearZ + 0.01f, 800.0f));
 
 		if (changed)
 			UpdatePerspectiveMatrix();
@@ -139,6 +147,11 @@ void Camera::Move(DirectX::XMFLOAT3 direction, bool isFast)
 	vPosition = DirectX::XMVectorAdd(vPosition, vDirection);
 
 	DirectX::XMStoreFloat3(&m_position, vPosition);
+}
+
+bool Camera::ViewChanged() const
+{
+	return m_viewChanged;
 }
 
 void Camera::UpdatePerspectiveMatrix()

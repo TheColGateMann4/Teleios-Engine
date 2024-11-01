@@ -33,6 +33,8 @@ public:
 
 	void Move(DirectX::XMFLOAT3 direction, bool isFast = false);
 
+	bool ViewChanged() const;
+
 private:
 	void UpdatePerspectiveMatrix();
 
@@ -48,5 +50,7 @@ private:
 	float m_sensivity = 0.02f;
 	float m_speed = 0.06f;
 	float m_fastSpeed = 0.12f;
+
+	bool m_viewChanged;
 };
 
