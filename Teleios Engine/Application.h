@@ -31,5 +31,4 @@ private:
 
 	std::vector<std::shared_ptr<SceneObject>> sceneObjects;
 	std::shared_ptr<Camera> camera;
-	std::shared_ptr<PointLight> pointLight;
 };
