@@ -14,7 +14,7 @@ RasterizerState::RasterizerState()
 	m_desc.MultisampleEnable = false;
 	m_desc.AntialiasedLineEnable = false;
 	m_desc.ForcedSampleCount = 0;			 // not forced sample count
-	m_desc.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_ON;
+	m_desc.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
 }
 
 D3D12_RASTERIZER_DESC RasterizerState::Get()
