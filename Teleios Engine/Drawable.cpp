@@ -11,8 +11,11 @@ Drawable::Drawable(DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation)
 
 }
 
-void Drawable::Initialize(Graphics& graphics)
+void Drawable::Initialize(Graphics& graphics, Pipeline& pipeline)
 {
+	for (auto staticBindableName : m_staticBindableNames)
+		SegregateBindable(pipeline.GetStaticResource(staticBindableName));
+
 	m_bundleCommandList = std::make_unique<CommandList>(graphics, D3D12_COMMAND_LIST_TYPE_BUNDLE);
 
 	m_rootSignature = std::make_unique<RootSignature>();
@@ -102,9 +105,9 @@ DirectX::XMMATRIX Drawable::GetTransformMatrix() const
 	return DirectX::XMMatrixRotationRollPitchYawFromVector(vecRotation) * DirectX::XMMatrixTranslationFromVector(vecPosition);
 }
 
-void Drawable::AddStaticBindable(Pipeline& pipeline, const char* bindableName)
+void Drawable::AddStaticBindable(const char* bindableName)
 {
-	SegregateBindable(pipeline.GetStaticResource(bindableName));
+	m_staticBindableNames.push_back(bindableName);
 }
 
 void Drawable::AddBindable(std::shared_ptr<Bindable> bindable)

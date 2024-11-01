@@ -40,11 +40,11 @@ int Application::Run()
 void Application::InitializeScene()
 {
 	camera = std::make_shared<Camera>(window.graphics, pipeline);
+	sceneObjects.push_back(std::make_shared<Cube>(window.graphics));
 	sceneObjects.push_back(std::make_shared<PointLight>(window.graphics, pipeline));
-	sceneObjects.push_back(std::make_shared<Cube>(window.graphics, pipeline));
 
 	for (auto& sceneObject : sceneObjects)
-		sceneObject->Initialize(window.graphics);
+		sceneObject->Initialize(window.graphics, pipeline);
 }
 
 void Application::Update()

@@ -26,7 +26,7 @@ public:
 	virtual ~Drawable() = default;
 
 public:
-	void Initialize(Graphics& graphics);
+	void Initialize(Graphics& graphics, Pipeline& pipeline);
 
 	void RecordBundleList(Graphics& graphics);
 
@@ -40,7 +40,7 @@ public:
 	DirectX::XMMATRIX GetTransformMatrix() const;
 
 protected:
-	void AddStaticBindable(Pipeline& pipeline, const char* bindableName);
+	void AddStaticBindable(const char* bindableName);
 
 	void AddBindable(std::shared_ptr<Bindable> bindable);
 
@@ -68,6 +68,7 @@ protected:
 	VertexBuffer* m_vertexBuffer = nullptr;
 	IndexBuffer* m_indexBuffer = nullptr;
 	TransformConstantBuffer* m_transformConstantBuffer = nullptr;
+	std::vector<const char*> m_staticBindableNames;
 
 protected:
 	DirectX::XMFLOAT3 m_position = { 0.0f, 0.0f, 0.0f };

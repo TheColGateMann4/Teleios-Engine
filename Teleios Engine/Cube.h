@@ -8,7 +8,7 @@ class Pipeline;
 class Cube : public SceneObject, public Drawable
 {
 public:
-	Cube(Graphics& graphics, Pipeline& pipeline, DirectX::XMFLOAT3 position = {-2.0f, 0.0f, 0.0f}, DirectX::XMFLOAT3 rotation = { 0.0f, 0.0f, 0.0f });
+	Cube(Graphics& graphics, DirectX::XMFLOAT3 position = {-2.0f, 0.0f, 0.0f}, DirectX::XMFLOAT3 rotation = { 0.0f, 0.0f, 0.0f });
 
 public:
 	virtual void DrawImguiWindow(Graphics& graphics, bool isLayerVisible) override;

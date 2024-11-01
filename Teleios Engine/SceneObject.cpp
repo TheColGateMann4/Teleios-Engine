@@ -9,10 +9,10 @@ void SceneObject::AddMesh(Drawable* mesh)
 	m_meshes.push_back(mesh);
 }
 
-void SceneObject::Initialize(Graphics& graphics)
+void SceneObject::Initialize(Graphics& graphics, Pipeline& pipeline)
 {
 	for (auto mesh : m_meshes)
-		mesh->Initialize(graphics);
+		mesh->Initialize(graphics, pipeline);
 }
 
 void SceneObject::Draw(Graphics& graphics, Pipeline& pipeline) const

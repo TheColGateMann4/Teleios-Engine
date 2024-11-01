@@ -16,7 +16,7 @@
 
 #include <imgui.h>
 
-Cube::Cube(Graphics& graphics, Pipeline& pipeline, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation)
+Cube::Cube(Graphics& graphics, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation)
 	:
 	Drawable(position, rotation)
 {
@@ -108,7 +108,7 @@ Cube::Cube(Graphics& graphics, Pipeline& pipeline, DirectX::XMFLOAT3 position, D
 	AddBindable(std::make_shared<InputLayout>(layoutElements));
 	AddBindable(std::make_shared<PrimitiveTechnology>(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE));
 
-	AddStaticBindable(pipeline, "lightBuffer");
+	AddStaticBindable("lightBuffer");
 
 	{
 		DynamicConstantBuffer::ConstantBufferLayout layout;
