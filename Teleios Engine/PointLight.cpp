@@ -61,8 +61,8 @@ void PointLight::DrawImguiWindow(Graphics& graphics, bool isLayerVisible)
 		ImGui::NewLine();
 
 		ImGui::Text("Attenuation");
-		checkChanged(changed, ImGui::SliderFloat("quadratic", m_lightBuffer->GetData().GetValuePointer<DynamicConstantBuffer::ElementType::Float>("attenuationQuadratic"), 1.8f, 0.000002f));
-		checkChanged(changed, ImGui::SliderFloat("linear", m_lightBuffer->GetData().GetValuePointer<DynamicConstantBuffer::ElementType::Float>("attenuationLinear"), 0.7f, 0.00007f));
+		checkChanged(changed, ImGui::SliderFloat("quadratic", m_lightBuffer->GetData().GetValuePointer<DynamicConstantBuffer::ElementType::Float>("attenuationQuadratic"), 0.000002f, 1.8f));
+		checkChanged(changed, ImGui::SliderFloat("linear", m_lightBuffer->GetData().GetValuePointer<DynamicConstantBuffer::ElementType::Float>("attenuationLinear"), 0.00007f, 0.7f));
 		checkChanged(changed, ImGui::SliderFloat("constant", m_lightBuffer->GetData().GetValuePointer<DynamicConstantBuffer::ElementType::Float>("attenuationConstant"), 0.001f, 10.0f));
 
 		if(!m_transformChanged && changed)
