@@ -7,8 +7,11 @@
 PointLight::PointLight(Graphics& graphics, Pipeline& pipeline, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 color)
 	:
 	m_position(position),
-	m_color(color)
+	m_color(color),
+	m_model(graphics, m_position, {0.0f, 0.0f, 0.0f}, 0.5f, 21)
 {
+	AddMesh(&m_model);
+	
 	DynamicConstantBuffer::ConstantBufferLayout layout;
 	layout.AddElement<DynamicConstantBuffer::ElementType::Float3>("lightPosition");
 	layout.AddElement<DynamicConstantBuffer::ElementType::Float3>("diffuseColor");
@@ -30,6 +33,8 @@ PointLight::PointLight(Graphics& graphics, Pipeline& pipeline, DirectX::XMFLOAT3
 
 void PointLight::DrawImguiWindow(Graphics& graphics, bool isLayerVisible)
 {
+	m_model.DrawImguiWindow(graphics, isLayerVisible);
+
 	if (!isLayerVisible)
 		return;
 
@@ -58,13 +63,19 @@ void PointLight::DrawImguiWindow(Graphics& graphics, bool isLayerVisible)
 
 void PointLight::Update(Graphics& graphics, Pipeline& pipeline)
 {
-	DirectX::XMVECTOR vPosition = DirectX::XMLoadFloat3(&m_position);
-	DirectX::XMVECTOR vResultPosition = DirectX::XMVector3Transform(vPosition, pipeline.GetCurrentCamera()->GetTransformMatrix());
-	DirectX::XMFLOAT3 resultPosition;
+	// updating light constant buffer with light position in camera space
+	{
+		DirectX::XMVECTOR vPosition = DirectX::XMLoadFloat3(&m_position);
+		DirectX::XMVECTOR vResultPosition = DirectX::XMVector3Transform(vPosition, pipeline.GetCurrentCamera()->GetTransformMatrix());
+		DirectX::XMFLOAT3 resultPosition;
 
-	DirectX::XMStoreFloat3(&resultPosition, vResultPosition);
+		DirectX::XMStoreFloat3(&resultPosition, vResultPosition);
 
-	*m_lightBuffer->GetData().GetValuePointer<DynamicConstantBuffer::ElementType::Float3>("lightPosition") = resultPosition;
+		*m_lightBuffer->GetData().GetValuePointer<DynamicConstantBuffer::ElementType::Float3>("lightPosition") = resultPosition;
 
-	m_lightBuffer->Update(graphics);
+		m_lightBuffer->Update(graphics);
+	}
+
+	// dragging our model with us
+	m_model.SetPosition(m_position);
 }
