@@ -6,10 +6,17 @@
 class Graphics;
 class CommandList;
 
+namespace DynamicVertex
+{
+	class DynamicVertex;
+};
+
 class VertexBuffer : public Bindable, public CommandListBindable
 {
 public:
 	// data has to be aligned in 16 bytes
+	VertexBuffer(Graphics& graphics, DynamicVertex::DynamicVertex& dynamicVertexBuffer);
+
 	VertexBuffer(Graphics& graphics, void* pData, size_t numElements, size_t dataStride);
 
 	virtual void BindToCommandList(Graphics& graphics, CommandList* commandList) override;

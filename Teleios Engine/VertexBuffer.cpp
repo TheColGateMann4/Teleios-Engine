@@ -3,6 +3,15 @@
 #include "Graphics.h"
 #include "CommandList.h"
 
+#include "DynamicVertex.h"
+
+VertexBuffer::VertexBuffer(Graphics& graphics, DynamicVertex::DynamicVertex& dynamicVertexBuffer)
+	:
+	VertexBuffer(graphics, dynamicVertexBuffer.GetData(), dynamicVertexBuffer.GetNumVertices(), dynamicVertexBuffer.GetLayout().GetSize())
+{
+
+}
+
 VertexBuffer::VertexBuffer(Graphics& graphics, void* pData, size_t numElements, size_t dataStride)
 {
 	CreateResource(graphics, numElements * dataStride, dataStride);
