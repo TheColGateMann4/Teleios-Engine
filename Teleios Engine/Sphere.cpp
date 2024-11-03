@@ -9,6 +9,8 @@
 #include "InputLayout.h"
 #include "PrimitiveTechnology.h"
 
+#include "DynamicVertex.h"
+
 #include <imgui.h>
 
 Sphere::Sphere(Graphics& graphics, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation, float diameter, size_t tesselation)
@@ -20,8 +22,12 @@ Sphere::Sphere(Graphics& graphics, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3
 {
 	AddMesh(this);
 
-	std::vector<InputLayout::Item> layoutElements = { {"POSITION", InputLayout::ItemType::Position3}, {"NORMAL", InputLayout::ItemType::Normal}, {"TEXCOORDS", InputLayout::ItemType::TexCoords} };
-	AddBindable(std::make_shared<InputLayout>(layoutElements));
+	DynamicVertex::DynamicVertexLayout vertexLayout;
+	vertexLayout.AddElement<DynamicVertex::ElementType::Position>();
+	vertexLayout.AddElement<DynamicVertex::ElementType::Normal>();
+	vertexLayout.AddElement<DynamicVertex::ElementType::TextureCoords>();
+
+	AddBindable(std::make_shared<InputLayout>(vertexLayout));
 
 	UpdateMesh(graphics);
 

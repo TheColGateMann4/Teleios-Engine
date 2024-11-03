@@ -13,6 +13,7 @@
 #include "Sampler.h"
 
 #include "DynamicConstantBuffer.h"
+#include "DynamicVertex.h"
 
 #include <imgui.h>
 
@@ -28,9 +29,9 @@ Cube::Cube(Graphics& graphics, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rot
 		DirectX::XMFLOAT2 texCoords;
 	};
 
-	float aspectRatioX = float(graphics.GetWidth()) / graphics.GetHeight();
-
-	std::vector<InputLayout::Item> layoutElements = { {"POSITION", InputLayout::ItemType::Position3}, {"TEXCOORDS", InputLayout::ItemType::TexCoords} };
+	DynamicVertex::DynamicVertexLayout vertexLayout;
+	vertexLayout.AddElement<DynamicVertex::ElementType::Position>();
+	vertexLayout.AddElement<DynamicVertex::ElementType::TextureCoords>();
 
 	std::vector<Vertice> vertices = {
 		//front
@@ -105,7 +106,7 @@ Cube::Cube(Graphics& graphics, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rot
 	AddBindable(std::make_shared<BlendState>());
 	AddBindable(std::make_shared<RasterizerState>());
 	AddBindable(std::make_shared<DepthStencilState>());
-	AddBindable(std::make_shared<InputLayout>(layoutElements));
+	AddBindable(std::make_shared<InputLayout>(vertexLayout));
 	AddBindable(std::make_shared<PrimitiveTechnology>(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE));
 
 	AddStaticBindable("lightBuffer");
