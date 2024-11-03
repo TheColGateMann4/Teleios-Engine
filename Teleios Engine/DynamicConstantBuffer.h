@@ -124,34 +124,7 @@ namespace DynamicConstantBuffer
 		template<ElementType elementType>
 		consteval static unsigned int GetNewElementSize()
 		{
-			switch (elementType)
-			{
-				case ElementType::Int:
-					return ElementMap<ElementType::Int>::size;
-
-				case ElementType::Bool:
-					return ElementMap<ElementType::Bool>::size;
-
-				case ElementType::Float:
-					return ElementMap<ElementType::Float>::size;
-
-				case ElementType::Float2:
-					return ElementMap<ElementType::Float2>::size;
-
-				case ElementType::Float3:
-					return ElementMap<ElementType::Float3>::size;
-
-				case ElementType::Float4:
-					return ElementMap<ElementType::Float4>::size;
-
-				case ElementType::Matrix:
-					return ElementMap<ElementType::Matrix>::size;
-
-				default:
-				{
-					THROW_INTERNAL_ERROR("Layout type element was not handled");
-				}
-			}
+			return ElementMap<elementType>::size;
 		}
 
 		template<ElementType elementType>
