@@ -147,6 +147,15 @@
     <ClCompile Include="Drawable.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Model.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ModelMesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DynamicVertex.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="includes\CppIncludes.h">
@@ -266,6 +275,15 @@
     <ClInclude Include="Drawable.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Model.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelMesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DynamicVertex.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Shaders\PS_Solid.hlsl">
@@ -289,5 +307,9 @@
     <FxCompile Include="Shaders\PS_WhiteColor.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="Dependencies\assimp-vc143-mt.dll" />
+    <CopyFileToFolders Include="Dependencies\zlib1.dll" />
   </ItemGroup>
 </Project>

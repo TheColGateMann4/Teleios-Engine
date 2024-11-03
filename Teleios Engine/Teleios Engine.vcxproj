@@ -171,6 +171,7 @@
     <ClCompile Include="DepthStencilView.cpp" />
     <ClCompile Include="Drawable.cpp" />
     <ClCompile Include="DynamicConstantBuffer.cpp" />
+    <ClCompile Include="DynamicVertex.cpp" />
     <ClCompile Include="ErrorHandler.cpp" />
     <ClCompile Include="Fence.cpp" />
     <ClCompile Include="Graphics.cpp" />
@@ -184,6 +185,8 @@
     <ClCompile Include="InputLayout.cpp" />
     <ClCompile Include="Macros\KeyMacros.h" />
     <ClCompile Include="Macros\ErrorMacros.h" />
+    <ClCompile Include="Model.cpp" />
+    <ClCompile Include="ModelMesh.cpp" />
     <ClCompile Include="Pipeline.cpp" />
     <ClCompile Include="PipelineState.cpp" />
     <ClCompile Include="PointLight.cpp" />
@@ -212,6 +215,7 @@
     <ClInclude Include="DepthStencilView.h" />
     <ClInclude Include="Drawable.h" />
     <ClInclude Include="DynamicConstantBuffer.h" />
+    <ClInclude Include="DynamicVertex.h" />
     <ClInclude Include="ErrorHandler.h" />
     <ClInclude Include="Fence.h" />
     <ClInclude Include="Graphics.h" />
@@ -223,6 +227,8 @@
     <ClInclude Include="Input.h" />
     <ClInclude Include="InputLayout.h" />
     <ClInclude Include="MessageMap.h" />
+    <ClInclude Include="Model.h" />
+    <ClInclude Include="ModelMesh.h" />
     <ClInclude Include="Pipeline.h" />
     <ClInclude Include="PipelineState.h" />
     <ClInclude Include="PointLight.h" />
@@ -332,6 +338,14 @@
     <ProjectReference Include="..\..\imguilib\imguilib\imguilib.vcxproj">
       <Project>{4fbcfe54-e3f5-4ca9-b71d-3bc697fb7568}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="Dependencies\assimp-vc143-mt.dll">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Dependencies\zlib1.dll">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
