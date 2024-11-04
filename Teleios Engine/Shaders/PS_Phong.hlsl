@@ -1,5 +1,11 @@
-Texture2D texture_ : register(t0);
-SamplerState sampler_ : register(s0);
+
+#ifdef TEXTURE_ANY
+    SamplerState sampler_ : register(s0);
+#endif
+
+#ifdef TEXTURE_DIFFUSE
+    Texture2D texture_ : register(t0);
+#endif
 
 cbuffer lightBuffer : register(b0)
 {
@@ -10,14 +16,20 @@ cbuffer lightBuffer : register(b0)
     float attenuationConstant;
 };
 
-cbuffer constBuffer : register(b2)
-{
-    float texCoordsScale;
-};
+float4 PSMain(
+#ifdef INPUT_TEXCCORDS  
+    float2 textureCoords : TEXCOORDS,
+#endif
 
-float4 PSMain(float3 positionInCameraSpace : CAMERAPOSITION, float2 textureCoords : TEXCOORDS) : SV_TARGET
+    float3 positionInCameraSpace : CAMERAPOSITION
+) : SV_TARGET
 {
-    float4 sample = texture_.Sample(sampler_, textureCoords * texCoordsScale);
+
+#ifdef TEXTURE_DIFFUSE
+    float4 sample = texture_.Sample(sampler_, textureCoords);
+#else
+    float4 sample = float4(1.0f, 1.0f, 1.0f, 1.0f);
+#endif
 
     float distanceFromLight = length(lightPositionInCameraSpace - positionInCameraSpace);
 
@@ -25,5 +37,5 @@ float4 PSMain(float3 positionInCameraSpace : CAMERAPOSITION, float2 textureCoord
 
     float3 diffuse = diffuseColor * attenuation;
 
-    return float4(sample.rgb * diffuse, sample.a);
+    return float4(sample.rgb * diffuse, 1.0f);
 }
