@@ -5,12 +5,12 @@
 
 #include <DirectXTex/DirectXTex.h>
 
-Texture::Texture(Graphics& graphics, const wchar_t* path, std::vector<TargetSlotAndShader> targets)
+Texture::Texture(Graphics& graphics, const char* path, std::vector<TargetSlotAndShader> targets)
 	:
 #ifdef _DEBUG
-	m_path(std::wstring(L"../../Images/") + path),
+	m_path(std::string("../../") + path),
 #else
-	m_path(std::wstring(L"Images/") + path),
+	m_path(path),
 #endif
 	m_targets(targets)
 {
@@ -22,19 +22,21 @@ Texture::Texture(Graphics& graphics, const wchar_t* path, std::vector<TargetSlot
 
 	HRESULT hr;
 
+	std::wstring wPath = std::wstring(m_path.begin(), m_path.end());
+
 	DirectX::ScratchImage image = {};
 	DirectX::TexMetadata metaData = {};
 
 	// reading image data from file
 	{
 		THROW_ERROR(DirectX::GetMetadataFromWICFile(
-			m_path.c_str(),
+			wPath.c_str(),
 			DirectX::WIC_FLAGS_NONE,
 			metaData
 		));
 
 		THROW_ERROR(DirectX::LoadFromWICFile(
-			m_path.c_str(),
+			wPath.c_str(),
 			DirectX::WIC_FLAGS_NONE,
 			&metaData,
 			image

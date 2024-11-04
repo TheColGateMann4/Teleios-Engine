@@ -10,7 +10,7 @@ class RootSignature;
 class Texture : public Bindable, public CommandListBindable, public DirectCommandListBindable, public RootSignatureBindable
 {
 public:
-	Texture(class Graphics& graphics, const wchar_t* path, std::vector<TargetSlotAndShader> targets = { {ShaderVisibilityGraphic::PixelShader, 0} });
+	Texture(class Graphics& graphics, const char* path, std::vector<TargetSlotAndShader> targets = { {ShaderVisibilityGraphic::PixelShader, 0} });
 
 public:
 	virtual void BindToCommandList(Graphics& graphics, CommandList* commandList) override;
@@ -29,7 +29,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> pDescriptorHeap;
 
 private:
-	std::wstring m_path;
+	std::string m_path;
 	bool m_isAlphaOpaque = false;
 	DXGI_FORMAT m_format = DXGI_FORMAT_UNKNOWN;
 	std::vector<TargetSlotAndShader> m_targets;
