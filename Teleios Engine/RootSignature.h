@@ -28,6 +28,9 @@ public:
 	void AddStaticSampler(StaticSampler* staticSampler);
 
 private:
+	void ConnectDescriptorParametersToRanges();
+
+private:
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> pRootSignature;
 	bool m_finished;
 

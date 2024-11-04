@@ -27,6 +27,9 @@ ID3D12RootSignature* RootSignature::Get() const
 
 void RootSignature::Initialize(Graphics& graphics)
 {
+	ConnectDescriptorParametersToRanges();
+
+
 	HRESULT hr;
 
 	Microsoft::WRL::ComPtr<ID3DBlob> pRootSignatureBlob;
@@ -95,8 +98,8 @@ void RootSignature::AddDescriptorTableParameter(Texture* texture)
 		D3D12_ROOT_PARAMETER rootParameter = {};
 		rootParameter.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 		rootParameter.DescriptorTable = {};
-		rootParameter.DescriptorTable.NumDescriptorRanges++;
-		rootParameter.DescriptorTable.pDescriptorRanges = m_descriptorTableRanges.data();
+		rootParameter.DescriptorTable.NumDescriptorRanges = 1;
+		//rootParameter.DescriptorTable.pDescriptorRanges = m_descriptorTableRanges.data(); // we are not setting it here since every push to m_descriptorTableRanges possibly invalidates all the data
 		rootParameter.ShaderVisibility = static_cast<D3D12_SHADER_VISIBILITY>(targetShader.target);
 
 		m_rootParameters.push_back(rootParameter);
@@ -120,4 +123,16 @@ void RootSignature::AddStaticSampler(StaticSampler* staticSampler)
 	}
 
 	m_rootSignatureDesc.pStaticSamplers = m_staticSamplers.data();
+}
+
+void RootSignature::ConnectDescriptorParametersToRanges()
+{
+	size_t descriptorIndex = 0;
+
+	for (size_t index = 0; index < m_rootParameters.size(); index++)
+		if(m_rootParameters.at(index).ParameterType == D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE)
+		{
+			m_rootParameters.at(index).DescriptorTable.pDescriptorRanges = &m_descriptorTableRanges.at(descriptorIndex);
+			descriptorIndex++;
+		}
 }
