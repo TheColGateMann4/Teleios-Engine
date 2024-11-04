@@ -33,11 +33,11 @@ ModelMesh::ModelMesh(Graphics& graphics, aiMesh* mesh, aiMaterial* material, Dir
 		if (hasPositions)
 			vertexLayout.AddElement<DynamicVertex::ElementType::Position>();
 
-		if (hasNormals)
-			vertexLayout.AddElement<DynamicVertex::ElementType::Normal>();
-
 		if (hasTextureCoords)
 			vertexLayout.AddElement<DynamicVertex::ElementType::TextureCoords>();
+
+		if (hasNormals)
+			vertexLayout.AddElement<DynamicVertex::ElementType::Normal>();
 
 		if (hasTangentsAndBitangent)
 		{
@@ -60,11 +60,11 @@ ModelMesh::ModelMesh(Graphics& graphics, aiMesh* mesh, aiMaterial* material, Dir
 			if (hasPositions)
 				vertexBuffer.Back().GetPropety<DynamicVertex::ElementType::Position>() = *reinterpret_cast<DirectX::XMFLOAT3*>(&mesh->mVertices[vertexIndex]);
 
-			if (hasNormals)
-				vertexBuffer.Back().GetPropety<DynamicVertex::ElementType::Normal>() = *reinterpret_cast<DirectX::XMFLOAT3*>(&mesh->mNormals[vertexIndex]);
-
 			if (hasTextureCoords)
 				vertexBuffer.Back().GetPropety<DynamicVertex::ElementType::TextureCoords>() = *reinterpret_cast<DirectX::XMFLOAT2*>(&mesh->mTextureCoords[0][vertexIndex]);
+
+			if (hasNormals)
+				vertexBuffer.Back().GetPropety<DynamicVertex::ElementType::Normal>() = *reinterpret_cast<DirectX::XMFLOAT3*>(&mesh->mNormals[vertexIndex]);
 
 			if (hasTangentsAndBitangent)
 			{
@@ -94,6 +94,7 @@ ModelMesh::ModelMesh(Graphics& graphics, aiMesh* mesh, aiMaterial* material, Dir
 
 	std::vector<const char*> shaderMacros = {};
 	shaderMacros.push_back("OUTPUT_CAMAERAPOS"); // phong requirement
+	shaderMacros.push_back("INPUT_NORMAL"); // model objects will always have normals since we will generate them with assimp if they do not
 
 	// handle material
 	{
