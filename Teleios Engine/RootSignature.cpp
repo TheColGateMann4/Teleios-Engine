@@ -99,7 +99,6 @@ void RootSignature::AddDescriptorTableParameter(Texture* texture)
 		rootParameter.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 		rootParameter.DescriptorTable = {};
 		rootParameter.DescriptorTable.NumDescriptorRanges = 1;
-		//rootParameter.DescriptorTable.pDescriptorRanges = m_descriptorTableRanges.data(); // we are not setting it here since every push to m_descriptorTableRanges possibly invalidates all the data
 		rootParameter.ShaderVisibility = static_cast<D3D12_SHADER_VISIBILITY>(targetShader.target);
 
 		m_rootParameters.push_back(rootParameter);
