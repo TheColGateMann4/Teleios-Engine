@@ -124,7 +124,7 @@ Cube::Cube(Graphics& graphics, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rot
 		AddBindable(constBuffer);
 	}
 
-	AddBindable(std::make_shared<Texture>(graphics, L"brickwall.jpg"));
+	AddBindable(std::make_shared<Texture>(graphics, "Images/brickwall.jpg"));
 
 	AddBindable(std::make_shared<StaticSampler>(D3D12_FILTER_MIN_MAG_MIP_POINT));
 }
