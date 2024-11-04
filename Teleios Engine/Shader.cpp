@@ -54,12 +54,17 @@ std::string GetShaderVersion(ShaderType type)
 */
 
 // debug shader contructor reads .hlsl files and compiles them
-Shader::Shader(const char* name, ShaderType type, const char* entryPointName)
+Shader::Shader(const char* name, ShaderType type, std::vector<const char*> shaderMacros)
 	:
 	m_name(std::string("../../Shaders/") + name + ".hlsl"),
 	m_type(type),
-	m_entryPoint(entryPointName == nullptr ? GetDefaultEntryPointName(m_type) : entryPointName)
+	m_entryPoint(GetDefaultEntryPointName(m_type))
 {
+	for (const auto shaderMacro : shaderMacros)
+		m_shaderMacros.push_back(D3D_SHADER_MACRO{ shaderMacro, nullptr });
+
+	m_shaderMacros.push_back(D3D_SHADER_MACRO{ NULL, NULL });
+
 	Reload();
 }
 
@@ -75,7 +80,7 @@ void Shader::Reload()
 
 	THROW_BLOB_ERROR(D3DCompileFromFile(
 		wName.c_str(),						 // path to shader
-		nullptr,							 // we don't use macros yet but I got bright plans with this
+		m_shaderMacros.data(),				 // macros that we will use for customizing one shader. This way we avoid making ton of shaders
 		nullptr,							 // we are including files that are in relative directory
 		m_entryPoint.c_str(),				 // entry point function name in said shader
 		sShaderVersion.c_str(),				 // version of shader
@@ -93,7 +98,7 @@ void Shader::Reload()
 */
 
 // release shader contructor reads already compiled shaders from .cso files
-Shader::Shader(const char* name, ShaderType type, const char*)
+Shader::Shader(const char* name, ShaderType type, std::vector<const char*> shaderMacros)
 	:
 	m_name(std::string("Shaders/") + name + ".cso"),
 	m_type(type)

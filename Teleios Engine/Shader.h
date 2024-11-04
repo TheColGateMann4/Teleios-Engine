@@ -19,7 +19,7 @@ class PipelineState;
 class Shader : public Bindable, public PipelineStateBindable
 {
 public:
-	Shader(const char* name, ShaderType type, const char* entryPointName = nullptr);
+	Shader(const char* name, ShaderType type, std::vector<const char*> shaderMacros = {});
 
 public:
 	void Reload();
@@ -36,4 +36,5 @@ private:
 	ShaderType m_type;
 	std::string m_name;
 	std::string m_entryPoint;
+	std::vector<D3D_SHADER_MACRO> m_shaderMacros;
 };
