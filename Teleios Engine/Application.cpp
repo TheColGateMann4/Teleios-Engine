@@ -42,7 +42,7 @@ void Application::InitializeScene()
 {
 	camera = std::make_shared<Camera>(window.graphics, pipeline);
 	//sceneObjects.push_back(std::make_shared<Cube>(window.graphics));
-	sceneObjects.push_back(std::make_shared<Model>(window.graphics, "nanosuit.obj"));
+	sceneObjects.push_back(std::make_shared<Model>(window.graphics, "nanosuit/nanosuit.obj"));
 	sceneObjects.push_back(std::make_shared<PointLight>(window.graphics, pipeline));
 
 	for (auto& sceneObject : sceneObjects)
