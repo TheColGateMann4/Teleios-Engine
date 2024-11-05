@@ -17,11 +17,11 @@
 
 cbuffer lightBuffer : register(b0)
 {
-    float3 lightPositionInCameraSpace;
-    float3 diffuseColor;
-    float attenuationQuadratic;
-    float attenuationLinear;
-    float attenuationConstant;
+    float3 b_lightPositionInCameraSpace;
+    float b_specularConcentration;
+    float b_attenuationQuadratic;
+    float b_attenuationLinear;
+    float b_attenuationConstant;
 };
 
 float4 PSMain(
@@ -68,13 +68,13 @@ float4 PSMain(
     float diffuseAlpha = 1.0f;
 #endif
 
-    float3 vecDistanceToLight = lightPositionInCameraSpace - positionInCameraSpace;
+    float3 vecDistanceToLight = b_lightPositionInCameraSpace - positionInCameraSpace;
     float fDistanceToLight = length(vecDistanceToLight);
     float3 directionToLight = vecDistanceToLight / fDistanceToLight;
 
-    float attenuation = 1.0f / ((attenuationConstant) + (attenuationLinear * fDistanceToLight) + (attenuationQuadratic * fDistanceToLight * fDistanceToLight));
+    float attenuation = 1.0f / ((b_attenuationConstant) + (b_attenuationLinear * fDistanceToLight) + (b_attenuationQuadratic * fDistanceToLight * fDistanceToLight));
 
-    float3 diffuse = diffuseColor * attenuation * max(0.0f, dot(directionToLight, normal));
+    float3 diffuse = b_lightDiffuseColor * attenuation * max(0.0f, dot(directionToLight, normal));
 
 #ifdef TEXTURE_SPECULAR
     float4 specularSample = texture_specular.Sample(sampler_, textureCoords);
@@ -87,7 +87,7 @@ float4 PSMain(
     const float3 w = normal * dot(vecDistanceToLight, normal);
     const float3 r = w * 2.0f - vecDistanceToLight;
 
-    float3 specular = attenuation * diffuseColor * pow(max(0.0f, dot(normalize(-r), normalize(positionInCameraSpace))), specularPower);
+    float3 specular = b_lightSpecularColor  * attenuation * pow(max(0.0f, dot(normalize(-r), normalize(positionInCameraSpace))), specularPower);
 
 
     return float4(diffuseColor * diffuse + specularColor * specular, diffuseAlpha);
