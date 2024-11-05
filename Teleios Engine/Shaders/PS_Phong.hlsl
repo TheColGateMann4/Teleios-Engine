@@ -8,7 +8,7 @@
 #endif
 
 #ifdef TEXTURE_NORMAL
-    Texture2D texture_normal : register(t2);
+    Texture2D texture_normal : register(t1);
 #endif
 
 #ifdef TEXTURE_SPECULAR
