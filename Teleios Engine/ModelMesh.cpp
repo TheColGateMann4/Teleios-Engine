@@ -14,10 +14,11 @@
 
 #include <assimp/scene.h>           // Output data structure
 
-ModelMesh::ModelMesh(Graphics& graphics, aiMesh* mesh, aiMaterial* material, float scale, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation)
+ModelMesh::ModelMesh(Graphics& graphics, aiMesh* mesh, aiMaterial* material, std::string filePath, float scale, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation)
 	:
 	Drawable(position, rotation)
 {
+	std::string fileName = mesh->mName.C_Str();
 	size_t numVertices = mesh->mNumVertices + 1;
 
 	bool hasPositions = mesh->HasPositions();
@@ -80,7 +81,7 @@ ModelMesh::ModelMesh(Graphics& graphics, aiMesh* mesh, aiMaterial* material, flo
 				vertexBuffer.Back().GetPropety<DynamicVertex::ElementType::Color4>() = *reinterpret_cast<DirectX::XMFLOAT4*>(&mesh->mColors[0][vertexIndex]);
 		}
 
-		SetVertexBuffer(std::make_shared<VertexBuffer>(graphics, vertexBuffer));
+		SetVertexBuffer(VertexBuffer::GetBindableResource(fileName, graphics, vertexBuffer));
 	}
 
 
@@ -93,7 +94,7 @@ ModelMesh::ModelMesh(Graphics& graphics, aiMesh* mesh, aiMaterial* material, flo
 			for (size_t indiceIndex = 0; indiceIndex < mesh->mFaces[faceIndex].mNumIndices; indiceIndex++)
 				indices.push_back(mesh->mFaces[faceIndex].mIndices[indiceIndex]);
 
-		SetIndexBuffer(std::make_shared<IndexBuffer>(graphics, indices));
+		SetIndexBuffer(IndexBuffer::GetBindableResource(fileName, graphics, indices));
 	}
 
 	std::vector<const char*> shaderMacros = {};
@@ -102,13 +103,11 @@ ModelMesh::ModelMesh(Graphics& graphics, aiMesh* mesh, aiMaterial* material, flo
 
 	// handle material
 	{
-		ProcessMaterialPropeties(material);
-
 		MaterialPropeties materialPropeties = ProcessMaterialPropeties(material);
 
 		if(materialPropeties.hasAnyMap)
 		{
-			AddBindable(std::make_shared<StaticSampler>(D3D12_FILTER_MIN_MAG_MIP_POINT));
+			AddBindable(StaticSampler::GetBindableResource(D3D12_FILTER_MIN_MAG_MIP_POINT));
 
 			shaderMacros.push_back("TEXTURE_ANY");
 			shaderMacros.push_back("INPUT_TEXCCORDS"); // since we are handling textures, we will need texcoords argument provided to our shaders
@@ -116,13 +115,13 @@ ModelMesh::ModelMesh(Graphics& graphics, aiMesh* mesh, aiMaterial* material, flo
 
 		if (materialPropeties.hasDiffuseMap)
 		{
-			AddBindable(std::make_shared<Texture>(graphics, materialPropeties.diffuseMapPath.c_str(), std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::PixelShader, 0}}));
+			AddBindable(Texture::GetBindableResource(graphics, (filePath + materialPropeties.diffuseMapPath).c_str(), std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::PixelShader, 0}}));
 			shaderMacros.push_back("TEXTURE_DIFFUSE");
 		}
 
 		if (materialPropeties.hasNormalMap)
 		{
-			AddBindable(std::make_shared<Texture>(graphics, materialPropeties.normalMapPath.c_str(), std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::PixelShader, 1}}));
+			AddBindable(Texture::GetBindableResource(graphics, (filePath + materialPropeties.normalMapPath).c_str(), std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::PixelShader, 1}}));
 			shaderMacros.push_back("TEXTURE_NORMAL");
 
 			shaderMacros.push_back("INPUT_TANGENT");
@@ -131,21 +130,21 @@ ModelMesh::ModelMesh(Graphics& graphics, aiMesh* mesh, aiMaterial* material, flo
 
 		if (materialPropeties.hasSpecularMap)
 		{
-			AddBindable(std::make_shared<Texture>(graphics, materialPropeties.specularMapPath.c_str(), std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::PixelShader, 2}}));
+			AddBindable(Texture::GetBindableResource(graphics, (filePath + materialPropeties.specularMapPath).c_str(), std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::PixelShader, 2}}));
 			shaderMacros.push_back("TEXTURE_SPECULAR");
 		}
 	}
 
 	SetTransformConstantBuffer(std::make_shared<TransformConstantBuffer>(graphics, this));
 
-	AddBindable(std::make_shared<Shader>("PS_Phong", ShaderType::PixelShader, shaderMacros));
-	AddBindable(std::make_shared<Shader>("VS", ShaderType::VertexShader, shaderMacros));
-	AddBindable(std::make_shared<InputLayout>(vertexLayout));
+	AddBindable(Shader::GetBindableResource("PS_Phong", ShaderType::PixelShader, shaderMacros));
+	AddBindable(Shader::GetBindableResource("VS", ShaderType::VertexShader, shaderMacros));
+	AddBindable(InputLayout::GetBindableResource(vertexLayout));
 
-	AddBindable(std::make_shared<BlendState>());
-	AddBindable(std::make_shared<RasterizerState>());
-	AddBindable(std::make_shared<DepthStencilState>());
-	AddBindable(std::make_shared<PrimitiveTechnology>(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE));
+	AddBindable(BlendState::GetBindableResource());
+	AddBindable(RasterizerState::GetBindableResource());
+	AddBindable(DepthStencilState::GetBindableResource());
+	AddBindable(PrimitiveTechnology::GetBindableResource(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE));
 
 	AddStaticBindable("lightBuffer");
 }
@@ -178,7 +177,7 @@ ModelMesh::MaterialPropeties ModelMesh::ProcessMaterialPropeties(aiMaterial* mat
 			}
 			case aiPTI_String:
 			{
-				std::string texturePath = std::string("Models/nanosuit/") + reinterpret_cast<aiString*>(materialPropety->mData)->C_Str();
+				std::string texturePath = reinterpret_cast<aiString*>(materialPropety->mData)->C_Str();
 				unsigned int semantic = materialPropety->mSemantic;
 
 				if (semantic != aiTextureType_NONE)
@@ -206,7 +205,6 @@ ModelMesh::MaterialPropeties ModelMesh::ProcessMaterialPropeties(aiMaterial* mat
 					}
 					default: // if we are not handling the map we will print it in console
 					{
-						std::cout << "index: " << materialPropety->mIndex << '\n';
 						std::cout << "key: " << materialPropety->mKey.C_Str() << '\n';
 						std::cout << "semantic: " << semantic << '\n';
 						std::cout << "data: \"" << texturePath << "\"\n";
@@ -217,11 +215,7 @@ ModelMesh::MaterialPropeties ModelMesh::ProcessMaterialPropeties(aiMaterial* mat
 				break;
 			}
 		}
-
-		std::cout << "\n\n\n";
 	}
-
-	std::cout << "\n\n\n\n\n\n\n\n";
 
 	return resultPropeties;
 }

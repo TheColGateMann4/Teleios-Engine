@@ -23,7 +23,7 @@ class ModelMesh : public Drawable
 	};
 
 public:
-	ModelMesh(Graphics& graphics, aiMesh* mesh, aiMaterial* material, DirectX::XMFLOAT3 position = { -2.0f, 0.0f, 0.0f }, DirectX::XMFLOAT3 rotation = { 0.0f, 0.0f, 0.0f });
+	ModelMesh(Graphics& graphics, aiMesh* mesh, aiMaterial* material, std::string filePath, float scale = 1.0f, DirectX::XMFLOAT3 position = { -2.0f, 0.0f, 0.0f }, DirectX::XMFLOAT3 rotation = { 0.0f, 0.0f, 0.0f });
 
 private:
 	MaterialPropeties ProcessMaterialPropeties(aiMaterial* material);
@@ -41,7 +41,6 @@ private:
 		T* pData = reinterpret_cast<T*>(baseData);
 		size_t numElements = dataLength / sizeof(T);
 
-		std::cout << "index: " << index << '\n';
 		std::cout << "key: " << key << '\n';
 
 		for (size_t dataIndex = 0; dataIndex < numElements; dataIndex++)
