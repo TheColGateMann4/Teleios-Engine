@@ -18,6 +18,9 @@
 cbuffer lightBuffer : register(b0)
 {
     float3 b_lightPositionInCameraSpace;
+    float3 b_lightDiffuseColor;
+    float3 b_lightSpecularColor;
+    float b_specularIntensity;
     float b_specularConcentration;
     float b_attenuationQuadratic;
     float b_attenuationLinear;
@@ -36,7 +39,7 @@ float4 PSMain(
 #endif
 
 #ifdef INPUT_TANGENT  
-    , float2 tangent : TANGENT
+    , float3 tangent : TANGENT
 #endif
 
 #ifdef INPUT_BITANGENT  
@@ -47,11 +50,10 @@ float4 PSMain(
 
 #ifdef INPUT_NORMAL  
     #ifdef TEXTURE_NORMAL
-        float3x3 tangentRotationMatrix = mul(float3x3(normal, tangent, bitangent), normal);
+        const float3x3 tangentRotationMatrix = float3x3(tangent, bitangent, normal);
 
-        normal = texture_normal.Sample(sampler_, textureCoords).rgb;
-        normal = normal * 2 - 1.0f;
-        normal.z = normal.z * -1.0f;
+        const float3 normalMapSample = texture_normal.Sample(sampler_, textureCoords).rgb;
+        normal = normalMapSample * 2 - 1.0f;
 
         normal = mul(tangentRotationMatrix, normal);
     #endif
@@ -82,12 +84,12 @@ float4 PSMain(
     float specularPower = pow(2.0f, specularSample.a * 13.0f);
 #else
     float3 specularColor = float3(1.0f, 1.0f, 1.0f);
-    float specularPower = 60.1f;
+    float specularPower = b_specularConcentration;
 #endif
     const float3 w = normal * dot(vecDistanceToLight, normal);
     const float3 r = w * 2.0f - vecDistanceToLight;
 
-    float3 specular = b_lightSpecularColor  * attenuation * pow(max(0.0f, dot(normalize(-r), normalize(positionInCameraSpace))), specularPower);
+    float3 specular = (b_lightSpecularColor * b_specularIntensity) * attenuation * pow(max(0.0f, dot(normalize(-r), normalize(positionInCameraSpace))), specularPower);
 
 
     return float4(diffuseColor * diffuse + specularColor * specular, diffuseAlpha);
