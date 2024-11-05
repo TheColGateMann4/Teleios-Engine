@@ -18,6 +18,11 @@ public:
     IndexBuffer(Graphics& graphics, std::vector<unsigned short> indices);
 
 public:
+    static std::shared_ptr<IndexBuffer> GetBindableResource(std::string identifier, Graphics& graphics, std::vector<unsigned int> indices);
+
+    static std::shared_ptr<IndexBuffer> GetBindableResource(std::string identifier, Graphics& graphics, std::vector<unsigned short> indices);
+
+public:
     virtual void BindToCommandList(Graphics& graphics, CommandList* commandList) override;
 
     void Update(Graphics& graphics, void* pData, size_t numElements, size_t structureSize);

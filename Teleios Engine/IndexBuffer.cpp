@@ -3,6 +3,8 @@
 #include "Graphics.h"
 #include "CommandList.h"
 
+#include "BindableResourceList.h"
+
 IndexBuffer::IndexBuffer(Graphics& graphics, void* pData, size_t indexCount, DXGI_FORMAT dataFormat)
     :
 	m_dataFormat(dataFormat)
@@ -28,6 +30,16 @@ IndexBuffer::IndexBuffer(Graphics& graphics, std::vector<unsigned short> indices
     IndexBuffer(graphics, indices.data(), indices.size(), DXGI_FORMAT_R16_UINT)
 {
 
+}
+
+std::shared_ptr<IndexBuffer> IndexBuffer::GetBindableResource(std::string identifier, Graphics& graphics, std::vector<unsigned int> indices)
+{
+	return BindableResourceList::GetBindableResourceByID<IndexBuffer>("IndexBuffer#" + identifier, graphics, indices);
+}
+
+std::shared_ptr<IndexBuffer> IndexBuffer::GetBindableResource(std::string identifier, Graphics& graphics, std::vector<unsigned short> indices)
+{
+	return BindableResourceList::GetBindableResourceByID<IndexBuffer>("IndexBuffer#" + identifier, graphics, indices);
 }
 
 void IndexBuffer::BindToCommandList(Graphics& graphics, CommandList* commandList)

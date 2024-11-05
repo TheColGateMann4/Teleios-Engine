@@ -144,6 +144,8 @@ namespace DynamicVertex
 
 		std::vector<D3D12_INPUT_ELEMENT_DESC> GetInputLayout() const;
 
+		std::string GetIdentifier() const;
+
 	private:
 		template<ElementType elementType>
 		consteval static unsigned int GetNewElementSize()

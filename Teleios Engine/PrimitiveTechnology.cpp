@@ -3,12 +3,29 @@
 #include "PipelineState.h"
 #include "Macros/ErrorMacros.h"
 
+#include "BindableResourceList.h"
+
 PrimitiveTechnology::PrimitiveTechnology(D3D12_PRIMITIVE_TOPOLOGY_TYPE type)
 	:
 	m_d3d12type(type),
 	m_d3dtype(GetD3DPrimitiveFromD3D12(m_d3d12type))
 {
 
+}
+
+std::shared_ptr<PrimitiveTechnology> PrimitiveTechnology::GetBindableResource(D3D12_PRIMITIVE_TOPOLOGY_TYPE type)
+{
+	return BindableResourceList::GetBindableResource<PrimitiveTechnology>(type);
+}
+
+std::string PrimitiveTechnology::GetIdentifier(D3D12_PRIMITIVE_TOPOLOGY_TYPE type)
+{
+	std::string resultString = "PrimitiveTechnology#";
+
+	resultString += std::to_string(size_t(type));
+	resultString += '#';
+
+	return resultString;
 }
 
 void PrimitiveTechnology::BindToPipelineState(Graphics& graphics, PipelineState* pipelineState)

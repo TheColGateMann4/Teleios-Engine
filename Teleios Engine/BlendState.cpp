@@ -1,6 +1,8 @@
 #include "BlendState.h"
 #include "PipelineState.h"
 
+#include "BindableResourceList.h"
+
 BlendState::BlendState()
 {
 	D3D12_RENDER_TARGET_BLEND_DESC renderTargetBlendDesc = {};
@@ -19,6 +21,18 @@ BlendState::BlendState()
 	m_desc.AlphaToCoverageEnable = true;			// alpha will be used for output color
 	m_desc.IndependentBlendEnable = false;			// every render target will use blend desc at index 0
 	m_desc.RenderTarget[0] = renderTargetBlendDesc;
+}
+
+std::shared_ptr<BlendState> BlendState::GetBindableResource()
+{
+	return BindableResourceList::GetBindableResource<BlendState>();
+}
+
+std::string BlendState::GetIdentifier()
+{
+	std::string resultString = "BlendState#";
+
+	return resultString;
 }
 
 D3D12_BLEND_DESC BlendState::Get()

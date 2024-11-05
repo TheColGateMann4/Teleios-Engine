@@ -1,6 +1,8 @@
 #include "DepthStencilState.h"
 #include "PipelineState.h"
 
+#include "BindableResourceList.h"
+
 DepthStencilState::DepthStencilState()
 {
 	D3D12_DEPTH_STENCILOP_DESC frontFaceStencil = {};
@@ -18,6 +20,18 @@ DepthStencilState::DepthStencilState()
 	m_desc.StencilWriteMask = D3D12_DEFAULT_STENCIL_WRITE_MASK;
 	m_desc.FrontFace = frontFaceStencil;
 	//m_desc.BackFace = ; // we don't use it anyways
+}
+
+std::shared_ptr<DepthStencilState> DepthStencilState::GetBindableResource()
+{
+	return BindableResourceList::GetBindableResource<DepthStencilState>();
+}
+
+std::string DepthStencilState::GetIdentifier()
+{
+	std::string resultString = "DepthStencilState#";
+
+	return resultString;
 }
 
 D3D12_DEPTH_STENCIL_DESC DepthStencilState::Get()

@@ -3,6 +3,8 @@
 #include "PipelineState.h"
 #include "DynamicVertex.h"
 
+#include "BindableResourceList.h"
+
 InputLayout::InputLayout(DynamicVertex::DynamicVertexLayout& layout)
 	:
 	m_layoutElements(layout.GetInputLayout())
@@ -12,6 +14,20 @@ InputLayout::InputLayout(DynamicVertex::DynamicVertexLayout& layout)
 	m_desc = {};
 	m_desc.pInputElementDescs = m_layoutElements.data();
 	m_desc.NumElements = m_layoutElements.size();
+}
+
+std::shared_ptr<InputLayout> InputLayout::GetBindableResource(DynamicVertex::DynamicVertexLayout& layout)
+{
+	return BindableResourceList::GetBindableResource<InputLayout>(layout);
+}
+
+std::string InputLayout::GetIdentifier(DynamicVertex::DynamicVertexLayout& layout)
+{
+	std::string resultString = "InputLayout#";
+
+	resultString += layout.GetIdentifier();
+
+	return resultString;
 }
 
 D3D12_INPUT_LAYOUT_DESC InputLayout::Get()

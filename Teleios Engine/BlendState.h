@@ -10,6 +10,12 @@ class BlendState : public Bindable, public PipelineStateBindable
 public:
 	BlendState();
 
+public:
+	static std::shared_ptr<BlendState> GetBindableResource();
+
+	static std::string GetIdentifier();
+
+public:
 	D3D12_BLEND_DESC Get();
 
 	virtual void BindToPipelineState(Graphics& graphics, PipelineState* pipelineState) override;

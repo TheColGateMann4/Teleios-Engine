@@ -5,6 +5,8 @@
 
 #include <DirectXTex/DirectXTex.h>
 
+#include "BindableResourceList.h"
+
 Texture::Texture(Graphics& graphics, const char* path, std::vector<TargetSlotAndShader> targets)
 	:
 #ifdef _DEBUG
@@ -116,6 +118,30 @@ Texture::Texture(Graphics& graphics, const char* path, std::vector<TargetSlotAnd
 			0
 		));
 	}
+}
+
+std::shared_ptr<Texture> Texture::GetBindableResource(class Graphics& graphics, const char* path, std::vector<TargetSlotAndShader> targets)
+{
+	return BindableResourceList::GetBindableResource<Texture>(graphics, path, targets);
+}
+
+std::string Texture::GetIdentifier(class Graphics& graphics, const char* path, std::vector<TargetSlotAndShader> targets)
+{
+	std::string resultString = "Texture#";
+
+	resultString += path;
+	resultString += '#';
+
+	for (const auto target : targets)
+	{
+		resultString += target.slot;
+		resultString += '#';
+
+		resultString += std::to_string(size_t(target.target));
+		resultString += '#';
+	}
+
+	return resultString;
 }
 
 void Texture::BindToCommandList(Graphics& graphics, CommandList* commandList)

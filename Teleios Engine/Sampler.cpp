@@ -1,6 +1,8 @@
 #include "Sampler.h"
 #include "RootSignature.h"
 
+#include "BindableResourceList.h"
+
 StaticSampler::StaticSampler(D3D12_FILTER filter, D3D12_TEXTURE_ADDRESS_MODE overlappingMode, std::vector<TargetSlotAndShader> targets)
 	: 
 	m_targets(targets)
@@ -18,6 +20,33 @@ StaticSampler::StaticSampler(D3D12_FILTER filter, D3D12_TEXTURE_ADDRESS_MODE ove
 	m_staticSamplerDesc.ShaderRegister = targets.front().slot;
 	m_staticSamplerDesc.RegisterSpace = 0;
 	m_staticSamplerDesc.ShaderVisibility = D3D12_SHADER_VISIBILITY(targets.front().target);
+}
+
+std::shared_ptr<StaticSampler> StaticSampler::GetBindableResource(D3D12_FILTER filter, D3D12_TEXTURE_ADDRESS_MODE overlappingMode, std::vector<TargetSlotAndShader> targets)
+{
+	return BindableResourceList::GetBindableResource<StaticSampler>(filter, overlappingMode, targets);
+}
+
+std::string StaticSampler::GetIdentifier(D3D12_FILTER filter, D3D12_TEXTURE_ADDRESS_MODE overlappingMode, std::vector<TargetSlotAndShader> targets)
+{
+	std::string resultString = "StaticSampler#";
+
+	resultString += std::to_string(size_t(filter));
+	resultString += '#';
+
+	resultString += std::to_string(size_t(overlappingMode));
+	resultString += '#';
+
+	for (const auto target : targets)
+	{
+		resultString += target.slot;
+		resultString += '#';
+
+		resultString += std::to_string(size_t(target.target));
+		resultString += '#';
+	}
+
+	return resultString;
 }
 
 void StaticSampler::BindToRootSignature(Graphics& graphics, RootSignature* rootSignature)

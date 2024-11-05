@@ -43,6 +43,19 @@ std::vector<D3D12_INPUT_ELEMENT_DESC> DynamicVertex::DynamicVertexLayout::GetInp
 	return result;
 }
 
+std::string DynamicVertex::DynamicVertexLayout::GetIdentifier() const
+{
+	std::string resultString;
+
+	for (const auto& layoutElement : m_elements)
+	{
+		resultString += GetElementSemanticName(layoutElement.type);
+		resultString += '#';
+	}
+
+	return resultString;
+}
+
 const char* DynamicVertex::DynamicVertexLayout::GetElementSemanticName(ElementType elementType)
 {
 	switch (elementType)

@@ -13,6 +13,11 @@ public:
 	Texture(class Graphics& graphics, const char* path, std::vector<TargetSlotAndShader> targets = { {ShaderVisibilityGraphic::PixelShader, 0} });
 
 public:
+	static std::shared_ptr<Texture> GetBindableResource(class Graphics& graphics, const char* path, std::vector<TargetSlotAndShader> targets = { {ShaderVisibilityGraphic::PixelShader, 0} });
+
+	static std::string GetIdentifier(class Graphics& graphics, const char* path, std::vector<TargetSlotAndShader> targets);
+
+public:
 	virtual void BindToCommandList(Graphics& graphics, CommandList* commandList) override;
 
 	virtual void BindToDirectCommandList(Graphics& graphics, CommandList* commandList) override;

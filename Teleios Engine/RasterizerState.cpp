@@ -1,6 +1,8 @@
 #include "RasterizerState.h"
 #include "PipelineState.h"
 
+#include "BindableResourceList.h"
+
 RasterizerState::RasterizerState()
 {
 	m_desc = {};
@@ -15,6 +17,18 @@ RasterizerState::RasterizerState()
 	m_desc.AntialiasedLineEnable = false;
 	m_desc.ForcedSampleCount = 0;			 // not forced sample count
 	m_desc.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
+}
+
+std::shared_ptr<RasterizerState> RasterizerState::GetBindableResource()
+{
+	return BindableResourceList::GetBindableResource<RasterizerState>();
+}
+
+std::string RasterizerState::GetIdentifier()
+{
+	std::string resultString = "RasterizerState#";
+
+	return resultString;
 }
 
 D3D12_RASTERIZER_DESC RasterizerState::Get()

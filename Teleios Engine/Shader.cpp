@@ -3,6 +3,8 @@
 #include "PipelineState.h"
 #include <d3dcompiler.h>
 
+#include "BindableResourceList.h"
+
 #ifdef _DEBUG
 constexpr const char* GetDefaultEntryPointName(ShaderType type)
 {
@@ -66,6 +68,27 @@ Shader::Shader(const char* name, ShaderType type, std::vector<const char*> shade
 	m_shaderMacros.push_back(D3D_SHADER_MACRO{ NULL, NULL });
 
 	Reload();
+}
+
+std::shared_ptr<Shader> Shader::GetBindableResource(const char* name, ShaderType type, std::vector<const char*> shaderMacros)
+{
+	return BindableResourceList::GetBindableResource<Shader>(name, type, shaderMacros);
+}
+
+std::string Shader::GetIdentifier(const char* name, ShaderType type, std::vector<const char*> shaderMacros)
+{
+	std::string resultString = "Shader#";
+
+	resultString += std::to_string(size_t(type));
+	resultString += '#';
+
+	for (const auto shaderMacro : shaderMacros)
+	{
+		resultString += shaderMacro;
+		resultString += '#';
+	}
+
+	return resultString;
 }
 
 void Shader::Reload()

@@ -22,6 +22,11 @@ public:
 	Shader(const char* name, ShaderType type, std::vector<const char*> shaderMacros = {});
 
 public:
+	static std::shared_ptr<Shader> GetBindableResource(const char* name, ShaderType type, std::vector<const char*> shaderMacros = {});
+
+	static std::string GetIdentifier(const char* name, ShaderType type, std::vector<const char*> shaderMacros = {});
+
+public:
 	void Reload();
 
 	D3D12_SHADER_BYTECODE GetShaderByteCode() const;

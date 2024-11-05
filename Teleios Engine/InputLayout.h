@@ -16,6 +16,12 @@ class InputLayout : public Bindable, public PipelineStateBindable
 public:
 	InputLayout(DynamicVertex::DynamicVertexLayout& layout);
 
+public:
+	static std::shared_ptr<InputLayout> GetBindableResource(DynamicVertex::DynamicVertexLayout& layout);
+
+	static std::string GetIdentifier(DynamicVertex::DynamicVertexLayout& layout);
+
+public:
 	D3D12_INPUT_LAYOUT_DESC Get();
 
 	virtual void BindToPipelineState(Graphics& graphics, PipelineState* pipelineState) override;

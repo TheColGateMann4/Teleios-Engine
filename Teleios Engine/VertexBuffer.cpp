@@ -5,6 +5,8 @@
 
 #include "DynamicVertex.h"
 
+#include "BindableResourceList.h"
+
 VertexBuffer::VertexBuffer(Graphics& graphics, DynamicVertex::DynamicVertex& dynamicVertexBuffer)
 	:
 	VertexBuffer(graphics, dynamicVertexBuffer.GetData(), dynamicVertexBuffer.GetNumVertices(), dynamicVertexBuffer.GetLayout().GetSize())
@@ -18,6 +20,16 @@ VertexBuffer::VertexBuffer(Graphics& graphics, void* pData, size_t numElements, 
 
 	// passing data to vetex buffer resource
 	Update(graphics, pData, numElements, dataStride);
+}
+
+std::shared_ptr<VertexBuffer> VertexBuffer::GetBindableResource(std::string identifier, Graphics& graphics, DynamicVertex::DynamicVertex& dynamicVertexBuffer)
+{
+	return BindableResourceList::GetBindableResourceByID<VertexBuffer>("VertexBuffer#" + identifier, graphics, dynamicVertexBuffer);
+}
+
+std::shared_ptr<VertexBuffer> VertexBuffer::GetBindableResource(std::string identifier, Graphics& graphics, void* pData, size_t numElements, size_t dataStride)
+{
+	return BindableResourceList::GetBindableResourceByID<VertexBuffer>("VertexBuffer#" + identifier, graphics, pData, numElements, dataStride);
 }
 
 void VertexBuffer::Update(Graphics& graphics, void* pData, size_t numElements, size_t dataStride)

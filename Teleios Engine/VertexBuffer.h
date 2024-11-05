@@ -19,6 +19,12 @@ public:
 
 	VertexBuffer(Graphics& graphics, void* pData, size_t numElements, size_t dataStride);
 
+public:
+	static std::shared_ptr<VertexBuffer> GetBindableResource(std::string identifier, Graphics& graphics, DynamicVertex::DynamicVertex& dynamicVertexBuffer);
+
+	static std::shared_ptr<VertexBuffer> GetBindableResource(std::string identifier, Graphics& graphics, void* pData, size_t numElements, size_t dataStride);
+
+public:
 	virtual void BindToCommandList(Graphics& graphics, CommandList* commandList) override;
 
 	void Update(Graphics& graphics, void* pData, size_t numElements, size_t dataStride);
