@@ -14,7 +14,7 @@
 
 #include <assimp/scene.h>           // Output data structure
 
-ModelMesh::ModelMesh(Graphics& graphics, aiMesh* mesh, aiMaterial* material, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation)
+ModelMesh::ModelMesh(Graphics& graphics, aiMesh* mesh, aiMaterial* material, float scale, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation)
 	:
 	Drawable(position, rotation)
 {
@@ -58,7 +58,11 @@ ModelMesh::ModelMesh(Graphics& graphics, aiMesh* mesh, aiMaterial* material, Dir
 			vertexBuffer.EmplaceBack();
 
 			if (hasPositions)
-				vertexBuffer.Back().GetPropety<DynamicVertex::ElementType::Position>() = *reinterpret_cast<DirectX::XMFLOAT3*>(&mesh->mVertices[vertexIndex]);
+			{
+				DirectX::XMFLOAT3* pPosition = reinterpret_cast<DirectX::XMFLOAT3*>(&mesh->mVertices[vertexIndex]);
+
+				vertexBuffer.Back().GetPropety<DynamicVertex::ElementType::Position>() = { pPosition->x * scale, pPosition->y * scale,pPosition->z * scale };
+			}
 
 			if (hasTextureCoords)
 				vertexBuffer.Back().GetPropety<DynamicVertex::ElementType::TextureCoords>() = *reinterpret_cast<DirectX::XMFLOAT2*>(&mesh->mTextureCoords[0][vertexIndex]);

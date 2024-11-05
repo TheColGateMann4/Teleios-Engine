@@ -6,7 +6,7 @@
 #include <assimp/scene.h>           // Output data structure
 #include <assimp/postprocess.h>     // Post processing flags
 
-Model::Model(Graphics& graphics, const char* path)
+Model::Model(Graphics& graphics, const char* path, float scale)
 {
 #ifdef _DEBUG
 	std::string filePath = std::string("../../Models/") + path;
@@ -31,7 +31,7 @@ Model::Model(Graphics& graphics, const char* path)
 		aiMesh* mesh = scene->mMeshes[meshIndex];
 		aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 
-		m_meshes.push_back(std::make_shared<ModelMesh>(graphics, mesh, material));
+		m_meshes.push_back(std::make_shared<ModelMesh>(graphics, mesh, material, scale));
 		AddMesh(m_meshes.back().get());
 	}
 }
