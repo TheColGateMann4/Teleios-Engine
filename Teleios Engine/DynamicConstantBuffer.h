@@ -165,7 +165,11 @@ namespace DynamicConstantBuffer
 		template<ElementType elementType, std::enable_if_t<ElementMap<elementType>::valid, int> = 0>
 		ElementMap<elementType>::dataType* GetValuePointer(const char* name)
 		{
-			return reinterpret_cast<ElementMap<elementType>::dataType*>(static_cast<char*>(m_data) + m_layout.GetElement(name).offset);
+			auto& layoutElement = m_layout.GetElement(name);
+
+			THROW_INTERNAL_ERROR_IF("Tried to get value with different type than given layout element type", layoutElement.type != elementType);
+
+			return reinterpret_cast<ElementMap<elementType>::dataType*>(static_cast<char*>(m_data) + layoutElement.offset);
 		}
 
 	public:
