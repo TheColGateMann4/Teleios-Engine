@@ -15,6 +15,8 @@ namespace ErrorHandler
 
 		virtual ~Exception() = default;
 
+		Exception(const Exception&) = default;
+
 	public:
 		virtual std::string what();
 

@@ -47,6 +47,8 @@ class CachedConstantBuffer : public ConstantBuffer
 public:
 	CachedConstantBuffer(Graphics& graphics, DynamicConstantBuffer::ConstantBufferData& data, std::vector<TargetSlotAndShader> targets = { {ShaderVisibilityGraphic::PixelShader, 0} });
 
+	CachedConstantBuffer(const CachedConstantBuffer&) = delete;
+
 	void Update(Graphics& graphics);
 
 	DynamicConstantBuffer::ConstantBufferData& GetData();

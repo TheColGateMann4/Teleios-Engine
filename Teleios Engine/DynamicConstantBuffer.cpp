@@ -52,7 +52,9 @@ unsigned int DynamicConstantBuffer::ConstantBufferLayout::GetAlignedSize() const
 	return (numPacks != std::floor(numPacks)) ? std::ceil(numPacks) * bufferSizeAlignment : m_size;
 }
 
-DynamicConstantBuffer::ConstantBufferData::ConstantBufferData(ConstantBufferData& data)
+
+
+DynamicConstantBuffer::ConstantBufferData::ConstantBufferData(const ConstantBufferData& data)
 	:
 	ConstantBufferData(data.m_layout)
 {

@@ -25,6 +25,10 @@ class ModelMesh : public Drawable
 public:
 	ModelMesh(Graphics& graphics, aiMesh* mesh, aiMaterial* material, std::string filePath, float scale = 1.0f, DirectX::XMFLOAT3 position = { -2.0f, 0.0f, 0.0f }, DirectX::XMFLOAT3 rotation = { 0.0f, 0.0f, 0.0f });
 
+	ModelMesh(const ModelMesh&) = delete;
+
+	ModelMesh(ModelMesh&&) = delete;
+
 private:
 	MaterialPropeties ProcessMaterialPropeties(aiMaterial* material);
 

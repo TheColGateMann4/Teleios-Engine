@@ -149,7 +149,9 @@ namespace DynamicConstantBuffer
 	class ConstantBufferData
 	{
 	public:
-		ConstantBufferData(ConstantBufferData& data);
+		ConstantBufferData(const ConstantBufferData& data);
+
+		ConstantBufferData(ConstantBufferData&& data) noexcept;
 
 		ConstantBufferData(ConstantBufferLayout& layout);
 

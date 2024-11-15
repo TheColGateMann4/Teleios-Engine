@@ -10,6 +10,8 @@
 class Application
 {
 public:
+	Application(const Application&) = delete;
+
 	Application(unsigned int width, unsigned int height, const char* name);
 
 	~Application();

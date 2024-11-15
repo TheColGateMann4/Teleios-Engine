@@ -171,6 +171,8 @@ namespace DynamicVertex
 		public:
 			Vertex(DynamicVertexLayout& layout, void* vertexData);
 
+			Vertex operator=(const Vertex&) = delete;
+
 		public:
 			template<ElementType elementType>
 			ElementMap<elementType>::dataType& GetPropety()

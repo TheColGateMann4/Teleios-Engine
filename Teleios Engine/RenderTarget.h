@@ -13,6 +13,8 @@ public:
 	RenderTarget(Graphics& graphics, ID3D12Resource* pResource, DXGI_FORMAT format, D3D12_RESOURCE_STATES resourceState = D3D12_RESOURCE_STATE_RENDER_TARGET);
 	RenderTarget(Graphics& graphics, DXGI_FORMAT format, D3D12_RESOURCE_STATES resourceState = D3D12_RESOURCE_STATE_RENDER_TARGET);
 
+	virtual ~RenderTarget() = default;
+
 public:
 	virtual const D3D12_CPU_DESCRIPTOR_HANDLE* GetDescriptor(Graphics& graphics) const;
 	virtual ID3D12Resource* GetResource(Graphics& graphics) const;

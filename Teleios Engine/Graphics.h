@@ -15,6 +15,11 @@
 class Graphics
 {
 public:
+	Graphics() = default;
+
+	Graphics(const Graphics&) = delete;
+
+public:
 	void Initialize(HWND hWnd, DXGI_FORMAT renderTargetFormat);
 
 public:
@@ -60,6 +65,6 @@ private:
 	std::shared_ptr<DepthStencilView> m_depthStencilView;
 
 private:
-	unsigned int m_width;
-	unsigned int m_height;
+	unsigned int m_width = 0;
+	unsigned int m_height = 0;
 };
