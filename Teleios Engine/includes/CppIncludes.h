@@ -4,7 +4,7 @@
 #pragma warning(disable:4100)
 
 // pi just in case 
-constexpr float _pi = 3.14159265358979f;
+static constexpr float _pi = 3.14159265358979f;
 
 //regular cpp stuff
 #include <cmath>
