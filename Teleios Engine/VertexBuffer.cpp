@@ -19,7 +19,7 @@ VertexBuffer::VertexBuffer(Graphics& graphics, void* pData, size_t numElements, 
 	CreateResource(graphics, numElements * dataStride, dataStride);
 
 	// passing data to vetex buffer resource
-	Update(graphics, pData, numElements, dataStride);
+	UpdateBufferData(graphics, pData, numElements, dataStride);
 }
 
 std::shared_ptr<VertexBuffer> VertexBuffer::GetBindableResource(std::string identifier, Graphics& graphics, DynamicVertex::DynamicVertex& dynamicVertexBuffer)
@@ -34,35 +34,37 @@ std::shared_ptr<VertexBuffer> VertexBuffer::GetBindableResource(std::string iden
 
 void VertexBuffer::Update(Graphics& graphics, void* pData, size_t numElements, size_t dataStride)
 {
-	HRESULT hr;
-
 	size_t newDataSize = numElements * dataStride;
 
 	if(m_bufferSize != newDataSize)
 		CreateResource(graphics, newDataSize, dataStride);
 
-	// updating data itself
-	{
-		D3D12_RANGE readRange = {};
-		readRange.Begin = 0;
-		readRange.End = 0;
+	UpdateBufferData(graphics, pData, numElements, dataStride);
+}
 
-		D3D12_RANGE writeRange = {};
-		writeRange.Begin = 0;
-		writeRange.End = m_bufferSize;
+void VertexBuffer::UpdateBufferData(Graphics& graphics, void* pData, size_t numElements, size_t dataStride)
+{
+	HRESULT hr;
 
-		void* pMappedData = nullptr;
+	D3D12_RANGE readRange = {};
+	readRange.Begin = 0;
+	readRange.End = 0;
 
-		THROW_ERROR(pVertexBuffer->Map(
-			0,
-			&readRange,
-			&pMappedData
-		));
+	D3D12_RANGE writeRange = {};
+	writeRange.Begin = 0;
+	writeRange.End = m_bufferSize;
 
-		memcpy_s(pMappedData, m_bufferSize, pData, m_bufferSize);
+	void* pMappedData = nullptr;
 
-		pVertexBuffer->Unmap(0, &writeRange);
-	}
+	THROW_ERROR(pVertexBuffer->Map(
+		0,
+		&readRange,
+		&pMappedData
+	));
+
+	memcpy_s(pMappedData, m_bufferSize, pData, m_bufferSize);
+
+	pVertexBuffer->Unmap(0, &writeRange);
 }
 
 void VertexBuffer::CreateResource(Graphics& graphics, size_t dataSize, size_t dataStride)

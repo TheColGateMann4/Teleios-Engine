@@ -30,6 +30,8 @@ public:
 	void Update(Graphics& graphics, void* pData, size_t numElements, size_t dataStride);
 
 private:
+	void UpdateBufferData(Graphics& graphics, void* pData, size_t numElements, size_t dataStride);
+	
 	void CreateResource(Graphics& graphics, size_t dataSize, size_t dataStride);
 
 public:
