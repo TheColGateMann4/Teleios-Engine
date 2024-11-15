@@ -10,7 +10,7 @@ ErrorHandler::Exception::Exception(unsigned int line, const char* file, const ch
 
 }
 
-std::string ErrorHandler::Exception::what()
+std::string ErrorHandler::Exception::what() const
 {
 	std::string result = {};
 
@@ -28,22 +28,22 @@ std::string ErrorHandler::Exception::what()
 	return result;
 }
 
-const char* ErrorHandler::Exception::GetErrorType()
+const char* ErrorHandler::Exception::GetErrorType() const
 {
 	return "EXCEPTION";
 }
 
-unsigned int ErrorHandler::Exception::GetLine()
+unsigned int ErrorHandler::Exception::GetLine() const
 {
 	return m_line;
 }
 
-const char* ErrorHandler::Exception::GetFile()
+const char* ErrorHandler::Exception::GetFile() const
 {
 	return m_file;
 }
 
-const char* ErrorHandler::Exception::GetFunction()
+const char* ErrorHandler::Exception::GetFunction() const
 {
 	return m_function;
 }
@@ -62,7 +62,7 @@ ErrorHandler::StandardException::StandardException(unsigned int line, const char
 
 }
 
-std::string ErrorHandler::StandardException::what()
+std::string ErrorHandler::StandardException::what() const
 {
 	std::string result = {};
 
@@ -88,17 +88,17 @@ std::string ErrorHandler::StandardException::what()
 	return result;
 }
 
-const char* ErrorHandler::StandardException::GetErrorType()
+const char* ErrorHandler::StandardException::GetErrorType() const
 {
 	return "STANDARD_EXCEPTION";
 }
 
-std::string ErrorHandler::StandardException::GetErrorString()
+std::string ErrorHandler::StandardException::GetErrorString() const
 {
 	return TranslateErrorCode(m_hr);
 }
 
-HRESULT ErrorHandler::StandardException::GetErrorCode()
+HRESULT ErrorHandler::StandardException::GetErrorCode() const
 {
 	return m_hr;
 }
@@ -127,15 +127,15 @@ std::string ErrorHandler::StandardException::TranslateErrorCode(HRESULT hr)
 		INTERNAL EXCEPTION
 */
 
-ErrorHandler::InternalException::InternalException(unsigned int line, const char* file, const char* function, std::string errorString)
+ErrorHandler::InternalException::InternalException(unsigned int line, const char* file, const char* function, const char* errorMessage)
 	: 
 	Exception(line, file, function),
-	m_errorString(errorString)
+	m_errorString(errorMessage)
 {
 
 }
 
-std::string ErrorHandler::InternalException::what()
+std::string ErrorHandler::InternalException::what() const
 {
 	std::string result = {};
 
@@ -156,12 +156,12 @@ std::string ErrorHandler::InternalException::what()
 	return result;
 }
 
-const char* ErrorHandler::InternalException::GetErrorType()
+const char* ErrorHandler::InternalException::GetErrorType() const
 {
 	return "INTERNAL_EXCEPTION";
 }
 
-std::string ErrorHandler::InternalException::GetErrorString()
+std::string ErrorHandler::InternalException::GetErrorString() const
 {
 	return m_errorString;
 }
@@ -177,7 +177,7 @@ ErrorHandler::NoGFXException::NoGFXException(unsigned int line, const char* file
 
 }
 
-const char* ErrorHandler::NoGFXException::GetErrorType()
+const char* ErrorHandler::NoGFXException::GetErrorType() const
 {
 	return "NO_GFX_EXCEPTION";
 }
@@ -196,7 +196,7 @@ ErrorHandler::BlobMsgException::BlobMsgException(unsigned int line, const char* 
 	memcpy_s(m_errorMessages.data(), m_length, pErrorMessages->GetBufferPointer(), m_length);
 }
  
-std::string ErrorHandler::BlobMsgException::what()
+std::string ErrorHandler::BlobMsgException::what() const
 {
 	std::string result = {};
 
@@ -217,7 +217,7 @@ std::string ErrorHandler::BlobMsgException::what()
 	return result;
 }
 
-const char* ErrorHandler::BlobMsgException::GetErrorType()
+const char* ErrorHandler::BlobMsgException::GetErrorType() const
 {
 	return "INFO_EXCEPTION";
 }
@@ -234,7 +234,7 @@ ErrorHandler::InfoException::InfoException(unsigned int line, const char* file, 
 
 }
 
-std::string ErrorHandler::InfoException::what()
+std::string ErrorHandler::InfoException::what() const
 {
 	std::string result = {};
 
@@ -256,21 +256,21 @@ std::string ErrorHandler::InfoException::what()
 	return result;
 }
 
-const char* ErrorHandler::InfoException::GetErrorType()
+const char* ErrorHandler::InfoException::GetErrorType() const
 {
 	return "INFO_EXCEPTION";
 }
 
 #endif
 
-ErrorHandler::ObjectStateException::ObjectStateException(unsigned int line, const char* file, const char* function, std::string errorString)
+ErrorHandler::ObjectStateException::ObjectStateException(unsigned int line, const char* file, const char* function, const char* errorMessage)
 	:
-	InternalException(line, file, function, errorString)
+	InternalException(line, file, function, errorMessage)
 {
 
 }
 
-std::string ErrorHandler::ObjectStateException::what()
+std::string ErrorHandler::ObjectStateException::what() const
 {
 	std::string result = {};
 
@@ -298,7 +298,7 @@ std::string ErrorHandler::ObjectStateException::what()
 	return result;
 }
 
-const char* ErrorHandler::ObjectStateException::GetErrorType()
+const char* ErrorHandler::ObjectStateException::GetErrorType() const
 {
 	return "OBJECT_STATE_EXCEPTION";
 }

@@ -18,13 +18,13 @@ namespace ErrorHandler
 		Exception(const Exception&) = default;
 
 	public:
-		virtual std::string what();
+		virtual std::string what() const;
 
-		virtual const char* GetErrorType();
+		virtual const char* GetErrorType() const;
 
-		unsigned int GetLine();
-		const char* GetFile();
-		const char* GetFunction();
+		unsigned int GetLine() const;
+		const char* GetFile() const;
+		const char* GetFunction() const;
 
 	protected:
 		unsigned int m_line;
@@ -38,12 +38,12 @@ namespace ErrorHandler
 		StandardException(unsigned int line, const char* file, const char* function, HRESULT hr);
 
 	public:
-		virtual std::string what() override;
+		virtual std::string what() const override;
 
-		virtual const char* GetErrorType() override;
-		std::string GetErrorString();
+		virtual const char* GetErrorType() const override;
+		std::string GetErrorString() const;
 
-		HRESULT GetErrorCode();
+		HRESULT GetErrorCode() const;
 
 	private:
 		static std::string TranslateErrorCode(HRESULT hr);
@@ -55,13 +55,13 @@ namespace ErrorHandler
 	class InternalException : public Exception
 	{
 	public:
-		InternalException(unsigned int line, const char* file, const char* function, std::string errorString);
+		InternalException(unsigned int line, const char* file, const char* function, const char* errorMessage);
 
 	public:
-		virtual std::string what() override;
+		virtual std::string what() const override;
 
-		virtual const char* GetErrorType() override;
-		std::string GetErrorString();
+		virtual const char* GetErrorType() const override;
+		std::string GetErrorString() const;
 
 	private:
 		std::string m_errorString;
@@ -72,7 +72,7 @@ namespace ErrorHandler
 	public:
 		NoGFXException(unsigned int line, const char* file, const char* function);
 
-		virtual const char* GetErrorType() override;
+		virtual const char* GetErrorType() const override;
 	};
 
 #ifdef _DEBUG
@@ -82,8 +82,8 @@ namespace ErrorHandler
 		BlobMsgException(unsigned int line, const char* file, const char* function, ::ID3DBlob* pErrorMessages);
 
 	public:
-		virtual std::string what() override;
-		virtual const char* GetErrorType() override;
+		virtual std::string what() const override;
+		virtual const char* GetErrorType() const override;
 
 		size_t m_length;
 		std::string m_errorMessages;
@@ -95,8 +95,8 @@ namespace ErrorHandler
 		InfoException(unsigned int line, const char* file, const char* function, std::vector<std::string> messages);
 
 	public:
-		virtual std::string what() override;
-		virtual const char* GetErrorType() override;
+		virtual std::string what() const override;
+		virtual const char* GetErrorType() const override;
 
 		std::vector<std::string> m_messages;
 	};
@@ -105,12 +105,12 @@ namespace ErrorHandler
 	class ObjectStateException : public InternalException
 	{
 	public:
-		ObjectStateException(unsigned int line, const char* file, const char* function, std::string errorString);
+		ObjectStateException(unsigned int line, const char* file, const char* function, const char* errorMessage);
 
 	public:
-		virtual std::string what() override;
+		virtual std::string what() const override;
 
-		virtual const char* GetErrorType() override;
+		virtual const char* GetErrorType() const override;
 	};
 
 	static void ThrowError(const char* title, const char* text) noexcept
