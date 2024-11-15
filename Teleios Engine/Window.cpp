@@ -222,14 +222,14 @@ LRESULT WINAPI Window::HandleStartMessage(HWND hWnd, UINT msg, WPARAM wParam, LP
 	return DefWindowProcA(hWnd, msg, wParam, lParam);
 }
 
-LRESULT WINAPI Window::MessageHub(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+LRESULT WINAPI Window::MessageHub(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept
 {
 	Window* pWindow = reinterpret_cast<Window*>(GetWindowLongPtrA(hWnd, GWLP_USERDATA));
 
 	return pWindow->HandleMessage(hWnd, msg, wParam, lParam);
 }
 
-LRESULT Window::HandleMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+LRESULT Window::HandleMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept
 {
 	graphics.GetImguiManager()->HandleMessages(hWnd, msg, wParam, lParam);
 
@@ -334,32 +334,32 @@ LRESULT Window::HandleMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		case WM_INPUT:
 		{
 			HRAWINPUT hRawInput = reinterpret_cast<HRAWINPUT>(lParam);
-
 			UINT bufferSize = 0;
 
+
 			// getting size of input header
-			if (GetRawInputData(
+			GetRawInputData(
 				hRawInput,
 				RID_INPUT,
 				nullptr,
 				&bufferSize,
 				sizeof(RAWINPUTHEADER)
-			) == -1)
-				THROW_LAST_ERROR;
+			);
 
 			void* pData = new char[bufferSize];
 
+
 			// getting our data
-			if (GetRawInputData(
+			GetRawInputData(
 				hRawInput,
 				RID_INPUT,
 				pData,
 				&bufferSize,
 				sizeof(RAWINPUTHEADER)
-			) == -1)
-				THROW_LAST_ERROR;
+			);
 
 			RAWINPUT* pRawInputHeader = static_cast<RAWINPUT*>(pData);
+
 
 			// if its not raw input from mouse we ignore it
 			if (pRawInputHeader->header.dwType != RIM_TYPEMOUSE)
