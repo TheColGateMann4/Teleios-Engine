@@ -56,26 +56,30 @@ unsigned int DynamicConstantBuffer::ConstantBufferLayout::GetAlignedSize() const
 
 DynamicConstantBuffer::ConstantBufferData::ConstantBufferData(const ConstantBufferData& data)
 	:
-	ConstantBufferData(data.m_layout)
+	m_data(data.m_data),
+	m_layout(data.m_layout)
 {
-	memcpy_s(m_data, m_layout.GetSize(), data.m_data, data.m_layout.GetSize());
+
+}
+
+DynamicConstantBuffer::ConstantBufferData::ConstantBufferData(ConstantBufferData&& data) noexcept
+	:
+	m_data(std::move(data.m_data)),
+	m_layout(std::move(data.m_layout))
+{
+
 }
 
 DynamicConstantBuffer::ConstantBufferData::ConstantBufferData(ConstantBufferLayout& layout)
 	:
 	m_layout(layout.GetFinished())
 {
-	m_data = new char[m_layout.GetSize()];
-}
-
-DynamicConstantBuffer::ConstantBufferData::~ConstantBufferData()
-{
-	delete[] m_data;
+	m_data = std::shared_ptr<char[]>(new char[layout.GetSize()]);
 }
 
 void* DynamicConstantBuffer::ConstantBufferData::GetPtr()
 {
-	return m_data;
+	return m_data.get();
 }
 
 const DynamicConstantBuffer::ConstantBufferLayout& DynamicConstantBuffer::ConstantBufferData::GetLayout() const

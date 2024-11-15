@@ -155,17 +155,15 @@ namespace DynamicConstantBuffer
 
 		ConstantBufferData(ConstantBufferLayout& layout);
 
-		~ConstantBufferData();
-
 	public:
 		template<ElementType elementType, std::enable_if_t<ElementMap<elementType>::valid, int> = 0>
 		ElementMap<elementType>::dataType* GetValuePointer(unsigned int index)
 		{
-			auto& layoutElement = m_layout.GetElement(name);
+			auto& layoutElement = m_layout.GetElement(index);
 
 			THROW_INTERNAL_ERROR_IF("Tried to get value with different type than given layout element type", layoutElement.type != elementType);
 
-			return reinterpret_cast<ElementMap<elementType>::dataType*>(static_cast<char*>(m_data) + layoutElement.offset);
+			return reinterpret_cast<ElementMap<elementType>::dataType*>(m_data.get() + layoutElement.offset);
 		}
 
 		template<ElementType elementType, std::enable_if_t<ElementMap<elementType>::valid, int> = 0>
@@ -175,7 +173,7 @@ namespace DynamicConstantBuffer
 
 			THROW_INTERNAL_ERROR_IF("Tried to get value with different type than given layout element type", layoutElement.type != elementType);
 
-			return reinterpret_cast<ElementMap<elementType>::dataType*>(static_cast<char*>(m_data) + layoutElement.offset);
+			return reinterpret_cast<ElementMap<elementType>::dataType*>(m_data.get() + layoutElement.offset);
 		}
 
 	public:
@@ -184,7 +182,7 @@ namespace DynamicConstantBuffer
 		const ConstantBufferLayout& GetLayout() const;
 
 	private:
-		void* m_data;
+		std::shared_ptr<char[]> m_data;
 		ConstantBufferLayout m_layout;
 	};
 };
