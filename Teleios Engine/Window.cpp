@@ -10,9 +10,9 @@
 
 Window::Window(UINT32 width, UINT32 height, const char* name, DXGI_FORMAT colorSpace)
 	:
+	m_windowClass(name),
 	m_width(width),
-	m_height(height),
-	m_windowClass(name)
+	m_height(height)
 {
 	// Window initialization
 	{
@@ -191,12 +191,12 @@ Window::WindowClass::~WindowClass()
 	UnregisterClassA(m_name.c_str(), GetInstance());
 }
 
-const char* Window::WindowClass::GetName() noexcept
+const char* Window::WindowClass::GetName() const noexcept
 {
 	return m_name.c_str();
 }
 
-HINSTANCE Window::WindowClass::GetInstance() noexcept
+HINSTANCE Window::WindowClass::GetInstance() const noexcept
 {
 	return m_hInstance;
 }

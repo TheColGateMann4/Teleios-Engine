@@ -41,8 +41,8 @@ private:
 		WindowClass& operator= (const WindowClass&) = delete;
 
 	public:
-		const char* GetName() noexcept;
-		HINSTANCE GetInstance() noexcept;
+		const char* GetName() const noexcept;
+		HINSTANCE GetInstance()const noexcept;
 
 	private:
 		std::string m_name;
