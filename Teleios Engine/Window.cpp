@@ -231,7 +231,8 @@ LRESULT WINAPI Window::MessageHub(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPa
 
 LRESULT Window::HandleMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept
 {
-	graphics.GetImguiManager()->HandleMessages(hWnd, msg, wParam, lParam);
+	if (graphics.GetImguiManager()->HandleMessages(hWnd, msg, wParam, lParam))
+		return true;
 
 	switch (msg)
 	{
