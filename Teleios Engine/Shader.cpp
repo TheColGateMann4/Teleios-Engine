@@ -58,8 +58,8 @@ std::string GetShaderVersion(ShaderType type)
 // debug shader contructor reads .hlsl files and compiles them
 Shader::Shader(const char* name, ShaderType type, std::vector<const char*> shaderMacros)
 	:
-	m_name(std::string("../../Shaders/") + name + ".hlsl"),
 	m_type(type),
+	m_name(std::string("../../Shaders/") + name + ".hlsl"),
 	m_entryPoint(GetDefaultEntryPointName(m_type))
 {
 	for (const auto shaderMacro : shaderMacros)
