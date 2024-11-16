@@ -3,7 +3,7 @@
 
 #ifdef _DEBUG
 
-std::map<D3D12_MESSAGE_CATEGORY, const char*> InfoQueue::messageCategoryNames = {
+const std::map<D3D12_MESSAGE_CATEGORY, const char*> InfoQueue::messageCategoryNames = {
 	{ D3D12_MESSAGE_CATEGORY_APPLICATION_DEFINED, "APPLICATION_DEFINED" },
 	{ D3D12_MESSAGE_CATEGORY_MISCELLANEOUS, "MISCELLANEOUS" },
 	{ D3D12_MESSAGE_CATEGORY_INITIALIZATION, "INITIALIZATION" },
@@ -17,7 +17,7 @@ std::map<D3D12_MESSAGE_CATEGORY, const char*> InfoQueue::messageCategoryNames = 
 	{ D3D12_MESSAGE_CATEGORY_SHADER, "SHADER" }
 };
 
-std::map<D3D12_MESSAGE_SEVERITY, const char*> InfoQueue::messageSeverityNames = {
+const std::map<D3D12_MESSAGE_SEVERITY, const char*> InfoQueue::messageSeverityNames = {
 	{  D3D12_MESSAGE_SEVERITY_CORRUPTION, "CORRUPTION" },
 	{  D3D12_MESSAGE_SEVERITY_ERROR, "ERROR" },
 	{  D3D12_MESSAGE_SEVERITY_WARNING, "WARNING" },
@@ -25,7 +25,7 @@ std::map<D3D12_MESSAGE_SEVERITY, const char*> InfoQueue::messageSeverityNames = 
 	{  D3D12_MESSAGE_SEVERITY_MESSAGE, "MESSAGE" }
 };
 
-std::map<D3D12_MESSAGE_ID, const char*> InfoQueue::messageIDNames = {
+const std::map<D3D12_MESSAGE_ID, const char*> InfoQueue::messageIDNames = {
 	{ D3D12_MESSAGE_ID_UNKNOWN, "UNKNOWN" },
 	{ D3D12_MESSAGE_ID_STRING_FROM_APPLICATION, "STRING_FROM_APPLICATION" },
 	{ D3D12_MESSAGE_ID_CORRUPTED_THIS, "CORRUPTED_THIS" },
