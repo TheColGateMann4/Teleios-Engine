@@ -57,8 +57,6 @@ void IndexBuffer::Update(Graphics& graphics, void* pData, size_t numElements, si
 
     // updating data
 	{
-		HRESULT hr;
-
 		D3D12_RANGE readRange = {};
 		readRange.Begin = 0;
 		readRange.End = 0;
