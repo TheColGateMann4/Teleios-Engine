@@ -57,16 +57,16 @@ std::string InfoQueue::ProcessMessage(D3D12_MESSAGE* message) const
 	auto messageCategoryResult = messageCategoryNames.find(message->Category);
 	if (messageCategoryResult == messageCategoryNames.end())
 	{
-		std::string resultStr = "Category Call";
-		resultStr += message->Category;
+		std::string resultStr = "Category Call ";
+		resultStr += std::to_string(static_cast<int>(message->Category));
 		resultStr += " wasn't defined in Category map";
 	}
 
 	//getting message Severity and checking return value
 	auto messageSeverityResult = messageSeverityNames.find(message->Severity);
 	if (messageSeverityResult == messageSeverityNames.end()) {
-		std::string resultStr = "Severity Call";
-		resultStr += message->Severity;
+		std::string resultStr = "Severity Call ";
+		resultStr += std::to_string(static_cast<int>(message->Severity));
 		resultStr += " wasn't defined in Severity map";
 	}
 
@@ -74,8 +74,8 @@ std::string InfoQueue::ProcessMessage(D3D12_MESSAGE* message) const
 	auto messageIDResult = messageIDNames.find(message->ID);
 	if (messageIDResult == messageIDNames.end())
 	{
-		std::string resultStr = "ID Call";
-		resultStr += message->ID;
+		std::string resultStr = "ID Call ";
+		resultStr += std::to_string(static_cast<int>(message->ID));
 		resultStr += " wasn't defined in ID map";
 	}
 
