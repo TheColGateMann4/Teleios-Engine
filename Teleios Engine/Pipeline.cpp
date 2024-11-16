@@ -8,7 +8,7 @@ Pipeline::Pipeline(Graphics& graphics)
 	m_graphicsCommandList = std::make_shared<CommandList>(graphics, D3D12_COMMAND_LIST_TYPE_DIRECT);
 }
 
-void Pipeline::BeginRender(Graphics& graphics)
+void Pipeline::BeginRender(Graphics& graphics) const
 {
 	m_graphicsCommandList->Open(graphics);	// opening graphics command list and clearning allocator
 
@@ -40,7 +40,7 @@ void Pipeline::BeginRender(Graphics& graphics)
 	m_graphicsCommandList->ClearDepthStencilView(graphics, graphics.GetDepthStencil()); // clearning depth stencil from previous frames
 }
 
-void Pipeline::FinishRender(Graphics& graphics)
+void Pipeline::FinishRender(Graphics& graphics) const
 {
 	m_graphicsCommandList->SetResourceState(graphics, graphics.GetBackBuffer(), D3D12_RESOURCE_STATE_PRESENT); // setting backbuffer state to present since we finished drawing
 	m_graphicsCommandList->Close(graphics); // closing graphics command list
@@ -68,7 +68,7 @@ void Pipeline::AddStaticResource(const char* resourceName, Bindable* bindable)
 	m_staticResources.push_back({ resourceName, bindable });
 }
 
-Camera* Pipeline::GetCurrentCamera()
+Camera* Pipeline::GetCurrentCamera() const
 {
 	return m_camera;
 }
