@@ -175,3 +175,8 @@ ID3D12DescriptorHeap* Texture::GetDescriptorHeap() const
 {
 	return pDescriptorHeap.Get();
 }
+
+DXGI_FORMAT Texture::GetFormat() const
+{
+	return m_format;
+}

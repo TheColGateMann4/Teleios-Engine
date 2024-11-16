@@ -16,9 +16,6 @@ PointLight::PointLight(Graphics& graphics, Pipeline& pipeline, DirectX::XMFLOAT3
 	DynamicConstantBuffer::ConstantBufferLayout layout;
 	layout.AddElement<DynamicConstantBuffer::ElementType::Float3>("lightPosition");
 	layout.AddElement<DynamicConstantBuffer::ElementType::Float3>("diffuseColor");
-	layout.AddElement<DynamicConstantBuffer::ElementType::Float3>("specularColor");
-	layout.AddElement<DynamicConstantBuffer::ElementType::Float>("specularIntensity");
-	layout.AddElement<DynamicConstantBuffer::ElementType::Float>("specularConcentration");
 	layout.AddElement<DynamicConstantBuffer::ElementType::Float>("attenuationQuadratic");
 	layout.AddElement<DynamicConstantBuffer::ElementType::Float>("attenuationLinear");
 	layout.AddElement<DynamicConstantBuffer::ElementType::Float>("attenuationConstant");
@@ -26,9 +23,6 @@ PointLight::PointLight(Graphics& graphics, Pipeline& pipeline, DirectX::XMFLOAT3
 	DynamicConstantBuffer::ConstantBufferData bufferData(layout);
 	// *bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float3>("lightPosition") = position; // we don't need to set this value since it will be overriden in Update() call by position in camera space
 	*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float3>("diffuseColor") = color;
-	*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float3>("specularColor") = {1.0f, 1.0f, 1.0f};
-	*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("specularIntensity") = 1.0f;
-	*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("specularConcentration") = 250.0f;
 	*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("attenuationQuadratic") = 0.2f;
 	*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("attenuationLinear") = 0.04f;
 	*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("attenuationConstant") = 0.07f;
@@ -63,13 +57,6 @@ void PointLight::DrawImguiWindow(Graphics& graphics, bool isLayerVisible)
 
 		ImGui::Text("Diffuse");
 		checkChanged(changed, ImGui::ColorEdit3("color##diffuse", reinterpret_cast<float*>(m_lightBuffer->GetData().GetValuePointer<DynamicConstantBuffer::ElementType::Float3>("diffuseColor"))));
-
-		ImGui::NewLine();
-
-		ImGui::Text("Specular");
-		checkChanged(changed, ImGui::ColorEdit3("color##specular", reinterpret_cast<float*>(m_lightBuffer->GetData().GetValuePointer<DynamicConstantBuffer::ElementType::Float3>("specularColor"))));
-		checkChanged(changed, ImGui::SliderFloat("intensity", m_lightBuffer->GetData().GetValuePointer<DynamicConstantBuffer::ElementType::Float>("specularIntensity"), 0.01f, 10.0f));
-		checkChanged(changed, ImGui::SliderFloat("power", m_lightBuffer->GetData().GetValuePointer<DynamicConstantBuffer::ElementType::Float>("specularConcentration"), 1.0f, 500.0f));
 
 		ImGui::NewLine();
 

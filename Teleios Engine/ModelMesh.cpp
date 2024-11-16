@@ -105,33 +105,69 @@ ModelMesh::ModelMesh(Graphics& graphics, aiMesh* mesh, aiMaterial* material, std
 	{
 		MaterialPropeties materialPropeties = ProcessMaterialPropeties(material);
 
+		// textures
 		if(materialPropeties.hasAnyMap)
 		{
 			AddBindable(StaticSampler::GetBindableResource(D3D12_FILTER_MIN_MAG_MIP_POINT));
 
 			shaderMacros.push_back("TEXTURE_ANY");
 			shaderMacros.push_back("INPUT_TEXCCORDS"); // since we are handling textures, we will need texcoords argument provided to our shaders
+
+
+			if (materialPropeties.hasDiffuseMap)
+			{
+				AddBindable(Texture::GetBindableResource(graphics, (filePath + materialPropeties.diffuseMapPath).c_str(), std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::PixelShader, 0}}));
+				shaderMacros.push_back("TEXTURE_DIFFUSE");
+			}
+
+			if (materialPropeties.hasNormalMap)
+			{
+				AddBindable(Texture::GetBindableResource(graphics, (filePath + materialPropeties.normalMapPath).c_str(), std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::PixelShader, 1}}));
+				shaderMacros.push_back("TEXTURE_NORMAL");
+
+				shaderMacros.push_back("INPUT_TANGENT");
+				shaderMacros.push_back("INPUT_BITANGENT");
+			}
+
+			if (materialPropeties.hasSpecularMap)
+			{
+				std::shared_ptr<Texture> specularTexture = Texture::GetBindableResource(graphics, (filePath + materialPropeties.specularMapPath).c_str(), std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::PixelShader, 2}});
+				DXGI_FORMAT specularTextureFormat = specularTexture->GetFormat();
+
+				materialPropeties.specularOneChannelOnly = specularTextureFormat == DXGI_FORMAT_R8_UNORM;
+
+				AddBindable(std::move(specularTexture));
+				shaderMacros.push_back("TEXTURE_SPECULAR");
+			}
 		}
 
-		if (materialPropeties.hasDiffuseMap)
+		//Constant buffer describing model material propeties
 		{
-			AddBindable(Texture::GetBindableResource(graphics, (filePath + materialPropeties.diffuseMapPath).c_str(), std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::PixelShader, 0}}));
-			shaderMacros.push_back("TEXTURE_DIFFUSE");
-		}
+			DynamicConstantBuffer::ConstantBufferLayout layout;
+			layout.AddElement<DynamicConstantBuffer::ElementType::Float3>("ambient");
+			layout.AddElement<DynamicConstantBuffer::ElementType::Float3>("defaultDiffuseColor");
+			layout.AddElement<DynamicConstantBuffer::ElementType::Float3>("defaultSpecularColor");
 
-		if (materialPropeties.hasNormalMap)
-		{
-			AddBindable(Texture::GetBindableResource(graphics, (filePath + materialPropeties.normalMapPath).c_str(), std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::PixelShader, 1}}));
-			shaderMacros.push_back("TEXTURE_NORMAL");
+			layout.AddElement<DynamicConstantBuffer::ElementType::Bool>("ignoreDiffseAlpha");
+			layout.AddElement<DynamicConstantBuffer::ElementType::Bool>("specularOneChannelOnly");
 
-			shaderMacros.push_back("INPUT_TANGENT");
-			shaderMacros.push_back("INPUT_BITANGENT");
-		}
+			layout.AddElement<DynamicConstantBuffer::ElementType::Float>("specularShinnynes");
+			layout.AddElement<DynamicConstantBuffer::ElementType::Float>("specularPower");
 
-		if (materialPropeties.hasSpecularMap)
-		{
-			AddBindable(Texture::GetBindableResource(graphics, (filePath + materialPropeties.specularMapPath).c_str(), std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::PixelShader, 2}}));
-			shaderMacros.push_back("TEXTURE_SPECULAR");
+
+			DynamicConstantBuffer::ConstantBufferData bufferData(layout);
+			*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float3>("ambient") = materialPropeties.ambientColor;
+			*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float3>("defaultDiffuseColor") = materialPropeties.diffuseColor;
+			*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float3>("defaultSpecularColor") = materialPropeties.specularColor;
+
+			*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Bool>("ignoreDiffseAlpha") = materialPropeties.ignoreDiffseAlpha;
+			*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Bool>("specularOneChannelOnly") = materialPropeties.specularOneChannelOnly;
+
+			*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("specularShinnynes") = materialPropeties.specularShinnynes;
+			*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("specularPower") = materialPropeties.specularPower;
+
+
+			AddBindable(std::make_shared<CachedConstantBuffer>(graphics, bufferData, std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::PixelShader, 1}}));
 		}
 	}
 
@@ -153,77 +189,43 @@ ModelMesh::MaterialPropeties ModelMesh::ProcessMaterialPropeties(aiMaterial* mat
 {
 	MaterialPropeties resultPropeties;
 
-	for (size_t propetyIndex = 0; propetyIndex < material->mNumProperties; propetyIndex++)
+	aiString resultTexturePath = {};
+
+	if(material->GetTexture(aiTextureType_DIFFUSE, 0, &resultTexturePath) == aiReturn_SUCCESS)
 	{
-		aiMaterialProperty* materialPropety = material->mProperties[propetyIndex];
+		resultPropeties.hasAnyMap = true;
 
-		switch (material->mProperties[propetyIndex]->mType)
-		{
-			case aiPTI_Integer:
-			{
-				PrintMaterialPropeties<int>(materialPropety);
-				break;
-			}
-			case aiPTI_Float:
-			{
-				PrintMaterialPropeties<float>(materialPropety);
-				break;
-			}
-			case aiPTI_Double:
-			{
-				PrintMaterialPropeties<double>(materialPropety);
-				break;
-
-			}
-			case aiPTI_String:
-			{
-				std::string texturePath = reinterpret_cast<aiString*>(materialPropety->mData)->C_Str();
-				unsigned int semantic = materialPropety->mSemantic;
-
-				if (semantic != aiTextureType_NONE)
-					resultPropeties.hasAnyMap = true;
-
-				switch (semantic)
-				{
-					case aiTextureType_DIFFUSE:
-					{
-						resultPropeties.hasDiffuseMap = true;
-						resultPropeties.diffuseMapPath = texturePath;
-						break;
-					}
-					case aiTextureType_NORMALS:
-					{
-						resultPropeties.hasNormalMap = true;
-						resultPropeties.normalMapPath = texturePath;
-						break;
-					}
-					case aiTextureType_SPECULAR:
-					{
-						resultPropeties.hasSpecularMap = true;
-						resultPropeties.specularMapPath = texturePath;
-						break;
-					}
-					default: // if we are not handling the map we will print it in console
-					{
-						std::cout << "key: " << materialPropety->mKey.C_Str() << '\n';
-						std::cout << "semantic: " << semantic << '\n';
-						std::cout << "data: \"" << texturePath << "\"\n";
-						break;
-					}
-				}
-
-				break;
-			}
-		}
+		resultPropeties.hasDiffuseMap = true;
+		resultPropeties.diffuseMapPath = resultTexturePath.C_Str();
 	}
 
-	return resultPropeties;
-}
+	if(material->GetTexture(aiTextureType_NORMALS, 0, &resultTexturePath) == aiReturn_SUCCESS)
+	{
+		resultPropeties.hasAnyMap = true;
 
-void ModelMesh::GetMaterialPropeties(aiMaterialProperty* materialPropety, void*& baseData, unsigned int& dataLength, unsigned int& index, const char*& key)
-{
-	baseData = materialPropety->mData;
-	dataLength = materialPropety->mDataLength;
-	index = materialPropety->mIndex;
-	key = materialPropety->mKey.C_Str();
+		resultPropeties.hasNormalMap = true;
+		resultPropeties.normalMapPath = resultTexturePath.C_Str();
+	}
+
+	if(material->GetTexture(aiTextureType_SPECULAR, 0, &resultTexturePath) == aiReturn_SUCCESS)
+	{
+		resultPropeties.hasAnyMap = true;
+
+		resultPropeties.hasSpecularMap = true;
+		resultPropeties.specularMapPath = resultTexturePath.C_Str();
+	}
+
+
+	(void)material->Get(AI_MATKEY_COLOR_AMBIENT, resultPropeties.ambientColor); // we can ignore if the function succeded since we have this member initialized
+
+	(void)material->Get(AI_MATKEY_COLOR_DIFFUSE, resultPropeties.diffuseColor);
+
+	(void)material->Get(AI_MATKEY_COLOR_SPECULAR, resultPropeties.specularColor);
+
+
+	(void)material->Get(AI_MATKEY_SHININESS, resultPropeties.specularPower);
+
+	(void)material->Get(AI_MATKEY_SHININESS_STRENGTH, resultPropeties.specularShinnynes);
+
+	return resultPropeties;
 }
