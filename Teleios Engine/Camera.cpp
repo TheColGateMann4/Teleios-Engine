@@ -74,9 +74,9 @@ void Camera::DrawImguiWindow(bool isLayerVisible)
 			};
 
 		ImGui::Text("Position & Rotation:");
-		checkChanged(m_viewChanged, ImGui::SliderFloat("PositionX", &m_position.x, -10.0f, 10.0f));
-		checkChanged(m_viewChanged, ImGui::SliderFloat("PositionY", &m_position.y, -10.0f, 10.0f));
-		checkChanged(m_viewChanged, ImGui::SliderFloat("PositionZ", &m_position.z, -10.0f, 10.0f));
+		checkChanged(m_viewChanged, ImGui::SliderFloat("x##position", &m_position.x, -10.0f, 10.0f));
+		checkChanged(m_viewChanged, ImGui::SliderFloat("y##position", &m_position.y, -10.0f, 10.0f));
+		checkChanged(m_viewChanged, ImGui::SliderFloat("z##position", &m_position.z, -10.0f, 10.0f));
 
 		checkChanged(m_viewChanged, ImGui::SliderAngle("Pitch", &m_rotation.x, -90.0f, 90.0f));
 		checkChanged(m_viewChanged, ImGui::SliderAngle("Yaw", &m_rotation.y, -180.0f, 180.0f));
