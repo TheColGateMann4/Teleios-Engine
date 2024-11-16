@@ -23,6 +23,10 @@ protected:
 	Drawable(DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation);
 
 public:
+	Drawable(Drawable&&) = delete;
+	Drawable(const Drawable&) = delete;
+	Drawable operator=(Drawable&&) = delete;
+
 	virtual ~Drawable() = default;
 
 public:
