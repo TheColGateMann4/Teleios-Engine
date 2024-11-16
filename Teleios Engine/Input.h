@@ -46,8 +46,8 @@ public:
 		void CleanupDelta();
 
 	private:
-		POINTS m_positionDelta;
-		POINTS m_position;
+		POINTS m_positionDelta = {};
+		POINTS m_position = {};
 	};
 
 public: // Keyboard interface
