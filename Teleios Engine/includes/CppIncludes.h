@@ -1,5 +1,12 @@
 #pragma once
 
+
+// warning "move assignment operator implicitly deleted" is not needed since its logical in every case
+#pragma warning(disable:4626)
+
+// warning about bytes added in structures. It spams hundreds of errors and countering this warning would lead to less readable member varible sections
+#pragma warning(disable:4820)
+
 //turning off "unreferenced parameter" error
 #pragma warning(disable:4100)
 
