@@ -37,6 +37,16 @@ Fence::~Fence()
 		CloseHandle(m_fenceEvent);
 }
 
+ID3D12Fence* Fence::Get() const
+{
+	return pFence.Get();
+}
+
+size_t Fence::GetValue() const
+{
+	return m_fenceValue;
+}
+
 void Fence::WaitForGPU(Graphics& graphics)
 {
 	SetWaitValue(graphics);

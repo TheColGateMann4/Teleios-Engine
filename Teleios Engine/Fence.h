@@ -14,6 +14,11 @@ public:
 	~Fence();
 
 public:
+	ID3D12Fence* Get() const;
+
+	size_t GetValue() const;
+
+
 	void WaitForGPU(Graphics& graphics);
 
 

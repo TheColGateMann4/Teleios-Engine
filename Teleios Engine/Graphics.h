@@ -75,6 +75,6 @@ private:
 	unsigned int m_width = 0;
 	unsigned int m_height = 0;
 
-	const unsigned int swapChainBufferCount = 2;
+	const unsigned int swapChainBufferCount = 3;
 	unsigned int m_currentBufferIndex = 0;
 };
