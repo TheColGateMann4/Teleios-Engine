@@ -7,6 +7,8 @@ class Graphics;
 class Fence
 {
 public:
+	Fence(Fence&& other) noexcept;
+
 	Fence(Graphics& graphics);
 
 	~Fence();
@@ -14,9 +16,16 @@ public:
 public:
 	void WaitForGPU(Graphics& graphics);
 
+
+	void SetWaitValue(Graphics& graphics);
+
+	void WaitForValue(Graphics& graphics);
+
 private:
-	HANDLE m_fenceEvent = NULL;
 	Microsoft::WRL::ComPtr<ID3D12Fence> pFence;
-	size_t m_fenceValue;
+	HANDLE m_fenceEvent = NULL;
+	size_t m_fenceValue = 0;
+	bool m_valueSet = false;
+	bool m_moved = false;
 };
 

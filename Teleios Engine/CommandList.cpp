@@ -9,18 +9,23 @@
 
 CommandList::CommandList(Graphics& graphics, D3D12_COMMAND_LIST_TYPE type, PipelineState* pPipelineState)
 	:
+	m_pCommandAllocators(graphics.GetBufferCount()),
 	m_type(type),
 	m_initialized(true),
-	m_open(false)
+	m_open(false),
+	m_currCommandAllocatorIndex(0)
 {
 	HRESULT hr;
-	
-	//creating command allocator for given command list type
-	THROW_ERROR(graphics.GetDevice()->CreateCommandAllocator(type, IID_PPV_ARGS(&m_pCommandAllocator)));
+
+	// initializing command allocators
+	{
+		for(unsigned int currAllocatorIndex = 0; currAllocatorIndex < m_pCommandAllocators.size(); currAllocatorIndex++)
+			THROW_ERROR(graphics.GetDevice()->CreateCommandAllocator(type, IID_PPV_ARGS(&m_pCommandAllocators.at(currAllocatorIndex))));
+	}
 
 	ID3D12PipelineState* pipelineState = (pPipelineState == nullptr) ? nullptr : pPipelineState->Get();
 
-	THROW_ERROR(graphics.GetDevice()->CreateCommandList(0, type, m_pCommandAllocator.Get(), pipelineState, IID_PPV_ARGS(&pCommandList)));
+	THROW_ERROR(graphics.GetDevice()->CreateCommandList(0, type, m_pCommandAllocators.at(m_currCommandAllocatorIndex).Get(), pipelineState, IID_PPV_ARGS(&pCommandList)));
 
 	THROW_ERROR(pCommandList->Close());
 }
@@ -31,10 +36,14 @@ void CommandList::Open(Graphics& graphics, PipelineState* pPipelineState)
 
 	HRESULT hr;
 	ID3D12PipelineState* pipelineState = (pPipelineState == nullptr) ? nullptr : pPipelineState->Get();
+	
+	// reset currently used command allocator
+	THROW_ERROR(m_pCommandAllocators.at(m_currCommandAllocatorIndex)->Reset());
 
-	THROW_ERROR(m_pCommandAllocator->Reset());
+	THROW_ERROR(pCommandList->Reset(m_pCommandAllocators.at(m_currCommandAllocatorIndex).Get(), pipelineState));
 
-	THROW_ERROR(pCommandList->Reset(m_pCommandAllocator.Get(), pipelineState));
+	// proceeding to next allocator for new frame
+	m_currCommandAllocatorIndex = graphics.GetNextBufferIndex();
 
 	m_open = true;
 }
@@ -80,13 +89,13 @@ void CommandList::SetResourceState(Graphics& graphics, RenderTarget* renderTarge
 		resourceBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 		resourceBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
 		resourceBarrier.Transition.pResource = pCurrFrontBuffer;
-		resourceBarrier.Transition.StateBefore = renderTarget->GetResourceState();
+		resourceBarrier.Transition.StateBefore = renderTarget->GetResourceState(graphics);
 		resourceBarrier.Transition.StateAfter = newState;
 
 		THROW_INFO_ERROR(pCommandList->ResourceBarrier(1, &resourceBarrier));
 	}
 
-	renderTarget->SetResourceState(newState);
+	renderTarget->SetResourceState(graphics, newState);
 }
 
 void CommandList::SetRenderTarget(Graphics& graphics, RenderTarget* renderTarget, DepthStencilView* depthStencilView)

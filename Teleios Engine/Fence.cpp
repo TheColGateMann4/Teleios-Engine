@@ -2,6 +2,16 @@
 #include "Graphics.h"
 #include "macros/ErrorMacros.h"
 
+Fence::Fence(Fence&& other) noexcept
+	:
+	m_fenceEvent(other.m_fenceEvent),
+	pFence(other.pFence),
+	m_fenceValue(other.m_fenceValue),
+	m_valueSet(other.m_valueSet)
+{
+	other.m_moved = true;
+}
+
 Fence::Fence(Graphics& graphics)
 {
 	HRESULT hr;
@@ -23,10 +33,18 @@ Fence::Fence(Graphics& graphics)
 
 Fence::~Fence()
 {
-	CloseHandle(m_fenceEvent);
+	if(!m_moved)
+		CloseHandle(m_fenceEvent);
 }
 
 void Fence::WaitForGPU(Graphics& graphics)
+{
+	SetWaitValue(graphics);
+
+	WaitForValue(graphics);
+}
+
+void Fence::SetWaitValue(Graphics& graphics)
 {
 	HRESULT hr;
 
@@ -34,12 +52,24 @@ void Fence::WaitForGPU(Graphics& graphics)
 	if (graphics.GetDevice()->GetDeviceRemovedReason() != S_OK) //  if GetDeviceRemovedReason() returns S_OK, then device was not removed
 		return;
 
-	// increasing fence value since we use it as index of event
-	m_fenceValue++;
+	m_fenceValue++; // increasing value of fence
 
 	THROW_ERROR(graphics.GetCommandQueue()->Signal(pFence.Get(), m_fenceValue));
 
-	if(pFence->GetCompletedValue() < m_fenceValue)
+	m_valueSet = true;
+}
+
+void Fence::WaitForValue(Graphics& graphics)
+{
+	if (!m_valueSet)
+		return;
+
+	HRESULT hr;
+
+	if (graphics.GetDevice()->GetDeviceRemovedReason() != S_OK)
+		return;
+
+	if (pFence->GetCompletedValue() < m_fenceValue)
 	{
 		THROW_ERROR(pFence->SetEventOnCompletion(m_fenceValue, m_fenceEvent));
 		WaitForSingleObject(m_fenceEvent, INFINITE);

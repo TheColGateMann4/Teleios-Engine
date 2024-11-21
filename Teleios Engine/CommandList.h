@@ -59,10 +59,11 @@ public:
 	void SetPipelineState(Graphics& graphics, PipelineState* pPipelineState);
 
 private:
+	std::vector<Microsoft::WRL::ComPtr<ID3D12CommandAllocator>> m_pCommandAllocators;
 	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> pCommandList;
-	Microsoft::WRL::ComPtr<ID3D12CommandAllocator> m_pCommandAllocator;
 	D3D12_COMMAND_LIST_TYPE m_type;
 	bool m_initialized;
 	bool m_open;
+	unsigned int m_currCommandAllocatorIndex;
 };
 

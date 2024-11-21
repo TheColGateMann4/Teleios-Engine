@@ -65,7 +65,7 @@ void Graphics::Initialize(HWND hWnd, DXGI_FORMAT renderTargetFormat)
 			swapChainDesc.SampleDesc.Count = 1;
 			swapChainDesc.SampleDesc.Quality = 0;
 			swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-			swapChainDesc.BufferCount = 2;
+			swapChainDesc.BufferCount = swapChainBufferCount;
 			swapChainDesc.OutputWindow = hWnd;
 			swapChainDesc.Windowed = TRUE;
 			swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
@@ -76,46 +76,58 @@ void Graphics::Initialize(HWND hWnd, DXGI_FORMAT renderTargetFormat)
 
 		// Initializing backbuffer render target
 		{
-			// these buffers will loop like (frontBuffer -> first, backBuffer -> second) ---> (backBuffer -> first, frontBuffer -> second)
-			// we only care about current front buffer so we know where to draw
-			Microsoft::WRL::ComPtr<ID3D12Resource> pFirstBuffer, pSecondBuffer;
+			std::vector<Microsoft::WRL::ComPtr<ID3D12Resource>> bufferList(swapChainBufferCount);
 
-			THROW_ERROR_AT_GFX_INIT(pSwapChain->GetBuffer(0, IID_PPV_ARGS(&pFirstBuffer)));
-			THROW_ERROR_AT_GFX_INIT(pSwapChain->GetBuffer(1, IID_PPV_ARGS(&pSecondBuffer)));
+			for(unsigned int bufferIndex = 0; bufferIndex < swapChainBufferCount; bufferIndex++)
+				THROW_ERROR_AT_GFX_INIT(pSwapChain->GetBuffer(bufferIndex, IID_PPV_ARGS(&bufferList.at(bufferIndex))));
 
 			// getting width and height out of gotten render target
 			{
-				D3D12_RESOURCE_DESC renderTargetDesc = pFirstBuffer->GetDesc();
+				D3D12_RESOURCE_DESC renderTargetDesc = bufferList.front()->GetDesc();
 
 				m_width = renderTargetDesc.Width;
 				m_height = renderTargetDesc.Height;
 			}
 
-			m_backBuffer = std::make_shared<BackBufferRenderTarget>(*this, renderTargetFormat, pFirstBuffer.Get(), pSecondBuffer.Get());
+			m_backBuffer = std::make_shared<BackBufferRenderTarget>(*this, renderTargetFormat, bufferList);
 		}
 
 		// initializing depth stencil view
 		m_depthStencilView = std::make_shared<DepthStencilView>(*this);
 
-		// initializing graphic fence
-		m_graphicFence = std::make_unique<Fence>(*this);
+		// initializing graphic fence for each frame buffer
+		for (unsigned int bufferIndex = 0; bufferIndex < swapChainBufferCount; bufferIndex++)
+			m_graphicFences.push_back(Fence(*this));
 
 		//initializing imgui
 		m_imguiManager = std::make_unique<ImguiManager>(*this, hWnd);
 	}
 }
 
-unsigned int Graphics::GetCurrentBackBufferIndex()
+unsigned int Graphics::GetCurrentBufferIndex() const
 {
-	Microsoft::WRL::ComPtr<IDXGISwapChain3> swapChain3;
+	return m_currentBufferIndex;
+}
 
-	pSwapChain->QueryInterface(swapChain3.GetAddressOf());
+unsigned int Graphics::GetPreviousBufferIndex() const
+{
+	return (m_currentBufferIndex == 0) ? GetBufferCount() - 1 : m_currentBufferIndex - 1;
+}
 
-	return swapChain3->GetCurrentBackBufferIndex();
+unsigned int Graphics::GetNextBufferIndex() const
+{
+	return (m_currentBufferIndex >= GetBufferCount() - 1) ? 0 : m_currentBufferIndex + 1;
+}
+
+unsigned int Graphics::GetBufferCount() const
+{
+	return swapChainBufferCount;
 }
 
 void Graphics::BeginFrame()
 {
+	m_currentBufferIndex = GetCurrentBufferIndexFromSwapchain();
+
 	m_imguiManager->BeginFrame();
 }
 
@@ -128,7 +140,16 @@ void Graphics::FinishFrame()
 
 void Graphics::WaitForGPU()
 {
-	m_graphicFence->WaitForGPU(*this);
+	m_graphicFences.at(GetCurrentBufferIndex()).WaitForGPU(*this);
+}
+
+void Graphics::WaitForGPUIfNextBufferInUse()
+{
+	m_graphicFences.at(GetPreviousBufferIndex()).WaitForValue(*this);
+
+	m_graphicFences.at(GetCurrentBufferIndex()).SetWaitValue(*this);
+
+	m_graphicFences.at(GetNextBufferIndex()).WaitForValue(*this);
 }
 
 ImguiManager* Graphics::GetImguiManager()
@@ -199,3 +220,12 @@ constexpr bool Graphics::CheckValidRenderTargetFormat(DXGI_FORMAT format)
 }
 
 #pragma warning(pop)
+
+unsigned int Graphics::GetCurrentBufferIndexFromSwapchain()
+{
+	Microsoft::WRL::ComPtr<IDXGISwapChain3> swapChain3;
+
+	pSwapChain->QueryInterface(swapChain3.GetAddressOf());
+
+	return swapChain3->GetCurrentBackBufferIndex();
+}

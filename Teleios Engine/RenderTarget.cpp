@@ -6,111 +6,144 @@
 			// Render Target
 */
 
-RenderTarget::RenderTarget(Graphics& graphics, ID3D12Resource* pResource, DXGI_FORMAT format, bool isBackBuffer, D3D12_RESOURCE_STATES resourceState)
+SurfaceRenderTarget::SurfaceRenderTarget(Graphics& graphics, DXGI_FORMAT format, ID3D12Resource* pResource)
 	:
-	m_sizeOfDescriptor(graphics.GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV)),
-	m_format(format),
-	m_state(resourceState)
+	m_format(format)
 {
 	HRESULT hr;
 
-	// saving our buffer surface for later
-	pResource->QueryInterface(pRenderTarget.GetAddressOf());
-
-	// creating descriptor for our render target view resource
+	// creating descriptor for RTV
 	{
 		D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc = {};
 		descriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
-		descriptorHeapDesc.NumDescriptors = isBackBuffer ? 2 : 1; // in flip model there are two buffers
+		descriptorHeapDesc.NumDescriptors = 1;
 		descriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 		descriptorHeapDesc.NodeMask = 0;
 
-		THROW_ERROR(graphics.GetDevice()->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&pDescriptorHeap)));
+		THROW_ERROR(graphics.GetDevice()->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&m_pDescriptorHeap)));
 	}
 
-	// creating render target view (if it is back buffer then we are creating first(out of two) render target view's here)
+	pResource->QueryInterface(m_renderTargetView.pRenderTarget.GetAddressOf());
+
+	// creating render target view
 	{
 		D3D12_RENDER_TARGET_VIEW_DESC renderTargetViewDesc = {};
 		renderTargetViewDesc.Format = m_format;
 		renderTargetViewDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
 		renderTargetViewDesc.Texture2D = D3D12_TEX2D_RTV{};
 
-		m_descriptorHandle = pDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+		m_renderTargetView.descriptorHandle = m_pDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 
-		graphics.GetDevice()->CreateRenderTargetView(pResource, &renderTargetViewDesc, m_descriptorHandle);
+		graphics.GetDevice()->CreateRenderTargetView(pResource, &renderTargetViewDesc, m_renderTargetView.descriptorHandle);
 	}
+
+	m_renderTargetView.state = D3D12_RESOURCE_STATE_RENDER_TARGET;
 }
 
-RenderTarget::RenderTarget(Graphics& graphics, ID3D12Resource* pResource, DXGI_FORMAT format, D3D12_RESOURCE_STATES resourceState)
-	:
-	RenderTarget(graphics, pResource, format, false, resourceState)
+const D3D12_CPU_DESCRIPTOR_HANDLE* SurfaceRenderTarget::GetDescriptor(Graphics& graphics) const
 {
-
-};
-
-RenderTarget::RenderTarget(Graphics& graphics, DXGI_FORMAT format, D3D12_RESOURCE_STATES resourceState)
-	:
-	RenderTarget(graphics, nullptr, format, resourceState)
-{
-
+	return &m_renderTargetView.descriptorHandle;
 }
 
-const D3D12_CPU_DESCRIPTOR_HANDLE* RenderTarget::GetDescriptor(Graphics& graphics) const
+ID3D12Resource* SurfaceRenderTarget::GetResource(Graphics& graphics) const
 {
-	return &m_descriptorHandle;
+	return m_renderTargetView.pRenderTarget.Get();
 }
 
-ID3D12Resource* RenderTarget::GetResource(Graphics& graphics) const
-{
-	return pRenderTarget.Get();
-}
-
-DXGI_FORMAT RenderTarget::GetFormat() const
+DXGI_FORMAT SurfaceRenderTarget::GetFormat() const
 {
 	return m_format;
 }
 
-D3D12_RESOURCE_STATES RenderTarget::GetResourceState() const
+D3D12_RESOURCE_STATES SurfaceRenderTarget::GetResourceState(Graphics& graphics) const
 {
-	return m_state;
+	return m_renderTargetView.state;
 }
 
-void RenderTarget::SetResourceState(D3D12_RESOURCE_STATES newState)
+void SurfaceRenderTarget::SetResourceState(Graphics& graphics, D3D12_RESOURCE_STATES newState)
 {
-	m_state = newState;
+	m_renderTargetView.state = newState;
 }
 
 /*
 			// Render Target for back buffer
 */
 
-BackBufferRenderTarget::BackBufferRenderTarget(Graphics& graphics, DXGI_FORMAT format, ID3D12Resource* pFirstBackBuffer, ID3D12Resource* pSecondBackBuffer)
+BackBufferRenderTarget::BackBufferRenderTarget(Graphics& graphics, DXGI_FORMAT format, std::vector<Microsoft::WRL::ComPtr<ID3D12Resource>>& bufferList)
 	:
-	RenderTarget(graphics, pFirstBackBuffer, format, true, D3D12_RESOURCE_STATE_PRESENT) // calling render target constructor with back buffer true to create descriptor with two spaces
+	m_format(format)
 {
-	// saving our buffer surface for later
-	pSecondBackBuffer->QueryInterface(pSecondRenderTarget.GetAddressOf());
+	HRESULT hr;
 
-	// creating second render target view
+	UINT accumulatedSizeOfDescriptor = 0;
+	const size_t numBuffers = bufferList.size();
+	static const UINT sizeOfRTVDescriptor = graphics.GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+
+	// creating descriptor for all RTV's
 	{
-		D3D12_RENDER_TARGET_VIEW_DESC renderTargetViewDesc = {};
-		renderTargetViewDesc.Format = m_format;
-		renderTargetViewDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
-		renderTargetViewDesc.Texture2D = D3D12_TEX2D_RTV{ 0,0 };
+		D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc = {};
+		descriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+		descriptorHeapDesc.NumDescriptors = numBuffers;
+		descriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+		descriptorHeapDesc.NodeMask = 0;
 
-		m_secondDescriptorHandle = pDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-		m_secondDescriptorHandle.ptr += static_cast<SIZE_T>(m_sizeOfDescriptor);
+		THROW_ERROR(graphics.GetDevice()->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&m_pDescriptorHeap)));
+	}
 
-		graphics.GetDevice()->CreateRenderTargetView(pSecondBackBuffer, &renderTargetViewDesc, m_secondDescriptorHandle);
+
+	// getting space in vector before the pushes
+	m_renderTargetViews.reserve(numBuffers);
+
+	for(auto& pResource : bufferList)
+	{
+		RenderTargetView renderTargetView;
+
+		pResource->QueryInterface(renderTargetView.pRenderTarget.GetAddressOf());
+
+		// creating render target view
+		{
+			D3D12_RENDER_TARGET_VIEW_DESC renderTargetViewDesc = {};
+			renderTargetViewDesc.Format = m_format;
+			renderTargetViewDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
+			renderTargetViewDesc.Texture2D = D3D12_TEX2D_RTV{};
+
+			renderTargetView.descriptorHandle = m_pDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+			renderTargetView.descriptorHandle.ptr += static_cast<SIZE_T>(accumulatedSizeOfDescriptor);
+
+			accumulatedSizeOfDescriptor += sizeOfRTVDescriptor;
+
+			graphics.GetDevice()->CreateRenderTargetView(renderTargetView.pRenderTarget.Get(), &renderTargetViewDesc, renderTargetView.descriptorHandle);
+		}
+
+		// setting state
+		renderTargetView.state = D3D12_RESOURCE_STATE_PRESENT;
+
+		m_renderTargetViews.push_back(std::move(renderTargetView));
 	}
 }
 
+
 const D3D12_CPU_DESCRIPTOR_HANDLE* BackBufferRenderTarget::GetDescriptor(Graphics& graphics) const
 {
-	return graphics.GetCurrentBackBufferIndex() == 0 ? &m_descriptorHandle : &m_secondDescriptorHandle;
+	return &m_renderTargetViews.at(graphics.GetCurrentBufferIndex()).descriptorHandle;
 }
 
 ID3D12Resource* BackBufferRenderTarget::GetResource(Graphics& graphics) const
 {
-	return graphics.GetCurrentBackBufferIndex() == 0 ? pRenderTarget.Get() : pSecondRenderTarget.Get();
+	return m_renderTargetViews.at(graphics.GetCurrentBufferIndex()).pRenderTarget.Get();
+}
+
+DXGI_FORMAT BackBufferRenderTarget::GetFormat() const
+{
+	return m_format;
+}
+
+D3D12_RESOURCE_STATES BackBufferRenderTarget::GetResourceState(Graphics& graphics) const
+{
+	return m_renderTargetViews.at(graphics.GetCurrentBufferIndex()).state;
+}
+
+void BackBufferRenderTarget::SetResourceState(Graphics& graphics, D3D12_RESOURCE_STATES newState)
+{
+	m_renderTargetViews.at(graphics.GetCurrentBufferIndex()).state = newState;
 }

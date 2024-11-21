@@ -6,43 +6,63 @@ class Graphics;
 
 class RenderTarget
 {
-protected:
-	RenderTarget(Graphics& graphics, ID3D12Resource* pResource, DXGI_FORMAT format, bool isBackBuffer, D3D12_RESOURCE_STATES resourceState);
+protected: 
+	struct RenderTargetView
+	{
+		Microsoft::WRL::ComPtr<ID3D12Resource> pRenderTarget;
+		D3D12_CPU_DESCRIPTOR_HANDLE descriptorHandle;
+		D3D12_RESOURCE_STATES state;
+	};
 
 public:
-	RenderTarget(Graphics& graphics, ID3D12Resource* pResource, DXGI_FORMAT format, D3D12_RESOURCE_STATES resourceState = D3D12_RESOURCE_STATE_RENDER_TARGET);
-	RenderTarget(Graphics& graphics, DXGI_FORMAT format, D3D12_RESOURCE_STATES resourceState = D3D12_RESOURCE_STATE_RENDER_TARGET);
-
 	virtual ~RenderTarget() = default;
 
 public:
-	virtual const D3D12_CPU_DESCRIPTOR_HANDLE* GetDescriptor(Graphics& graphics) const;
-	virtual ID3D12Resource* GetResource(Graphics& graphics) const;
+	virtual const D3D12_CPU_DESCRIPTOR_HANDLE* GetDescriptor(Graphics& graphics) const = 0;
+	virtual ID3D12Resource* GetResource(Graphics& graphics) const = 0;
 
-	DXGI_FORMAT GetFormat() const;
+	virtual DXGI_FORMAT GetFormat() const = 0;
 
-	D3D12_RESOURCE_STATES GetResourceState() const;
-	void SetResourceState(D3D12_RESOURCE_STATES newState);
-
-protected:
-	Microsoft::WRL::ComPtr<ID3D12Resource> pRenderTarget;
-	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> pDescriptorHeap;
-	D3D12_CPU_DESCRIPTOR_HANDLE m_descriptorHandle;
-	UINT m_sizeOfDescriptor;
-	DXGI_FORMAT m_format;
-	D3D12_RESOURCE_STATES m_state;
+	virtual D3D12_RESOURCE_STATES GetResourceState(Graphics& graphics) const = 0;
+	virtual void SetResourceState(Graphics& graphics, D3D12_RESOURCE_STATES newState) = 0;
 };
 
-class BackBufferRenderTarget : public RenderTarget
+class SurfaceRenderTarget : public RenderTarget
 {
 public:
-	BackBufferRenderTarget(Graphics& graphics, DXGI_FORMAT format, ID3D12Resource* pFirstBackBuffer, ID3D12Resource* pSecondBackBuffer);
+	SurfaceRenderTarget(Graphics& graphics, DXGI_FORMAT format, ID3D12Resource* pResource);
 
 public:
 	virtual const D3D12_CPU_DESCRIPTOR_HANDLE* GetDescriptor(Graphics& graphics) const override;
 	virtual ID3D12Resource* GetResource(Graphics& graphics) const override;
 
+	virtual DXGI_FORMAT GetFormat() const override;
+
+	virtual D3D12_RESOURCE_STATES GetResourceState(Graphics& graphics) const override;
+	virtual void SetResourceState(Graphics& graphics, D3D12_RESOURCE_STATES newState) override;
+
 private:
-	Microsoft::WRL::ComPtr<ID3D12Resource> pSecondRenderTarget;
-	D3D12_CPU_DESCRIPTOR_HANDLE m_secondDescriptorHandle;
+	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_pDescriptorHeap;
+	RenderTargetView m_renderTargetView;
+	DXGI_FORMAT m_format;
+};
+
+class BackBufferRenderTarget : public RenderTarget
+{
+public:
+	BackBufferRenderTarget(Graphics& graphics, DXGI_FORMAT format, std::vector<Microsoft::WRL::ComPtr<ID3D12Resource>>& bufferList);
+
+public:
+	virtual const D3D12_CPU_DESCRIPTOR_HANDLE* GetDescriptor(Graphics& graphics) const override;
+	virtual ID3D12Resource* GetResource(Graphics& graphics) const override;
+
+	virtual DXGI_FORMAT GetFormat() const override;
+
+	virtual D3D12_RESOURCE_STATES GetResourceState(Graphics& graphics) const override;
+	virtual void SetResourceState(Graphics& graphics, D3D12_RESOURCE_STATES newState) override;
+
+private:
+	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_pDescriptorHeap;
+	std::vector<RenderTargetView> m_renderTargetViews;
+	DXGI_FORMAT m_format;
 };

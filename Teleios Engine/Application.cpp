@@ -113,5 +113,5 @@ void Application::Update()
 	
 	window.graphics.FinishFrame();
 
-	window.graphics.WaitForGPU();
+	window.graphics.WaitForGPUIfNextBufferInUse();
 }

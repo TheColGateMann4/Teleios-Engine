@@ -23,12 +23,17 @@ public:
 	void Initialize(HWND hWnd, DXGI_FORMAT renderTargetFormat);
 
 public:
-	unsigned int GetCurrentBackBufferIndex();
+	unsigned int GetCurrentBufferIndex() const;
+	unsigned int GetPreviousBufferIndex() const;
+	unsigned int GetNextBufferIndex() const;
+	unsigned int GetBufferCount() const;
 
 	void BeginFrame();
 	void FinishFrame();
 
 	void WaitForGPU();
+
+	void WaitForGPUIfNextBufferInUse(); // sets fence value for frame pushed to gpu, and waits for next buffer to be free to start drawing
 
 public:
 	ImguiManager* GetImguiManager();
@@ -47,6 +52,7 @@ public:
 
 private:
 	static constexpr bool CheckValidRenderTargetFormat(DXGI_FORMAT format);
+	unsigned int GetCurrentBufferIndexFromSwapchain();
 
 private:
 	Microsoft::WRL::ComPtr<IDXGIFactory4> pFactory;
@@ -60,11 +66,15 @@ private:
 	std::unique_ptr<InfoQueue> m_infoQueue;
 #endif	
 	std::unique_ptr<ImguiManager> m_imguiManager;
-	std::unique_ptr<Fence> m_graphicFence;
+	std::vector<Fence> m_graphicFences;
+
 	std::shared_ptr<BackBufferRenderTarget> m_backBuffer;
 	std::shared_ptr<DepthStencilView> m_depthStencilView;
 
 private:
 	unsigned int m_width = 0;
 	unsigned int m_height = 0;
+
+	const unsigned int swapChainBufferCount = 2;
+	unsigned int m_currentBufferIndex = 0;
 };

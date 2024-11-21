@@ -56,7 +56,7 @@ Bindable* Pipeline::GetStaticResource(const char* resourceName) const
 	for (auto& typedResource : m_staticResources)
 		if (strcmp(resourceName, typedResource.first) == 0)
 			return typedResource.second;
-
+	
 	THROW_INTERNAL_ERROR("Could not find resource with given name");
 }
 
