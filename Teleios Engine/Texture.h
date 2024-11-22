@@ -24,7 +24,7 @@ public:
 
 	virtual void BindToRootSignature(Graphics& graphics, RootSignature* rootSignature) override;
 
-	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUDescriptor() const;
+	virtual D3D12_GPU_DESCRIPTOR_HANDLE GetGPUDescriptor(Graphics& graphics) const override;
 	ID3D12DescriptorHeap* GetDescriptorHeap() const;
 
 	DXGI_FORMAT GetFormat() const;

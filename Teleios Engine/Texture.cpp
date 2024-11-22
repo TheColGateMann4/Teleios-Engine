@@ -161,7 +161,7 @@ void Texture::BindToRootSignature(Graphics& graphics, RootSignature* rootSignatu
 	rootSignature->AddDescriptorTableParameter(this);
 }
 
-D3D12_GPU_DESCRIPTOR_HANDLE Texture::GetGPUDescriptor() const
+D3D12_GPU_DESCRIPTOR_HANDLE Texture::GetGPUDescriptor(Graphics& graphics) const
 {
 	return pDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
 }

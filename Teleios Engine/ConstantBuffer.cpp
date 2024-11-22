@@ -74,9 +74,9 @@ void ConstantBuffer::BindToRootSignature(Graphics& graphics, RootSignature* root
 	rootSignature->AddConstBufferViewParameter(this);
 }
 
-D3D12_GPU_VIRTUAL_ADDRESS ConstantBuffer::GetGPUAddress() const
+D3D12_GPU_VIRTUAL_ADDRESS ConstantBuffer::GetGPUAddress(Graphics& graphics) const
 {
-	return pConstBuffer->GetGPUVirtualAddress();
+	return pConstBuffers.at(graphics.GetCurrentBufferIndex())->GetGPUVirtualAddress();
 }
 
 NonCachedConstantBuffer::NonCachedConstantBuffer(Graphics& graphics, DynamicConstantBuffer::ConstantBufferLayout& layout, std::vector<TargetSlotAndShader> targets)

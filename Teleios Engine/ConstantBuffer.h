@@ -19,6 +19,7 @@ public:
 
 	virtual void BindToRootSignature(Graphics& graphics, RootSignature* rootSignature) override;
 
+	virtual D3D12_GPU_VIRTUAL_ADDRESS GetGPUAddress(Graphics& graphics) const override;
 
 	D3D12_GPU_VIRTUAL_ADDRESS GetGPUAddress() const;
 

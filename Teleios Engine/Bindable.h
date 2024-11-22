@@ -49,6 +49,10 @@ public:
 
 	virtual void BindToRootSignature(Graphics& graphics, RootSignature* rootSignature) = 0;
 
+	virtual D3D12_GPU_VIRTUAL_ADDRESS GetGPUAddress(Graphics& graphics) const;
+
+	virtual D3D12_GPU_DESCRIPTOR_HANDLE GetGPUDescriptor(Graphics& graphics) const;
+
 	std::vector<TargetSlotAndShader>& GetTargets();
 
 private:
