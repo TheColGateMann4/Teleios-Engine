@@ -25,7 +25,7 @@ protected:
 	void InternalUpdate(Graphics& graphics, void* data, size_t size);
 
 protected:
-	Microsoft::WRL::ComPtr<ID3D12Resource> pConstBuffer;
+	std::vector<Microsoft::WRL::ComPtr<ID3D12Resource>> pConstBuffers;
 	bool m_initializedRootIndex = false;
 };
 

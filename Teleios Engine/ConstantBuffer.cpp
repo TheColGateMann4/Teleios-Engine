@@ -8,8 +8,12 @@ ConstantBuffer::ConstantBuffer(Graphics& graphics, const DynamicConstantBuffer::
 	RootSignatureBindable(targets)
 {
 	HRESULT hr;
+	unsigned int numberOfBuffers = graphics.GetBufferCount();
+
+	pConstBuffers.resize(numberOfBuffers);
 
 	// creating resource
+	for (unsigned int bufferIndex = 0; bufferIndex < numberOfBuffers; bufferIndex++)
 	{
 		D3D12_HEAP_PROPERTIES heapPropeties = {};
 		heapPropeties.Type = D3D12_HEAP_TYPE_CUSTOM;
@@ -30,13 +34,14 @@ ConstantBuffer::ConstantBuffer(Graphics& graphics, const DynamicConstantBuffer::
 		resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
 		resourceDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
 
+		// this is very incorrect practice since creating many different commited resources for one purpose is bad practice. It is only temporary solution
 		THROW_ERROR(graphics.GetDevice()->CreateCommittedResource(
 			&heapPropeties,
 			D3D12_HEAP_FLAG_NONE,
 			&resourceDesc,
 			D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER,
 			nullptr,
-			IID_PPV_ARGS(&pConstBuffer)
+			IID_PPV_ARGS(&pConstBuffers.at(bufferIndex))
 		));
 	}
 	}
@@ -58,6 +63,7 @@ D3D12_GPU_VIRTUAL_ADDRESS ConstantBuffer::GetGPUAddress(Graphics& graphics) cons
 
 void ConstantBuffer::InternalUpdate(Graphics& graphics, void* data, size_t size)
 {
+	Microsoft::WRL::ComPtr<ID3D12Resource> pConstBuffer = pConstBuffers.at(graphics.GetCurrentBufferIndex());
 
 	HRESULT hr;
 
