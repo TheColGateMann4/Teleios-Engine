@@ -39,30 +39,7 @@ ConstantBuffer::ConstantBuffer(Graphics& graphics, const DynamicConstantBuffer::
 			IID_PPV_ARGS(&pConstBuffer)
 		));
 	}
-
-	//creating decriptor heap
-	{
-		D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc = {};
-		descriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-		descriptorHeapDesc.NumDescriptors = 1;
-		descriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-		descriptorHeapDesc.NodeMask = 0;
-
-		THROW_ERROR(graphics.GetDevice()->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&pDescriptorHeap)));
 	}
-
-	// creating view
-	{
-		D3D12_CONSTANT_BUFFER_VIEW_DESC constBufferDesc = {};
-		constBufferDesc.BufferLocation = pConstBuffer->GetGPUVirtualAddress();
-		constBufferDesc.SizeInBytes = layout.GetSize();
-
-		THROW_INFO_ERROR(graphics.GetDevice()->CreateConstantBufferView(
-			&constBufferDesc,
-			pDescriptorHeap->GetCPUDescriptorHandleForHeapStart()
-		));
-	}
-}
 
 void ConstantBuffer::BindToCommandList(Graphics& graphics, CommandList* commandList)
 {

@@ -26,7 +26,6 @@ protected:
 
 protected:
 	Microsoft::WRL::ComPtr<ID3D12Resource> pConstBuffer;
-	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> pDescriptorHeap;
 	bool m_initializedRootIndex = false;
 };
 
