@@ -7,6 +7,7 @@
 
 TransformConstantBuffer::TransformConstantBuffer(Graphics& graphics, Drawable* pObject, std::vector<TargetSlotAndShader> targets)
 	:
+	RootSignatureBindable(targets),
 	m_pObject(pObject),
 	m_updated(false)
 {
@@ -47,9 +48,4 @@ void TransformConstantBuffer::BindToCommandList(Graphics& graphics, CommandList*
 void TransformConstantBuffer::BindToRootSignature(Graphics& graphics, RootSignature* rootSignature)
 {
 	rootSignature->AddConstBufferViewParameter(m_buffer.get());
-}
-
-std::vector<TargetSlotAndShader>& TransformConstantBuffer::GetTargets()
-{
-	return m_buffer->GetTargets();
 }

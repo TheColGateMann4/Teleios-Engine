@@ -22,6 +22,7 @@ public:
 };
 
 
+
 class CommandListBindable
 {
 public:
@@ -41,11 +42,17 @@ public:
 class RootSignatureBindable
 {
 public:
+	RootSignatureBindable(std::vector<TargetSlotAndShader> targets);
+
+public:
 	virtual ~RootSignatureBindable() = default;
 
 	virtual void BindToRootSignature(Graphics& graphics, RootSignature* rootSignature) = 0;
 
-	virtual std::vector<TargetSlotAndShader>& GetTargets() = 0;
+	std::vector<TargetSlotAndShader>& GetTargets();
+
+private:
+	std::vector<TargetSlotAndShader> m_targets;
 };
 
 class PipelineStateBindable

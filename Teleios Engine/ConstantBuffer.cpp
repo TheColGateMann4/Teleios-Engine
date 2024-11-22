@@ -5,7 +5,7 @@
 
 ConstantBuffer::ConstantBuffer(Graphics& graphics, const DynamicConstantBuffer::ConstantBufferLayout& layout, std::vector<TargetSlotAndShader> targets)
 	:
-	m_targets(targets)
+	RootSignatureBindable(targets)
 {
 	HRESULT hr;
 
@@ -72,11 +72,6 @@ void ConstantBuffer::BindToCommandList(Graphics& graphics, CommandList* commandL
 void ConstantBuffer::BindToRootSignature(Graphics& graphics, RootSignature* rootSignature)
 {
 	rootSignature->AddConstBufferViewParameter(this);
-}
-
-std::vector<TargetSlotAndShader>& ConstantBuffer::GetTargets()
-{
-	return m_targets;
 }
 
 D3D12_GPU_VIRTUAL_ADDRESS ConstantBuffer::GetGPUAddress() const

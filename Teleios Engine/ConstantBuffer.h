@@ -19,7 +19,6 @@ public:
 
 	virtual void BindToRootSignature(Graphics& graphics, RootSignature* rootSignature) override;
 
-	virtual std::vector<TargetSlotAndShader>& GetTargets() override;
 
 	D3D12_GPU_VIRTUAL_ADDRESS GetGPUAddress() const;
 
@@ -27,7 +26,6 @@ protected:
 	Microsoft::WRL::ComPtr<ID3D12Resource> pConstBuffer;
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> pDescriptorHeap;
 	bool m_initializedRootIndex = false;
-	std::vector<TargetSlotAndShader> m_targets;
 };
 
 

@@ -24,8 +24,6 @@ public:
 
 	virtual void BindToRootSignature(Graphics& graphics, RootSignature* rootSignature) override;
 
-	virtual std::vector<TargetSlotAndShader>& GetTargets() override;
-
 	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUDescriptor() const;
 	ID3D12DescriptorHeap* GetDescriptorHeap() const;
 
@@ -39,5 +37,4 @@ private:
 	std::string m_path;
 	bool m_isAlphaOpaque = false;
 	DXGI_FORMAT m_format = DXGI_FORMAT_UNKNOWN;
-	std::vector<TargetSlotAndShader> m_targets;
 };

@@ -21,8 +21,6 @@ public:
 
 	virtual void BindToRootSignature(Graphics& graphics, RootSignature* rootSignature) override;
 
-	virtual std::vector<TargetSlotAndShader>& GetTargets() override;
-
 private:
 	std::shared_ptr<NonCachedConstantBuffer> m_buffer;
 	Drawable* m_pObject;

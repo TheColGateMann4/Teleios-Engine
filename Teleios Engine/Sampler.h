@@ -20,9 +20,6 @@ public:
 
 	D3D12_STATIC_SAMPLER_DESC Get() const;
 
-	virtual std::vector<TargetSlotAndShader>& GetTargets() override;
-
 private:
 	D3D12_STATIC_SAMPLER_DESC m_staticSamplerDesc = {};
-	std::vector<TargetSlotAndShader> m_targets;
 };

@@ -9,16 +9,16 @@
 
 Texture::Texture(Graphics& graphics, const char* path, std::vector<TargetSlotAndShader> targets)
 	:
+	RootSignatureBindable(targets),
 #ifdef _DEBUG
-	m_path(std::string("../../") + path),
+	m_path(std::string("../../") + path)
 #else
-	m_path(path),
+	m_path(path)
 #endif
-	m_targets(targets)
 {
 	D3D12_RESOURCE_STATES resourceStateFlag = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
 
-	for (const auto& targetShader : m_targets)
+	for (const auto& targetShader : targets)
 		if (targetShader.target != ShaderVisibilityGraphic::PixelShader)
 			resourceStateFlag = D3D12_RESOURCE_STATE_ALL_SHADER_RESOURCE;
 
@@ -159,11 +159,6 @@ void Texture::BindToDirectCommandList(Graphics& graphics, CommandList* commandLi
 void Texture::BindToRootSignature(Graphics& graphics, RootSignature* rootSignature)
 {
 	rootSignature->AddDescriptorTableParameter(this);
-}
-
-std::vector<TargetSlotAndShader>& Texture::GetTargets()
-{
-	return m_targets;
 }
 
 D3D12_GPU_DESCRIPTOR_HANDLE Texture::GetGPUDescriptor() const
