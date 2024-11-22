@@ -56,6 +56,8 @@ protected:
 
 	void SegregateBindable(Bindable* bindable);
 
+	void SegregateBindableOnStartingPos(Bindable* bindable);
+
 protected:
 	std::unique_ptr<CommandList> m_bundleCommandList;
 	std::unique_ptr<PipelineState> m_pipelineState;

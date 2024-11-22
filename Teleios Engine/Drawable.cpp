@@ -14,7 +14,7 @@ Drawable::Drawable(DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation)
 void Drawable::Initialize(Graphics& graphics, Pipeline& pipeline)
 {
 	for (auto staticBindableName : m_staticBindableNames)
-		SegregateBindable(pipeline.GetStaticResource(staticBindableName));
+		SegregateBindableOnStartingPos(pipeline.GetStaticResource(staticBindableName));
 
 	m_bundleCommandList = std::make_unique<CommandList>(graphics, D3D12_COMMAND_LIST_TYPE_BUNDLE);
 
@@ -149,6 +149,21 @@ void Drawable::SegregateBindable(Bindable* bindable)
 	if (auto rootSignatureBindable = dynamic_cast<RootSignatureBindable*>(bindable))
 		m_rootSignatureBindables.push_back(rootSignatureBindable);
 
-	if (auto directCommandListBindable = dynamic_cast<PipelineStateBindable*>(bindable))
-		m_pipelineStateBindables.push_back(directCommandListBindable);
+	if (auto pipelineStateBindable = dynamic_cast<PipelineStateBindable*>(bindable))
+		m_pipelineStateBindables.push_back(pipelineStateBindable);
+}
+
+void Drawable::SegregateBindableOnStartingPos(Bindable* bindable)
+{
+	if (auto commandListBindable = dynamic_cast<CommandListBindable*>(bindable))
+		m_commandListBindables.insert(m_commandListBindables.begin(), commandListBindable);
+
+	if (auto directCommandListBindable = dynamic_cast<DirectCommandListBindable*>(bindable))
+		m_directCommandListBindables.insert(m_directCommandListBindables.begin(), directCommandListBindable);
+
+	if (auto rootSignatureBindable = dynamic_cast<RootSignatureBindable*>(bindable))
+		m_rootSignatureBindables.insert(m_rootSignatureBindables.begin(), rootSignatureBindable);
+
+	if (auto pipelineStateBindable = dynamic_cast<PipelineStateBindable*>(bindable))
+		m_pipelineStateBindables.insert(m_pipelineStateBindables.begin(), pipelineStateBindable);
 }
