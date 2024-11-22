@@ -79,17 +79,8 @@ D3D12_GPU_VIRTUAL_ADDRESS ConstantBuffer::GetGPUAddress(Graphics& graphics) cons
 	return pConstBuffers.at(graphics.GetCurrentBufferIndex())->GetGPUVirtualAddress();
 }
 
-NonCachedConstantBuffer::NonCachedConstantBuffer(Graphics& graphics, DynamicConstantBuffer::ConstantBufferLayout& layout, std::vector<TargetSlotAndShader> targets)
-	:
-	ConstantBuffer(graphics, layout.GetFinished(), targets),
-	m_layout(layout)
+void ConstantBuffer::InternalUpdate(Graphics& graphics, void* data, size_t size)
 {
-
-}
-
-void NonCachedConstantBuffer::Update(Graphics& graphics, void* data, size_t size)
-{
-	THROW_OBJECT_STATE_ERROR_IF("Data is invalid", size > m_layout.GetSize() || data == nullptr);
 
 	HRESULT hr;
 
@@ -111,10 +102,25 @@ void NonCachedConstantBuffer::Update(Graphics& graphics, void* data, size_t size
 			&pMappedData
 		));
 
-		memcpy_s(pMappedData, m_layout.GetSize(), data, size);
+		memcpy_s(pMappedData, size, data, size);
 
 		pConstBuffer->Unmap(0, &writeRange);
 	}
+}
+
+NonCachedConstantBuffer::NonCachedConstantBuffer(Graphics& graphics, DynamicConstantBuffer::ConstantBufferLayout& layout, std::vector<TargetSlotAndShader> targets)
+	:
+	ConstantBuffer(graphics, layout.GetFinished(), targets),
+	m_layout(layout)
+{
+
+}
+
+void NonCachedConstantBuffer::Update(Graphics& graphics, void* data, size_t size)
+{
+	THROW_OBJECT_STATE_ERROR_IF("Data is invalid", size > m_layout.GetSize() || data == nullptr);
+
+	ConstantBuffer::InternalUpdate(graphics, data, size);
 }
 
 CachedConstantBuffer::CachedConstantBuffer(Graphics& graphics, DynamicConstantBuffer::ConstantBufferData& data, std::vector<TargetSlotAndShader> targets)
@@ -128,32 +134,7 @@ CachedConstantBuffer::CachedConstantBuffer(Graphics& graphics, DynamicConstantBu
 
 void CachedConstantBuffer::Update(Graphics& graphics)
 {
-	HRESULT hr;
-
-	unsigned int bufferSize = m_data.GetLayout().GetSize();
-
-	// passing data to constant buffer resource
-	{
-		D3D12_RANGE readRange = {};
-		readRange.Begin = 0;
-		readRange.End = 0;
-
-		D3D12_RANGE writeRange = {};
-		writeRange.Begin = 0;
-		writeRange.End = bufferSize;
-
-		void* pMappedData = nullptr;
-
-		THROW_ERROR(pConstBuffer->Map(
-			0,
-			&readRange,
-			&pMappedData
-		));
-
-		memcpy_s(pMappedData, bufferSize, m_data.GetPtr(), bufferSize);
-
-		pConstBuffer->Unmap(0, &writeRange);
-	}
+	ConstantBuffer::InternalUpdate(graphics, m_data.GetPtr(), m_data.GetLayout().GetSize());
 }
 
 DynamicConstantBuffer::ConstantBufferData& CachedConstantBuffer::GetData()

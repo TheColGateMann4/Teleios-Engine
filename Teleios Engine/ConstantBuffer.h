@@ -21,7 +21,8 @@ public:
 
 	virtual D3D12_GPU_VIRTUAL_ADDRESS GetGPUAddress(Graphics& graphics) const override;
 
-	D3D12_GPU_VIRTUAL_ADDRESS GetGPUAddress() const;
+protected:
+	void InternalUpdate(Graphics& graphics, void* data, size_t size);
 
 protected:
 	Microsoft::WRL::ComPtr<ID3D12Resource> pConstBuffer;
