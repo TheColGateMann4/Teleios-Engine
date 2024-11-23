@@ -93,7 +93,8 @@ void Drawable::SetPosition(DirectX::XMFLOAT3 position)
 
 void Drawable::InternalUpdate(Graphics& graphics)
 {
-
+	for (CachedConstantBuffer* cachedBuffer : m_cachedBuffers)
+		cachedBuffer->UpdateNextFrameResource(graphics);
 }
 
 void Drawable::UpdateTransformMatrix(Graphics& graphics, Camera& camera)
@@ -145,6 +146,19 @@ void Drawable::SetTransformConstantBuffer(std::shared_ptr<TransformConstantBuffe
 
 void Drawable::SegregateBindable(Bindable* bindable)
 {
+	// we are pushing cached buffer here since we don't want static bindables to be updated by each object on scene
+	if (auto cachedBuffer = dynamic_cast<CachedConstantBuffer*>(bindable))
+	{
+		m_cachedBuffers.push_back(cachedBuffer);
+
+		// saving some processing
+		m_commandListBindables.push_back(cachedBuffer);
+		m_rootSignatureBindables.push_back(cachedBuffer);
+
+		return;
+	}
+
+
 	if (auto commandListBindable = dynamic_cast<CommandListBindable*>(bindable))
 		m_commandListBindables.push_back(commandListBindable);
 

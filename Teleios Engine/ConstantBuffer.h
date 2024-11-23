@@ -50,8 +50,13 @@ public:
 
 	void Update(Graphics& graphics);
 
+	void UpdateNextFrameResource(Graphics& graphics);
+
 	DynamicConstantBuffer::ConstantBufferData& GetData();
 
 private:
 	DynamicConstantBuffer::ConstantBufferData m_data;
+
+	std::vector<bool> m_frameBufferUpdated;
+	bool m_allBuffersUpdated;
 };

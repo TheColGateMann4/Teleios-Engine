@@ -76,6 +76,9 @@ protected:
 	VertexBuffer* m_vertexBuffer = nullptr;
 	IndexBuffer* m_indexBuffer = nullptr;
 	TransformConstantBuffer* m_transformConstantBuffer = nullptr;
+	
+	std::vector<CachedConstantBuffer*> m_cachedBuffers;
+	
 	std::vector<const char*> m_staticBindableNames;
 
 protected:

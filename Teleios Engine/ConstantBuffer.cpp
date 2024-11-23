@@ -109,7 +109,9 @@ void NonCachedConstantBuffer::Update(Graphics& graphics, void* data, size_t size
 CachedConstantBuffer::CachedConstantBuffer(Graphics& graphics, DynamicConstantBuffer::ConstantBufferData& data, std::vector<TargetSlotAndShader> targets)
 	:
 	ConstantBuffer(graphics, data.GetLayout(), targets),
-	m_data(data)
+	m_data(data),
+	m_frameBufferUpdated(graphics.GetBufferCount(), false),
+	m_allBuffersUpdated(true)
 {
 	// since we already pass the data to cached constant buffer, we surely want it updated on gpu side
 	Update(graphics);
@@ -117,7 +119,34 @@ CachedConstantBuffer::CachedConstantBuffer(Graphics& graphics, DynamicConstantBu
 
 void CachedConstantBuffer::Update(Graphics& graphics)
 {
+	m_allBuffersUpdated = false;
+
+	for (size_t bufferIndex = 0; bufferIndex < m_frameBufferUpdated.size(); bufferIndex++)
+		m_frameBufferUpdated.at(bufferIndex) = false;
+}
+
+void CachedConstantBuffer::UpdateNextFrameResource(Graphics& graphics)
+{
+	// skip if all buffers are up to date
+	if (m_allBuffersUpdated)
+		return;
+
+	// check if resource tied to current buffer is updated
+	if (m_frameBufferUpdated.at(graphics.GetCurrentBufferIndex()))
+		return;
+
+	// updating buffer
 	ConstantBuffer::InternalUpdate(graphics, m_data.GetPtr(), m_data.GetLayout().GetSize());
+
+	// marking current buffer as updated
+	m_frameBufferUpdated.at(graphics.GetCurrentBufferIndex()) = true;
+
+	// checking whole vector to see if all buffers are updated. If so then we mark buffer as updated
+	for (bool bufferUpdated : m_frameBufferUpdated)
+		if (!bufferUpdated)
+			return;
+
+	m_allBuffersUpdated = true;	
 }
 
 DynamicConstantBuffer::ConstantBufferData& CachedConstantBuffer::GetData()

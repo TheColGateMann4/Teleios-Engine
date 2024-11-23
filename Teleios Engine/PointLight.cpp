@@ -94,4 +94,6 @@ void PointLight::Update(Graphics& graphics, Pipeline& pipeline)
 
 	// dragging our model with us
 	m_model.SetPosition(m_position);
+
+	m_lightBuffer->UpdateNextFrameResource(graphics); // updating static scene resource
 }
