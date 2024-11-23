@@ -38,6 +38,8 @@ public:
 
 	void SetPosition(DirectX::XMFLOAT3 position);
 
+	void InternalUpdate(Graphics& graphics);
+
 public:
 	void UpdateTransformMatrix(Graphics& graphics, Camera& camera);
 

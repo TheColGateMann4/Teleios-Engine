@@ -91,6 +91,11 @@ void Drawable::SetPosition(DirectX::XMFLOAT3 position)
 	m_position = position;
 }
 
+void Drawable::InternalUpdate(Graphics& graphics)
+{
+
+}
+
 void Drawable::UpdateTransformMatrix(Graphics& graphics, Camera& camera)
 {
 	m_transformConstantBuffer->Update(graphics, camera);

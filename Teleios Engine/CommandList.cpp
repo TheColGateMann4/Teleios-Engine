@@ -148,7 +148,7 @@ void CommandList::SetConstBufferView(Graphics& graphics, ConstantBuffer* constBu
 	auto& targets = constBuffer->GetTargets();
 
 	for (auto& targetShader : targets)
-		THROW_INFO_ERROR(pCommandList->SetGraphicsRootConstantBufferView(targetShader.rootIndex, constBuffer->GetGPUAddress()));
+		THROW_INFO_ERROR(pCommandList->SetGraphicsRootConstantBufferView(targetShader.rootIndex, constBuffer->GetGPUAddress(graphics)));
 }
 
 void CommandList::SetDescriptorHeap(Graphics& graphics, Texture* texture)
@@ -167,7 +167,7 @@ void CommandList::SetDescriptorTable(Graphics& graphics, Texture* texture)
 	auto& targets = texture->GetTargets();
 
 	for (auto& targetShader : targets)
-		THROW_INFO_ERROR(pCommandList->SetGraphicsRootDescriptorTable(targetShader.rootIndex, texture->GetGPUDescriptor()));
+		THROW_INFO_ERROR(pCommandList->SetGraphicsRootDescriptorTable(targetShader.rootIndex, texture->GetGPUDescriptor(graphics)));
 }
 
 void CommandList::ExecuteBundle(Graphics& graphics, CommandList* commandList)

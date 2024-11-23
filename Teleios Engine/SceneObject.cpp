@@ -21,6 +21,16 @@ void SceneObject::Draw(Graphics& graphics, Pipeline& pipeline) const
 		mesh->DrawDrawable(graphics, pipeline);
 }
 
+void SceneObject::InternalUpdate(Graphics& graphics, Camera& camera, Pipeline& pipeline)
+{
+	UpdateTransformMatrix(graphics, camera);
+
+	for (auto* mesh : m_meshes)
+		mesh->InternalUpdate(graphics);
+
+	Update(graphics, pipeline);
+}
+
 void SceneObject::Update(Graphics& graphics, Pipeline& pipeline)
 {
 

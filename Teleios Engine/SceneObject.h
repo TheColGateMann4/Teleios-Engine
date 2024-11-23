@@ -18,6 +18,8 @@ public:
 	
 	virtual void Draw(Graphics& graphics, Pipeline& pipeline) const;
 
+	void InternalUpdate(Graphics& graphics, Camera& camera, Pipeline& pipeline);
+
 	virtual void Update(Graphics& graphics, Pipeline& pipeline);
 
 	virtual void DrawImguiWindow(Graphics& graphics, bool isLayerVisible);
