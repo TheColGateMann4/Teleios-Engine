@@ -16,7 +16,7 @@ void Drawable::Initialize(Graphics& graphics, Pipeline& pipeline)
 	for (auto staticBindableName : m_staticBindableNames)
 		SegregateBindableOnStartingPos(pipeline.GetStaticResource(staticBindableName));
 
-	m_bundleCommandList = std::make_unique<CommandList>(graphics, D3D12_COMMAND_LIST_TYPE_BUNDLE);
+	//m_bundleCommandList = std::make_unique<CommandList>(graphics, D3D12_COMMAND_LIST_TYPE_BUNDLE);
 
 	m_rootSignature = std::make_unique<RootSignature>();
 
@@ -58,20 +58,20 @@ void Drawable::Initialize(Graphics& graphics, Pipeline& pipeline)
 
 void Drawable::RecordBundleList(Graphics& graphics)
 {
-	THROW_OBJECT_STATE_ERROR_IF("BundleList was not yet initialized", !m_bundleCommandList);
-	THROW_OBJECT_STATE_ERROR_IF("PipelineState was not yet initialized", !m_pipelineState);
-	THROW_OBJECT_STATE_ERROR_IF("RootSignature was not yet initialized", !m_rootSignature);
-
-	m_bundleCommandList->Open(graphics, m_pipelineState.get());
-
-	m_bundleCommandList->SetRootSignature(graphics, m_rootSignature.get());
-
-	for (auto& pCommandListBindable : m_commandListBindables)
-		pCommandListBindable->BindToCommandList(graphics, m_bundleCommandList.get());
-
-	m_bundleCommandList->DrawIndexed(graphics, m_indexBuffer->GetIndexCount());
-
-	m_bundleCommandList->Close(graphics);
+//	THROW_OBJECT_STATE_ERROR_IF("BundleList was not yet initialized", !m_bundleCommandList);
+//	THROW_OBJECT_STATE_ERROR_IF("PipelineState was not yet initialized", !m_pipelineState);
+//	THROW_OBJECT_STATE_ERROR_IF("RootSignature was not yet initialized", !m_rootSignature);
+//
+//	m_bundleCommandList->Open(graphics, m_pipelineState.get());
+//
+//	m_bundleCommandList->SetRootSignature(graphics, m_rootSignature.get());
+//
+//	for (auto& pCommandListBindable : m_commandListBindables)
+//		pCommandListBindable->BindToCommandList(graphics, m_bundleCommandList.get());
+//
+//	m_bundleCommandList->DrawIndexed(graphics, m_indexBuffer->GetIndexCount());
+//
+//	m_bundleCommandList->Close(graphics);
 }
 
 void Drawable::DrawDrawable(Graphics& graphics, Pipeline& pipeline) const
@@ -83,7 +83,14 @@ void Drawable::DrawDrawable(Graphics& graphics, Pipeline& pipeline) const
 	for (auto& pDirectCommandListBindable : m_directCommandListBindables)
 		pDirectCommandListBindable->BindToDirectCommandList(graphics, directCommandList);
 
-	directCommandList->ExecuteBundle(graphics, m_bundleCommandList.get());
+	//	directCommandList->ExecuteBundle(graphics, m_bundleCommandList.get());
+
+	directCommandList->SetRootSignature(graphics, m_rootSignature.get());
+
+	for (auto& pCommandListBindable : m_commandListBindables)
+		pCommandListBindable->BindToCommandList(graphics, directCommandList);
+
+	directCommandList->DrawIndexed(graphics, m_indexBuffer->GetIndexCount());
 };
 
 void Drawable::SetPosition(DirectX::XMFLOAT3 position)
