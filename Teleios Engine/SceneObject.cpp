@@ -25,10 +25,10 @@ void SceneObject::InternalUpdate(Graphics& graphics, Camera& camera, Pipeline& p
 {
 	UpdateTransformMatrix(graphics, camera);
 
+	Update(graphics, pipeline);
+
 	for (auto* mesh : m_meshes)
 		mesh->InternalUpdate(graphics);
-
-	Update(graphics, pipeline);
 }
 
 void SceneObject::Update(Graphics& graphics, Pipeline& pipeline)
