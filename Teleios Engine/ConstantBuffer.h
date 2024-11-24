@@ -57,6 +57,7 @@ public:
 private:
 	DynamicConstantBuffer::ConstantBufferData m_data;
 
-	std::vector<bool> m_frameBufferUpdated;
+	bool m_firstBufferAlreadyUpdated;
+	unsigned int m_bufferUpdatedAtIndex;
 	bool m_allBuffersUpdated;
 };

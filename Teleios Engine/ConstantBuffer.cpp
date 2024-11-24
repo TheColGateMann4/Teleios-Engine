@@ -110,7 +110,8 @@ CachedConstantBuffer::CachedConstantBuffer(Graphics& graphics, DynamicConstantBu
 	:
 	ConstantBuffer(graphics, data.GetLayout(), targets),
 	m_data(data),
-	m_frameBufferUpdated(graphics.GetBufferCount(), false),
+	m_firstBufferAlreadyUpdated(false),
+	m_bufferUpdatedAtIndex(0),
 	m_allBuffersUpdated(true)
 {
 	// since we already pass the data to cached constant buffer, we surely want it updated on gpu side
@@ -119,10 +120,9 @@ CachedConstantBuffer::CachedConstantBuffer(Graphics& graphics, DynamicConstantBu
 
 void CachedConstantBuffer::Update(Graphics& graphics)
 {
+	m_bufferUpdatedAtIndex = graphics.GetCurrentBufferIndex();
+	m_firstBufferAlreadyUpdated = false;
 	m_allBuffersUpdated = false;
-
-	for (size_t bufferIndex = 0; bufferIndex < m_frameBufferUpdated.size(); bufferIndex++)
-		m_frameBufferUpdated.at(bufferIndex) = false;
 }
 
 void CachedConstantBuffer::UpdateNextFrameResource(Graphics& graphics)
@@ -131,22 +131,22 @@ void CachedConstantBuffer::UpdateNextFrameResource(Graphics& graphics)
 	if (m_allBuffersUpdated)
 		return;
 
-	// check if resource tied to current buffer is updated
-	if (m_frameBufferUpdated.at(graphics.GetCurrentBufferIndex()))
-		return;
+	bool currentFrameIndexIsSameAsUpdated = m_bufferUpdatedAtIndex == graphics.GetCurrentBufferIndex();
 
-	// updating buffer
+	// if we are at index where update call was made, and first buffer is updated then we are in next cycle. All are updated
+	if (currentFrameIndexIsSameAsUpdated && m_firstBufferAlreadyUpdated)
+	{
+		m_allBuffersUpdated = true;
+		m_firstBufferAlreadyUpdated = false;
+
+		return;
+	}
+
 	ConstantBuffer::InternalUpdate(graphics, m_data.GetPtr(), m_data.GetLayout().GetSize());
 
-	// marking current buffer as updated
-	m_frameBufferUpdated.at(graphics.GetCurrentBufferIndex()) = true;
-
-	// checking whole vector to see if all buffers are updated. If so then we mark buffer as updated
-	for (bool bufferUpdated : m_frameBufferUpdated)
-		if (!bufferUpdated)
-			return;
-
-	m_allBuffersUpdated = true;	
+	// if we are at index where update call was made and first buffer was not updated, then we should update it since its first frame where update occured
+	if (currentFrameIndexIsSameAsUpdated && !m_firstBufferAlreadyUpdated)
+		m_firstBufferAlreadyUpdated = true;
 }
 
 DynamicConstantBuffer::ConstantBufferData& CachedConstantBuffer::GetData()
