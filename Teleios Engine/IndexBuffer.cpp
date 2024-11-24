@@ -15,7 +15,7 @@ IndexBuffer::IndexBuffer(Graphics& graphics, void* pData, size_t indexCount, DXG
 
 	CreateResource(graphics, indexCount, structureSize);
 
-    Update(graphics, pData, indexCount, structureSize);
+    UpdateBufferData(graphics, pData, indexCount, structureSize);
 }
 
 IndexBuffer::IndexBuffer(Graphics& graphics, std::vector<unsigned int> indices)
@@ -49,9 +49,9 @@ void IndexBuffer::BindToCommandList(Graphics& graphics, CommandList* commandList
 
 void IndexBuffer::Update(Graphics& graphics, void* pData, size_t numElements, size_t structureSize)
 {
+	graphics.GetFrameResourceDeleter()->DeleteResource(graphics, pIndexBuffer);
 
-	if (m_bufferSize != dataSize)
-		CreateResource(graphics, numElements, structureSize);
+	CreateResource(graphics, numElements, structureSize);
 
 	UpdateBufferData(graphics, pData, numElements, structureSize);
 }
@@ -70,7 +70,7 @@ void IndexBuffer::UpdateBufferData(Graphics& graphics, void* pData, size_t numEl
 {
 	HRESULT hr;
 
-    // updating data
+	// updating data
 	{
 		D3D12_RANGE readRange = {};
 		readRange.Begin = 0;

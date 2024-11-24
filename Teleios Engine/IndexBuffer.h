@@ -33,6 +33,7 @@ public:
 
 private:
     void UpdateBufferData(Graphics& graphics, void* pData, size_t numElements, size_t structureSize);
+
     void CreateResource(Graphics& graphics, size_t numElements, size_t structureSize);
 
 private:

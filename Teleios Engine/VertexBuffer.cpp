@@ -34,7 +34,7 @@ std::shared_ptr<VertexBuffer> VertexBuffer::GetBindableResource(std::string iden
 
 void VertexBuffer::Update(Graphics& graphics, void* pData, size_t numElements, size_t dataStride)
 {
-	size_t newDataSize = numElements * dataStride;
+	graphics.GetFrameResourceDeleter()->DeleteResource(graphics, pVertexBuffer);
 
 	CreateResource(graphics, numElements, dataStride);
 
