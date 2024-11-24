@@ -4,14 +4,12 @@
 #include "includes/WRLNoWarnings.h"
 #include "TargetShaders.h"
 #include "Bindable.h"
+#include <dxcapi.h>
 
-#ifdef _DEBUG
+static constexpr const wchar_t* GetDefaultEntryPointName(ShaderType type);
 
-static constexpr const char* GetDefaultEntryPointName(ShaderType type);
+static std::wstring GetShaderVersion(ShaderType type);
 
-static std::string GetShaderVersion(ShaderType type);
-
-#endif
 
 class Graphics;
 class PipelineState;
@@ -19,15 +17,16 @@ class PipelineState;
 class Shader : public Bindable, public PipelineStateBindable
 {
 public:
-	Shader(const char* name, ShaderType type, std::vector<const char*> shaderMacros = {});
+	// should think of some cool way to ship the engine
+	Shader(Graphics& graphics, const wchar_t* name, ShaderType type, std::vector<const wchar_t*> shaderMacros = {});
 
 public:
-	static std::shared_ptr<Shader> GetBindableResource(const char* name, ShaderType type, std::vector<const char*> shaderMacros = {});
+	static std::shared_ptr<Shader> GetBindableResource(Graphics& graphics, const wchar_t* name, ShaderType type, std::vector<const wchar_t*> shaderMacros = {});
 
-	static std::string GetIdentifier(const char* name, ShaderType type, std::vector<const char*> shaderMacros = {});
+	static std::string GetIdentifier(const wchar_t* name, ShaderType type, std::vector<const wchar_t*> shaderMacros = {});
 
 public:
-	void Reload();
+	void Reload(Graphics& graphics);
 
 	D3D12_SHADER_BYTECODE GetShaderByteCode() const;
 
@@ -39,7 +38,12 @@ private:
 	Microsoft::WRL::ComPtr<ID3DBlob> pShaderCode;
 
 	ShaderType m_type;
-	std::string m_name;
-	std::string m_entryPoint;
-	std::vector<D3D_SHADER_MACRO> m_shaderMacros;
+	std::wstring m_name;
+	std::wstring m_path;
+	std::wstring m_entryPoint;
+	std::vector<DxcDefine> m_shaderMacros;
+	std::vector<D3D_SHADER_MACRO> m_shaderMacrosaa;
+
+	std::vector<const wchar_t*> m_wShaderMacrosData;
+	std::vector<std::string> m_shaderMacrosData;
 };

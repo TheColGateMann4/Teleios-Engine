@@ -27,18 +27,18 @@ Sphere::Sphere(Graphics& graphics, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3
 	vertexLayout.AddElement<DynamicVertex::ElementType::Normal>();
 	vertexLayout.AddElement<DynamicVertex::ElementType::TextureCoords>();
 
-	AddBindable(InputLayout::GetBindableResource(vertexLayout));
+	AddBindable(InputLayout::GetBindableResource(graphics, vertexLayout));
 
 	UpdateMesh(graphics);
 
 	SetTransformConstantBuffer(std::make_shared<TransformConstantBuffer>(graphics, this));
 
-	AddBindable(Shader::GetBindableResource("PS_WhiteColor", ShaderType::PixelShader));
-	AddBindable(Shader::GetBindableResource("VS_Position_Normal_Texcoords", ShaderType::VertexShader));
-	AddBindable(BlendState::GetBindableResource());
-	AddBindable(RasterizerState::GetBindableResource());
-	AddBindable(DepthStencilState::GetBindableResource());
-	AddBindable(PrimitiveTechnology::GetBindableResource(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE));
+	AddBindable(Shader::GetBindableResource(graphics, L"PS_WhiteColor", ShaderType::PixelShader));
+	AddBindable(Shader::GetBindableResource(graphics, L"VS_Position_Normal_Texcoords", ShaderType::VertexShader));
+	AddBindable(BlendState::GetBindableResource(graphics));
+	AddBindable(RasterizerState::GetBindableResource(graphics));
+	AddBindable(DepthStencilState::GetBindableResource(graphics));
+	AddBindable(PrimitiveTechnology::GetBindableResource(graphics, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE));
 }
 
 void Sphere::UpdateMesh(Graphics& graphics)
@@ -50,8 +50,8 @@ void Sphere::UpdateMesh(Graphics& graphics)
 
 	if(!m_initialized)
 	{
-		SetVertexBuffer(VertexBuffer::GetBindableResource("Sphere", graphics, vertices.data(), vertices.size(), sizeof(vertices.at(0))));
-		SetIndexBuffer(IndexBuffer::GetBindableResource("Sphere", graphics, indices));
+		SetVertexBuffer(VertexBuffer::GetBindableResource(graphics, "Sphere", vertices.data(), vertices.size(), sizeof(vertices.at(0))));
+		SetIndexBuffer(IndexBuffer::GetBindableResource(graphics, "Sphere", indices));
 
 		m_initialized = true;
 	}

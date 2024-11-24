@@ -320,5 +320,7 @@
   <ItemGroup>
     <CopyFileToFolders Include="Dependencies\assimp-vc143-mt.dll" />
     <CopyFileToFolders Include="Dependencies\zlib1.dll" />
+    <CopyFileToFolders Include="Dependencies\dxcompiler.dll" />
+    <CopyFileToFolders Include="Dependencies\dxil.dll" />
   </ItemGroup>
 </Project>

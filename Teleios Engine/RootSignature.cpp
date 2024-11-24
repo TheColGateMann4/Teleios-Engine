@@ -35,7 +35,7 @@ void RootSignature::Initialize(Graphics& graphics)
 	Microsoft::WRL::ComPtr<ID3DBlob> pRootSignatureBlob;
 	Microsoft::WRL::ComPtr<ID3DBlob> pErrorMessages;
 
-	THROW_BLOB_ERROR(D3D12SerializeRootSignature(
+	THROW_ERROR_MESSAGES_BLOB_ERROR(D3D12SerializeRootSignature(
 		&m_rootSignatureDesc,
 		D3D_ROOT_SIGNATURE_VERSION_1_0,
 		&pRootSignatureBlob,

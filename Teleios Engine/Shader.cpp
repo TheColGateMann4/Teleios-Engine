@@ -1,48 +1,49 @@
 #include "Shader.h"
 #include "Macros/ErrorMacros.h"
 #include "PipelineState.h"
+#include "Graphics.h"
+
 #include <d3dcompiler.h>
 
 #include "BindableResourceList.h"
 
-#ifdef _DEBUG
-constexpr const char* GetDefaultEntryPointName(ShaderType type)
+constexpr const wchar_t* GetDefaultEntryPointName(ShaderType type)
 {
 	switch (type)
 	{
 		case ShaderType::PixelShader:
-			return "PSMain";
+			return L"PSMain";
 		case ShaderType::VertexShader:
-			return "VSMain";
+			return L"VSMain";
 		case ShaderType::ComputeShader:
-			return "CSMain";
+			return L"CSMain";
 		case ShaderType::HullShader:
-			return "HSMain";
+			return L"HSMain";
 		case ShaderType::DomainShader:
-			return "DSMain";
+			return L"DSMain";
 		case ShaderType::GeometryShader:
-			return "GSMain";
+			return L"GSMain";
 	}
 }
 
-std::string GetShaderVersion(ShaderType type)
+std::wstring GetShaderVersion(ShaderType type)
 {
-	std::string result;
+	std::wstring result;
 
 	switch (type)
 	{
 		case ShaderType::PixelShader:
-			result = "ps"; break;
+			result = L"ps"; break;
 		case ShaderType::VertexShader:
-			result = "vs"; break;
+			result = L"vs"; break;
 		case ShaderType::ComputeShader:
-			result = "cs"; break;
+			result = L"cs"; break;
 		case ShaderType::HullShader:
-			result = "hs"; break;
+			result = L"hs"; break;
 		case ShaderType::DomainShader:
-			result = "ds"; break;
+			result = L"ds"; break;
 		case ShaderType::GeometryShader:
-			result = "gs"; break;
+			result = L"gs"; break;
 	}
 
 	result += '_';
@@ -52,96 +53,139 @@ std::string GetShaderVersion(ShaderType type)
 }
 
 /*
-			Debug Shader Contructor
+			Shader Contructor
 */
 
-// debug shader contructor reads .hlsl files and compiles them
-Shader::Shader(const char* name, ShaderType type, std::vector<const char*> shaderMacros)
+Shader::Shader(Graphics& graphics, const wchar_t* name, ShaderType type, std::vector<const wchar_t*> shaderMacros)
 	:
 	m_type(type),
-	m_name(std::string("../../Shaders/") + name + ".hlsl"),
-	m_entryPoint(GetDefaultEntryPointName(m_type))
+	m_name(std::wstring(name) + L".hlsl"),
+	m_path(L"../../Shaders/" + m_name),
+	m_entryPoint(GetDefaultEntryPointName(m_type)),
+	m_wShaderMacrosData(std::move(shaderMacros))
 {
-	for (const auto shaderMacro : shaderMacros)
-		m_shaderMacros.push_back(D3D_SHADER_MACRO{ shaderMacro, nullptr });
+	for (auto shaderMacro : m_wShaderMacrosData)
+	{
+		m_shaderMacros.push_back(DxcDefine{ shaderMacro, nullptr });
 
-	m_shaderMacros.push_back(D3D_SHADER_MACRO{ NULL, NULL });
+		std::wstring wShaderMacro = shaderMacro;
 
-	Reload();
+		m_shaderMacrosData.push_back(std::string(wShaderMacro.begin(), wShaderMacro.end()));
+
+		m_shaderMacrosaa.push_back(D3D_SHADER_MACRO{ m_shaderMacrosData.back().data(), nullptr });
+	}
+
+	m_shaderMacrosaa.push_back(D3D_SHADER_MACRO{ nullptr, nullptr });
+
+	Reload(graphics);
 }
 
-std::shared_ptr<Shader> Shader::GetBindableResource(const char* name, ShaderType type, std::vector<const char*> shaderMacros)
+std::shared_ptr<Shader> Shader::GetBindableResource(Graphics& graphics, const wchar_t* name, ShaderType type, std::vector<const wchar_t*> shaderMacros)
 {
-	return BindableResourceList::GetBindableResource<Shader>(name, type, shaderMacros);
+	return BindableResourceList::GetBindableResource<Shader>(graphics, name, type, shaderMacros);
 }
 
-std::string Shader::GetIdentifier(const char* name, ShaderType type, std::vector<const char*> shaderMacros)
+std::string Shader::GetIdentifier(const wchar_t* name, ShaderType type, std::vector<const wchar_t*> shaderMacros)
 {
 	std::string resultString = "Shader#";
+
+	std::wstring wName = name;
+
+	resultString += std::string(wName.begin(), wName.end());
+	resultString += '#';
 
 	resultString += std::to_string(size_t(type));
 	resultString += '#';
 
 	for (const auto shaderMacro : shaderMacros)
 	{
-		resultString += shaderMacro;
+		std::wstring wArg = name;
+
+		resultString += std::string(wArg.begin(), wArg.end());
 		resultString += '#';
 	}
 
 	return resultString;
 }
 
-void Shader::Reload()
+void Shader::Reload(Graphics& graphics)
 {
 	HRESULT hr;
 
-	Microsoft::WRL::ComPtr<ID3DBlob> pErrorMessages;
-	std::wstring wName = std::wstring(m_name.begin(), m_name.end());
-	std::string sShaderVersion = GetShaderVersion(m_type);
-	UINT flags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION | D3DCOMPILE_WARNINGS_ARE_ERRORS;
+	// dxUtils for Loading file data and building args
+	Microsoft::WRL::ComPtr<IDxcUtils> dxUtils;
 
+	THROW_ERROR(DxcCreateInstance(
+		CLSID_DxcUtils,
+		IID_PPV_ARGS(&dxUtils))
+	);
 
-	THROW_BLOB_ERROR(D3DCompileFromFile(
-		wName.c_str(),						 // path to shader
-		m_shaderMacros.data(),				 // macros that we will use for customizing one shader. This way we avoid making ton of shaders
-		nullptr,							 // we are including files that are in relative directory
-		m_entryPoint.c_str(),				 // entry point function name in said shader
-		sShaderVersion.c_str(),				 // version of shader
-		flags,
-		0,
-		&pShaderCode,						 // blob shader code
-		&pErrorMessages						 // blob for error messages
-	));
-}
+	Microsoft::WRL::ComPtr<IDxcBlobEncoding> pEncodedFileBlob;
 
+	THROW_ERROR(dxUtils->LoadFile(
+		m_path.c_str(),
+		nullptr,
+		&pEncodedFileBlob)
+	);
+
+	DxcBuffer buffer{ pEncodedFileBlob->GetBufferPointer(), pEncodedFileBlob->GetBufferSize(), 0 };
+
+#ifdef _DEBUG
+	std::vector<const wchar_t*> pArgs = { DXC_ARG_DEBUG, DXC_ARG_SKIP_OPTIMIZATIONS, DXC_ARG_IEEE_STRICTNESS, DXC_ARG_ENABLE_STRICTNESS, DXC_ARG_WARNINGS_ARE_ERRORS, DXC_ARG_ALL_RESOURCES_BOUND, DXC_ARG_DEBUG_NAME_FOR_BINARY };
 #else
-
-/*
-			Release Shader Contructor
-*/
-
-// release shader contructor reads already compiled shaders from .cso files
-Shader::Shader(const char* name, ShaderType type, std::vector<const char*> shaderMacros)
-	:
-	m_name(std::string("Shaders/") + name + ".cso"),
-	m_type(type)
-	{
-		Reload();
-		}
-
-		void Shader::Reload()
-		{
-			HRESULT hr;
-
-			std::wstring wName = std::wstring(m_name.begin(), m_name.end());
-
-			THROW_BLOB_ERROR(D3DReadFileToBlob(
-				wName.c_str(),
-				&pShaderCode
-			));
-		}
-
+	std::vector<const wchar_t*> pArgs = { };
 #endif
+
+	Microsoft::WRL::ComPtr<IDxcCompilerArgs> pCompilerArguments;
+
+	THROW_ERROR(dxUtils->BuildArguments(
+		m_name.c_str(),
+		m_entryPoint.c_str(),
+		GetShaderVersion(m_type).c_str(),
+		pArgs.data(),
+		pArgs.size(),
+		m_shaderMacros.data(),
+		m_shaderMacros.size(),
+		&pCompilerArguments)
+	);
+
+	Microsoft::WRL::ComPtr<IDxcCompiler3> pDxCompiler;
+
+	THROW_ERROR(DxcCreateInstance(
+		CLSID_DxcCompiler,
+		IID_PPV_ARGS(&pDxCompiler))
+	);
+
+	Microsoft::WRL::ComPtr<IDxcResult> pCompilerResult;
+
+	THROW_ERROR(pDxCompiler->Compile(
+		&buffer,
+		pCompilerArguments->GetArguments(),
+		pCompilerArguments->GetCount(),
+		nullptr,
+		IID_PPV_ARGS(&pCompilerResult))
+	);
+
+	Microsoft::WRL::ComPtr<IDxcBlobUtf16> blobutf16;
+
+	if(pCompilerResult->HasOutput(DXC_OUT_ERRORS) == TRUE)
+	{
+		THROW_SHADER_BYTECODE_BLOB_ERROR(pCompilerResult->GetOutput(
+			DXC_OUT_ERRORS,
+			IID_PPV_ARGS(&pShaderCode),
+			&blobutf16)
+		);
+	}
+
+	if (pCompilerResult->HasOutput(DXC_OUT_OBJECT) == TRUE)
+	{
+		THROW_ERROR(pCompilerResult->GetOutput(
+			DXC_OUT_OBJECT,
+			IID_PPV_ARGS(&pShaderCode),
+			&blobutf16)
+		);
+	}
+}
 
 
 D3D12_SHADER_BYTECODE Shader::GetShaderByteCode() const

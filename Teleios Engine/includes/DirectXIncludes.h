@@ -4,7 +4,7 @@
 
 #include <DirectXMath.h>
 
-#define USED_SHADER_MODEL "5_1"
+#define USED_SHADER_MODEL L"6_5"
 
 #ifdef _DEBUG
 	#define D3DCOMPILE_DEBUG 1
