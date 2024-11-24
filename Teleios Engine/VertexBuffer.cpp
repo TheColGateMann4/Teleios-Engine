@@ -16,7 +16,7 @@ VertexBuffer::VertexBuffer(Graphics& graphics, DynamicVertex::DynamicVertex& dyn
 
 VertexBuffer::VertexBuffer(Graphics& graphics, void* pData, size_t numElements, size_t dataStride)
 {
-	CreateResource(graphics, numElements * dataStride, dataStride);
+	CreateResource(graphics, numElements, dataStride);
 
 	// passing data to vetex buffer resource
 	UpdateBufferData(graphics, pData, numElements, dataStride);
@@ -36,8 +36,7 @@ void VertexBuffer::Update(Graphics& graphics, void* pData, size_t numElements, s
 {
 	size_t newDataSize = numElements * dataStride;
 
-	if(m_bufferSize != newDataSize)
-		CreateResource(graphics, newDataSize, dataStride);
+	CreateResource(graphics, numElements, dataStride);
 
 	UpdateBufferData(graphics, pData, numElements, dataStride);
 }
@@ -67,11 +66,11 @@ void VertexBuffer::UpdateBufferData(Graphics& graphics, void* pData, size_t numE
 	pVertexBuffer->Unmap(0, &writeRange);
 }
 
-void VertexBuffer::CreateResource(Graphics& graphics, size_t dataSize, size_t dataStride)
+void VertexBuffer::CreateResource(Graphics& graphics, size_t numElements, size_t dataStride)
 {
 	HRESULT hr;
 
-	m_bufferSize = dataSize;
+	m_bufferSize = numElements * dataStride;
 
 	// initializing vertex buffer resource
 	{
@@ -84,7 +83,7 @@ void VertexBuffer::CreateResource(Graphics& graphics, size_t dataSize, size_t da
 		D3D12_RESOURCE_DESC resourceDesc = {};
 		resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
 		resourceDesc.Alignment = 0;
-		resourceDesc.Width = dataSize;
+		resourceDesc.Width = m_bufferSize;
 		resourceDesc.Height = 1;
 		resourceDesc.DepthOrArraySize = 1;
 		resourceDesc.MipLevels = 1;
@@ -107,7 +106,7 @@ void VertexBuffer::CreateResource(Graphics& graphics, size_t dataSize, size_t da
 	// initializing vertex buffer view
 	{
 		m_vertexBufferView.BufferLocation = pVertexBuffer->GetGPUVirtualAddress();
-		m_vertexBufferView.SizeInBytes = dataSize;
+		m_vertexBufferView.SizeInBytes = m_bufferSize;
 		m_vertexBufferView.StrideInBytes = dataStride;
 	}
 }

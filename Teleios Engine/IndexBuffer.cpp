@@ -49,11 +49,26 @@ void IndexBuffer::BindToCommandList(Graphics& graphics, CommandList* commandList
 
 void IndexBuffer::Update(Graphics& graphics, void* pData, size_t numElements, size_t structureSize)
 {
-	HRESULT hr;
-	size_t dataSize = numElements * structureSize;
 
 	if (m_bufferSize != dataSize)
 		CreateResource(graphics, numElements, structureSize);
+
+	UpdateBufferData(graphics, pData, numElements, structureSize);
+}
+
+const D3D12_INDEX_BUFFER_VIEW* IndexBuffer::Get() const
+{
+    return &m_indexBufferView;
+}
+
+size_t IndexBuffer::GetIndexCount() const
+{
+    return m_indexCount;
+}
+
+void IndexBuffer::UpdateBufferData(Graphics& graphics, void* pData, size_t numElements, size_t structureSize)
+{
+	HRESULT hr;
 
     // updating data
 	{
@@ -77,16 +92,6 @@ void IndexBuffer::Update(Graphics& graphics, void* pData, size_t numElements, si
 
 		pIndexBuffer->Unmap(0, &writeRange);
 	}
-}
-
-const D3D12_INDEX_BUFFER_VIEW* IndexBuffer::Get() const
-{
-    return &m_indexBufferView;
-}
-
-size_t IndexBuffer::GetIndexCount() const
-{
-    return m_indexCount;
 }
 
 void IndexBuffer::CreateResource(Graphics& graphics, size_t numElements, size_t structureSize)
