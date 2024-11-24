@@ -9,10 +9,10 @@ class RootSignature;
 class PrimitiveTechnology : public Bindable, public PipelineStateBindable, public CommandListBindable
 {
 public:
-	PrimitiveTechnology(D3D12_PRIMITIVE_TOPOLOGY_TYPE type);
+	PrimitiveTechnology(Graphics& graphics, D3D12_PRIMITIVE_TOPOLOGY_TYPE type);
 
 public:
-	static std::shared_ptr<PrimitiveTechnology> GetBindableResource(D3D12_PRIMITIVE_TOPOLOGY_TYPE type);
+	static std::shared_ptr<PrimitiveTechnology> GetBindableResource(Graphics& graphics, D3D12_PRIMITIVE_TOPOLOGY_TYPE type);
 
 	static std::string GetIdentifier(D3D12_PRIMITIVE_TOPOLOGY_TYPE type);
 

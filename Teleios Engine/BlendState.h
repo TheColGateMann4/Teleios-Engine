@@ -8,10 +8,10 @@ class PipelineState;
 class BlendState : public Bindable, public PipelineStateBindable
 {
 public:
-	BlendState();
+	BlendState(Graphics& graphics);
 
 public:
-	static std::shared_ptr<BlendState> GetBindableResource();
+	static std::shared_ptr<BlendState> GetBindableResource(Graphics& graphics);
 
 	static std::string GetIdentifier();
 

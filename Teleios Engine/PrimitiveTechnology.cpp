@@ -5,7 +5,7 @@
 
 #include "BindableResourceList.h"
 
-PrimitiveTechnology::PrimitiveTechnology(D3D12_PRIMITIVE_TOPOLOGY_TYPE type)
+PrimitiveTechnology::PrimitiveTechnology(Graphics& graphics, D3D12_PRIMITIVE_TOPOLOGY_TYPE type)
 	:
 	m_d3d12type(type),
 	m_d3dtype(GetD3DPrimitiveFromD3D12(m_d3d12type))
@@ -13,9 +13,9 @@ PrimitiveTechnology::PrimitiveTechnology(D3D12_PRIMITIVE_TOPOLOGY_TYPE type)
 
 }
 
-std::shared_ptr<PrimitiveTechnology> PrimitiveTechnology::GetBindableResource(D3D12_PRIMITIVE_TOPOLOGY_TYPE type)
+std::shared_ptr<PrimitiveTechnology> PrimitiveTechnology::GetBindableResource(Graphics& graphics, D3D12_PRIMITIVE_TOPOLOGY_TYPE type)
 {
-	return BindableResourceList::GetBindableResource<PrimitiveTechnology>(type);
+	return BindableResourceList::GetBindableResource<PrimitiveTechnology>(graphics, type);
 }
 
 std::string PrimitiveTechnology::GetIdentifier(D3D12_PRIMITIVE_TOPOLOGY_TYPE type)

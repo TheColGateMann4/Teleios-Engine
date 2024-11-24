@@ -3,7 +3,7 @@
 
 #include "BindableResourceList.h"
 
-RasterizerState::RasterizerState()
+RasterizerState::RasterizerState(Graphics& graphics)
 {
 	m_desc = {};
 	m_desc.FillMode = D3D12_FILL_MODE_SOLID; // D3D12_FILL_MODE_WIREFRAME will be cool
@@ -19,9 +19,9 @@ RasterizerState::RasterizerState()
 	m_desc.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
 }
 
-std::shared_ptr<RasterizerState> RasterizerState::GetBindableResource()
+std::shared_ptr<RasterizerState> RasterizerState::GetBindableResource(Graphics& graphics)
 {
-	return BindableResourceList::GetBindableResource<RasterizerState>();
+	return BindableResourceList::GetBindableResource<RasterizerState>(graphics);
 }
 
 std::string RasterizerState::GetIdentifier()

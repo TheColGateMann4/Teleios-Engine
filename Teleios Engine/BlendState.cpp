@@ -3,7 +3,7 @@
 
 #include "BindableResourceList.h"
 
-BlendState::BlendState()
+BlendState::BlendState(Graphics& graphics)
 {
 	D3D12_RENDER_TARGET_BLEND_DESC renderTargetBlendDesc = {};
 	renderTargetBlendDesc.BlendEnable = true;
@@ -23,9 +23,9 @@ BlendState::BlendState()
 	m_desc.RenderTarget[0] = renderTargetBlendDesc;
 }
 
-std::shared_ptr<BlendState> BlendState::GetBindableResource()
+std::shared_ptr<BlendState> BlendState::GetBindableResource(Graphics& graphics)
 {
-	return BindableResourceList::GetBindableResource<BlendState>();
+	return BindableResourceList::GetBindableResource<BlendState>(graphics);
 }
 
 std::string BlendState::GetIdentifier()

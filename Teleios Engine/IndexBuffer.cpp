@@ -32,14 +32,14 @@ IndexBuffer::IndexBuffer(Graphics& graphics, std::vector<unsigned short> indices
 
 }
 
-std::shared_ptr<IndexBuffer> IndexBuffer::GetBindableResource(std::string identifier, Graphics& graphics, std::vector<unsigned int> indices)
+std::shared_ptr<IndexBuffer> IndexBuffer::GetBindableResource(Graphics& graphics, std::string identifier, std::vector<unsigned int> indices)
 {
-	return BindableResourceList::GetBindableResourceByID<IndexBuffer>("IndexBuffer#" + identifier, graphics, indices);
+	return BindableResourceList::GetBindableResourceByID<IndexBuffer>(graphics, "IndexBuffer#" + identifier, indices);
 }
 
-std::shared_ptr<IndexBuffer> IndexBuffer::GetBindableResource(std::string identifier, Graphics& graphics, std::vector<unsigned short> indices)
+std::shared_ptr<IndexBuffer> IndexBuffer::GetBindableResource(Graphics& graphics, std::string identifier, std::vector<unsigned short> indices)
 {
-	return BindableResourceList::GetBindableResourceByID<IndexBuffer>("IndexBuffer#" + identifier, graphics, indices);
+	return BindableResourceList::GetBindableResourceByID<IndexBuffer>(graphics, "IndexBuffer#" + identifier, indices);
 }
 
 void IndexBuffer::BindToCommandList(Graphics& graphics, CommandList* commandList)

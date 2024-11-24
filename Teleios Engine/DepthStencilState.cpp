@@ -3,7 +3,7 @@
 
 #include "BindableResourceList.h"
 
-DepthStencilState::DepthStencilState()
+DepthStencilState::DepthStencilState(Graphics& graphics)
 {
 	D3D12_DEPTH_STENCILOP_DESC frontFaceStencil = {};
 	frontFaceStencil.StencilFailOp = D3D12_STENCIL_OP_KEEP;
@@ -22,9 +22,9 @@ DepthStencilState::DepthStencilState()
 	//m_desc.BackFace = ; // we don't use it anyways
 }
 
-std::shared_ptr<DepthStencilState> DepthStencilState::GetBindableResource()
+std::shared_ptr<DepthStencilState> DepthStencilState::GetBindableResource(Graphics& graphics)
 {
-	return BindableResourceList::GetBindableResource<DepthStencilState>();
+	return BindableResourceList::GetBindableResource<DepthStencilState>(graphics);
 }
 
 std::string DepthStencilState::GetIdentifier()

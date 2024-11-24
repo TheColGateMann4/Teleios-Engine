@@ -8,10 +8,10 @@ class PipelineState;
 class RasterizerState : public Bindable, public PipelineStateBindable
 {
 public:
-	RasterizerState();
+	RasterizerState(Graphics& graphics);
 
 public:
-	static std::shared_ptr<RasterizerState> GetBindableResource();
+	static std::shared_ptr<RasterizerState> GetBindableResource(Graphics& graphics);
 
 	static std::string GetIdentifier();
 

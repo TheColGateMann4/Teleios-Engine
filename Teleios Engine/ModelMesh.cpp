@@ -81,7 +81,7 @@ ModelMesh::ModelMesh(Graphics& graphics, aiMesh* mesh, aiMaterial* material, std
 				vertexBuffer.Back().GetPropety<DynamicVertex::ElementType::Color4>() = *reinterpret_cast<DirectX::XMFLOAT4*>(&mesh->mColors[0][vertexIndex]);
 		}
 
-		SetVertexBuffer(VertexBuffer::GetBindableResource(fileName, graphics, vertexBuffer));
+		SetVertexBuffer(VertexBuffer::GetBindableResource(graphics, fileName, vertexBuffer));
 	}
 
 
@@ -94,12 +94,12 @@ ModelMesh::ModelMesh(Graphics& graphics, aiMesh* mesh, aiMaterial* material, std
 			for (size_t indiceIndex = 0; indiceIndex < mesh->mFaces[faceIndex].mNumIndices; indiceIndex++)
 				indices.push_back(mesh->mFaces[faceIndex].mIndices[indiceIndex]);
 
-		SetIndexBuffer(IndexBuffer::GetBindableResource(fileName, graphics, indices));
+		SetIndexBuffer(IndexBuffer::GetBindableResource(graphics, fileName, indices));
 	}
 
-	std::vector<const char*> shaderMacros = {};
-	shaderMacros.push_back("OUTPUT_CAMAERAPOS"); // phong requirement
-	shaderMacros.push_back("INPUT_NORMAL"); // model objects will always have normals since we will generate them with assimp if they do not
+	std::vector<const wchar_t*> shaderMacros = {};
+	shaderMacros.push_back(L"OUTPUT_CAMAERAPOS"); // phong requirement
+	shaderMacros.push_back(L"INPUT_NORMAL"); // model objects will always have normals since we will generate them with assimp if they do not
 
 	// handle material
 	{
@@ -108,25 +108,25 @@ ModelMesh::ModelMesh(Graphics& graphics, aiMesh* mesh, aiMaterial* material, std
 		// textures
 		if(materialPropeties.hasAnyMap)
 		{
-			AddBindable(StaticSampler::GetBindableResource(D3D12_FILTER_MIN_MAG_MIP_POINT));
+			AddBindable(StaticSampler::GetBindableResource(graphics, D3D12_FILTER_MIN_MAG_MIP_POINT));
 
-			shaderMacros.push_back("TEXTURE_ANY");
-			shaderMacros.push_back("INPUT_TEXCCORDS"); // since we are handling textures, we will need texcoords argument provided to our shaders
+			shaderMacros.push_back(L"TEXTURE_ANY");
+			shaderMacros.push_back(L"INPUT_TEXCCORDS"); // since we are handling textures, we will need texcoords argument provided to our shaders
 
 
 			if (materialPropeties.hasDiffuseMap)
 			{
 				AddBindable(Texture::GetBindableResource(graphics, (filePath + materialPropeties.diffuseMapPath).c_str(), std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::PixelShader, 0}}));
-				shaderMacros.push_back("TEXTURE_DIFFUSE");
+				shaderMacros.push_back(L"TEXTURE_DIFFUSE");
 			}
 
 			if (materialPropeties.hasNormalMap)
 			{
 				AddBindable(Texture::GetBindableResource(graphics, (filePath + materialPropeties.normalMapPath).c_str(), std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::PixelShader, 1}}));
-				shaderMacros.push_back("TEXTURE_NORMAL");
+				shaderMacros.push_back(L"TEXTURE_NORMAL");
 
-				shaderMacros.push_back("INPUT_TANGENT");
-				shaderMacros.push_back("INPUT_BITANGENT");
+				shaderMacros.push_back(L"INPUT_TANGENT");
+				shaderMacros.push_back(L"INPUT_BITANGENT");
 			}
 
 			if (materialPropeties.hasSpecularMap)
@@ -137,7 +137,7 @@ ModelMesh::ModelMesh(Graphics& graphics, aiMesh* mesh, aiMaterial* material, std
 				materialPropeties.specularOneChannelOnly = specularTextureFormat == DXGI_FORMAT_R8_UNORM;
 
 				AddBindable(std::move(specularTexture));
-				shaderMacros.push_back("TEXTURE_SPECULAR");
+				shaderMacros.push_back(L"TEXTURE_SPECULAR");
 			}
 		}
 
@@ -173,14 +173,14 @@ ModelMesh::ModelMesh(Graphics& graphics, aiMesh* mesh, aiMaterial* material, std
 
 	SetTransformConstantBuffer(std::make_shared<TransformConstantBuffer>(graphics, this));
 
-	AddBindable(Shader::GetBindableResource("PS_Phong", ShaderType::PixelShader, shaderMacros));
-	AddBindable(Shader::GetBindableResource("VS", ShaderType::VertexShader, shaderMacros));
-	AddBindable(InputLayout::GetBindableResource(vertexLayout));
+	AddBindable(Shader::GetBindableResource(graphics, L"PS_Phong", ShaderType::PixelShader, shaderMacros));
+	AddBindable(Shader::GetBindableResource(graphics, L"VS", ShaderType::VertexShader, shaderMacros));
+	AddBindable(InputLayout::GetBindableResource(graphics, vertexLayout));
 
-	AddBindable(BlendState::GetBindableResource());
-	AddBindable(RasterizerState::GetBindableResource());
-	AddBindable(DepthStencilState::GetBindableResource());
-	AddBindable(PrimitiveTechnology::GetBindableResource(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE));
+	AddBindable(BlendState::GetBindableResource(graphics));
+	AddBindable(RasterizerState::GetBindableResource(graphics));
+	AddBindable(DepthStencilState::GetBindableResource(graphics));
+	AddBindable(PrimitiveTechnology::GetBindableResource(graphics, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE));
 
 	AddStaticBindable("lightBuffer");
 }

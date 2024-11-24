@@ -3,7 +3,7 @@
 
 #include "BindableResourceList.h"
 
-StaticSampler::StaticSampler(D3D12_FILTER filter, D3D12_TEXTURE_ADDRESS_MODE overlappingMode, std::vector<TargetSlotAndShader> targets)
+StaticSampler::StaticSampler(Graphics& graphics, D3D12_FILTER filter, D3D12_TEXTURE_ADDRESS_MODE overlappingMode, std::vector<TargetSlotAndShader> targets)
 	: 
 	RootSignatureBindable(targets)
 {
@@ -20,9 +20,9 @@ StaticSampler::StaticSampler(D3D12_FILTER filter, D3D12_TEXTURE_ADDRESS_MODE ove
 	m_staticSamplerDesc.RegisterSpace = 0;
 }
 
-std::shared_ptr<StaticSampler> StaticSampler::GetBindableResource(D3D12_FILTER filter, D3D12_TEXTURE_ADDRESS_MODE overlappingMode, std::vector<TargetSlotAndShader> targets)
+std::shared_ptr<StaticSampler> StaticSampler::GetBindableResource(Graphics& graphics, D3D12_FILTER filter, D3D12_TEXTURE_ADDRESS_MODE overlappingMode, std::vector<TargetSlotAndShader> targets)
 {
-	return BindableResourceList::GetBindableResource<StaticSampler>(filter, overlappingMode, targets);
+	return BindableResourceList::GetBindableResource<StaticSampler>(graphics, filter, overlappingMode, targets);
 }
 
 std::string StaticSampler::GetIdentifier(D3D12_FILTER filter, D3D12_TEXTURE_ADDRESS_MODE overlappingMode, std::vector<TargetSlotAndShader> targets)

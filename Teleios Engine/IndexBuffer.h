@@ -18,9 +18,9 @@ public:
     IndexBuffer(Graphics& graphics, std::vector<unsigned short> indices);
 
 public:
-    static std::shared_ptr<IndexBuffer> GetBindableResource(std::string identifier, Graphics& graphics, std::vector<unsigned int> indices);
+    static std::shared_ptr<IndexBuffer> GetBindableResource(Graphics& graphics, std::string identifier, std::vector<unsigned int> indices);
 
-    static std::shared_ptr<IndexBuffer> GetBindableResource(std::string identifier, Graphics& graphics, std::vector<unsigned short> indices);
+    static std::shared_ptr<IndexBuffer> GetBindableResource(Graphics& graphics, std::string identifier, std::vector<unsigned short> indices);
 
 public:
     virtual void BindToCommandList(Graphics& graphics, CommandList* commandList) override;

@@ -101,13 +101,13 @@ Cube::Cube(Graphics& graphics, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rot
 	SetIndexBuffer(std::make_shared<IndexBuffer>(graphics, indices));
 	SetTransformConstantBuffer(std::make_shared<TransformConstantBuffer>(graphics, this));
 
-	AddBindable(std::make_shared<Shader>("PS_Phong", ShaderType::PixelShader));
-	AddBindable(std::make_shared<Shader>("VS_Phong", ShaderType::VertexShader));
-	AddBindable(std::make_shared<BlendState>());
-	AddBindable(std::make_shared<RasterizerState>());
-	AddBindable(std::make_shared<DepthStencilState>());
-	AddBindable(std::make_shared<InputLayout>(vertexLayout));
-	AddBindable(std::make_shared<PrimitiveTechnology>(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE));
+	AddBindable(std::make_shared<Shader>(graphics, L"PS_Phong", ShaderType::PixelShader));
+	AddBindable(std::make_shared<Shader>(graphics, L"VS_Phong", ShaderType::VertexShader));
+	AddBindable(std::make_shared<BlendState>(graphics));
+	AddBindable(std::make_shared<RasterizerState>(graphics));
+	AddBindable(std::make_shared<DepthStencilState>(graphics));
+	AddBindable(std::make_shared<InputLayout>(graphics, vertexLayout));
+	AddBindable(std::make_shared<PrimitiveTechnology>(graphics, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE));
 
 	AddStaticBindable("lightBuffer");
 
@@ -126,7 +126,7 @@ Cube::Cube(Graphics& graphics, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rot
 
 	AddBindable(std::make_shared<Texture>(graphics, "Images/brickwall.jpg"));
 
-	AddBindable(std::make_shared<StaticSampler>(D3D12_FILTER_MIN_MAG_MIP_POINT));
+	AddBindable(std::make_shared<StaticSampler>(graphics, D3D12_FILTER_MIN_MAG_MIP_POINT));
 }
 
 void Cube::DrawImguiWindow(Graphics& graphics, bool isLayerVisible)

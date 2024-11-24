@@ -125,7 +125,7 @@ std::shared_ptr<Texture> Texture::GetBindableResource(class Graphics& graphics, 
 	return BindableResourceList::GetBindableResource<Texture>(graphics, path, targets);
 }
 
-std::string Texture::GetIdentifier(class Graphics& graphics, const char* path, std::vector<TargetSlotAndShader> targets)
+std::string Texture::GetIdentifier(const char* path, std::vector<TargetSlotAndShader> targets)
 {
 	std::string resultString = "Texture#";
 

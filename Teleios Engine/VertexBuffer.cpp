@@ -22,14 +22,14 @@ VertexBuffer::VertexBuffer(Graphics& graphics, void* pData, size_t numElements, 
 	UpdateBufferData(graphics, pData, numElements, dataStride);
 }
 
-std::shared_ptr<VertexBuffer> VertexBuffer::GetBindableResource(std::string identifier, Graphics& graphics, DynamicVertex::DynamicVertex& dynamicVertexBuffer)
+std::shared_ptr<VertexBuffer> VertexBuffer::GetBindableResource(Graphics& graphics, std::string identifier, DynamicVertex::DynamicVertex& dynamicVertexBuffer)
 {
-	return BindableResourceList::GetBindableResourceByID<VertexBuffer>("VertexBuffer#" + identifier, graphics, dynamicVertexBuffer);
+	return BindableResourceList::GetBindableResourceByID<VertexBuffer>(graphics, "VertexBuffer#" + identifier, dynamicVertexBuffer);
 }
 
-std::shared_ptr<VertexBuffer> VertexBuffer::GetBindableResource(std::string identifier, Graphics& graphics, void* pData, size_t numElements, size_t dataStride)
+std::shared_ptr<VertexBuffer> VertexBuffer::GetBindableResource(Graphics& graphics, std::string identifier, void* pData, size_t numElements, size_t dataStride)
 {
-	return BindableResourceList::GetBindableResourceByID<VertexBuffer>("VertexBuffer#" + identifier, graphics, pData, numElements, dataStride);
+	return BindableResourceList::GetBindableResourceByID<VertexBuffer>(graphics, "VertexBuffer#" + identifier, pData, numElements, dataStride);
 }
 
 void VertexBuffer::Update(Graphics& graphics, void* pData, size_t numElements, size_t dataStride)

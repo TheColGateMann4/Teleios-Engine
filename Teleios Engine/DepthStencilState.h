@@ -8,10 +8,10 @@ class PipelineState;
 class DepthStencilState : public Bindable, public PipelineStateBindable
 {
 public:
-	DepthStencilState();
+	DepthStencilState(Graphics& graphics);
 
 public:
-	static std::shared_ptr<DepthStencilState> GetBindableResource();
+	static std::shared_ptr<DepthStencilState> GetBindableResource(Graphics& graphics);
 
 	static std::string GetIdentifier();
 

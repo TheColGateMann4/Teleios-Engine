@@ -10,14 +10,14 @@ class BindableResourceList
 {
 public:
 	template<class T, class ...Params>
-	static std::shared_ptr<T> GetBindableResource(Params&& ...creationParams)
+	static std::shared_ptr<T> GetBindableResource(Graphics& graphics, Params&& ...creationParams)
 	{
 		std::string identifier = T::GetIdentifier(creationParams...);
-		return GetBindableResourceByID<T>(identifier, std::forward<Params&&>(creationParams)...);
+		return GetBindableResourceByID<T>(graphics, identifier, std::forward<Params&&>(creationParams)...);
 	}
 
 	template<class T, class ...Params>
-	static std::shared_ptr<T> GetBindableResourceByID(std::string identifier, Params&& ...creationParams) // making identifier argument first so we don't mistakely take other argument as identifier when we were meant to call GetBindableResource
+	static std::shared_ptr<T> GetBindableResourceByID(Graphics& graphics, std::string identifier, Params&& ...creationParams) // making identifier argument first so we don't mistakely take other argument as identifier when we were meant to call GetBindableResource
 	{
 		auto& bindableResourceMap = GetStaticMap();
 
@@ -25,7 +25,7 @@ public:
 
 		if (foundItem == bindableResourceMap.end()) // item not found?
 		{
-			std::shared_ptr<T> bindable = std::make_unique<T>(std::forward<Params&&>(creationParams)...);
+			std::shared_ptr<T> bindable = std::make_unique<T>(graphics, std::forward<Params&&>(creationParams)...);
 
 			bindableResourceMap[identifier] = bindable; // pushing newly created bindable to our map
 
