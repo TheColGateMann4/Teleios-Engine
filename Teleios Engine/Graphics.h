@@ -9,6 +9,7 @@
 #include "RenderTarget.h"
 #include "DepthStencilView.h"
 #include "ImguiManager.h"
+#include "FrameResourceDeleter.h"
 
 #include <dxgi1_6.h>
 
@@ -36,6 +37,7 @@ public:
 	void WaitForGPUIfNextBufferInUse(); // sets fence value for frame pushed to gpu, and waits for next buffer to be free to start drawing
 
 public:
+	FrameResourceDeleter* GetFrameResourceDeleter();
 	ImguiManager* GetImguiManager();
 	ID3D12Device* GetDevice();
 	ID3D12CommandQueue* GetCommandQueue();
@@ -61,6 +63,8 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12CommandQueue> pCommandQueue;
 	Microsoft::WRL::ComPtr<IDXGISwapChain> pSwapChain;
 
+	FrameResourceDeleter resourceDeleter;
+
 private:
 #ifdef _DEBUG
 	std::unique_ptr<InfoQueue> m_infoQueue;
@@ -75,6 +79,6 @@ private:
 	unsigned int m_width = 0;
 	unsigned int m_height = 0;
 
-	const unsigned int swapChainBufferCount = 3;
+	const unsigned int swapChainBufferCount = 10;
 	unsigned int m_currentBufferIndex = 0;
 };
