@@ -34,9 +34,9 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> pRootSignature;
 	bool m_finished;
 
-	D3D12_ROOT_SIGNATURE_DESC m_rootSignatureDesc;
-	std::vector<D3D12_ROOT_PARAMETER> m_rootParameters;
+	D3D12_ROOT_SIGNATURE_DESC1 m_rootSignatureDesc;
+	std::vector<D3D12_ROOT_PARAMETER1> m_rootParameters;
 	std::vector<D3D12_STATIC_SAMPLER_DESC> m_staticSamplers;
-	std::vector<D3D12_DESCRIPTOR_RANGE> m_descriptorTableRanges;
+	std::vector<D3D12_DESCRIPTOR_RANGE1> m_descriptorTableRanges;
 };
 

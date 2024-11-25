@@ -29,15 +29,17 @@ void RootSignature::Initialize(Graphics& graphics)
 {
 	ConnectDescriptorParametersToRanges();
 
-
 	HRESULT hr;
 
 	Microsoft::WRL::ComPtr<ID3DBlob> pRootSignatureBlob;
 	Microsoft::WRL::ComPtr<ID3DBlob> pErrorMessages;
 
-	THROW_ERROR_MESSAGES_BLOB_ERROR(D3D12SerializeRootSignature(
-		&m_rootSignatureDesc,
-		D3D_ROOT_SIGNATURE_VERSION_1_0,
+	D3D12_VERSIONED_ROOT_SIGNATURE_DESC versionedRootSignatureDesc = {};
+	versionedRootSignatureDesc.Version = D3D_ROOT_SIGNATURE_VERSION_1_1;
+	versionedRootSignatureDesc.Desc_1_1 = m_rootSignatureDesc;
+
+	THROW_ERROR_MESSAGES_BLOB_ERROR(D3D12SerializeVersionedRootSignature(
+		&versionedRootSignatureDesc,
 		&pRootSignatureBlob,
 		&pErrorMessages
 	));
@@ -62,7 +64,7 @@ void RootSignature::AddConstBufferViewParameter(ConstantBuffer* constantBuffer)
 
 		m_rootSignatureDesc.NumParameters++;
 
-		D3D12_ROOT_PARAMETER rootParameter = {};
+		D3D12_ROOT_PARAMETER1 rootParameter = {};
 		rootParameter.ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 		rootParameter.Descriptor = {};
 		rootParameter.Descriptor.ShaderRegister = targetShader.slot;
@@ -85,17 +87,18 @@ void RootSignature::AddDescriptorTableParameter(Texture* texture)
 
 		m_rootSignatureDesc.NumParameters++;
 
-		D3D12_DESCRIPTOR_RANGE descriptorRange = {};
+		D3D12_DESCRIPTOR_RANGE1 descriptorRange = {};
 		descriptorRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 		descriptorRange.NumDescriptors = 1;
 		descriptorRange.BaseShaderRegister = targetShader.slot;
 		descriptorRange.RegisterSpace = 0;
+		descriptorRange.Flags = D3D12_DESCRIPTOR_RANGE_FLAG_NONE;
 		descriptorRange.OffsetInDescriptorsFromTableStart = 0;
 
 		m_descriptorTableRanges.push_back(descriptorRange);
 
 
-		D3D12_ROOT_PARAMETER rootParameter = {};
+		D3D12_ROOT_PARAMETER1 rootParameter = {};
 		rootParameter.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 		rootParameter.DescriptorTable = {};
 		rootParameter.DescriptorTable.NumDescriptorRanges = 1;
