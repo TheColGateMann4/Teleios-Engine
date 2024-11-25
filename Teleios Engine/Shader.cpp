@@ -61,21 +61,10 @@ Shader::Shader(Graphics& graphics, const wchar_t* name, ShaderType type, std::ve
 	m_type(type),
 	m_name(std::wstring(name) + L".hlsl"),
 	m_path(L"../../Shaders/" + m_name),
-	m_entryPoint(GetDefaultEntryPointName(m_type)),
-	m_wShaderMacrosData(std::move(shaderMacros))
+	m_entryPoint(GetDefaultEntryPointName(m_type))
 {
-	for (auto shaderMacro : m_wShaderMacrosData)
-	{
+	for (auto shaderMacro : shaderMacros)
 		m_shaderMacros.push_back(DxcDefine{ shaderMacro, nullptr });
-
-		std::wstring wShaderMacro = shaderMacro;
-
-		m_shaderMacrosData.push_back(std::string(wShaderMacro.begin(), wShaderMacro.end()));
-
-		m_shaderMacrosaa.push_back(D3D_SHADER_MACRO{ m_shaderMacrosData.back().data(), nullptr });
-	}
-
-	m_shaderMacrosaa.push_back(D3D_SHADER_MACRO{ nullptr, nullptr });
 
 	Reload(graphics);
 }

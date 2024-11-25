@@ -41,9 +41,6 @@ private:
 	std::wstring m_name;
 	std::wstring m_path;
 	std::wstring m_entryPoint;
-	std::vector<DxcDefine> m_shaderMacros;
-	std::vector<D3D_SHADER_MACRO> m_shaderMacrosaa;
 
-	std::vector<const wchar_t*> m_wShaderMacrosData;
-	std::vector<std::string> m_shaderMacrosData;
+	std::vector<DxcDefine> m_shaderMacros;
 };
