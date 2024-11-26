@@ -20,14 +20,6 @@ static constexpr float _pi = 3.14159265358979f;
 #include <string>
 #include <map>
 
-
-#ifdef _DEBUG
-#include <iostream>
-#define IS_DEBUG true
-#else
-#define IS_DEBUG false
-#endif
-
 // stripping windows.h not needed stuff
 #define NOGDICAPMASKS
 #define NOMENUS
@@ -60,6 +52,8 @@ static constexpr float _pi = 3.14159265358979f;
 #include <windows.h>
 
 #ifdef _DEBUG
+	#include <iostream>
+
 	#define INITIALIZE_CONSOLE \
 		AllocConsole();\
 		freopen_s(&m_pConsole, "CONOUT$", "w", stdout);

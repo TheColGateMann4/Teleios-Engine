@@ -90,6 +90,8 @@ void Drawable::DrawDrawable(Graphics& graphics, Pipeline& pipeline) const
 
 	directCommandList->SetRootSignature(graphics, m_rootSignature.get());
 
+	directCommandList->SetDescriptorHeap(graphics, &graphics.GetDescriptorHeap());
+
 	for (auto& pCommandListBindable : m_commandListBindables)
 		pCommandListBindable->BindToCommandList(graphics, directCommandList);
 

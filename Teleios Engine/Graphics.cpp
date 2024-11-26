@@ -1,6 +1,11 @@
 #include "Graphics.h"
 #include "Macros/ErrorMacros.h"
 
+using namespace  std::string_literals;
+extern "C" { __declspec(dllexport) extern const UINT D3D12SDKVersion = 715; } // agility version of D3D12Core.dll. Mine is latest preview
+
+extern "C" { __declspec(dllexport) extern const char* D3D12SDKPath = "D3D12/"; } // path of agility dll's
+
 void Graphics::Initialize(HWND hWnd, DXGI_FORMAT renderTargetFormat)
 {
 	THROW_OBJECT_STATE_ERROR_IF("Given format is not valid swap chain buffer", !CheckValidRenderTargetFormat(renderTargetFormat));

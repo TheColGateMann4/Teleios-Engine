@@ -1,14 +1,10 @@
 #pragma once
-#include "CppIncludes.h"
-#include <d3d12.h>
-
+#include <Agility/include/d3d12.h> // agility sdk
 #include <DirectXMath.h>
 
-#define USED_SHADER_MODEL L"6_5"
+#include "CppIncludes.h"
 
-#ifdef _DEBUG
-	#define D3DCOMPILE_DEBUG 1
-#endif
+#define USED_SHADER_MODEL L"6_8"
 
 //	//DirectXTex
 //	#include <DirectXTex/DirectXTex.h>

@@ -328,5 +328,7 @@
     <CopyFileToFolders Include="Dependencies\zlib1.dll" />
     <CopyFileToFolders Include="Dependencies\dxcompiler.dll" />
     <CopyFileToFolders Include="Dependencies\dxil.dll" />
+    <CopyFileToFolders Include="Dependencies\AgilitySDK\D3D12Core.dll" />
+    <CopyFileToFolders Include="Dependencies\AgilitySDK\d3d12SDKLayers.dll" />
   </ItemGroup>
 </Project>
