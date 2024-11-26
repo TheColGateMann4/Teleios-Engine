@@ -46,6 +46,8 @@ void Application::InitializeScene()
 	sceneObjects.push_back(std::make_shared<Model>(window.graphics, "Models/sponza/sponza.obj", 1.0f / 40.0f));
 	sceneObjects.push_back(std::make_shared<PointLight>(window.graphics, pipeline));
 
+	window.graphics.GetDescriptorHeap().Finish(window.graphics);
+
 	for (auto& sceneObject : sceneObjects)
 		sceneObject->Initialize(window.graphics, pipeline);
 }

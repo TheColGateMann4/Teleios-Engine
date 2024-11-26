@@ -12,7 +12,7 @@ class VertexBuffer;
 class RootSignature;
 class ConstantBuffer;
 class Texture;
-struct RootSignatureTypedResource;
+class DescriptorHeap;
 
 class CommandList
 {
@@ -46,7 +46,7 @@ public:
 
 	void SetConstBufferView(Graphics& graphics, ConstantBuffer* constBuffer);
 
-	void SetDescriptorHeap(Graphics& graphics, Texture* texture);
+	void SetDescriptorHeap(Graphics& graphics, DescriptorHeap* descriptorHeap);
 
 	void SetDescriptorTable(Graphics& graphics, Texture* texture);
 
@@ -66,4 +66,3 @@ private:
 	bool m_open;
 	unsigned int m_currCommandAllocatorIndex;
 };
-

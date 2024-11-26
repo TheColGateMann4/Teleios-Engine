@@ -1,6 +1,7 @@
 #include "Texture.h"
 #include "Graphics.h"
 #include "CommandList.h"
+#include "DescriptorHeap.h"
 #include "Macros/ErrorMacros.h"
 
 #include <DirectXTex/DirectXTex.h>
@@ -10,12 +11,10 @@
 Texture::Texture(Graphics& graphics, const char* path, std::vector<TargetSlotAndShader> targets)
 	:
 	RootSignatureBindable(targets),
-#ifdef _DEBUG
 	m_path(std::string("../../") + path)
-#else
-	m_path(path)
-#endif
 {
+	graphics.GetDescriptorHeap().RequestMoreSpace();
+
 	D3D12_RESOURCE_STATES resourceStateFlag = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
 
 	for (const auto& targetShader : targets)
@@ -79,18 +78,27 @@ Texture::Texture(Graphics& graphics, const char* path, std::vector<TargetSlotAnd
 		));
 	}
 
-	// creating descriptor heap
+	// copying data from image to resource
 	{
-		D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc = {};
-		descriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-		descriptorHeapDesc.NumDescriptors = 1;
-		descriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-		descriptorHeapDesc.NodeMask = 0;
-
-		THROW_ERROR(graphics.GetDevice()->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&pDescriptorHeap)));
+		THROW_ERROR(pTexture->WriteToSubresource(
+			0,
+			nullptr,
+			image.GetImages()->pixels,
+			image.GetImages()->rowPitch,
+			0
+		));
 	}
+}
 
-	// creating shader resource view
+void Texture::Initialize(Graphics& graphics)
+{
+	auto resultHandles = graphics.GetDescriptorHeap().GetNextHandle();
+
+	m_descriptorHeapGPUHandle = resultHandles.descriptorHeapGpuHandle;
+	m_descriptorCPUHandle = resultHandles.descriptorCpuHandle;
+	m_offsetInDescriptorFromStart = resultHandles.offsetInDescriptorFromStart;
+
+	// creating SRV
 	{
 		D3D12_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc = {};
 		shaderResourceViewDesc.Format = m_format;
@@ -104,23 +112,12 @@ Texture::Texture(Graphics& graphics, const char* path, std::vector<TargetSlotAnd
 		THROW_INFO_ERROR(graphics.GetDevice()->CreateShaderResourceView(
 			pTexture.Get(),
 			&shaderResourceViewDesc,
-			pDescriptorHeap->GetCPUDescriptorHandleForHeapStart()
-		));
-	}
-
-	// copying data from image to resource
-	{
-		THROW_ERROR(pTexture->WriteToSubresource(
-			0, 
-			nullptr,
-			image.GetImages()->pixels,
-			image.GetImages()->rowPitch,
-			0
+			m_descriptorCPUHandle
 		));
 	}
 }
 
-std::shared_ptr<Texture> Texture::GetBindableResource(class Graphics& graphics, const char* path, std::vector<TargetSlotAndShader> targets)
+std::shared_ptr<Texture> Texture::GetBindableResource(Graphics& graphics, const char* path, std::vector<TargetSlotAndShader> targets)
 {
 	return BindableResourceList::GetBindableResource<Texture>(graphics, path, targets);
 }
@@ -146,14 +143,7 @@ std::string Texture::GetIdentifier(const char* path, std::vector<TargetSlotAndSh
 
 void Texture::BindToCommandList(Graphics& graphics, CommandList* commandList)
 {
-	commandList->SetDescriptorHeap(graphics, this);
-
 	commandList->SetDescriptorTable(graphics, this);
-}
-
-void Texture::BindToDirectCommandList(Graphics& graphics, CommandList* commandList)
-{
-	commandList->SetDescriptorHeap(graphics, this);
 }
 
 void Texture::BindToRootSignature(Graphics& graphics, RootSignature* rootSignature)
@@ -161,17 +151,22 @@ void Texture::BindToRootSignature(Graphics& graphics, RootSignature* rootSignatu
 	rootSignature->AddDescriptorTableParameter(this);
 }
 
-D3D12_GPU_DESCRIPTOR_HANDLE Texture::GetGPUDescriptor(Graphics& graphics) const
+D3D12_GPU_DESCRIPTOR_HANDLE Texture::GetDescriptorHeapGPUHandle(Graphics& graphics) const
 {
-	return pDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
+	return m_descriptorHeapGPUHandle;
 }
 
-ID3D12DescriptorHeap* Texture::GetDescriptorHeap() const
+D3D12_CPU_DESCRIPTOR_HANDLE Texture::GetCPUDescriptor(Graphics& graphics) const
 {
-	return pDescriptorHeap.Get();
+	return m_descriptorCPUHandle;
 }
 
 DXGI_FORMAT Texture::GetFormat() const
 {
 	return m_format;
+}
+
+UINT Texture::GetOffsetInDescriptor() const
+{
+	return m_offsetInDescriptorFromStart;
 }

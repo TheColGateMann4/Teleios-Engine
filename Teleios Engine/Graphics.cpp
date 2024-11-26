@@ -159,6 +159,11 @@ void Graphics::WaitForGPUIfNextBufferInUse()
 	m_graphicFences.at(GetNextBufferIndex()).WaitForValue(*this);
 }
 
+DescriptorHeap& Graphics::GetDescriptorHeap()
+{
+	return descriptorHeap;
+}
+
 FrameResourceDeleter* Graphics::GetFrameResourceDeleter()
 {
 	return &resourceDeleter;

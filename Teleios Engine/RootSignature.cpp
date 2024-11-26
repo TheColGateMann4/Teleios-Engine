@@ -93,7 +93,7 @@ void RootSignature::AddDescriptorTableParameter(Texture* texture)
 		descriptorRange.BaseShaderRegister = targetShader.slot;
 		descriptorRange.RegisterSpace = 0;
 		descriptorRange.Flags = D3D12_DESCRIPTOR_RANGE_FLAG_NONE;
-		descriptorRange.OffsetInDescriptorsFromTableStart = 0;
+		descriptorRange.OffsetInDescriptorsFromTableStart = texture->GetOffsetInDescriptor();
 
 		m_descriptorTableRanges.push_back(descriptorRange);
 

@@ -6,6 +6,7 @@
 #include "IndexBuffer.h"
 #include "ConstantBuffer.h"
 #include "Texture.h"
+#include "DescriptorHeap.h"
 
 CommandList::CommandList(Graphics& graphics, D3D12_COMMAND_LIST_TYPE type, PipelineState* pPipelineState)
 	:
@@ -151,11 +152,11 @@ void CommandList::SetConstBufferView(Graphics& graphics, ConstantBuffer* constBu
 		THROW_INFO_ERROR(pCommandList->SetGraphicsRootConstantBufferView(targetShader.rootIndex, constBuffer->GetGPUAddress(graphics)));
 }
 
-void CommandList::SetDescriptorHeap(Graphics& graphics, Texture* texture)
+void CommandList::SetDescriptorHeap(Graphics& graphics, DescriptorHeap* descriptorHeap)
 {
 	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
 
-	ID3D12DescriptorHeap* descriptorHeaps[] = { texture->GetDescriptorHeap()};
+	ID3D12DescriptorHeap* descriptorHeaps[] = { descriptorHeap->Get()};
 
 	THROW_INFO_ERROR(pCommandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps));
 }
@@ -167,7 +168,7 @@ void CommandList::SetDescriptorTable(Graphics& graphics, Texture* texture)
 	auto& targets = texture->GetTargets();
 
 	for (auto& targetShader : targets)
-		THROW_INFO_ERROR(pCommandList->SetGraphicsRootDescriptorTable(targetShader.rootIndex, texture->GetGPUDescriptor(graphics)));
+		THROW_INFO_ERROR(pCommandList->SetGraphicsRootDescriptorTable(targetShader.rootIndex, texture->GetDescriptorHeapGPUHandle(graphics)));
 }
 
 void CommandList::ExecuteBundle(Graphics& graphics, CommandList* commandList)

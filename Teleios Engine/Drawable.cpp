@@ -23,7 +23,10 @@ void Drawable::Initialize(Graphics& graphics, Pipeline& pipeline)
 	// initializing root signature
 	{
 		for (auto& pRootSignatureBindable : m_rootSignatureBindables)
+		{
+			pRootSignatureBindable->InternalInitialize(graphics);
 			pRootSignatureBindable->BindToRootSignature(graphics, m_rootSignature.get());
+		}
 
 		m_rootSignature->Initialize(graphics);
 	}

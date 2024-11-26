@@ -47,16 +47,23 @@ public:
 public:
 	virtual ~RootSignatureBindable() = default;
 
+	void InternalInitialize(Graphics& graphics);
+
+
 	virtual void BindToRootSignature(Graphics& graphics, RootSignature* rootSignature) = 0;
 
 	virtual D3D12_GPU_VIRTUAL_ADDRESS GetGPUAddress(Graphics& graphics) const;
 
-	virtual D3D12_GPU_DESCRIPTOR_HANDLE GetGPUDescriptor(Graphics& graphics) const;
+	virtual D3D12_GPU_DESCRIPTOR_HANDLE GetDescriptorHeapGPUHandle(Graphics& graphics) const;
 
 	std::vector<TargetSlotAndShader>& GetTargets();
 
+protected:
+	virtual void Initialize(Graphics& graphics);
+
 private:
 	std::vector<TargetSlotAndShader> m_targets;
+	bool m_initialized = false;
 };
 
 class PipelineStateBindable
