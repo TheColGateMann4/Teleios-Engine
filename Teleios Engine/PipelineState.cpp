@@ -25,7 +25,11 @@ void PipelineState::SetRootSignature(RootSignature* rootSignature)
 
 void PipelineState::SetShader(Shader* shader)
 {
-	D3D12_SHADER_BYTECODE* descShaderByteCode = GetShaderPointerValue(m_desc, shader->GetType());
+	ShaderType shaderType = shader->GetType();
+
+	THROW_INTERNAL_ERROR_IF("Graphic pipeline does not support compute shaders", shaderType == ShaderType::ComputeShader);
+
+	D3D12_SHADER_BYTECODE* descShaderByteCode = GetShaderPointerValue(m_desc, shaderType);
 	D3D12_SHADER_BYTECODE shaderByteCode = shader->GetShaderByteCode();
 
 	descShaderByteCode->BytecodeLength = shaderByteCode.BytecodeLength;
@@ -119,7 +123,7 @@ D3D12_SHADER_BYTECODE* PipelineState::GetShaderPointerValue(D3D12_GRAPHICS_PIPEL
 		case ShaderType::GeometryShader:
 			return &desc.GS;
 
-		case ShaderType::ComputeShader:
-			THROW_INTERNAL_ERROR("Graphic pipeline does not support compute shaders");
+		default:
+			return nullptr;
 	}
 }
