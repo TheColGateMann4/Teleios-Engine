@@ -127,7 +127,7 @@ void IndexBuffer::CreateResource(Graphics& graphics, size_t numElements, size_t 
 			&heapPropeties,
 			D3D12_HEAP_FLAG_NONE,
 			&resourceDesc,
-			D3D12_RESOURCE_STATE_INDEX_BUFFER,
+			D3D12_RESOURCE_STATE_COMMON, //D3D12_RESOURCE_STATE_INDEX_BUFFER,
 			nullptr,
 			IID_PPV_ARGS(&pIndexBuffer)
 		));

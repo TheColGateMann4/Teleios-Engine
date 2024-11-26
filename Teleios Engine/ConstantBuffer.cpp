@@ -39,12 +39,12 @@ ConstantBuffer::ConstantBuffer(Graphics& graphics, const DynamicConstantBuffer::
 			&heapPropeties,
 			D3D12_HEAP_FLAG_NONE,
 			&resourceDesc,
-			D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER,
+			D3D12_RESOURCE_STATE_COMMON, //D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER,
 			nullptr,
 			IID_PPV_ARGS(&pConstBuffers.at(bufferIndex))
 		));
 	}
-	}
+}
 
 void ConstantBuffer::BindToCommandList(Graphics& graphics, CommandList* commandList)
 {
