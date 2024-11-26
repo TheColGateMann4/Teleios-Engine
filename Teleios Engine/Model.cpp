@@ -24,11 +24,7 @@ Model::Model(Graphics& graphics, const char* path, float scale)
 		filePath = std::string(filePath.begin(), filePath.begin() + lastSlashPosition + 1);
 	}
 
-#ifdef _DEBUG
 	std::string targetFile = "../../" + filePath + fileName;
-#elif
-	std::string targetFile = filePath + fileName;
-#endif
 
  	Assimp::Importer importer;
 

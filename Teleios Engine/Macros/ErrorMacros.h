@@ -53,6 +53,7 @@
 
 	#define THROW_INFO_ERROR(statement)	  statement; if(graphics.GetInfoQueue()->GetNumMessages() != 0) throw ErrorHandler::InfoException{__LINE__ , __FILE__, __FUNCTION__, graphics.GetInfoQueue()->GetMessages()};
 #else
-	#define THROW_BLOB_ERROR(statement)	THROW_ERROR(statement)
-	#define THROW_INFO_ERROR(statement)
+	#define THROW_SHADER_BYTECODE_BLOB_ERROR(statement)	THROW_ERROR(statement)
+	#define THROW_ERROR_MESSAGES_BLOB_ERROR(statement)	THROW_ERROR(statement)
+	#define THROW_INFO_ERROR(statement) statement
 #endif
