@@ -122,7 +122,7 @@ void Shader::Reload(Graphics& graphics)
 #ifdef _DEBUG
 	std::vector<const wchar_t*> pArgs = { DXC_ARG_DEBUG, DXC_ARG_SKIP_OPTIMIZATIONS, DXC_ARG_IEEE_STRICTNESS, DXC_ARG_ENABLE_STRICTNESS, DXC_ARG_WARNINGS_ARE_ERRORS, DXC_ARG_ALL_RESOURCES_BOUND, DXC_ARG_DEBUG_NAME_FOR_BINARY };
 #else
-	std::vector<const wchar_t*> pArgs = { };
+	std::vector<const wchar_t*> pArgs = { DXC_ARG_OPTIMIZATION_LEVEL3 };
 #endif
 
 	Microsoft::WRL::ComPtr<IDxcCompilerArgs> pCompilerArguments;
