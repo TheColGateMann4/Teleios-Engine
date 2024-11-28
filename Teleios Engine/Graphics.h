@@ -35,7 +35,9 @@ public:
 
 	void WaitForGPU();
 
-	void WaitForGPUIfNextBufferInUse(); // sets fence value for frame pushed to gpu, and waits for next buffer to be free to start drawing
+	void WaitForGPUIfNeeded(); // sets fence value for frame pushed to gpu, and waits for next buffer to be free to start drawing
+
+	void CleanupResources();
 
 public:
 	DescriptorHeap& GetDescriptorHeap();

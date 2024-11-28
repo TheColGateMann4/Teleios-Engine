@@ -112,5 +112,7 @@ void Application::Update()
 	
 	window.graphics.FinishFrame();
 
-	window.graphics.WaitForGPUIfNextBufferInUse();
+	window.graphics.WaitForGPUIfNeeded();
+
+	window.graphics.CleanupResources();
 }

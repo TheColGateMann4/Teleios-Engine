@@ -153,13 +153,15 @@ void Graphics::WaitForGPU()
 	m_graphicFences.at(GetCurrentBufferIndex()).WaitForGPU(*this);
 }
 
-void Graphics::WaitForGPUIfNextBufferInUse()
+void Graphics::WaitForGPUIfNeeded()
 {
 	m_graphicFences.at(GetCurrentBufferIndex()).SetWaitValue(*this);
 
 	m_graphicFences.at(GetNextBufferIndex()).WaitForValue(*this);
+}
 
-	// we can remove not needed resources once we 
+void Graphics::CleanupResources()
+{
 	resourceDeleter.Update();
 }
 
