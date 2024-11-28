@@ -10,9 +10,11 @@ class Pipeline;
 class PointLight : public SceneObject
 {
 public:
-	PointLight(Graphics& graphics, Pipeline& pipeline, DirectX::XMFLOAT3 position = {-1.5f, 0.0f, -1.5f}, DirectX::XMFLOAT3 color = { 1.0f, 1.0f, 1.0f });
+	PointLight(Graphics& graphics, DirectX::XMFLOAT3 position = {-1.5f, 0.0f, -1.5f}, DirectX::XMFLOAT3 color = { 1.0f, 1.0f, 1.0f });
 
 public:
+	virtual void AddStaticResources(Pipeline& pipeline) override;
+	
 	virtual void Update(Graphics& graphics, Pipeline& pipeline) override;
 
 	virtual void DrawImguiWindow(Graphics& graphics, bool isLayerVisible) override;

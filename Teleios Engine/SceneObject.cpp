@@ -9,7 +9,10 @@ void SceneObject::AddMesh(Drawable* mesh)
 	m_meshes.push_back(mesh);
 }
 
-void SceneObject::Initialize(Graphics& graphics, Pipeline& pipeline)
+void SceneObject::AddStaticResources(Pipeline& pipeline)
+{
+
+}
 {
 	for (auto mesh : m_meshes)
 		mesh->Initialize(graphics, pipeline);

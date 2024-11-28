@@ -4,7 +4,7 @@
 
 #include <imgui.h>
 
-PointLight::PointLight(Graphics& graphics, Pipeline& pipeline, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 color)
+PointLight::PointLight(Graphics& graphics, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 color)
 	:
 	m_position(position),
 	m_color(color),
@@ -28,8 +28,37 @@ PointLight::PointLight(Graphics& graphics, Pipeline& pipeline, DirectX::XMFLOAT3
 	*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("attenuationConstant") = 0.07f;
 
 	m_lightBuffer = std::make_shared<CachedConstantBuffer>(graphics, bufferData, std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::PixelShader, 0}});
+}
 
+void PointLight::AddStaticResources(Pipeline& pipeline)
+{
 	pipeline.AddStaticResource("lightBuffer", m_lightBuffer.get());
+}
+
+void PointLight::Update(Graphics& graphics, Pipeline& pipeline)
+{
+	// updating light constant buffer with light position in camera space
+	Camera* activeCamera = pipeline.GetCurrentCamera();
+
+	if (m_transformChanged || activeCamera->ViewChanged())
+	{
+		DirectX::XMVECTOR vPosition = DirectX::XMLoadFloat3(&m_position);
+		DirectX::XMVECTOR vResultPosition = DirectX::XMVector3Transform(vPosition, activeCamera->GetTransformMatrix());
+		DirectX::XMFLOAT3 resultPosition;
+
+		DirectX::XMStoreFloat3(&resultPosition, vResultPosition);
+
+		*m_lightBuffer->GetData().GetValuePointer<DynamicConstantBuffer::ElementType::Float3>("lightPosition") = resultPosition;
+
+		m_lightBuffer->Update(graphics);
+
+		m_transformChanged = false;
+	}
+
+	// dragging our model with us
+	m_model.SetPosition(m_position);
+
+	m_lightBuffer->UpdateNextFrameResource(graphics); // updating static scene resource
 }
 
 void PointLight::DrawImguiWindow(Graphics& graphics, bool isLayerVisible)
@@ -65,35 +94,9 @@ void PointLight::DrawImguiWindow(Graphics& graphics, bool isLayerVisible)
 		checkChanged(changed, ImGui::SliderFloat("linear", m_lightBuffer->GetData().GetValuePointer<DynamicConstantBuffer::ElementType::Float>("attenuationLinear"), 0.00007f, 0.7f));
 		checkChanged(changed, ImGui::SliderFloat("constant", m_lightBuffer->GetData().GetValuePointer<DynamicConstantBuffer::ElementType::Float>("attenuationConstant"), 0.001f, 10.0f));
 
-		if(!m_transformChanged && changed)
+		if (!m_transformChanged && changed)
 			m_lightBuffer->Update(graphics);
 	}
 
 	ImGui::End();
 };
-
-void PointLight::Update(Graphics& graphics, Pipeline& pipeline)
-{
-	// updating light constant buffer with light position in camera space
-	Camera* activeCamera = pipeline.GetCurrentCamera();
-
-	if (m_transformChanged || activeCamera->ViewChanged())
-	{
-		DirectX::XMVECTOR vPosition = DirectX::XMLoadFloat3(&m_position);
-		DirectX::XMVECTOR vResultPosition = DirectX::XMVector3Transform(vPosition, activeCamera->GetTransformMatrix());
-		DirectX::XMFLOAT3 resultPosition;
-
-		DirectX::XMStoreFloat3(&resultPosition, vResultPosition);
-
-		*m_lightBuffer->GetData().GetValuePointer<DynamicConstantBuffer::ElementType::Float3>("lightPosition") = resultPosition;
-
-		m_lightBuffer->Update(graphics);
-
-		m_transformChanged = false;
-	}
-
-	// dragging our model with us
-	m_model.SetPosition(m_position);
-
-	m_lightBuffer->UpdateNextFrameResource(graphics); // updating static scene resource
-}

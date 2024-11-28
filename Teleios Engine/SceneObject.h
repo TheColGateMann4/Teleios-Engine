@@ -14,6 +14,7 @@ public:
 public:
 	void AddMesh(Drawable* mesh);
 	
+	virtual void AddStaticResources(Pipeline& pipeline);
 	virtual void Initialize(Graphics& graphics, Pipeline& pipeline);
 	
 	virtual void Draw(Graphics& graphics, Pipeline& pipeline) const;
