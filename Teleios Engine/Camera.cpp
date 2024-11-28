@@ -81,7 +81,7 @@ void Camera::DrawImguiWindow(Graphics& graphics, bool isLayerVisible)
 		checkChanged(m_viewChanged, ImGui::SliderFloat("y##position", &m_position.y, -10.0f, 10.0f));
 		checkChanged(m_viewChanged, ImGui::SliderFloat("z##position", &m_position.z, -10.0f, 10.0f));
 
-		checkChanged(m_viewChanged, ImGui::SliderAngle("Pitch", &m_rotation.x, -90.0f, 90.0f));
+		checkChanged(m_viewChanged, ImGui::SliderAngle("Pitch", &m_rotation.x, -89.0f, 89.0f));
 		checkChanged(m_viewChanged, ImGui::SliderAngle("Yaw", &m_rotation.y, -180.0f, 180.0f));
 
 		ImGui::NewLine();
