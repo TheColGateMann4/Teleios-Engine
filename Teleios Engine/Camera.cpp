@@ -6,14 +6,12 @@
 
 #include <imgui.h>
 
-Camera::Camera(Graphics& graphics, Pipeline& pipeline, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation, Settings* settings)
+Camera::Camera(Graphics& graphics, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation, Settings* settings)
 	:
 	m_position(position),
 	m_rotation(rotation),
 	m_viewChanged(false)
 {
-	pipeline.SetCurrentCamera(this);
-
 	if (settings != nullptr)
 	{
 		m_settings = *settings;
@@ -30,7 +28,12 @@ Camera::Camera(Graphics& graphics, Pipeline& pipeline, DirectX::XMFLOAT3 positio
 	UpdatePerspectiveMatrix();
 }
 
-void Camera::Update(const Input& input, bool cursorLocked)
+void Camera::Initialize(Graphics& graphics, Pipeline& pipeline)
+{
+	pipeline.SetCurrentCamera(this);
+}
+
+void Camera::UpdateCamera(const Input& input, bool cursorLocked)
 {
 	// rotation
 	if(cursorLocked)
@@ -56,7 +59,7 @@ void Camera::Update(const Input& input, bool cursorLocked)
 	}
 }
 
-void Camera::DrawImguiWindow(bool isLayerVisible)
+void Camera::DrawImguiWindow(Graphics& graphics, bool isLayerVisible)
 {
 	// we are reseting viewChanged value here since its the first function where it can be changed
 	m_viewChanged = false;

@@ -2,11 +2,13 @@
 #include "includes/DirectXIncludes.h"
 #include "includes/WRLNoWarnings.h"
 
+#include "SceneObject.h"
+
 class Graphics;
 class Pipeline;
 class Input;
 
-class Camera
+class Camera : public SceneObject
 {
 public:
 	struct Settings
@@ -18,12 +20,14 @@ public:
 	};
 
 public:
-	Camera(Graphics& graphics, Pipeline& pipeline, DirectX::XMFLOAT3 position = { 0.0f, 0.0f, -5.0f }, DirectX::XMFLOAT3 rotation = { 0.0f, 0.0f, 0.0f }, Settings* settings = nullptr);
+	Camera(Graphics& graphics, DirectX::XMFLOAT3 position = { 0.0f, 0.0f, -5.0f }, DirectX::XMFLOAT3 rotation = { 0.0f, 0.0f, 0.0f }, Settings* settings = nullptr);
 
 public:
-	void Update(const Input& input, bool cursorLocked);
+	virtual void Initialize(Graphics& graphics, Pipeline& pipeline) override;
 
-	void DrawImguiWindow(bool isLayerVisible);
+	void UpdateCamera(const Input& input, bool cursorLocked);
+
+	virtual void DrawImguiWindow(Graphics& graphics, bool isLayerVisible) override;
 
 	DirectX::XMMATRIX GetTransformMatrix() const;
 
@@ -53,4 +57,3 @@ private:
 
 	bool m_viewChanged;
 };
-
