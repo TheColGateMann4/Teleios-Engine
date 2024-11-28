@@ -13,15 +13,31 @@ void SceneObject::AddStaticResources(Pipeline& pipeline)
 {
 
 }
+
+void SceneObject::InternalInitialize(Graphics& graphics, Pipeline& pipeline)
 {
+	Initialize(graphics, pipeline);
+
 	for (auto mesh : m_meshes)
 		mesh->Initialize(graphics, pipeline);
 }
 
-void SceneObject::Draw(Graphics& graphics, Pipeline& pipeline) const
+void SceneObject::Initialize(Graphics& graphics, Pipeline& pipeline)
 {
+
+}
+
+void SceneObject::InternalDraw(Graphics& graphics, Pipeline& pipeline) const
+{
+	Draw(graphics, pipeline);
+
 	for (const auto mesh : m_meshes)
 		mesh->DrawDrawable(graphics, pipeline);
+}
+
+void SceneObject::Draw(Graphics& graphics, Pipeline& pipeline) const
+{
+
 }
 
 void SceneObject::InternalUpdate(Graphics& graphics, Camera& camera, Pipeline& pipeline)

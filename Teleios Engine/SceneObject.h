@@ -15,8 +15,13 @@ public:
 	void AddMesh(Drawable* mesh);
 	
 	virtual void AddStaticResources(Pipeline& pipeline);
+
+	void InternalInitialize(Graphics& graphics, Pipeline& pipeline);
+
 	virtual void Initialize(Graphics& graphics, Pipeline& pipeline);
 	
+	void InternalDraw(Graphics& graphics, Pipeline& pipeline) const;
+
 	virtual void Draw(Graphics& graphics, Pipeline& pipeline) const;
 
 	void InternalUpdate(Graphics& graphics, Camera& camera, Pipeline& pipeline);
