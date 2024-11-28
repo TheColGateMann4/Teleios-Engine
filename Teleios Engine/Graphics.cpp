@@ -157,8 +157,6 @@ void Graphics::WaitForGPU()
 
 void Graphics::WaitForGPUIfNextBufferInUse()
 {
-	m_graphicFences.at(GetPreviousBufferIndex()).WaitForValue(*this);
-
 	m_graphicFences.at(GetCurrentBufferIndex()).SetWaitValue(*this);
 
 	m_graphicFences.at(GetNextBufferIndex()).WaitForValue(*this);
