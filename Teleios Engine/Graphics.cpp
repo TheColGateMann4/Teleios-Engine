@@ -142,8 +142,6 @@ void Graphics::FinishFrame()
 
 	Fence* pPreviousFrameFence = &m_graphicFences.at(GetPreviousBufferIndex());
 
-	resourceDeleter.Update();
-
 	// forcing this frame on GPU side to wait till previous frame is presented
 	pCommandQueue->Wait(pPreviousFrameFence->Get(), pPreviousFrameFence->GetValue());
 		
@@ -160,6 +158,9 @@ void Graphics::WaitForGPUIfNextBufferInUse()
 	m_graphicFences.at(GetCurrentBufferIndex()).SetWaitValue(*this);
 
 	m_graphicFences.at(GetNextBufferIndex()).WaitForValue(*this);
+
+	// we can remove not needed resources once we 
+	resourceDeleter.Update();
 }
 
 DescriptorHeap& Graphics::GetDescriptorHeap()
