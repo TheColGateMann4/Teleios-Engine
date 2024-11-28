@@ -6,18 +6,21 @@ void FrameResourceDeleter::DeleteResource(Graphics& graphics, Microsoft::WRL::Co
 	m_resources.push_back(FrameResourceForDeletion{ pResource, graphics.GetCurrentBufferIndex() });
 }
 
-void FrameResourceDeleter::Update()
+void FrameResourceDeleter::Update(Graphics& graphics)
 {
 	for (size_t resourceIndex = 0; resourceIndex < m_resources.size(); resourceIndex++)
 	{
 		FrameResourceForDeletion& resourceForDeletion = m_resources.at(resourceIndex);
 
-		if (resourceForDeletion.firstIteration)
-			resourceForDeletion.firstIteration = false;
-		else
+		if(resourceForDeletion.frameIndex == graphics.GetCurrentBufferIndex())
 		{
-			// if same frame index is hit twice then resource is no longer needed by pipeline
-			m_resources.erase(m_resources.begin() + resourceIndex);
+			if (resourceForDeletion.firstIteration)
+				resourceForDeletion.firstIteration = false;
+			else
+			{
+				// if same frame index is hit twice then resource is no longer needed by pipeline
+				m_resources.erase(m_resources.begin() + resourceIndex);
+			}
 		}
 	}
 }

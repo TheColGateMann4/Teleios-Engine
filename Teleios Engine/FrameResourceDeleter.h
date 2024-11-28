@@ -6,6 +6,7 @@ class Graphics;
 
 struct ID3D12Resource;
 
+// purpose of this class is to hang onto the resource as long as frames-in-flight could potentially use the resource
 class FrameResourceDeleter
 {
 	// structure for resource scheduled for deletion
@@ -19,7 +20,7 @@ class FrameResourceDeleter
 public:
 	void DeleteResource(Graphics& graphics, Microsoft::WRL::ComPtr<ID3D12Resource> pResource);
 
-	void Update();
+	void Update(Graphics& graphics);
 
 private:
 	std::vector<FrameResourceForDeletion> m_resources;
