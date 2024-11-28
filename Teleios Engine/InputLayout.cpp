@@ -26,7 +26,7 @@ D3D12_INPUT_LAYOUT_DESC InputLayout::Get()
 	return m_desc;
 }
 
-void InputLayout::BindToPipelineState(Graphics& graphics, PipelineState* pipelineState)
+void InputLayout::BindToPipelineState(Graphics& graphics, GraphicsPipelineState* pipelineState)
 {
 	pipelineState->SetInputLayout(this);
 }

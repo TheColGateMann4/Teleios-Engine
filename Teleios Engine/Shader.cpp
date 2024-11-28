@@ -186,7 +186,7 @@ D3D12_SHADER_BYTECODE Shader::GetShaderByteCode() const
 	return shaderBytecode;
 }
 
-void Shader::BindToPipelineState(Graphics& graphics, PipelineState* pipelineState)
+void Shader::BindToPipelineState(Graphics& graphics, GraphicsPipelineState* pipelineState)
 {
 	pipelineState->SetShader(this);
 }

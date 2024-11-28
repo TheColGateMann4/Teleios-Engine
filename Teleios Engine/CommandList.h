@@ -42,13 +42,13 @@ public:
 
 	void SetPrimitiveTopology(Graphics& graphics, D3D_PRIMITIVE_TOPOLOGY primitiveTechnology);
 
-	void SetRootSignature(Graphics& graphics, RootSignature* rootSignature);
+	void SetGraphicsRootSignature(Graphics& graphics, RootSignature* rootSignature);
 
-	void SetConstBufferView(Graphics& graphics, ConstantBuffer* constBuffer);
+	void SetGraphicsConstBufferView(Graphics& graphics, ConstantBuffer* constBuffer);
 
 	void SetDescriptorHeap(Graphics& graphics, DescriptorHeap* descriptorHeap);
 
-	void SetDescriptorTable(Graphics& graphics, Texture* texture);
+	void SetGraphicsDescriptorTable(Graphics& graphics, Texture* texture);
 
 	void ExecuteBundle(Graphics& graphics, CommandList* commandList);
 
@@ -58,9 +58,16 @@ public:
 
 	void SetPipelineState(Graphics& graphics, PipelineState* pPipelineState);
 
+	// compute
+	void SetComputeRootSignature(Graphics& graphics, RootSignature* rootSignature);
+
+	void SetComputeConstBufferView(Graphics& graphics, ConstantBuffer* constBuffer);
+
+	void SetComputeDescriptorTable(Graphics& graphics, Texture* texture);
+
 private:
 	std::vector<Microsoft::WRL::ComPtr<ID3D12CommandAllocator>> m_pCommandAllocators;
-	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> pCommandList;
+	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> pCommandList;
 	D3D12_COMMAND_LIST_TYPE m_type;
 	bool m_initialized;
 	bool m_open;

@@ -40,7 +40,7 @@ D3D12_BLEND_DESC BlendState::Get()
 	return m_desc;
 }
 
-void BlendState::BindToPipelineState(Graphics& graphics, PipelineState* pipelineState)
+void BlendState::BindToPipelineState(Graphics& graphics, GraphicsPipelineState* pipelineState)
 {
 	pipelineState->SetBlendState(this);
 }

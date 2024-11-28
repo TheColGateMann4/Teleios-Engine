@@ -24,7 +24,7 @@ VertexBuffer::VertexBuffer(Graphics& graphics, void* pData, size_t numElements, 
 
 std::shared_ptr<VertexBuffer> VertexBuffer::GetBindableResource(Graphics& graphics, std::string identifier, DynamicVertex::DynamicVertex& dynamicVertexBuffer)
 {
-	return BindableResourceList::GetBindableResourceByID<VertexBuffer>(graphics, "VertexBuffer#" + identifier, dynamicVertexBuffer);
+	return GetBindableResource(graphics, identifier, dynamicVertexBuffer.GetData(), dynamicVertexBuffer.GetNumVertices(), dynamicVertexBuffer.GetLayout().GetSize());
 }
 
 std::shared_ptr<VertexBuffer> VertexBuffer::GetBindableResource(Graphics& graphics, std::string identifier, void* pData, size_t numElements, size_t dataStride)

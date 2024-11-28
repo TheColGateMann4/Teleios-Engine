@@ -42,7 +42,7 @@ NonCachedConstantBuffer* TransformConstantBuffer::GetBuffer() const
 
 void TransformConstantBuffer::BindToCommandList(Graphics& graphics, CommandList* commandList)
 {
-	commandList->SetConstBufferView(graphics, GetBuffer());
+	commandList->SetGraphicsConstBufferView(graphics, GetBuffer());
 }
 
 void TransformConstantBuffer::BindToRootSignature(Graphics& graphics, RootSignature* rootSignature)

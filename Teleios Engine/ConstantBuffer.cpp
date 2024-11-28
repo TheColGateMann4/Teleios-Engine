@@ -48,7 +48,7 @@ ConstantBuffer::ConstantBuffer(Graphics& graphics, const DynamicConstantBuffer::
 
 void ConstantBuffer::BindToCommandList(Graphics& graphics, CommandList* commandList)
 {
-	commandList->SetConstBufferView(graphics, this);
+	commandList->SetGraphicsConstBufferView(graphics, this);
 }
 
 void ConstantBuffer::BindToRootSignature(Graphics& graphics, RootSignature* rootSignature)

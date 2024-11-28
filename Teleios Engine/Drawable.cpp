@@ -33,7 +33,7 @@ void Drawable::Initialize(Graphics& graphics, Pipeline& pipeline)
 
 	// initialize pipeline state object
 	{
-		m_pipelineState = std::make_unique<PipelineState>();
+		m_pipelineState = std::make_unique<GraphicsPipelineState>();
 
 		// initializing pipeline state desc
 		{
@@ -88,7 +88,7 @@ void Drawable::DrawDrawable(Graphics& graphics, Pipeline& pipeline) const
 
 	//	directCommandList->ExecuteBundle(graphics, m_bundleCommandList.get());
 
-	directCommandList->SetRootSignature(graphics, m_rootSignature.get());
+	directCommandList->SetGraphicsRootSignature(graphics, m_rootSignature.get());
 
 	directCommandList->SetDescriptorHeap(graphics, &graphics.GetDescriptorHeap());
 

@@ -7,19 +7,20 @@
 class CommandList;
 class RootSignature;
 class DescriptorHeap;
+class Graphics;
 
 class Texture : public Bindable, public CommandListBindable, public RootSignatureBindable
 {
 public:
-	Texture(class Graphics& graphics, const char* path, std::vector<TargetSlotAndShader> targets = { {ShaderVisibilityGraphic::PixelShader, 0} });
+	Texture(Graphics& graphics, const char* path, bool generateMips = true, std::vector<TargetSlotAndShader> targets = { {ShaderVisibilityGraphic::PixelShader, 0} });
 
 protected:
 	virtual void Initialize(Graphics& graphics) override;
 
 public:
-	static std::shared_ptr<Texture> GetBindableResource(class Graphics& graphics, const char* path, std::vector<TargetSlotAndShader> targets = { {ShaderVisibilityGraphic::PixelShader, 0} });
+	static std::shared_ptr<Texture> GetBindableResource(Graphics& graphics, const char* path, bool generateMips = true, std::vector<TargetSlotAndShader> targets = { {ShaderVisibilityGraphic::PixelShader, 0} });
 
-	static std::string GetIdentifier(const char* path, std::vector<TargetSlotAndShader> targets);
+	static std::string GetIdentifier(const char* path, bool generateMips, std::vector<TargetSlotAndShader> targets);
 
 public:
 	virtual void BindToCommandList(Graphics& graphics, CommandList* commandList) override;
@@ -40,6 +41,7 @@ private:
 private:
 	std::string m_path;
 	bool m_isAlphaOpaque = false;
+	bool m_generateMipMaps;
 	DXGI_FORMAT m_format = DXGI_FORMAT_UNKNOWN;
 
 	D3D12_GPU_DESCRIPTOR_HANDLE m_descriptorHeapGPUHandle = {};

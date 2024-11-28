@@ -8,10 +8,11 @@
 
 #include "BindableResourceList.h"
 
-Texture::Texture(Graphics& graphics, const char* path, std::vector<TargetSlotAndShader> targets)
+Texture::Texture(Graphics& graphics, const char* path, bool generateMips, std::vector<TargetSlotAndShader> targets)
 	:
 	RootSignatureBindable(targets),
-	m_path(std::string("../../") + path)
+	m_path(std::string("../../") + path),
+	m_generateMipMaps(generateMips)
 {
 	graphics.GetDescriptorHeap().RequestMoreSpace();
 
@@ -117,12 +118,12 @@ void Texture::Initialize(Graphics& graphics)
 	}
 }
 
-std::shared_ptr<Texture> Texture::GetBindableResource(Graphics& graphics, const char* path, std::vector<TargetSlotAndShader> targets)
+std::shared_ptr<Texture> Texture::GetBindableResource(Graphics& graphics, const char* path, bool generateMips, std::vector<TargetSlotAndShader> targets)
 {
-	return BindableResourceList::GetBindableResource<Texture>(graphics, path, targets);
+	return BindableResourceList::GetBindableResource<Texture>(graphics, path, generateMips, targets);
 }
 
-std::string Texture::GetIdentifier(const char* path, std::vector<TargetSlotAndShader> targets)
+std::string Texture::GetIdentifier(const char* path, bool generateMips, std::vector<TargetSlotAndShader> targets)
 {
 	std::string resultString = "Texture#";
 
@@ -143,7 +144,7 @@ std::string Texture::GetIdentifier(const char* path, std::vector<TargetSlotAndSh
 
 void Texture::BindToCommandList(Graphics& graphics, CommandList* commandList)
 {
-	commandList->SetDescriptorTable(graphics, this);
+	commandList->SetGraphicsDescriptorTable(graphics, this);
 }
 
 void Texture::BindToRootSignature(Graphics& graphics, RootSignature* rootSignature)

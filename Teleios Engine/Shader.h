@@ -12,7 +12,7 @@ static std::wstring GetShaderVersion(ShaderType type);
 
 
 class Graphics;
-class PipelineState;
+class GraphicsPipelineState;
 
 class Shader : public Bindable, public PipelineStateBindable
 {
@@ -30,7 +30,7 @@ public:
 
 	D3D12_SHADER_BYTECODE GetShaderByteCode() const;
 
-	virtual void BindToPipelineState(Graphics& graphics, PipelineState* pipelineState) override;
+	virtual void BindToPipelineState(Graphics& graphics, GraphicsPipelineState* pipelineState) override;
 
 	ShaderType GetType() const;
 

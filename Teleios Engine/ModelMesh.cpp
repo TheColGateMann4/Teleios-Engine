@@ -116,13 +116,13 @@ ModelMesh::ModelMesh(Graphics& graphics, aiMesh* mesh, aiMaterial* material, std
 
 			if (materialPropeties.hasDiffuseMap)
 			{
-				AddBindable(Texture::GetBindableResource(graphics, (filePath + materialPropeties.diffuseMapPath).c_str(), std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::PixelShader, 0}}));
+				AddBindable(Texture::GetBindableResource(graphics, (filePath + materialPropeties.diffuseMapPath).c_str(), true, {{ShaderVisibilityGraphic::PixelShader, 0}}));
 				shaderMacros.push_back(L"TEXTURE_DIFFUSE");
 			}
 
 			if (materialPropeties.hasNormalMap)
 			{
-				AddBindable(Texture::GetBindableResource(graphics, (filePath + materialPropeties.normalMapPath).c_str(), std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::PixelShader, 1}}));
+				AddBindable(Texture::GetBindableResource(graphics, (filePath + materialPropeties.normalMapPath).c_str(), true, {{ShaderVisibilityGraphic::PixelShader, 1}}));
 				shaderMacros.push_back(L"TEXTURE_NORMAL");
 
 				shaderMacros.push_back(L"INPUT_TANGENT");
@@ -131,7 +131,7 @@ ModelMesh::ModelMesh(Graphics& graphics, aiMesh* mesh, aiMaterial* material, std
 
 			if (materialPropeties.hasSpecularMap)
 			{
-				std::shared_ptr<Texture> specularTexture = Texture::GetBindableResource(graphics, (filePath + materialPropeties.specularMapPath).c_str(), std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::PixelShader, 2}});
+				std::shared_ptr<Texture> specularTexture = Texture::GetBindableResource(graphics, (filePath + materialPropeties.specularMapPath).c_str(), true, {{ShaderVisibilityGraphic::PixelShader, 2}});
 				DXGI_FORMAT specularTextureFormat = specularTexture->GetFormat();
 
 				materialPropeties.specularOneChannelOnly = specularTextureFormat == DXGI_FORMAT_R8_UNORM;

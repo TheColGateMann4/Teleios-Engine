@@ -39,7 +39,7 @@ D3D12_DEPTH_STENCIL_DESC DepthStencilState::Get()
 	return m_desc;
 }
 
-void DepthStencilState::BindToPipelineState(Graphics& graphics, PipelineState* pipelineState)
+void DepthStencilState::BindToPipelineState(Graphics& graphics, GraphicsPipelineState* pipelineState)
 {
 	pipelineState->SetDepthStencilState(this);
 }

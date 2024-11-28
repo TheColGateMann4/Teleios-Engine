@@ -62,7 +62,7 @@ protected:
 
 protected:
 	std::unique_ptr<CommandList> m_bundleCommandList;
-	std::unique_ptr<PipelineState> m_pipelineState;
+	std::unique_ptr<GraphicsPipelineState> m_pipelineState;
 	std::unique_ptr<RootSignature> m_rootSignature;
 
 protected:

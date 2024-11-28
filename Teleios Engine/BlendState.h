@@ -3,7 +3,7 @@
 #include "Bindable.h"
 
 class Graphics;
-class PipelineState;
+class GraphicsPipelineState;
 
 class BlendState : public Bindable, public PipelineStateBindable
 {
@@ -18,7 +18,7 @@ public:
 public:
 	D3D12_BLEND_DESC Get();
 
-	virtual void BindToPipelineState(Graphics& graphics, PipelineState* pipelineState) override;
+	virtual void BindToPipelineState(Graphics& graphics, GraphicsPipelineState* pipelineState) override;
 
 private:
 	D3D12_BLEND_DESC m_desc;

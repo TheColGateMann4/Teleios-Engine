@@ -4,7 +4,7 @@
 class Graphics;
 class CommandList;
 class RootSignature;
-class PipelineState;
+class GraphicsPipelineState;
 
 
 struct TargetSlotAndShader
@@ -71,5 +71,5 @@ class PipelineStateBindable
 public:
 	virtual ~PipelineStateBindable() = default;
 
-	virtual void BindToPipelineState(Graphics& graphics, PipelineState* pipelineState) = 0;
+	virtual void BindToPipelineState(Graphics& graphics, GraphicsPipelineState* pipelineState) = 0;
 };

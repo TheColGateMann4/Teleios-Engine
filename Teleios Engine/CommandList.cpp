@@ -63,6 +63,7 @@ void CommandList::Close(Graphics& graphics)
 void CommandList::DrawIndexed(Graphics& graphics, unsigned int indices)
 {
 	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
+	THROW_OBJECT_STATE_ERROR_IF("Only Direct and Bundle command lists can DrawIndexed", m_type != D3D12_COMMAND_LIST_TYPE_DIRECT && m_type != D3D12_COMMAND_LIST_TYPE_BUNDLE);
 
 	THROW_INFO_ERROR(pCommandList->DrawIndexedInstanced(indices, 1, 0, 0, 0));
 }
@@ -117,6 +118,7 @@ void CommandList::SetRenderTarget(Graphics& graphics, RenderTarget* renderTarget
 void CommandList::SetVertexBuffer(Graphics& graphics, VertexBuffer* vertexBuffer)
 {
 	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
+	THROW_OBJECT_STATE_ERROR_IF("Only Direct and Bundle command lists can set vertex buffers", m_type != D3D12_COMMAND_LIST_TYPE_DIRECT && m_type != D3D12_COMMAND_LIST_TYPE_BUNDLE);
 
 	THROW_INFO_ERROR(pCommandList->IASetVertexBuffers(0, 1, vertexBuffer->Get()));
 }
@@ -124,6 +126,7 @@ void CommandList::SetVertexBuffer(Graphics& graphics, VertexBuffer* vertexBuffer
 void CommandList::SetIndexBuffer(Graphics& graphics, IndexBuffer* indexBuffer)
 {
 	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
+	THROW_OBJECT_STATE_ERROR_IF("Only Direct and Bundle command lists can set index buffers", m_type != D3D12_COMMAND_LIST_TYPE_DIRECT && m_type != D3D12_COMMAND_LIST_TYPE_BUNDLE);
 
 	THROW_INFO_ERROR(pCommandList->IASetIndexBuffer(indexBuffer->Get()));
 }
@@ -131,20 +134,23 @@ void CommandList::SetIndexBuffer(Graphics& graphics, IndexBuffer* indexBuffer)
 void CommandList::SetPrimitiveTopology(Graphics& graphics, D3D_PRIMITIVE_TOPOLOGY primitiveTechnology)
 {
 	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
+	THROW_OBJECT_STATE_ERROR_IF("Only Direct and Bundle command lists can set topology", m_type != D3D12_COMMAND_LIST_TYPE_DIRECT && m_type != D3D12_COMMAND_LIST_TYPE_BUNDLE);
 
 	THROW_INFO_ERROR(pCommandList->IASetPrimitiveTopology(primitiveTechnology));
 }
 
-void CommandList::SetRootSignature(Graphics& graphics, RootSignature* rootSignature)
+void CommandList::SetGraphicsRootSignature(Graphics& graphics, RootSignature* rootSignature)
 {
 	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
+	THROW_OBJECT_STATE_ERROR_IF("Only Direct and Bundle command lists can set graphics root signature", m_type != D3D12_COMMAND_LIST_TYPE_DIRECT && m_type != D3D12_COMMAND_LIST_TYPE_BUNDLE);
 
 	THROW_INFO_ERROR(pCommandList->SetGraphicsRootSignature(rootSignature->Get()));
 }
 
-void CommandList::SetConstBufferView(Graphics& graphics, ConstantBuffer* constBuffer)
+void CommandList::SetGraphicsConstBufferView(Graphics& graphics, ConstantBuffer* constBuffer)
 {
 	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
+	THROW_OBJECT_STATE_ERROR_IF("Only Direct and Bundle command lists can set graphics constant buffers", m_type != D3D12_COMMAND_LIST_TYPE_DIRECT && m_type != D3D12_COMMAND_LIST_TYPE_BUNDLE);
 
 	auto& targets = constBuffer->GetTargets();
 
@@ -155,15 +161,17 @@ void CommandList::SetConstBufferView(Graphics& graphics, ConstantBuffer* constBu
 void CommandList::SetDescriptorHeap(Graphics& graphics, DescriptorHeap* descriptorHeap)
 {
 	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
+	THROW_OBJECT_STATE_ERROR_IF("Copy command lists cannot set descriptor heaps", m_type == D3D12_COMMAND_LIST_TYPE_COPY);
 
 	ID3D12DescriptorHeap* descriptorHeaps[] = { descriptorHeap->Get()};
 
 	THROW_INFO_ERROR(pCommandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps));
 }
 
-void CommandList::SetDescriptorTable(Graphics& graphics, Texture* texture)
+void CommandList::SetGraphicsDescriptorTable(Graphics& graphics, Texture* texture)
 {
 	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
+	THROW_OBJECT_STATE_ERROR_IF("Only Direct and Bundle command lists can set graphics constant buffers", m_type != D3D12_COMMAND_LIST_TYPE_DIRECT && m_type != D3D12_COMMAND_LIST_TYPE_BUNDLE);
 
 	auto& targets = texture->GetTargets();
 
@@ -214,4 +222,34 @@ void CommandList::SetPipelineState(Graphics& graphics, PipelineState* pPipelineS
 	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
 
 	THROW_INFO_ERROR(pCommandList->SetPipelineState(pPipelineState->Get()));
+}
+
+void CommandList::SetComputeRootSignature(Graphics& graphics, RootSignature* rootSignature)
+{
+	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
+	THROW_OBJECT_STATE_ERROR_IF("Only Compute command lists can set compute root signature", m_type != D3D12_COMMAND_LIST_TYPE_COMPUTE);
+
+	THROW_INFO_ERROR(pCommandList->SetComputeRootSignature(rootSignature->Get()));
+}
+
+void CommandList::SetComputeConstBufferView(Graphics& graphics, ConstantBuffer* constBuffer)
+{
+	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
+	THROW_OBJECT_STATE_ERROR_IF("Only Compute command lists can set compute root signature", m_type != D3D12_COMMAND_LIST_TYPE_COMPUTE);
+
+	auto& targets = constBuffer->GetTargets();
+
+	for (auto& targetShader : targets)
+		THROW_INFO_ERROR(pCommandList->SetComputeRootConstantBufferView(targetShader.rootIndex, constBuffer->GetGPUAddress(graphics)));
+}
+
+void CommandList::SetComputeDescriptorTable(Graphics& graphics, Texture* texture)
+{
+	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
+	THROW_OBJECT_STATE_ERROR_IF("Only Compute command lists can set compute root signature", m_type != D3D12_COMMAND_LIST_TYPE_COMPUTE);
+
+	auto& targets = texture->GetTargets();
+
+	for (auto& targetShader : targets)
+		THROW_INFO_ERROR(pCommandList->SetComputeRootDescriptorTable(targetShader.rootIndex, texture->GetDescriptorHeapGPUHandle(graphics)));
 }

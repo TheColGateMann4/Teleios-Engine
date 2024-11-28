@@ -17,7 +17,7 @@ public:
 	static std::string GetIdentifier(D3D12_PRIMITIVE_TOPOLOGY_TYPE type);
 
 public:
-	virtual void BindToPipelineState(Graphics& graphics, PipelineState* pipelineState) override;
+	virtual void BindToPipelineState(Graphics& graphics, GraphicsPipelineState* pipelineState) override;
 
 	virtual void BindToCommandList(Graphics& graphics, CommandList* commandList) override;
 

@@ -61,9 +61,9 @@ private:
 	unsigned int GetCurrentBufferIndexFromSwapchain();
 
 private:
-	Microsoft::WRL::ComPtr<IDXGIFactory4> pFactory;
-	Microsoft::WRL::ComPtr<ID3D12Debug> pDebugController;
-	Microsoft::WRL::ComPtr<ID3D12Device> pDevice;
+	Microsoft::WRL::ComPtr<IDXGIFactory2> pFactory;
+	Microsoft::WRL::ComPtr<ID3D12Debug6> pDebugController;
+	Microsoft::WRL::ComPtr<ID3D12Device10> pDevice;
 	Microsoft::WRL::ComPtr<ID3D12CommandQueue> pCommandQueue;
 	Microsoft::WRL::ComPtr<IDXGISwapChain> pSwapChain;
 

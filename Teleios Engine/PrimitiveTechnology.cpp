@@ -28,7 +28,7 @@ std::string PrimitiveTechnology::GetIdentifier(D3D12_PRIMITIVE_TOPOLOGY_TYPE typ
 	return resultString;
 }
 
-void PrimitiveTechnology::BindToPipelineState(Graphics& graphics, PipelineState* pipelineState)
+void PrimitiveTechnology::BindToPipelineState(Graphics& graphics, GraphicsPipelineState* pipelineState)
 {
 	pipelineState->SetPrimitiveTechnologyType(m_d3d12type);
 }
