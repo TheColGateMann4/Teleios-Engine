@@ -35,6 +35,19 @@ public:
 	ShaderType GetType() const;
 
 private:
+	Microsoft::WRL::ComPtr<IDxcResult> CompileBlob(Graphics& graphics, IDxcCompiler3* pDXCompiler, IDxcUtils* dxUtils, DxcBuffer* mainSourceBuffer, std::vector<const wchar_t*>& pArgs);
+
+	Microsoft::WRL::ComPtr<ID3DBlob> GetResult(Graphics& graphics, IDxcResult* pResult, DXC_OUT_KIND resultKind);
+
+	Microsoft::WRL::ComPtr<ID3DBlob> GetShaderWithEditedDebugName(Graphics& graphics, ID3DBlob* pShaderCode);
+
+	Microsoft::WRL::ComPtr<ID3DBlob> GetShaderWithoutDebugInfo(Graphics& graphics, ID3DBlob* pShaderCode);
+
+	void ThrowErrorMessagesResult(Graphics& graphics, IDxcResult* pResult);
+
+	void DebugBlobToFile(const char* extension, ID3DBlob* blob);
+
+private:
 	Microsoft::WRL::ComPtr<ID3DBlob> pShaderCode;
 
 	ShaderType m_type;
@@ -43,4 +56,6 @@ private:
 	std::wstring m_entryPoint;
 
 	std::vector<DxcDefine> m_shaderMacros;
+
+	std::string m_uniqueName;
 };

@@ -61,10 +61,13 @@ Shader::Shader(Graphics& graphics, const wchar_t* name, ShaderType type, std::ve
 	m_type(type),
 	m_name(std::wstring(name) + L".hlsl"),
 	m_path(L"../../Shaders/" + m_name),
-	m_entryPoint(GetDefaultEntryPointName(m_type))
+	m_entryPoint(GetDefaultEntryPointName(m_type)),
+	m_uniqueName(GetIdentifier(name, type, shaderMacros))
 {
+
 	for (auto shaderMacro : shaderMacros)
 		m_shaderMacros.push_back(DxcDefine{ shaderMacro, nullptr });
+
 
 	Reload(graphics);
 }
@@ -97,13 +100,22 @@ std::string Shader::GetIdentifier(const wchar_t* name, ShaderType type, std::vec
 	return resultString;
 }
 
+struct DxilShaderDebugName {
+	uint16_t Flags;      // Reserved, must be set to zero.
+	uint16_t NameLength; // Length of the debug name, without null terminator.
+	// Followed by NameLength bytes of the UTF-8-encoded name.
+	// Followed by a null terminator.
+	// Followed by [0-3] zero bytes to align to a 4-byte boundary.
+};
+
 void Shader::Reload(Graphics& graphics)
 {
 	HRESULT hr;
 
-	// dxUtils for Loading file data and building args
-	Microsoft::WRL::ComPtr<IDxcUtils> dxUtils;
+	Microsoft::WRL::ComPtr<IDxcUtils> dxUtils; // dxUtils for Loading file data and building args
+	Microsoft::WRL::ComPtr<IDxcCompiler3> pDXCompiler;
 
+	// creating dxUtils instance
 	THROW_ERROR(DxcCreateInstance(
 		CLSID_DxcUtils,
 		IID_PPV_ARGS(&dxUtils))
@@ -111,71 +123,72 @@ void Shader::Reload(Graphics& graphics)
 
 	Microsoft::WRL::ComPtr<IDxcBlobEncoding> pEncodedFileBlob;
 
+	// loading main file
 	THROW_ERROR(dxUtils->LoadFile(
 		m_path.c_str(),
 		nullptr,
 		&pEncodedFileBlob)
 	);
 
-	DxcBuffer buffer{ pEncodedFileBlob->GetBufferPointer(), pEncodedFileBlob->GetBufferSize(), 0 };
 
-#ifdef _DEBUG
-	std::vector<const wchar_t*> pArgs = { DXC_ARG_DEBUG, DXC_ARG_SKIP_OPTIMIZATIONS, DXC_ARG_IEEE_STRICTNESS, DXC_ARG_ENABLE_STRICTNESS, DXC_ARG_WARNINGS_ARE_ERRORS, DXC_ARG_ALL_RESOURCES_BOUND, DXC_ARG_DEBUG_NAME_FOR_BINARY };
-#else
-	std::vector<const wchar_t*> pArgs = { DXC_ARG_OPTIMIZATION_LEVEL3 };
-#endif
-
-	Microsoft::WRL::ComPtr<IDxcCompilerArgs> pCompilerArguments;
-
-	THROW_ERROR(dxUtils->BuildArguments(
-		m_name.c_str(),
-		m_entryPoint.c_str(),
-		GetShaderVersion(m_type).c_str(),
-		pArgs.data(),
-		pArgs.size(),
-		m_shaderMacros.data(),
-		m_shaderMacros.size(),
-		&pCompilerArguments)
-	);
-
-	Microsoft::WRL::ComPtr<IDxcCompiler3> pDxCompiler;
-
+	// creating compiler instace
 	THROW_ERROR(DxcCreateInstance(
 		CLSID_DxcCompiler,
-		IID_PPV_ARGS(&pDxCompiler))
+		IID_PPV_ARGS(&pDXCompiler))
 	);
 
 	Microsoft::WRL::ComPtr<IDxcResult> pCompilerResult;
 
-	THROW_ERROR(pDxCompiler->Compile(
-		&buffer,
-		pCompilerArguments->GetArguments(),
-		pCompilerArguments->GetCount(),
-		nullptr,
-		IID_PPV_ARGS(&pCompilerResult))
-	);
+#ifdef _DEBUG
 
-	Microsoft::WRL::ComPtr<IDxcBlobUtf16> blobutf16;
+	std::vector<const wchar_t*> pBinaryArgs = { DXC_ARG_DEBUG, DXC_ARG_SKIP_OPTIMIZATIONS, DXC_ARG_IEEE_STRICTNESS, DXC_ARG_ENABLE_STRICTNESS, DXC_ARG_WARNINGS_ARE_ERRORS, DXC_ARG_ALL_RESOURCES_BOUND, DXC_ARG_DEBUG_NAME_FOR_SOURCE };
+	std::vector<const wchar_t*> pSourceArgs = { L"-P" };
 
-	if(pCompilerResult->HasOutput(DXC_OUT_ERRORS) == TRUE)
+	Microsoft::WRL::ComPtr<ID3DBlob> pSourceWithoutMacros;
+
+	// getting main source without macros
 	{
-		THROW_SHADER_BYTECODE_BLOB_ERROR(pCompilerResult->GetOutput(
-			DXC_OUT_ERRORS,
-			IID_PPV_ARGS(&pShaderCode),
-			&blobutf16)
-		);
+		DxcBuffer mainFileBuffer{ pEncodedFileBlob->GetBufferPointer(), pEncodedFileBlob->GetBufferSize(), 0 };
+
+		pCompilerResult = CompileBlob(graphics, pDXCompiler.Get(), dxUtils.Get(), &mainFileBuffer, pSourceArgs);
+
+		pSourceWithoutMacros = GetResult(graphics, pCompilerResult.Get(), DXC_OUT_HLSL);
 	}
 
-	if (pCompilerResult->HasOutput(DXC_OUT_OBJECT) == TRUE)
+	DxcBuffer bufferWithoutMacros{ pSourceWithoutMacros->GetBufferPointer(), pSourceWithoutMacros->GetBufferSize(), 0 };
+
+#else
+	std::vector<const wchar_t*> pBinaryArgs = { DXC_ARG_OPTIMIZATION_LEVEL3 };
+
+	// just using blob from read .hlsl file
+	DxcBuffer bufferWithoutMacros{ pEncodedFileBlob->GetBufferPointer(), pEncodedFileBlob->GetBufferSize(), 0 };
+#endif
+
+
+	pCompilerResult = CompileBlob(graphics, pDXCompiler.Get(), dxUtils.Get(), &bufferWithoutMacros, pBinaryArgs);
+
+	ThrowErrorMessagesResult(graphics, pCompilerResult.Get());
+
+	pShaderCode = GetResult(graphics, pCompilerResult.Get(), DXC_OUT_OBJECT);
+
+
+#ifdef _DEBUG
+
+	// saving .pdb files for graphic debugger
 	{
-		THROW_ERROR(pCompilerResult->GetOutput(
-			DXC_OUT_OBJECT,
-			IID_PPV_ARGS(&pShaderCode),
-			&blobutf16)
-		);
+		Microsoft::WRL::ComPtr<ID3DBlob> pPDB = GetResult(graphics, pCompilerResult.Get(), DXC_OUT_PDB);
+
+		DebugBlobToFile(".pdb", pPDB.Get());
 	}
+
+	// editing debug name
+	pShaderCode = GetShaderWithEditedDebugName(graphics, pShaderCode.Get());
+
+	// removing debug info from out shader binary
+	pShaderCode = GetShaderWithoutDebugInfo(graphics, pShaderCode.Get());
+
+#endif
 }
-
 
 D3D12_SHADER_BYTECODE Shader::GetShaderByteCode() const
 {
@@ -194,4 +207,135 @@ void Shader::BindToPipelineState(Graphics& graphics, GraphicsPipelineState* pipe
 ShaderType Shader::GetType() const
 {
 	return m_type;
+}
+
+Microsoft::WRL::ComPtr<IDxcResult> Shader::CompileBlob(Graphics& graphics, IDxcCompiler3* pDXCompiler, IDxcUtils* dxUtils, DxcBuffer* mainSourceBuffer, std::vector<const wchar_t*>& pArgs)
+{
+	HRESULT hr;
+	Microsoft::WRL::ComPtr<IDxcCompilerArgs> pCompilerArgs;
+
+	THROW_ERROR(dxUtils->BuildArguments(
+		m_name.c_str(),
+		m_entryPoint.c_str(),
+		GetShaderVersion(m_type).c_str(),
+		pArgs.data(),
+		pArgs.size(),
+		m_shaderMacros.data(),
+		m_shaderMacros.size(),
+		&pCompilerArgs)
+	);
+
+
+	Microsoft::WRL::ComPtr<IDxcResult> pCompilerResult;
+
+	THROW_ERROR(pDXCompiler->Compile(
+		mainSourceBuffer,
+		pCompilerArgs->GetArguments(),
+		pCompilerArgs->GetCount(),
+		nullptr,
+		IID_PPV_ARGS(&pCompilerResult))
+	);
+
+	return pCompilerResult;
+}
+
+Microsoft::WRL::ComPtr<ID3DBlob> Shader::GetResult(Graphics& graphics, IDxcResult* pResult, DXC_OUT_KIND resultKind)
+{
+	HRESULT hr;
+	Microsoft::WRL::ComPtr<ID3DBlob> pBlob = {};
+
+	if (pResult->HasOutput(resultKind) == TRUE)
+	{
+		THROW_ERROR(pResult->GetOutput(
+			resultKind,
+			IID_PPV_ARGS(&pBlob),
+			nullptr)
+		);
+	}
+
+	return pBlob;
+}
+
+Microsoft::WRL::ComPtr<ID3DBlob> Shader::GetShaderWithEditedDebugName(Graphics& graphics, ID3DBlob* pShaderCode)
+{
+	HRESULT hr;
+	Microsoft::WRL::ComPtr<ID3DBlob> pEditedDebugName;
+
+	std::string newDebugName = "Shaders/" + m_uniqueName + ".pdb";
+	size_t lengthOfNameStorage = (newDebugName.size() + 0x3) & ~0x3;
+	size_t nameBlobPartSize = sizeof(DxilShaderDebugName) + lengthOfNameStorage;
+
+	newDebugName.resize(lengthOfNameStorage, '\0');
+
+	THROW_ERROR(D3DSetBlobPart(
+		pShaderCode->GetBufferPointer(),
+		pShaderCode->GetBufferSize(),
+		D3D_BLOB_DEBUG_NAME,
+		0,
+		newDebugName.c_str(),
+		nameBlobPartSize,
+		&pEditedDebugName
+	));
+
+	return pEditedDebugName;
+}
+
+Microsoft::WRL::ComPtr<ID3DBlob> Shader::GetShaderWithoutDebugInfo(Graphics& graphics, ID3DBlob* pShaderCode)
+{
+	HRESULT hr;
+	Microsoft::WRL::ComPtr<ID3DBlob> pStrippedBlob;
+
+	THROW_ERROR(D3DStripShader(
+		pShaderCode->GetBufferPointer(),
+		pShaderCode->GetBufferSize(),
+		D3DCOMPILER_STRIP_DEBUG_INFO,
+		&pStrippedBlob
+	));
+
+	return pStrippedBlob;
+}
+
+void Shader::ThrowErrorMessagesResult(Graphics& graphics, IDxcResult* pResult)
+{
+	HRESULT hr;
+	Microsoft::WRL::ComPtr<ID3DBlob> pShaderCode;
+
+	if (pResult->HasOutput(DXC_OUT_ERRORS) == TRUE)
+	{
+		THROW_SHADER_BYTECODE_BLOB_ERROR(pResult->GetOutput(
+			DXC_OUT_ERRORS,
+			IID_PPV_ARGS(&pShaderCode),
+			nullptr)
+		);
+	}
+}
+
+void Shader::DebugBlobToFile(const char* extension, ID3DBlob* blob)
+{
+	std::string filePath = "Shaders/" +  m_uniqueName + extension;
+
+	HANDLE hFile = CreateFileA(
+		filePath.c_str(),
+		GENERIC_WRITE,
+		NULL,
+		nullptr,
+		CREATE_ALWAYS,
+		NULL,
+		NULL
+	);
+
+	if (hFile == INVALID_HANDLE_VALUE)
+		THROW_LAST_ERROR;
+
+	if (WriteFile(
+		hFile,
+		blob->GetBufferPointer(),
+		blob->GetBufferSize(),
+		nullptr,
+		nullptr
+	) != TRUE)
+		THROW_LAST_ERROR;
+
+
+	CloseHandle(hFile);
 }
