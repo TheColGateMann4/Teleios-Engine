@@ -73,6 +73,7 @@ void Scene::DrawSceneObjects(Graphics& graphics)
 			sceneObject->InternalDraw(graphics, m_pipeline);
 
 		// drawing imgui layer
+		if(m_imguiLayer.IsVisible())
 		m_imguiLayer.Draw(graphics, m_pipeline);
 
 		m_pipeline.FinishRender(graphics);
