@@ -20,6 +20,7 @@ void FrameResourceDeleter::Update(Graphics& graphics)
 			{
 				// if same frame index is hit twice then resource is no longer needed by pipeline
 				m_resources.erase(m_resources.begin() + resourceIndex);
+				resourceIndex--; // we are substracting one from index since next resource is going to be at the same index since we deleted this one
 			}
 		}
 	}
