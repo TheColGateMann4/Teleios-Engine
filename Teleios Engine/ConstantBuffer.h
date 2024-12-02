@@ -25,7 +25,7 @@ protected:
 	void InternalUpdate(Graphics& graphics, void* data, size_t size);
 
 protected:
-	std::vector<Microsoft::WRL::ComPtr<ID3D12Resource>> pConstBuffers;
+	unsigned int resourceIndexInHeap = 0;
 	bool m_initializedRootIndex = false;
 };
 
@@ -48,16 +48,12 @@ public:
 
 	CachedConstantBuffer(const CachedConstantBuffer&) = delete;
 
-	void Update(Graphics& graphics);
+	virtual void Initialize(Graphics& graphics) override;
 
-	void UpdateNextFrameResource(Graphics& graphics);
+	void Update(Graphics& graphics);
 
 	DynamicConstantBuffer::ConstantBufferData& GetData();
 
 private:
 	DynamicConstantBuffer::ConstantBufferData m_data;
-
-	bool m_firstBufferAlreadyUpdated;
-	unsigned int m_bufferUpdatedAtIndex;
-	bool m_allBuffersUpdated;
 };

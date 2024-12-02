@@ -29,6 +29,9 @@ void Scene::InitializeSceneObjects(Graphics& graphics)
 	// after every object was firstly initialized, we create descriptor heap with space for each one
 	graphics.GetDescriptorHeap().Finish(graphics);
 
+	// we are creating one big constant buffer that will hold every constant buffer on scene
+	graphics.GetConstantBufferHeap().Finish(graphics);
+
 	// after we created descriptor heap we are making objects use this to make SRV's
 	for (auto& sceneObject : m_sceneObjects)
 		sceneObject->InternalInitialize(graphics, m_pipeline);
@@ -61,6 +64,8 @@ void Scene::UpdateSceneObjects(Window& window, Graphics& graphics)
 
 	for (auto& sceneObject : m_sceneObjects)
 		sceneObject->InternalUpdate(graphics, *m_camera, m_pipeline);
+
+	graphics.GetConstantBufferHeap().Update(graphics);
 }
 
 void Scene::DrawSceneObjects(Graphics& graphics)

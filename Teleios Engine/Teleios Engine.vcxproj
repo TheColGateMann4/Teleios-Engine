@@ -168,6 +168,7 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="CommandList.cpp" />
     <ClCompile Include="ConstantBuffer.cpp" />
+    <ClCompile Include="ConstantBufferHeap.cpp" />
     <ClCompile Include="DepthStencilState.cpp" />
     <ClCompile Include="DepthStencilView.cpp" />
     <ClCompile Include="DescriptorHeap.cpp" />
@@ -216,6 +217,7 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="CommandList.h" />
     <ClInclude Include="ConstantBuffer.h" />
+    <ClInclude Include="ConstantBufferHeap.h" />
     <ClInclude Include="DepthStencilState.h" />
     <ClInclude Include="DepthStencilView.h" />
     <ClInclude Include="DescriptorHeap.h" />

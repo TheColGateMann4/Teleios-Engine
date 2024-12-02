@@ -105,8 +105,7 @@ void Drawable::SetPosition(DirectX::XMFLOAT3 position)
 
 void Drawable::InternalUpdate(Graphics& graphics)
 {
-	for (CachedConstantBuffer* cachedBuffer : m_cachedBuffers)
-		cachedBuffer->UpdateNextFrameResource(graphics);
+
 }
 
 void Drawable::UpdateTransformMatrix(Graphics& graphics, Camera& camera)
