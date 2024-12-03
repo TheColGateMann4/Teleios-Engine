@@ -165,6 +165,11 @@ void Graphics::CleanupResources()
 	resourceDeleter.Update(*this);
 }
 
+ConstantBufferHeap& Graphics::GetConstantBufferHeap()
+{
+	return constantBufferHeap;
+}
+
 DescriptorHeap& Graphics::GetDescriptorHeap()
 {
 	return descriptorHeap;

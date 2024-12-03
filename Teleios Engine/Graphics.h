@@ -11,6 +11,7 @@
 #include "ImguiManager.h"
 #include "FrameResourceDeleter.h"
 #include "DescriptorHeap.h"
+#include "ConstantBufferHeap.h"
 
 #include <dxgi1_6.h>
 
@@ -40,6 +41,7 @@ public:
 	void CleanupResources();
 
 public:
+	ConstantBufferHeap& GetConstantBufferHeap();
 	DescriptorHeap& GetDescriptorHeap();
 	FrameResourceDeleter* GetFrameResourceDeleter();
 	ImguiManager* GetImguiManager();
@@ -67,6 +69,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12CommandQueue> pCommandQueue;
 	Microsoft::WRL::ComPtr<IDXGISwapChain> pSwapChain;
 
+	ConstantBufferHeap constantBufferHeap;
 	DescriptorHeap descriptorHeap;
 	FrameResourceDeleter resourceDeleter;
 

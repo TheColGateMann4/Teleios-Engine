@@ -14,6 +14,8 @@ class ConstantBuffer;
 class Texture;
 class DescriptorHeap;
 
+class ID3D12Resource;
+
 class CommandList
 {
 public:
@@ -33,6 +35,8 @@ public:
 
 public:
 	void SetResourceState(Graphics& graphics, RenderTarget* renderTarget, D3D12_RESOURCE_STATES newState) const;
+	
+	void SetResourceState(Graphics& graphics, ID3D12Resource* resource, D3D12_RESOURCE_STATES prevState, D3D12_RESOURCE_STATES newState) const;
 	
 	void SetRenderTarget(Graphics& graphics, RenderTarget* renderTarget, DepthStencilView* depthStencilView = nullptr);
 
@@ -64,6 +68,11 @@ public:
 	void SetComputeConstBufferView(Graphics& graphics, ConstantBuffer* constBuffer);
 
 	void SetComputeDescriptorTable(Graphics& graphics, Texture* texture);
+
+	// copy
+	void CopyBufferRegion(Graphics& graphics, ID3D12Resource* dstResource, UINT64 dstOffset, ID3D12Resource* srcResource, UINT64 srcOffset, UINT64 numBytes);
+
+	void CopyResource(Graphics& graphics, ID3D12Resource* dstResource, ID3D12Resource* srcResource);
 
 private:
 	std::vector<Microsoft::WRL::ComPtr<ID3D12CommandAllocator>> m_pCommandAllocators;

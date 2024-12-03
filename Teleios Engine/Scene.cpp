@@ -65,13 +65,15 @@ void Scene::UpdateSceneObjects(Window& window, Graphics& graphics)
 	for (auto& sceneObject : m_sceneObjects)
 		sceneObject->InternalUpdate(graphics, *m_camera, m_pipeline);
 
-	graphics.GetConstantBufferHeap().Update(graphics);
+	graphics.GetConstantBufferHeap().UpdateHeap(graphics);
 }
 
 void Scene::DrawSceneObjects(Graphics& graphics)
 {
 	{
 		m_pipeline.BeginRender(graphics);
+
+		graphics.GetConstantBufferHeap().CopyResources(graphics, m_pipeline.GetGraphicCommandList());
 
 		// drawing scene objects
 		for (auto& sceneObject : m_sceneObjects)

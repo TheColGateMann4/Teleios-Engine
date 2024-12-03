@@ -100,6 +100,21 @@ void CommandList::SetResourceState(Graphics& graphics, RenderTarget* renderTarge
 	renderTarget->SetResourceState(graphics, newState);
 }
 
+void CommandList::SetResourceState(Graphics& graphics, ID3D12Resource* resource, D3D12_RESOURCE_STATES prevState, D3D12_RESOURCE_STATES newState) const
+{
+	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
+	THROW_OBJECT_STATE_ERROR_IF("Non-direct command list object", m_type != D3D12_COMMAND_LIST_TYPE_DIRECT);
+
+	D3D12_RESOURCE_BARRIER resourceBarrier = {};
+	resourceBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+	resourceBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+	resourceBarrier.Transition.pResource = resource;
+	resourceBarrier.Transition.StateBefore = prevState;
+	resourceBarrier.Transition.StateAfter = newState;
+
+	THROW_INFO_ERROR(pCommandList->ResourceBarrier(1, &resourceBarrier));
+}
+
 void CommandList::SetRenderTarget(Graphics& graphics, RenderTarget* renderTarget, DepthStencilView* depthStencilView)
 {
 	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
@@ -252,4 +267,27 @@ void CommandList::SetComputeDescriptorTable(Graphics& graphics, Texture* texture
 
 	for (auto& targetShader : targets)
 		THROW_INFO_ERROR(pCommandList->SetComputeRootDescriptorTable(targetShader.rootIndex, texture->GetDescriptorHeapGPUHandle(graphics)));
+}
+
+void CommandList::CopyBufferRegion(Graphics& graphics, ID3D12Resource* dstResource, UINT64 dstOffset, ID3D12Resource* srcResource, UINT64 srcOffset, UINT64 numBytes)
+{
+	THROW_OBJECT_STATE_ERROR_IF("Bundle command lists cannot copy resources", m_type == D3D12_COMMAND_LIST_TYPE_BUNDLE);
+
+	THROW_INFO_ERROR(pCommandList->CopyBufferRegion(
+		dstResource,
+		dstOffset,
+		srcResource,
+		srcOffset,
+		numBytes
+	));
+}
+
+void CommandList::CopyResource(Graphics& graphics, ID3D12Resource* dstResource, ID3D12Resource* srcResource)
+{
+	THROW_OBJECT_STATE_ERROR_IF("Bundle command lists cannot copy resources", m_type == D3D12_COMMAND_LIST_TYPE_BUNDLE);
+
+	THROW_INFO_ERROR(pCommandList->CopyResource(
+		dstResource,
+		srcResource
+	));
 }

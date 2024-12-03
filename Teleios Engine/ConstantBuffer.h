@@ -44,7 +44,7 @@ private:
 class CachedConstantBuffer : public ConstantBuffer
 {
 public:
-	CachedConstantBuffer(Graphics& graphics, DynamicConstantBuffer::ConstantBufferData& data, std::vector<TargetSlotAndShader> targets = { {ShaderVisibilityGraphic::PixelShader, 0} });
+	CachedConstantBuffer(Graphics& graphics, DynamicConstantBuffer::ConstantBufferData& data, std::vector<TargetSlotAndShader> targets = { {ShaderVisibilityGraphic::PixelShader, 0} }, bool frequentlyUpdated = false);
 
 	CachedConstantBuffer(const CachedConstantBuffer&) = delete;
 
@@ -52,8 +52,11 @@ public:
 
 	void Update(Graphics& graphics);
 
+	virtual D3D12_GPU_VIRTUAL_ADDRESS GetGPUAddress(Graphics& graphics) const override;
+
 	DynamicConstantBuffer::ConstantBufferData& GetData();
 
 private:
 	DynamicConstantBuffer::ConstantBufferData m_data;
+	bool m_frequentlyUpdated;
 };
