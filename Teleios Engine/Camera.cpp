@@ -63,6 +63,9 @@ void Camera::UpdateCamera(const Input& input, bool cursorLocked)
 
 void Camera::DrawTransformPropeties()
 {
+	// we are reseting viewChanged value here since its the first function where it can be changed
+	m_viewChanged = false;
+
 	auto checkChanged = [](bool& checkValue, bool expressionReturn) mutable
 		{
 			checkValue = checkValue || expressionReturn;
@@ -83,9 +86,6 @@ void Camera::DrawTransformPropeties()
 
 void Camera::DrawAdditionalPropeties(Graphics& graphics)
 {
-	// we are reseting viewChanged value here since its the first function where it can be changed
-	m_viewChanged = false;
-
 	bool changed = false;
 
 	auto checkChanged = [](bool& checkValue, bool expressionReturn) mutable
