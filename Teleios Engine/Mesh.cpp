@@ -1,9 +1,10 @@
-#include "Drawable.h"
+#include "Mesh.h"
 #include "Graphics.h"
 #include "Pipeline.h"
+#include "Camera.h"
 
 
-Drawable::Drawable(DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation)
+Mesh::Mesh(DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation)
 	:
 	m_position(position),
 	m_rotation(rotation)
@@ -11,12 +12,10 @@ Drawable::Drawable(DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation)
 
 }
 
-void Drawable::Initialize(Graphics& graphics, Pipeline& pipeline)
+void Mesh::Initialize(Graphics& graphics, Pipeline& pipeline)
 {
 	for (auto staticBindableName : m_staticBindableNames)
 		SegregateBindableOnStartingPos(pipeline.GetStaticResource(staticBindableName));
-
-	//m_bundleCommandList = std::make_unique<CommandList>(graphics, D3D12_COMMAND_LIST_TYPE_BUNDLE);
 
 	m_rootSignature = std::make_unique<RootSignature>();
 
@@ -27,6 +26,8 @@ void Drawable::Initialize(Graphics& graphics, Pipeline& pipeline)
 			pRootSignatureBindable->InternalInitialize(graphics);
 			pRootSignatureBindable->BindToRootSignature(graphics, m_rootSignature.get());
 		}
+
+		m_transformConstantBuffer->SetParentPtr(this);
 
 		m_rootSignature->Initialize(graphics);
 	}
@@ -55,29 +56,9 @@ void Drawable::Initialize(Graphics& graphics, Pipeline& pipeline)
 
 		m_pipelineState->Finish(graphics); // Finish() call gets object from desc it made up
 	}
-
-	RecordBundleList(graphics);
 }
 
-void Drawable::RecordBundleList(Graphics& graphics)
-{
-//	THROW_OBJECT_STATE_ERROR_IF("BundleList was not yet initialized", !m_bundleCommandList);
-//	THROW_OBJECT_STATE_ERROR_IF("PipelineState was not yet initialized", !m_pipelineState);
-//	THROW_OBJECT_STATE_ERROR_IF("RootSignature was not yet initialized", !m_rootSignature);
-//
-//	m_bundleCommandList->Open(graphics, m_pipelineState.get());
-//
-//	m_bundleCommandList->SetRootSignature(graphics, m_rootSignature.get());
-//
-//	for (auto& pCommandListBindable : m_commandListBindables)
-//		pCommandListBindable->BindToCommandList(graphics, m_bundleCommandList.get());
-//
-//	m_bundleCommandList->DrawIndexed(graphics, m_indexBuffer->GetIndexCount());
-//
-//	m_bundleCommandList->Close(graphics);
-}
-
-void Drawable::DrawDrawable(Graphics& graphics, Pipeline& pipeline) const
+void Mesh::DrawMesh(Graphics& graphics, Pipeline& pipeline) const
 {
 	CommandList* directCommandList = pipeline.GetGraphicCommandList();
 
@@ -85,8 +66,6 @@ void Drawable::DrawDrawable(Graphics& graphics, Pipeline& pipeline) const
 
 	for (auto& pDirectCommandListBindable : m_directCommandListBindables)
 		pDirectCommandListBindable->BindToDirectCommandList(graphics, directCommandList);
-
-	//	directCommandList->ExecuteBundle(graphics, m_bundleCommandList.get());
 
 	directCommandList->SetGraphicsRootSignature(graphics, m_rootSignature.get());
 
@@ -98,22 +77,33 @@ void Drawable::DrawDrawable(Graphics& graphics, Pipeline& pipeline) const
 	directCommandList->DrawIndexed(graphics, m_indexBuffer->GetIndexCount());
 };
 
-void Drawable::SetPosition(DirectX::XMFLOAT3 position)
+void Mesh::SetPosition(DirectX::XMFLOAT3 position)
 {
 	m_position = position;
 }
 
-void Drawable::InternalUpdate(Graphics& graphics)
+DirectX::XMFLOAT3& Mesh::GetPositionLVal()
+{
+	return m_position;
+}
+
+DirectX::XMFLOAT3& Mesh::GetRotationLVal()
+{
+	return m_rotation;
+}
+
+void Mesh::InternalUpdate(Graphics& graphics)
 {
 
 }
 
-void Drawable::UpdateTransformMatrix(Graphics& graphics, Camera& camera)
+void Mesh::UpdateTransformMatrix(Graphics& graphics, Camera& camera)
 {
-	m_transformConstantBuffer->Update(graphics, camera);
+	if(m_transformChanged || camera.ViewChanged())
+		m_transformConstantBuffer->Update(graphics, camera);
 }
 
-DirectX::XMMATRIX Drawable::GetTransformMatrix() const
+DirectX::XMMATRIX Mesh::GetTransformMatrix() const
 {
 	DirectX::FXMVECTOR vecPosition = DirectX::XMLoadFloat3(&m_position);
 	DirectX::FXMVECTOR vecRotation = DirectX::XMLoadFloat3(&m_rotation);
@@ -122,54 +112,52 @@ DirectX::XMMATRIX Drawable::GetTransformMatrix() const
 	return DirectX::XMMatrixRotationRollPitchYawFromVector(vecRotation) * DirectX::XMMatrixTranslationFromVector(vecPosition);
 }
 
-void Drawable::AddStaticBindable(const char* bindableName)
+
+bool Mesh::TransformChanged() const
+{
+	return m_transformChanged;
+}
+
+void Mesh::SetTransformChanged(bool val)
+{
+	m_transformChanged = val;
+}
+
+void Mesh::AddStaticBindable(const char* bindableName)
 {
 	m_staticBindableNames.push_back(bindableName);
 }
 
-void Drawable::AddBindable(std::shared_ptr<Bindable> bindable)
+void Mesh::AddBindable(std::shared_ptr<Bindable> bindable)
 {
 	m_bindables.push_back(bindable);
 
 	SegregateBindable(bindable.get());
 }
 
-void Drawable::SetVertexBuffer(std::shared_ptr<VertexBuffer> vertexBuffer)
+void Mesh::SetVertexBuffer(std::shared_ptr<VertexBuffer> vertexBuffer)
 {
 	AddBindable(vertexBuffer);
 
 	m_vertexBuffer = vertexBuffer.get();
 }
 
-void Drawable::SetIndexBuffer(std::shared_ptr<IndexBuffer> indexBuffer)
+void Mesh::SetIndexBuffer(std::shared_ptr<IndexBuffer> indexBuffer)
 {
 	AddBindable(indexBuffer);
 
 	m_indexBuffer = indexBuffer.get();
 }
 
-void Drawable::SetTransformConstantBuffer(std::shared_ptr<TransformConstantBuffer> transformConstantBuffer)
+void Mesh::SetTransformConstantBuffer(std::shared_ptr<TransformConstantBuffer> transformConstantBuffer)
 {
 	AddBindable(transformConstantBuffer);
 
 	m_transformConstantBuffer = transformConstantBuffer.get();
 }
 
-void Drawable::SegregateBindable(Bindable* bindable)
+void Mesh::SegregateBindable(Bindable* bindable)
 {
-	// we are pushing cached buffer here since we don't want static bindables to be updated by each object on scene
-	if (auto cachedBuffer = dynamic_cast<CachedConstantBuffer*>(bindable))
-	{
-		m_cachedBuffers.push_back(cachedBuffer);
-
-		// saving some processing
-		m_commandListBindables.push_back(cachedBuffer);
-		m_rootSignatureBindables.push_back(cachedBuffer);
-
-		return;
-	}
-
-
 	if (auto commandListBindable = dynamic_cast<CommandListBindable*>(bindable))
 		m_commandListBindables.push_back(commandListBindable);
 
@@ -183,7 +171,7 @@ void Drawable::SegregateBindable(Bindable* bindable)
 		m_pipelineStateBindables.push_back(pipelineStateBindable);
 }
 
-void Drawable::SegregateBindableOnStartingPos(Bindable* bindable)
+void Mesh::SegregateBindableOnStartingPos(Bindable* bindable)
 {
 	if (auto commandListBindable = dynamic_cast<CommandListBindable*>(bindable))
 		m_commandListBindables.insert(m_commandListBindables.begin(), commandListBindable);
@@ -196,4 +184,14 @@ void Drawable::SegregateBindableOnStartingPos(Bindable* bindable)
 
 	if (auto pipelineStateBindable = dynamic_cast<PipelineStateBindable*>(bindable))
 		m_pipelineStateBindables.insert(m_pipelineStateBindables.begin(), pipelineStateBindable);
+}
+
+VertexBuffer* Mesh::GetVertexBuffer()
+{
+	return m_vertexBuffer;
+}
+
+IndexBuffer* Mesh::GetIndexBuffer()
+{
+	return m_indexBuffer;
 }

@@ -17,26 +17,27 @@ class Graphics;
 class Pipeline;
 class Camera;
 
-class Drawable
+class Mesh
 {
-protected:
-	Drawable(DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation);
-
 public:
-	Drawable(Drawable&&) = delete;
-	Drawable(const Drawable&) = delete;
-	Drawable operator=(Drawable&&) = delete;
+	Mesh(DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation);
+	Mesh(Mesh&&) noexcept = default;
+	virtual ~Mesh() = default;
 
-	virtual ~Drawable() = default;
+	Mesh(const Mesh&) = delete;
 
 public:
 	void Initialize(Graphics& graphics, Pipeline& pipeline);
 
 	void RecordBundleList(Graphics& graphics);
 
-	void DrawDrawable(Graphics& graphics, Pipeline& pipeline) const;
+	void DrawMesh(Graphics& graphics, Pipeline& pipeline) const;
 
 	void SetPosition(DirectX::XMFLOAT3 position);
+
+	DirectX::XMFLOAT3& GetPositionLVal();
+
+	DirectX::XMFLOAT3& GetRotationLVal();
 
 	void InternalUpdate(Graphics& graphics);
 
@@ -45,7 +46,11 @@ public:
 
 	DirectX::XMMATRIX GetTransformMatrix() const;
 
-protected:
+	bool TransformChanged() const;
+
+	void SetTransformChanged(bool val);
+
+public:
 	void AddStaticBindable(const char* bindableName);
 
 	void AddBindable(std::shared_ptr<Bindable> bindable);
@@ -56,12 +61,17 @@ protected:
 
 	void SetTransformConstantBuffer(std::shared_ptr<TransformConstantBuffer> transformConstantBuffer);
 
+protected:
 	void SegregateBindable(Bindable* bindable);
 
 	void SegregateBindableOnStartingPos(Bindable* bindable);
 
+public:
+	VertexBuffer* GetVertexBuffer();
+
+	IndexBuffer* GetIndexBuffer();
+
 protected:
-	std::unique_ptr<CommandList> m_bundleCommandList;
 	std::unique_ptr<GraphicsPipelineState> m_pipelineState;
 	std::unique_ptr<RootSignature> m_rootSignature;
 
@@ -77,12 +87,12 @@ protected:
 	IndexBuffer* m_indexBuffer = nullptr;
 	TransformConstantBuffer* m_transformConstantBuffer = nullptr;
 	
-	std::vector<CachedConstantBuffer*> m_cachedBuffers;
-	
 	std::vector<const char*> m_staticBindableNames;
 
 protected:
 	DirectX::XMFLOAT3 m_position = { 0.0f, 0.0f, 0.0f };
 	DirectX::XMFLOAT3 m_rotation = { 0.0f, 0.0f, 0.0f };
+
+	bool m_transformChanged = true;
 };
 
