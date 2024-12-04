@@ -63,15 +63,15 @@ VSOut VSMain(
 #endif
 
 #ifdef INPUT_NORMAL  
-     vsout.normal = mul((float3x3)transformInCameraView, normal);
+     vsout.normal = mul((float3x3)transformInCameraSpace, normal);
 #endif
 
 #ifdef INPUT_TANGENT  
-     vsout.tangent = mul((float3x3)transformInCameraView, tangent);
+     vsout.tangent = mul((float3x3)transformInCameraSpace, tangent);
 #endif
 
 #ifdef INPUT_BITANGENT  
-     vsout.bitangent = mul((float3x3)transformInCameraView, bitangent);
+     vsout.bitangent = mul((float3x3)transformInCameraSpace, bitangent);
 #endif
 
 
