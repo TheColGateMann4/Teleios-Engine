@@ -12,6 +12,8 @@ Camera::Camera(Graphics& graphics, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3
 	m_rotation(rotation),
 	m_viewChanged(false)
 {
+	SetName("Camera");
+
 	if (settings != nullptr)
 	{
 		m_settings = *settings;
@@ -59,51 +61,52 @@ void Camera::UpdateCamera(const Input& input, bool cursorLocked)
 	}
 }
 
-void Camera::DrawImguiWindow(Graphics& graphics, bool isLayerVisible)
+void Camera::DrawTransformPropeties()
+{
+	auto checkChanged = [](bool& checkValue, bool expressionReturn) mutable
+		{
+			checkValue = checkValue || expressionReturn;
+		};
+
+	ImGui::Text("Position");
+	checkChanged(m_viewChanged, ImGui::SliderFloat("x##position", &m_position.x, -100.0f, 100.0f));
+	checkChanged(m_viewChanged, ImGui::SliderFloat("y##position", &m_position.y, -100.0f, 100.0f));
+	checkChanged(m_viewChanged, ImGui::SliderFloat("z##position", &m_position.z, -100.0f, 100.0f));
+
+	ImGui::NewLine();
+
+	ImGui::Text("Rotation");
+	checkChanged(m_viewChanged, ImGui::SliderAngle("x##rotation", &m_rotation.x, -180.0f, 180.0f));
+	checkChanged(m_viewChanged, ImGui::SliderAngle("y##rotation", &m_rotation.y, -180.0f, 180.0f));
+	checkChanged(m_viewChanged, ImGui::SliderAngle("z##rotation", &m_rotation.z, -180.0f, 180.0f));
+}
+
+void Camera::DrawAdditionalPropeties(Graphics& graphics)
 {
 	// we are reseting viewChanged value here since its the first function where it can be changed
 	m_viewChanged = false;
 
-	if (!isLayerVisible)
-		return;
+	bool changed = false;
 
-	if (ImGui::Begin("Camera"))
-	{
-		bool changed = false;
+	auto checkChanged = [](bool& checkValue, bool expressionReturn) mutable
+		{
+			checkValue = checkValue || expressionReturn;
+		};
+	ImGui::Text("Conveniency Options:");
+	ImGui::SliderFloat("Sensivity", &m_sensivity, 0.01f, 1.0f, "%.2f");
+	ImGui::SliderFloat("Speed", &m_speed, 0.01f, 10.0f, "%.2f");
+	ImGui::SliderFloat("FastSpeed", &m_fastSpeed, m_speed, m_speed + 20.0f, "%.1f");
 
-		auto checkChanged = [](bool& checkValue, bool expressionReturn) mutable
-			{
-				checkValue = checkValue || expressionReturn;
-			};
+	ImGui::NewLine();
 
-		ImGui::Text("Position & Rotation:");
-		checkChanged(m_viewChanged, ImGui::SliderFloat("x##position", &m_position.x, -10.0f, 10.0f));
-		checkChanged(m_viewChanged, ImGui::SliderFloat("y##position", &m_position.y, -10.0f, 10.0f));
-		checkChanged(m_viewChanged, ImGui::SliderFloat("z##position", &m_position.z, -10.0f, 10.0f));
+	ImGui::Text("View Options:");
+	checkChanged(changed, ImGui::SliderAngle("Fov", &m_settings.FovAngleY, 1.0f, 179.0f));
+	checkChanged(changed, ImGui::SliderFloat("AspectRatio", &m_settings.AspectRatio, 0.1f, 2.0f));
+	checkChanged(changed, ImGui::SliderFloat("NearZ", &m_settings.NearZ, 0.001f, 100.0f));
+	checkChanged(changed, ImGui::SliderFloat("FarZ", &m_settings.FarZ, m_settings.NearZ + 0.01f, 800.0f));
 
-		checkChanged(m_viewChanged, ImGui::SliderAngle("Pitch", &m_rotation.x, -89.0f, 89.0f));
-		checkChanged(m_viewChanged, ImGui::SliderAngle("Yaw", &m_rotation.y, -180.0f, 180.0f));
-
-		ImGui::NewLine();
-
-		ImGui::Text("Conveniency Options:");
-		ImGui::SliderFloat("Sensivity", &m_sensivity, 0.01f, 1.0f, "%.2f");
-		ImGui::SliderFloat("Speed", &m_speed, 0.01f, 10.0f, "%.2f");
-		ImGui::SliderFloat("FastSpeed", &m_fastSpeed, m_speed, m_speed + 20.0f, "%.1f");
-
-		ImGui::NewLine();
-
-		ImGui::Text("View Options:");
-		checkChanged(changed, ImGui::SliderAngle("Fov", &m_settings.FovAngleY, 1.0f, 179.0f));
-		checkChanged(changed, ImGui::SliderFloat("AspectRatio", &m_settings.AspectRatio, 0.1f, 2.0f));
-		checkChanged(changed, ImGui::SliderFloat("NearZ", &m_settings.NearZ, 0.001f, 100.0f));
-		checkChanged(changed, ImGui::SliderFloat("FarZ", &m_settings.FarZ, m_settings.NearZ + 0.01f, 800.0f));
-
-		if (changed)
-			UpdatePerspectiveMatrix();
-	}
-
-	ImGui::End();
+	if (changed)
+		UpdatePerspectiveMatrix();
 }
 
 DirectX::XMMATRIX Camera::GetTransformMatrix() const

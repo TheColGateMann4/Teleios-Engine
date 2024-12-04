@@ -1,6 +1,7 @@
 #include "PointLight.h"
 #include "Pipeline.h"
 #include "Camera.h"
+#include "Sphere.h"
 
 #include <imgui.h>
 
@@ -8,10 +9,15 @@ PointLight::PointLight(Graphics& graphics, DirectX::XMFLOAT3 position, DirectX::
 	:
 	m_position(position),
 	m_color(color),
-	m_model(graphics, m_position, {0.0f, 0.0f, 0.0f}, 0.5f, 21),
 	m_transformChanged(true)
 {
-	AddMesh(&m_model);
+	SetName("PointLight");
+
+	std::shared_ptr<Sphere> sphereModel = std::make_shared<Sphere>(graphics, m_position, DirectX::XMFLOAT3{ 0.0f, 0.0f, 0.0f }, 0.5f, 21);
+
+	AddChild(sphereModel);
+
+	m_sphereModel = GetLastChild();
 	
 	DynamicConstantBuffer::ConstantBufferLayout layout;
 	layout.AddElement<DynamicConstantBuffer::ElementType::Float3>("lightPosition");
@@ -56,45 +62,41 @@ void PointLight::Update(Graphics& graphics, Pipeline& pipeline)
 	}
 
 	// dragging our model with us
-	m_model.SetPosition(m_position);
+	m_sphereModel->SetPosition(m_position);
 }
 
-void PointLight::DrawImguiWindow(Graphics& graphics, bool isLayerVisible)
+void PointLight::DrawTransformPropeties()
 {
-	m_model.DrawImguiWindow(graphics, isLayerVisible);
+	auto checkChanged = [](bool& checkValue, bool expressionReturn) mutable
+		{
+			checkValue = checkValue || expressionReturn;
+		};
 
-	if (!isLayerVisible)
-		return;
+	ImGui::Text("Position");
+	checkChanged(m_transformChanged, ImGui::SliderFloat("x##position", &m_position.x, -100.0f, 100.0f));
+	checkChanged(m_transformChanged, ImGui::SliderFloat("y##position", &m_position.y, -100.0f, 100.0f));
+	checkChanged(m_transformChanged, ImGui::SliderFloat("z##position", &m_position.z, -100.0f, 100.0f));
+}
 
-	if (ImGui::Begin("PointLight"))
-	{
-		bool changed = false;
+void PointLight::DrawAdditionalPropeties(Graphics& graphics)
+{
+	bool changed = false;
 
-		auto checkChanged = [](bool& checkValue, bool expressionReturn) mutable
-			{
-				checkValue = checkValue || expressionReturn;
-			};
+	auto checkChanged = [](bool& checkValue, bool expressionReturn) mutable
+		{
+			checkValue = checkValue || expressionReturn;
+		};
 
-		ImGui::Text("Position");
-		checkChanged(m_transformChanged, ImGui::SliderFloat("x##position", &m_position.x, -100.0f, 100.0f));
-		checkChanged(m_transformChanged, ImGui::SliderFloat("y##position", &m_position.y, -100.0f, 100.0f));
-		checkChanged(m_transformChanged, ImGui::SliderFloat("z##position", &m_position.z, -100.0f, 100.0f));
+	ImGui::Text("Diffuse");
+	checkChanged(changed, ImGui::ColorEdit3("color##diffuse", reinterpret_cast<float*>(m_lightBuffer->GetData().GetValuePointer<DynamicConstantBuffer::ElementType::Float3>("diffuseColor"))));
 
-		ImGui::NewLine();
+	ImGui::NewLine();
 
-		ImGui::Text("Diffuse");
-		checkChanged(changed, ImGui::ColorEdit3("color##diffuse", reinterpret_cast<float*>(m_lightBuffer->GetData().GetValuePointer<DynamicConstantBuffer::ElementType::Float3>("diffuseColor"))));
+	ImGui::Text("Attenuation");
+	checkChanged(changed, ImGui::SliderFloat("quadratic", m_lightBuffer->GetData().GetValuePointer<DynamicConstantBuffer::ElementType::Float>("attenuationQuadratic"), 0.000002f, 1.8f));
+	checkChanged(changed, ImGui::SliderFloat("linear", m_lightBuffer->GetData().GetValuePointer<DynamicConstantBuffer::ElementType::Float>("attenuationLinear"), 0.00007f, 0.7f));
+	checkChanged(changed, ImGui::SliderFloat("constant", m_lightBuffer->GetData().GetValuePointer<DynamicConstantBuffer::ElementType::Float>("attenuationConstant"), 0.001f, 10.0f));
 
-		ImGui::NewLine();
-
-		ImGui::Text("Attenuation");
-		checkChanged(changed, ImGui::SliderFloat("quadratic", m_lightBuffer->GetData().GetValuePointer<DynamicConstantBuffer::ElementType::Float>("attenuationQuadratic"), 0.000002f, 1.8f));
-		checkChanged(changed, ImGui::SliderFloat("linear", m_lightBuffer->GetData().GetValuePointer<DynamicConstantBuffer::ElementType::Float>("attenuationLinear"), 0.00007f, 0.7f));
-		checkChanged(changed, ImGui::SliderFloat("constant", m_lightBuffer->GetData().GetValuePointer<DynamicConstantBuffer::ElementType::Float>("attenuationConstant"), 0.001f, 10.0f));
-
-		if (!m_transformChanged && changed)
-			m_lightBuffer->Update(graphics);
-	}
-
-	ImGui::End();
-};
+	if (!m_transformChanged && changed)
+		m_lightBuffer->Update(graphics);
+}

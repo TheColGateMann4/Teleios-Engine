@@ -27,7 +27,9 @@ public:
 
 	void UpdateCamera(const Input& input, bool cursorLocked);
 
-	virtual void DrawImguiWindow(Graphics& graphics, bool isLayerVisible) override;
+	virtual void DrawTransformPropeties() override;
+
+	virtual void DrawAdditionalPropeties(Graphics& graphics) override;
 
 	DirectX::XMMATRIX GetTransformMatrix() const;
 

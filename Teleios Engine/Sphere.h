@@ -1,17 +1,17 @@
 #pragma once
 #include "SceneObject.h"
-#include "Drawable.h"
+#include "Mesh.h"
 
 class Graphics;
 class Pipeline;
 
-class Sphere : public SceneObject, public Drawable
+class Sphere : public SceneObject
 {
 public:
 	Sphere(Graphics& graphics, DirectX::XMFLOAT3 position = { 0.0f, 0.0f, 0.0f }, DirectX::XMFLOAT3 rotation = { 0.0f, 0.0f, 0.0f }, float diameter = 1.0f, size_t tesselation = 3);
 
 public:
-	virtual void DrawImguiWindow(Graphics& graphics, bool isLayerVisible) override;
+	virtual void DrawAdditionalPropeties(Graphics& graphics) override;
 
 private:
 	void UpdateMesh(Graphics& graphics);

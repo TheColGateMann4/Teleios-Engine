@@ -27,11 +27,16 @@ public:
 	// resources that need to be initialized using compute shaders, eg. mip maps for textures
 	void InitializeGraphicResources();
 
+	void DrawObjectInspector(Graphics& graphics);
+
 	void RenderImguiLayer(Window& window, Graphics& graphics);
 
 	void UpdateSceneObjects(Window& window, Graphics& graphics);
 
 	void DrawSceneObjects(Graphics& graphics);
+
+private:
+	std::string GetOriginalName(std::string name);
 
 public:
 	ImguiLayer& GetImguiLayer();
@@ -42,4 +47,5 @@ private:
 
 	std::vector<std::shared_ptr<SceneObject>> m_sceneObjects = {};
 	Camera* m_camera = nullptr;
+	SceneObject* m_objectSelectedInHierarchy = nullptr;
 };

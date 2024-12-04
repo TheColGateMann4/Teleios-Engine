@@ -7,6 +7,8 @@
 
 #include "ModelImporter.h"
 
+#include <imgui.h>
+
 Scene::Scene(Graphics& graphics)
 	:
 	m_pipeline(graphics),
@@ -39,7 +41,7 @@ void Scene::InitializeSceneObjects(Graphics& graphics)
 {
 	// adding static resources to scene first
 	for (auto& sceneObject : m_sceneObjects)
-		sceneObject->AddStaticResources(m_pipeline);
+		sceneObject->InternalAddStaticResources(m_pipeline);
 
 	// after every object was firstly initialized, we create descriptor heap with space for each one
 	graphics.GetDescriptorHeap().Finish(graphics);
@@ -54,7 +56,36 @@ void Scene::InitializeSceneObjects(Graphics& graphics)
 
 void Scene::InitializeGraphicResources()
 {
+	// create UAV buffer and SRV buffer
 
+}
+
+void Scene::DrawObjectInspector(Graphics& graphics)
+{
+	if (!m_imguiLayer.IsVisible())
+		return;
+
+	if(ImGui::Begin("Scene Inspector"))
+	{
+		ImGui::Columns(2, nullptr, true);
+
+		for (auto& sceneObject : m_sceneObjects)
+			sceneObject->DrawHierarchy(&m_objectSelectedInHierarchy);
+
+		ImGui::NextColumn();
+
+		if(m_objectSelectedInHierarchy != nullptr)
+		{
+			m_objectSelectedInHierarchy->DrawTransformPropeties();
+
+			ImGui::NewLine();
+
+			m_objectSelectedInHierarchy->DrawAdditionalPropeties(graphics);
+			//m_objectSelectedInHierarchy->DrawConstantBuffers();
+		}
+	}
+
+	ImGui::End();
 }
 
 void Scene::RenderImguiLayer(Window& window, Graphics& graphics)
@@ -62,9 +93,6 @@ void Scene::RenderImguiLayer(Window& window, Graphics& graphics)
 	// initializing imgui windows
 	{
 		window.input.DrawImguiWindow(m_imguiLayer.IsVisible());
-
-		for (auto& sceneObject : m_sceneObjects)
-			sceneObject->DrawImguiWindow(graphics, m_imguiLayer.IsVisible());
 
 		m_imguiLayer.DrawDemoWindow();
 	}
@@ -96,13 +124,18 @@ void Scene::DrawSceneObjects(Graphics& graphics)
 
 		// drawing imgui layer
 		if(m_imguiLayer.IsVisible())
-		m_imguiLayer.Draw(graphics, m_pipeline);
+			m_imguiLayer.Draw(graphics, m_pipeline);
 
 		m_pipeline.FinishRender(graphics);
 	}
 
 	// executing command lists
 	m_pipeline.Execute(graphics);
+}
+
+std::string Scene::GetOriginalName(std::string name)
+{
+	return name; // temporary
 }
 
 ImguiLayer& Scene::GetImguiLayer()

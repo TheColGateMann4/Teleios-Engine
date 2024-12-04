@@ -3,7 +3,6 @@
 
 #include "includes/CppIncludes.h"
 #include "ConstantBuffer.h"
-#include "Sphere.h"
 
 class Pipeline;
 
@@ -17,14 +16,16 @@ public:
 	
 	virtual void Update(Graphics& graphics, Pipeline& pipeline) override;
 
-	virtual void DrawImguiWindow(Graphics& graphics, bool isLayerVisible) override;
+	virtual void DrawTransformPropeties() override;
+
+	virtual void DrawAdditionalPropeties(Graphics& graphics) override;
 
 private:
 	DirectX::XMFLOAT3 m_position;
 	DirectX::XMFLOAT3 m_color;
 	
 	std::shared_ptr<CachedConstantBuffer> m_lightBuffer;
-	Sphere m_model;
 	bool m_transformChanged;
+	SceneObject* m_sphereModel;
 };
 

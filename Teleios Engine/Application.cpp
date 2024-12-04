@@ -70,6 +70,8 @@ void Application::Update()
 		imguiLayer.ToggleCaptureInput(!window.GetCursorLocked()); // cursorLocked got negated inside lockCursorFunction
 	}
 
+	scene.DrawObjectInspector(window.graphics);
+
 	scene.RenderImguiLayer(window, window.graphics);
 
 	scene.UpdateSceneObjects(window, window.graphics);
