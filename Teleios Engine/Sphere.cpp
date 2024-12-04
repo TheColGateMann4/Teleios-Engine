@@ -30,6 +30,8 @@ Sphere::Sphere(Graphics& graphics, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3
 	AddBindable(InputLayout::GetBindableResource(graphics, vertexLayout));
 
 	UpdateMesh(graphics);
+		std::vector<const char*> macros = {"NORMAL", "TEXCOORDS"};
+		AddBindable(Shader::GetBindableResource(graphics, L"VS", ShaderType::VertexShader));
 
 	SetTransformConstantBuffer(std::make_shared<TransformConstantBuffer>(graphics, this));
 
