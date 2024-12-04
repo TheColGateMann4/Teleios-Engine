@@ -3,6 +3,9 @@
 #include "Window.h"
 #include "SceneObject.h"
 #include "Camera.h"
+#include "Model.h"
+
+#include "ModelImporter.h"
 
 Scene::Scene(Graphics& graphics)
 	:
@@ -10,6 +13,18 @@ Scene::Scene(Graphics& graphics)
 	m_imguiLayer(graphics)
 {
 
+}
+
+void Scene::AddSceneObjectFromFile(Graphics& graphics, const char* path, float scale)
+{
+	ModelImporter::AddSceneObjectFromFile(graphics, path, scale, *this);
+}
+
+void Scene::AddSceneObjectFromFile(std::shared_ptr<Model> model, std::string objectName)
+{
+	model->SetName(GetOriginalName(objectName));
+
+	m_sceneObjects.push_back(model);
 }
 
 void Scene::AddSceneObject(std::shared_ptr<SceneObject> sceneObject)

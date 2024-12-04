@@ -7,6 +7,7 @@ class Window;
 class Graphics;
 class SceneObject;
 class Camera;
+class Model;
 
 class Scene
 {
@@ -14,6 +15,10 @@ public:
 	Scene(Graphics& graphics);
 
 public:
+	void AddSceneObjectFromFile(Graphics& graphics, const char* path, float scale = 1.0f);
+
+	void AddSceneObjectFromFile(std::shared_ptr<Model> model, std::string objectName);
+
 	void AddSceneObject(std::shared_ptr<SceneObject> sceneObject);
 
 public:
