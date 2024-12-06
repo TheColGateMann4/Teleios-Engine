@@ -4,6 +4,7 @@
 #include "PipelineState.h"
 #include "CommandList.h"
 #include "RootSignature.h"
+#include "BindableContainer.h"
 
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
@@ -50,7 +51,7 @@ public:
 
 	void SetTransformChanged(bool val);
 
-public:
+public: // bindable container functions
 	void AddStaticBindable(const char* bindableName);
 
 	void AddBindable(std::shared_ptr<Bindable> bindable);
@@ -61,33 +62,13 @@ public:
 
 	void SetTransformConstantBuffer(std::shared_ptr<TransformConstantBuffer> transformConstantBuffer);
 
-protected:
-	void SegregateBindable(Bindable* bindable);
-
-	void SegregateBindableOnStartingPos(Bindable* bindable);
-
-public:
-	VertexBuffer* GetVertexBuffer();
-
-	IndexBuffer* GetIndexBuffer();
+	const BindableContainer& GetBindableContainter() const;
 
 protected:
+	BindableContainer m_bindableContainer;
+
 	std::unique_ptr<GraphicsPipelineState> m_pipelineState;
 	std::unique_ptr<RootSignature> m_rootSignature;
-
-protected:
-	std::vector<std::shared_ptr<Bindable>> m_bindables;
-
-	std::vector<CommandListBindable*> m_commandListBindables;
-	std::vector<DirectCommandListBindable*> m_directCommandListBindables;
-	std::vector<RootSignatureBindable*> m_rootSignatureBindables;
-	std::vector<PipelineStateBindable*> m_pipelineStateBindables;
-
-	VertexBuffer* m_vertexBuffer = nullptr;
-	IndexBuffer* m_indexBuffer = nullptr;
-	TransformConstantBuffer* m_transformConstantBuffer = nullptr;
-	
-	std::vector<const char*> m_staticBindableNames;
 
 protected:
 	DirectX::XMFLOAT3 m_position = { 0.0f, 0.0f, 0.0f };

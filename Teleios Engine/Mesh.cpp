@@ -14,20 +14,23 @@ Mesh::Mesh(DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation)
 
 void Mesh::Initialize(Graphics& graphics, Pipeline& pipeline)
 {
-	for (auto staticBindableName : m_staticBindableNames)
-		SegregateBindableOnStartingPos(pipeline.GetStaticResource(staticBindableName));
+	m_bindableContainer.Initialize(pipeline);
 
 	m_rootSignature = std::make_unique<RootSignature>();
 
 	// initializing root signature
 	{
-		for (auto& pRootSignatureBindable : m_rootSignatureBindables)
 		{
-			pRootSignatureBindable->InternalInitialize(graphics);
-			pRootSignatureBindable->BindToRootSignature(graphics, m_rootSignature.get());
+			const auto& rootSignatureBindables = m_bindableContainer.GetRootSignatureBindables();
+
+			for (auto& pRootSignatureBindable : rootSignatureBindables)
+			{
+				pRootSignatureBindable->InternalInitialize(graphics);
+				pRootSignatureBindable->BindToRootSignature(graphics, m_rootSignature.get());
+			}
 		}
 
-		m_transformConstantBuffer->SetParentPtr(this);
+		m_bindableContainer.GetTransformConstantBuffer()->SetParentPtr(this);
 
 		m_rootSignature->Initialize(graphics);
 	}
@@ -38,8 +41,12 @@ void Mesh::Initialize(Graphics& graphics, Pipeline& pipeline)
 
 		// initializing pipeline state desc
 		{
-			for (auto& pPipelineStateBindable : m_pipelineStateBindables)
-				pPipelineStateBindable->BindToPipelineState(graphics, m_pipelineState.get());
+			{
+				const auto& pipelineStateBindables = m_bindableContainer.GetPipelineStateBindables();
+
+				for (auto& pPipelineStateBindable : pipelineStateBindables)
+					pPipelineStateBindable->BindToPipelineState(graphics, m_pipelineState.get());
+			}
 
 			m_pipelineState->SetRootSignature(m_rootSignature.get());
 
@@ -64,17 +71,25 @@ void Mesh::DrawMesh(Graphics& graphics, Pipeline& pipeline) const
 
 	directCommandList->SetPipelineState(graphics, m_pipelineState.get());
 
-	for (auto& pDirectCommandListBindable : m_directCommandListBindables)
-		pDirectCommandListBindable->BindToDirectCommandList(graphics, directCommandList);
+	{
+		const auto& cirectCommandListBindables = m_bindableContainer.GetDirectCommandListBindables();
+
+		for (auto& pDirectCommandListBindable : cirectCommandListBindables)
+			pDirectCommandListBindable->BindToDirectCommandList(graphics, directCommandList);
+	}
 
 	directCommandList->SetGraphicsRootSignature(graphics, m_rootSignature.get());
 
 	directCommandList->SetDescriptorHeap(graphics, &graphics.GetDescriptorHeap());
 
-	for (auto& pCommandListBindable : m_commandListBindables)
-		pCommandListBindable->BindToCommandList(graphics, directCommandList);
+	{
+		const auto& commandListBindables = m_bindableContainer.GetCommandListBindables();
 
-	directCommandList->DrawIndexed(graphics, m_indexBuffer->GetIndexCount());
+		for (auto& pCommandListBindable : commandListBindables)
+			pCommandListBindable->BindToCommandList(graphics, directCommandList);
+	}
+
+	directCommandList->DrawIndexed(graphics, m_bindableContainer.GetIndexBuffer()->GetIndexCount());
 };
 
 void Mesh::SetPosition(DirectX::XMFLOAT3 position)
@@ -100,7 +115,7 @@ void Mesh::InternalUpdate(Graphics& graphics)
 void Mesh::UpdateTransformMatrix(Graphics& graphics, Camera& camera)
 {
 	if(m_transformChanged || camera.ViewChanged())
-		m_transformConstantBuffer->Update(graphics, camera);
+		m_bindableContainer.GetTransformConstantBuffer()->Update(graphics, camera);
 }
 
 DirectX::XMMATRIX Mesh::GetTransformMatrix() const
@@ -125,73 +140,30 @@ void Mesh::SetTransformChanged(bool val)
 
 void Mesh::AddStaticBindable(const char* bindableName)
 {
-	m_staticBindableNames.push_back(bindableName);
+	m_bindableContainer.AddStaticBindable(bindableName);
 }
 
 void Mesh::AddBindable(std::shared_ptr<Bindable> bindable)
 {
-	m_bindables.push_back(bindable);
-
-	SegregateBindable(bindable.get());
+	m_bindableContainer.AddBindable(bindable);
 }
 
 void Mesh::SetVertexBuffer(std::shared_ptr<VertexBuffer> vertexBuffer)
 {
-	AddBindable(vertexBuffer);
-
-	m_vertexBuffer = vertexBuffer.get();
+	m_bindableContainer.SetVertexBuffer(vertexBuffer);
 }
 
 void Mesh::SetIndexBuffer(std::shared_ptr<IndexBuffer> indexBuffer)
 {
-	AddBindable(indexBuffer);
-
-	m_indexBuffer = indexBuffer.get();
+	m_bindableContainer.SetIndexBuffer(indexBuffer);
 }
 
 void Mesh::SetTransformConstantBuffer(std::shared_ptr<TransformConstantBuffer> transformConstantBuffer)
 {
-	AddBindable(transformConstantBuffer);
-
-	m_transformConstantBuffer = transformConstantBuffer.get();
+	m_bindableContainer.SetTransformConstantBuffer(transformConstantBuffer);
 }
 
-void Mesh::SegregateBindable(Bindable* bindable)
+const BindableContainer& Mesh::GetBindableContainter() const
 {
-	if (auto commandListBindable = dynamic_cast<CommandListBindable*>(bindable))
-		m_commandListBindables.push_back(commandListBindable);
-
-	if (auto directCommandListBindable = dynamic_cast<DirectCommandListBindable*>(bindable))
-		m_directCommandListBindables.push_back(directCommandListBindable);
-
-	if (auto rootSignatureBindable = dynamic_cast<RootSignatureBindable*>(bindable))
-		m_rootSignatureBindables.push_back(rootSignatureBindable);
-
-	if (auto pipelineStateBindable = dynamic_cast<PipelineStateBindable*>(bindable))
-		m_pipelineStateBindables.push_back(pipelineStateBindable);
-}
-
-void Mesh::SegregateBindableOnStartingPos(Bindable* bindable)
-{
-	if (auto commandListBindable = dynamic_cast<CommandListBindable*>(bindable))
-		m_commandListBindables.insert(m_commandListBindables.begin(), commandListBindable);
-
-	if (auto directCommandListBindable = dynamic_cast<DirectCommandListBindable*>(bindable))
-		m_directCommandListBindables.insert(m_directCommandListBindables.begin(), directCommandListBindable);
-
-	if (auto rootSignatureBindable = dynamic_cast<RootSignatureBindable*>(bindable))
-		m_rootSignatureBindables.insert(m_rootSignatureBindables.begin(), rootSignatureBindable);
-
-	if (auto pipelineStateBindable = dynamic_cast<PipelineStateBindable*>(bindable))
-		m_pipelineStateBindables.insert(m_pipelineStateBindables.begin(), pipelineStateBindable);
-}
-
-VertexBuffer* Mesh::GetVertexBuffer()
-{
-	return m_vertexBuffer;
-}
-
-IndexBuffer* Mesh::GetIndexBuffer()
-{
-	return m_indexBuffer;
+	return m_bindableContainer;
 }

@@ -64,9 +64,8 @@ void Sphere::UpdateMesh(Graphics& graphics)
 	}
 	else
 	{
-		modelMesh.GetVertexBuffer()->Update(graphics, vertices.data(), vertices.size(), sizeof(vertices.front()));
-		modelMesh.GetIndexBuffer()->Update(graphics, indices.data(), indices.size(), sizeof(indices.front()));
-	}
+		modelMesh.GetBindableContainter().GetVertexBuffer()->Update(graphics, vertices.data(), vertices.size(), sizeof(vertices.front()));
+		modelMesh.GetBindableContainter().GetIndexBuffer()->Update(graphics, indices.data(), indices.size(), sizeof(indices.front()));
 }
 
 void Sphere::DrawAdditionalPropeties(Graphics& graphics)
