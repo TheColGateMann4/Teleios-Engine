@@ -84,7 +84,7 @@ void Camera::DrawTransformPropeties()
 	checkChanged(m_viewChanged, ImGui::SliderAngle("z##rotation", &m_rotation.z, -180.0f, 180.0f));
 }
 
-void Camera::DrawAdditionalPropeties(Graphics& graphics)
+void Camera::DrawAdditionalPropeties(Graphics& graphics, Pipeline& pipeline)
 {
 	bool changed = false;
 

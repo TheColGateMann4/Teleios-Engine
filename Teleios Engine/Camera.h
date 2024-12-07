@@ -29,7 +29,7 @@ public:
 
 	virtual void DrawTransformPropeties() override;
 
-	virtual void DrawAdditionalPropeties(Graphics& graphics) override;
+	virtual void DrawAdditionalPropeties(Graphics& graphics, Pipeline& pipeline) override;
 
 	DirectX::XMMATRIX GetTransformMatrix() const;
 

@@ -18,7 +18,7 @@ public:
 
 	virtual void DrawTransformPropeties() override;
 
-	virtual void DrawAdditionalPropeties(Graphics& graphics) override;
+	virtual void DrawAdditionalPropeties(Graphics& graphics, Pipeline& pipeline) override;
 
 private:
 	DirectX::XMFLOAT3 m_position;

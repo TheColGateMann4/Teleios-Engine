@@ -41,34 +41,15 @@ Sphere::Sphere(Graphics& graphics, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3
 	}
 
 	AddMesh(modelMesh);
+}
 
+void Sphere::Initialize(Graphics& graphics, Pipeline& pipeline)
+{
 	// upload mesh data to object
 	UpdateMesh(graphics);
 }
 
-void Sphere::UpdateMesh(Graphics& graphics)
-{
-	std::vector<DirectX::VertexPositionNormalTexture> vertices;
-	std::vector<uint16_t> indices;
-
-	DirectX::ComputeSphere(vertices, indices, m_diameter, m_tesselation, false, false);
-
-	Mesh& modelMesh = m_meshes.front();
-
-	if(!m_initialized)
-	{
-		modelMesh.SetVertexBuffer(VertexBuffer::GetBindableResource(graphics, "Sphere", vertices.data(), vertices.size(), sizeof(vertices.at(0))));
-		modelMesh.SetIndexBuffer(IndexBuffer::GetBindableResource(graphics, "Sphere", indices));
-
-		m_initialized = true;
-	}
-	else
-	{
-		modelMesh.GetBindableContainter().GetVertexBuffer()->Update(graphics, vertices.data(), vertices.size(), sizeof(vertices.front()));
-		modelMesh.GetBindableContainter().GetIndexBuffer()->Update(graphics, indices.data(), indices.size(), sizeof(indices.front()));
-}
-
-void Sphere::DrawAdditionalPropeties(Graphics& graphics)
+void Sphere::DrawAdditionalPropeties(Graphics& graphics, Pipeline& pipeline)
 {
 	bool changed = false;
 
@@ -87,4 +68,27 @@ void Sphere::DrawAdditionalPropeties(Graphics& graphics)
 
 	if (changed)
 		UpdateMesh(graphics);
+}
+
+void Sphere::UpdateMesh(Graphics& graphics)
+{
+	std::vector<DirectX::VertexPositionNormalTexture> vertices;
+	std::vector<uint16_t> indices;
+
+	DirectX::ComputeSphere(vertices, indices, m_diameter, m_tesselation, false, false);
+
+	Mesh& modelMesh = m_meshes.front();
+
+	if (!m_initialized)
+	{
+		modelMesh.SetVertexBuffer(VertexBuffer::GetBindableResource(graphics, "Sphere", vertices.data(), vertices.size(), sizeof(vertices.at(0))));
+		modelMesh.SetIndexBuffer(IndexBuffer::GetBindableResource(graphics, "Sphere", indices));
+
+		m_initialized = true;
+	}
+	else
+	{
+		modelMesh.GetBindableContainter().GetVertexBuffer()->Update(graphics, vertices.data(), vertices.size(), sizeof(vertices.front()));
+		modelMesh.GetBindableContainter().GetIndexBuffer()->Update(graphics, indices.data(), indices.size(), sizeof(indices.front()));
+	}
 }

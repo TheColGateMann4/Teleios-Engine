@@ -78,7 +78,7 @@ void PointLight::DrawTransformPropeties()
 	checkChanged(m_transformChanged, ImGui::SliderFloat("z##position", &m_position.z, -100.0f, 100.0f));
 }
 
-void PointLight::DrawAdditionalPropeties(Graphics& graphics)
+void PointLight::DrawAdditionalPropeties(Graphics& graphics, Pipeline& pipeline)
 {
 	bool changed = false;
 
@@ -99,4 +99,7 @@ void PointLight::DrawAdditionalPropeties(Graphics& graphics)
 
 	if (!m_transformChanged && changed)
 		m_lightBuffer->Update(graphics);
+
+	// drawing propeties of sphere to mess with its mesh
+	GetLastChild()->DrawAdditionalPropeties(graphics, pipeline);
 }

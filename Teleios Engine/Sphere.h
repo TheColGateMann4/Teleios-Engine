@@ -11,7 +11,9 @@ public:
 	Sphere(Graphics& graphics, DirectX::XMFLOAT3 position = { 0.0f, 0.0f, 0.0f }, DirectX::XMFLOAT3 rotation = { 0.0f, 0.0f, 0.0f }, float diameter = 1.0f, size_t tesselation = 3);
 
 public:
-	virtual void DrawAdditionalPropeties(Graphics& graphics) override;
+	virtual void Initialize(Graphics& graphics, Pipeline& pipeline) override;
+
+	virtual void DrawAdditionalPropeties(Graphics& graphics, Pipeline& pipeline) override;
 
 private:
 	void UpdateMesh(Graphics& graphics);
