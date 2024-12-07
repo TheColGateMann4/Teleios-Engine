@@ -1,6 +1,7 @@
 #include "IndexBuffer.h"
 #include "Macros/ErrorMacros.h"
 #include "Graphics.h"
+#include "Pipeline.h"
 #include "CommandList.h"
 
 #include "BindableResourceList.h"
@@ -13,9 +14,12 @@ IndexBuffer::IndexBuffer(Graphics& graphics, void* pData, size_t indexCount, DXG
 
     uint8_t structureSize = m_dataFormat == DXGI_FORMAT_R32_UINT ? 4 : 2; // 4bytes for 32bits and 2bytes for 16bits
 
-	CreateResource(graphics, indexCount, structureSize);
+	CreateResource(graphics, indexCount, structureSize, pIndexBuffer);
 
-    UpdateBufferData(graphics, pData, indexCount, structureSize);
+	CreateResource(graphics, indexCount, structureSize, pUploadResource, true);
+
+	// passing data to vetex buffer resource
+	UpdateBufferData(graphics, pData, indexCount, structureSize);
 }
 
 IndexBuffer::IndexBuffer(Graphics& graphics, std::vector<unsigned int> indices)
@@ -42,6 +46,31 @@ std::shared_ptr<IndexBuffer> IndexBuffer::GetBindableResource(Graphics& graphics
 	return BindableResourceList::GetBindableResourceByID<IndexBuffer>(graphics, "IndexBuffer#" + identifier, indices);
 }
 
+void IndexBuffer::BindToCopyPipelineIfNeeded(Pipeline& pipeline)
+{
+	if (!pUploadResource) // if uploadResource ptr is not holding value then we don't want to update
+		return;
+
+	pipeline.AddBufferToCopyPipeline(this);
+}
+
+void IndexBuffer::CopyResources(Graphics& graphics, CommandList* copyCommandList)
+{
+	if (!pUploadResource) // shared resource got already updated by another object
+		return;
+
+	copyCommandList->SetResourceState(graphics, pIndexBuffer.Get(), D3D12_RESOURCE_STATE_INDEX_BUFFER, D3D12_RESOURCE_STATE_COPY_DEST);
+	copyCommandList->SetResourceState(graphics, pUploadResource.Get(), D3D12_RESOURCE_STATE_INDEX_BUFFER, D3D12_RESOURCE_STATE_COPY_SOURCE);
+
+	copyCommandList->CopyResource(graphics, pIndexBuffer.Get(), pUploadResource.Get());
+
+	copyCommandList->SetResourceState(graphics, pIndexBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_INDEX_BUFFER);
+	copyCommandList->SetResourceState(graphics, pUploadResource.Get(), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_INDEX_BUFFER);
+
+	graphics.GetFrameResourceDeleter()->DeleteResource(graphics, pUploadResource);
+	pUploadResource.Reset();
+}
+
 void IndexBuffer::BindToCommandList(Graphics& graphics, CommandList* commandList)
 {
     commandList->SetIndexBuffer(graphics, this);
@@ -49,9 +78,14 @@ void IndexBuffer::BindToCommandList(Graphics& graphics, CommandList* commandList
 
 void IndexBuffer::Update(Graphics& graphics, void* pData, size_t numElements, size_t structureSize)
 {
-	graphics.GetFrameResourceDeleter()->DeleteResource(graphics, pIndexBuffer);
+	// if sizes are not the same, we will be creating new GPU resource.
+	if (m_bufferSize != numElements * structureSize)
+	{
+		graphics.GetFrameResourceDeleter()->DeleteResource(graphics, pIndexBuffer);
+		CreateResource(graphics, numElements, structureSize, pIndexBuffer);
+	}
 
-	CreateResource(graphics, numElements, structureSize);
+	CreateResource(graphics, numElements, structureSize, pUploadResource, true);
 
 	UpdateBufferData(graphics, pData, numElements, structureSize);
 }
@@ -82,7 +116,7 @@ void IndexBuffer::UpdateBufferData(Graphics& graphics, void* pData, size_t numEl
 
 		void* pMappedData = nullptr;
 
-		THROW_ERROR(pIndexBuffer->Map(
+		THROW_ERROR(pUploadResource->Map(
 			0,
 			&readRange,
 			&pMappedData
@@ -90,11 +124,11 @@ void IndexBuffer::UpdateBufferData(Graphics& graphics, void* pData, size_t numEl
 
 		memcpy_s(pMappedData, m_bufferSize, pData, m_bufferSize);
 
-		pIndexBuffer->Unmap(0, &writeRange);
+		pUploadResource->Unmap(0, &writeRange);
 	}
 }
 
-void IndexBuffer::CreateResource(Graphics& graphics, size_t numElements, size_t structureSize)
+void IndexBuffer::CreateResource(Graphics& graphics, size_t numElements, size_t structureSize, Microsoft::WRL::ComPtr<ID3D12Resource>& resultResource, bool isUploadResource)
 {
 	HRESULT hr;
 
@@ -105,8 +139,8 @@ void IndexBuffer::CreateResource(Graphics& graphics, size_t numElements, size_t 
 	{
 		D3D12_HEAP_PROPERTIES heapPropeties = {};
 		heapPropeties.Type = D3D12_HEAP_TYPE_CUSTOM;
-		heapPropeties.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_WRITE_BACK;
-		heapPropeties.MemoryPoolPreference = D3D12_MEMORY_POOL_L0;
+		heapPropeties.CPUPageProperty = isUploadResource ? D3D12_CPU_PAGE_PROPERTY_WRITE_BACK : D3D12_CPU_PAGE_PROPERTY_NOT_AVAILABLE;
+		heapPropeties.MemoryPoolPreference = isUploadResource ? D3D12_MEMORY_POOL_L0 : D3D12_MEMORY_POOL_L1;
 		heapPropeties.VisibleNodeMask = 0;
 
 		D3D12_RESOURCE_DESC resourceDesc = {};
@@ -129,13 +163,14 @@ void IndexBuffer::CreateResource(Graphics& graphics, size_t numElements, size_t 
 			&resourceDesc,
 			D3D12_RESOURCE_STATE_COMMON, //D3D12_RESOURCE_STATE_INDEX_BUFFER,
 			nullptr,
-			IID_PPV_ARGS(&pIndexBuffer)
+			IID_PPV_ARGS(&resultResource)
 		));
 	}
 
 	// initializing vertex buffer view
+	if(!isUploadResource)
 	{
-		m_indexBufferView.BufferLocation = pIndexBuffer->GetGPUVirtualAddress();
+		m_indexBufferView.BufferLocation = resultResource->GetGPUVirtualAddress();
 		m_indexBufferView.SizeInBytes = m_bufferSize;
 		m_indexBufferView.Format = m_dataFormat;
 	}

@@ -3,6 +3,9 @@
 #include "Macros/ErrorMacros.h"
 #include "PipelineState.h"
 
+#include "VertexBuffer.h"
+#include "IndexBuffer.h"
+
 Pipeline::Pipeline(Graphics& graphics)
 {
 	m_graphicsCommandList = std::make_shared<CommandList>(graphics, D3D12_COMMAND_LIST_TYPE_DIRECT);
@@ -78,9 +81,36 @@ void Pipeline::SetCurrentCamera(Camera* newCurrentCamera)
 	m_camera = newCurrentCamera;
 }
 
+void Pipeline::AddBufferToCopyPipeline(VertexBuffer* vertexBuffer)
+{
+	m_vertexBuffersToCopy.push_back(vertexBuffer);
+}
+
+void Pipeline::AddBufferToCopyPipeline(IndexBuffer* indexBuffer)
+{
+	m_indexBuffersToCopy.push_back(indexBuffer);
+}
+
 void Pipeline::Execute(Graphics& graphics)
 {
 	ID3D12CommandList* pCommandLists[] = {m_graphicsCommandList->Get()};
 
 	graphics.GetCommandQueue()->ExecuteCommandLists(_countof(pCommandLists), pCommandLists);
+}
+
+void Pipeline::ExecuteCopyCalls(Graphics& graphics)
+{
+	// temporarily we will be using graphic command list for copy calls
+	for (unsigned int vertexBufferIndex = m_vertexBuffersToCopy.size(); vertexBufferIndex > 0; vertexBufferIndex--)
+	{
+		m_vertexBuffersToCopy.at(vertexBufferIndex - 1)->CopyResources(graphics, m_graphicsCommandList.get());
+		m_vertexBuffersToCopy.erase(m_vertexBuffersToCopy.begin() + vertexBufferIndex - 1);
+	}
+
+	// we are not doing them at the same time since if vertexBuffers values get scaled up without changing size, index buffer is not updated
+	for (unsigned int indexBufferIndex = m_indexBuffersToCopy.size(); indexBufferIndex > 0; indexBufferIndex--)
+	{
+		m_indexBuffersToCopy.at(indexBufferIndex - 1)->CopyResources(graphics, m_graphicsCommandList.get());
+		m_indexBuffersToCopy.erase(m_indexBuffersToCopy.begin() + indexBufferIndex - 1);
+	}
 }

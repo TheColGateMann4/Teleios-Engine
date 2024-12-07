@@ -24,7 +24,7 @@ void SceneObject::InternalUpdate(Graphics& graphics, Camera& camera, Pipeline& p
 	Update(graphics, pipeline);
 
 	for (auto& mesh : m_meshes)
-		mesh.InternalUpdate(graphics);
+		mesh.InternalUpdate(graphics, pipeline);
 
 	for (auto& child : m_children)
 		child->InternalUpdate(graphics, camera, pipeline);

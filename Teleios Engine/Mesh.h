@@ -40,7 +40,7 @@ public:
 
 	DirectX::XMFLOAT3& GetRotationLVal();
 
-	void InternalUpdate(Graphics& graphics);
+	void InternalUpdate(Graphics& graphics, Pipeline& pipeline);
 
 public:
 	void UpdateTransformMatrix(Graphics& graphics, Camera& camera);

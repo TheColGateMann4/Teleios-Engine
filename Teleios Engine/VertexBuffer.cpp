@@ -3,6 +3,8 @@
 #include "Graphics.h"
 #include "CommandList.h"
 
+#include "Pipeline.h"
+
 #include "DynamicVertex.h"
 
 #include "BindableResourceList.h"
@@ -16,7 +18,9 @@ VertexBuffer::VertexBuffer(Graphics& graphics, DynamicVertex::DynamicVertex& dyn
 
 VertexBuffer::VertexBuffer(Graphics& graphics, void* pData, size_t numElements, size_t dataStride)
 {
-	CreateResource(graphics, numElements, dataStride);
+	CreateResource(graphics, numElements, dataStride, pVertexBuffer);
+
+	CreateResource(graphics, numElements, dataStride, pUploadResource , true);
 
 	// passing data to vetex buffer resource
 	UpdateBufferData(graphics, pData, numElements, dataStride);
@@ -32,11 +36,46 @@ std::shared_ptr<VertexBuffer> VertexBuffer::GetBindableResource(Graphics& graphi
 	return BindableResourceList::GetBindableResourceByID<VertexBuffer>(graphics, "VertexBuffer#" + identifier, pData, numElements, dataStride);
 }
 
+void VertexBuffer::BindToCopyPipelineIfNeeded(Pipeline& pipeline)
+{
+	if (!pUploadResource) // if uploadResource ptr is not holding value then we don't want to update
+		return;
+
+	pipeline.AddBufferToCopyPipeline(this);
+}
+
+void VertexBuffer::CopyResources(Graphics& graphics, CommandList* copyCommandList)
+{
+	if (!pUploadResource) // shared resource got already updated by another object
+		return;
+
+	copyCommandList->SetResourceState(graphics, pVertexBuffer.Get(), D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, D3D12_RESOURCE_STATE_COPY_DEST);
+	copyCommandList->SetResourceState(graphics, pUploadResource.Get(), D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, D3D12_RESOURCE_STATE_COPY_SOURCE);
+
+	copyCommandList->CopyResource(graphics, pVertexBuffer.Get(), pUploadResource.Get());
+
+	copyCommandList->SetResourceState(graphics, pVertexBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
+	copyCommandList->SetResourceState(graphics, pUploadResource.Get(), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
+
+	graphics.GetFrameResourceDeleter()->DeleteResource(graphics, pUploadResource);
+	pUploadResource.Reset();
+}
+
+void VertexBuffer::BindToCommandList(Graphics& graphics, CommandList* commandList)
+{
+	commandList->SetVertexBuffer(graphics, this);
+}
+
 void VertexBuffer::Update(Graphics& graphics, void* pData, size_t numElements, size_t dataStride)
 {
-	graphics.GetFrameResourceDeleter()->DeleteResource(graphics, pVertexBuffer);
+	// if sizes are not the same, we will be creating new GPU resource.
+	if (m_bufferSize != dataStride * numElements)
+	{
+		graphics.GetFrameResourceDeleter()->DeleteResource(graphics, pVertexBuffer);
+		CreateResource(graphics, numElements, dataStride, pVertexBuffer);
+	}
 
-	CreateResource(graphics, numElements, dataStride);
+	CreateResource(graphics, numElements, dataStride, pUploadResource, true);
 
 	UpdateBufferData(graphics, pData, numElements, dataStride);
 }
@@ -55,7 +94,7 @@ void VertexBuffer::UpdateBufferData(Graphics& graphics, void* pData, size_t numE
 
 	void* pMappedData = nullptr;
 
-	THROW_ERROR(pVertexBuffer->Map(
+	THROW_ERROR(pUploadResource->Map(
 		0,
 		&readRange,
 		&pMappedData
@@ -63,10 +102,10 @@ void VertexBuffer::UpdateBufferData(Graphics& graphics, void* pData, size_t numE
 
 	memcpy_s(pMappedData, m_bufferSize, pData, m_bufferSize);
 
-	pVertexBuffer->Unmap(0, &writeRange);
+	pUploadResource->Unmap(0, &writeRange);
 }
 
-void VertexBuffer::CreateResource(Graphics& graphics, size_t numElements, size_t dataStride)
+void VertexBuffer::CreateResource(Graphics& graphics, size_t numElements, size_t dataStride, Microsoft::WRL::ComPtr<ID3D12Resource>& resultResource, bool isUploadResource)
 {
 	HRESULT hr;
 
@@ -76,8 +115,8 @@ void VertexBuffer::CreateResource(Graphics& graphics, size_t numElements, size_t
 	{
 		D3D12_HEAP_PROPERTIES heapPropeties = {};
 		heapPropeties.Type = D3D12_HEAP_TYPE_CUSTOM;
-		heapPropeties.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_WRITE_BACK;
-		heapPropeties.MemoryPoolPreference = D3D12_MEMORY_POOL_L0;
+		heapPropeties.CPUPageProperty = isUploadResource ? D3D12_CPU_PAGE_PROPERTY_WRITE_BACK : D3D12_CPU_PAGE_PROPERTY_NOT_AVAILABLE;
+		heapPropeties.MemoryPoolPreference = isUploadResource ? D3D12_MEMORY_POOL_L0 : D3D12_MEMORY_POOL_L1;
 		heapPropeties.VisibleNodeMask = 0;
 
 		D3D12_RESOURCE_DESC resourceDesc = {};
@@ -99,21 +138,17 @@ void VertexBuffer::CreateResource(Graphics& graphics, size_t numElements, size_t
 			&resourceDesc,
 			D3D12_RESOURCE_STATE_COMMON, // D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER,
 			nullptr,
-			IID_PPV_ARGS(&pVertexBuffer)
+			IID_PPV_ARGS(&resultResource)
 		));
 	}
 
-	// initializing vertex buffer view
+	// initializing vertex buffer view only for GPU memory space resource
+	if(!pUploadResource)
 	{
-		m_vertexBufferView.BufferLocation = pVertexBuffer->GetGPUVirtualAddress();
+		m_vertexBufferView.BufferLocation = resultResource->GetGPUVirtualAddress();
 		m_vertexBufferView.SizeInBytes = m_bufferSize;
 		m_vertexBufferView.StrideInBytes = dataStride;
 	}
-}
-
-void VertexBuffer::BindToCommandList(Graphics& graphics, CommandList* commandList)
-{
-	commandList->SetVertexBuffer(graphics, this);
 }
 
 const D3D12_VERTEX_BUFFER_VIEW* VertexBuffer::Get() const

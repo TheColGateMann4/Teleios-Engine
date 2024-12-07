@@ -34,7 +34,7 @@ public:
 
 	virtual void DrawTransformPropeties();
 
-	virtual void DrawAdditionalPropeties(Graphics& graphics);
+	virtual void DrawAdditionalPropeties(Graphics& graphics, Pipeline& pipeline);
 
 	virtual void UpdateTransformMatrix(Graphics& graphics, Camera& camera);
 

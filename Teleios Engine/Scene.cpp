@@ -118,6 +118,8 @@ void Scene::DrawSceneObjects(Graphics& graphics)
 
 		graphics.GetConstantBufferHeap().CopyResources(graphics, m_pipeline.GetGraphicCommandList());
 
+		m_pipeline.ExecuteCopyCalls(graphics);
+
 		// drawing scene objects
 		for (auto& sceneObject : m_sceneObjects)
 			sceneObject->InternalDraw(graphics, m_pipeline);

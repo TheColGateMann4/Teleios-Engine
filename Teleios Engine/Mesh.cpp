@@ -107,9 +107,11 @@ DirectX::XMFLOAT3& Mesh::GetRotationLVal()
 	return m_rotation;
 }
 
-void Mesh::InternalUpdate(Graphics& graphics)
+void Mesh::InternalUpdate(Graphics& graphics, Pipeline& pipeline)
 {
+	m_bindableContainer.GetVertexBuffer()->BindToCopyPipelineIfNeeded(pipeline);
 
+	m_bindableContainer.GetIndexBuffer()->BindToCopyPipelineIfNeeded(pipeline);
 }
 
 void Mesh::UpdateTransformMatrix(Graphics& graphics, Camera& camera)
