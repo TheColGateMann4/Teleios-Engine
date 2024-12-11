@@ -2,13 +2,12 @@
 #include "Graphics.h"
 #include "TargetShaders.h"
 #include "Camera.h"
-#include "Drawable.h"
+#include "Mesh.h"
 #include "DynamicConstantBuffer.h"
 
-TransformConstantBuffer::TransformConstantBuffer(Graphics& graphics, Drawable* pObject, std::vector<TargetSlotAndShader> targets)
+TransformConstantBuffer::TransformConstantBuffer(Graphics& graphics, std::vector<TargetSlotAndShader> targets)
 	:
 	RootSignatureBindable(targets),
-	m_pObject(pObject),
 	m_updated(false)
 {
 	DynamicConstantBuffer::ConstantBufferLayout layout;
@@ -17,6 +16,11 @@ TransformConstantBuffer::TransformConstantBuffer(Graphics& graphics, Drawable* p
 	layout.AddElement<DynamicConstantBuffer::ElementType::Matrix>("transformInCameraView");
 
 	m_buffer = std::make_shared<NonCachedConstantBuffer>(graphics, layout, targets);
+}
+
+void TransformConstantBuffer::SetParentPtr(Mesh* pParent)
+{
+	m_pParent = pParent;
 }
 
 void TransformConstantBuffer::Update(Graphics& graphics, Camera& camera)
@@ -28,7 +32,7 @@ void TransformConstantBuffer::Update(Graphics& graphics, Camera& camera)
 	// matrices[2] transform in camera view
 	DirectX::XMMATRIX matrices[3] = {};
 
-	matrices[0] = m_pObject->GetTransformMatrix();
+	matrices[0] = m_pParent->GetTransformMatrix();
 	matrices[1] = matrices[0] * camera.GetTransformMatrix();
 	matrices[2] = matrices[1] * camera.GetPerspectiveMatrix();
 
