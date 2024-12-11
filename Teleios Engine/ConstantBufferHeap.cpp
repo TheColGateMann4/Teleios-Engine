@@ -156,6 +156,8 @@ void ConstantBufferHeap::CopyResources(Graphics& graphics, CommandList* copyComm
 		copyCommandList->CopyBufferRegion(graphics, pStaticBufferHeap.Get(), bufferStartingOffset, pUploadResource.Get(), 0, bufferWorkRange);
 
 		copyCommandList->SetResourceState(graphics, pUploadResource.Get(), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
+
+		uploadData.alreadyUsed = true; // indicating that resource has been copied and just waits for safe deletion
 	}
 
 	if(isStaticBufferUsed)
