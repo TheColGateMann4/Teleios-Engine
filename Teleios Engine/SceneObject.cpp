@@ -120,9 +120,15 @@ void SceneObject::DrawTransformPropeties()
 	targetMesh.SetTransformChanged(transformChanged);
 }
 
-void SceneObject::DrawAdditionalPropeties(Graphics& graphics)
+void SceneObject::DrawAdditionalPropeties(Graphics& graphics, Pipeline& pipeline)
 {
 
+}
+
+void SceneObject::DrawConstantBuffers(Graphics& graphics)
+{
+	for (auto& mesh : m_meshes)
+		mesh.DrawConstantBuffers(graphics);
 }
 
 void SceneObject::UpdateTransformMatrix(Graphics& graphics, Camera& camera)

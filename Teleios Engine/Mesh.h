@@ -42,6 +42,8 @@ public:
 
 	void InternalUpdate(Graphics& graphics, Pipeline& pipeline);
 
+	void DrawConstantBuffers(Graphics& graphics);
+
 public:
 	void UpdateTransformMatrix(Graphics& graphics, Camera& camera);
 

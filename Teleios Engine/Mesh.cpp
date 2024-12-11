@@ -114,6 +114,14 @@ void Mesh::InternalUpdate(Graphics& graphics, Pipeline& pipeline)
 	m_bindableContainer.GetIndexBuffer()->BindToCopyPipelineIfNeeded(pipeline);
 }
 
+void Mesh::DrawConstantBuffers(Graphics& graphics)
+{
+	const std::vector<CachedConstantBuffer*>& cachedBuffers = m_bindableContainer.GetCachedBuffers();
+
+	for (auto& cachedBuffer : cachedBuffers)
+		cachedBuffer->DrawImguiProperties(graphics);
+}
+
 void Mesh::UpdateTransformMatrix(Graphics& graphics, Camera& camera)
 {
 	if(m_transformChanged || camera.ViewChanged())

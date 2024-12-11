@@ -85,3 +85,9 @@ DynamicConstantBuffer::ConstantBufferData& CachedConstantBuffer::GetData()
 {
 	return m_data;
 }
+
+void CachedConstantBuffer::DrawImguiProperties(Graphics& graphics)
+{
+	if (m_data.DrawImguiProperties())
+		Update(graphics);
+}

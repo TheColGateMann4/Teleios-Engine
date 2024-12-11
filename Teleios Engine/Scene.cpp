@@ -81,7 +81,10 @@ void Scene::DrawObjectInspector(Graphics& graphics)
 			ImGui::NewLine();
 
 			m_objectSelectedInHierarchy->DrawAdditionalPropeties(graphics, m_pipeline);
-			//m_objectSelectedInHierarchy->DrawConstantBuffers();
+
+			ImGui::NewLine();
+
+			m_objectSelectedInHierarchy->DrawConstantBuffers(graphics);
 		}
 	}
 

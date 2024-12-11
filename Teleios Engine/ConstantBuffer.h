@@ -56,6 +56,8 @@ public:
 
 	DynamicConstantBuffer::ConstantBufferData& GetData();
 
+	void DrawImguiProperties(Graphics& graphics);
+
 private:
 	DynamicConstantBuffer::ConstantBufferData m_data;
 	bool m_frequentlyUpdated;
