@@ -5,6 +5,8 @@
 
 #include <imgui.h>
 
+#include "DynamicConstantBuffer.h"
+
 PointLight::PointLight(Graphics& graphics, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 color)
 	:
 	m_position(position),
@@ -18,13 +20,13 @@ PointLight::PointLight(Graphics& graphics, DirectX::XMFLOAT3 position, DirectX::
 	AddChild(sphereModel);
 
 	m_sphereModel = GetLastChild();
-	
+
 	DynamicConstantBuffer::ConstantBufferLayout layout;
-	layout.AddElement<DynamicConstantBuffer::ElementType::Float3>("lightPosition");
+	layout.AddElement<DynamicConstantBuffer::ElementType::Float3>("lightPosition", DynamicConstantBuffer::ImguiColorData{false});
 	layout.AddElement<DynamicConstantBuffer::ElementType::Float3>("diffuseColor");
-	layout.AddElement<DynamicConstantBuffer::ElementType::Float>("attenuationQuadratic");
-	layout.AddElement<DynamicConstantBuffer::ElementType::Float>("attenuationLinear");
-	layout.AddElement<DynamicConstantBuffer::ElementType::Float>("attenuationConstant");
+	layout.AddElement<DynamicConstantBuffer::ElementType::Float>("attenuationQuadratic",DynamicConstantBuffer::ImguiFloatData{ true, 0.001f, 1.8f, "%.3f" });
+	layout.AddElement<DynamicConstantBuffer::ElementType::Float>("attenuationLinear",	DynamicConstantBuffer::ImguiFloatData{ true, 0.0001f, 1.0f, "%.5f" });
+	layout.AddElement<DynamicConstantBuffer::ElementType::Float>("attenuationConstant", DynamicConstantBuffer::ImguiFloatData{ true, 0.000001f, 1.0f, "%.6f" });
 
 	DynamicConstantBuffer::ConstantBufferData bufferData(layout);
 	// *bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float3>("lightPosition") = position; // we don't need to set this value since it will be overriden in Update() call by position in camera space
@@ -87,18 +89,7 @@ void PointLight::DrawAdditionalPropeties(Graphics& graphics, Pipeline& pipeline)
 			checkValue = checkValue || expressionReturn;
 		};
 
-	ImGui::Text("Diffuse");
-	checkChanged(changed, ImGui::ColorEdit3("color##diffuse", reinterpret_cast<float*>(m_lightBuffer->GetData().GetValuePointer<DynamicConstantBuffer::ElementType::Float3>("diffuseColor"))));
-
-	ImGui::NewLine();
-
-	ImGui::Text("Attenuation");
-	checkChanged(changed, ImGui::SliderFloat("quadratic", m_lightBuffer->GetData().GetValuePointer<DynamicConstantBuffer::ElementType::Float>("attenuationQuadratic"), 0.000002f, 1.8f));
-	checkChanged(changed, ImGui::SliderFloat("linear", m_lightBuffer->GetData().GetValuePointer<DynamicConstantBuffer::ElementType::Float>("attenuationLinear"), 0.00007f, 0.7f));
-	checkChanged(changed, ImGui::SliderFloat("constant", m_lightBuffer->GetData().GetValuePointer<DynamicConstantBuffer::ElementType::Float>("attenuationConstant"), 0.001f, 10.0f));
-
-	if (!m_transformChanged && changed)
-		m_lightBuffer->Update(graphics);
+	m_lightBuffer->DrawImguiProperties(graphics);
 
 	// drawing propeties of sphere to mess with its mesh
 	GetLastChild()->DrawAdditionalPropeties(graphics, pipeline);

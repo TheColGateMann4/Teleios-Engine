@@ -154,11 +154,11 @@ Model::Model(Graphics& graphics, aiMesh* mesh, aiMaterial* material, std::string
 			layout.AddElement<DynamicConstantBuffer::ElementType::Float3>("defaultDiffuseColor");
 			layout.AddElement<DynamicConstantBuffer::ElementType::Float3>("defaultSpecularColor");
 
-			layout.AddElement<DynamicConstantBuffer::ElementType::Bool>("ignoreDiffseAlpha");
-			layout.AddElement<DynamicConstantBuffer::ElementType::Bool>("specularOneChannelOnly");
+			layout.AddElement<DynamicConstantBuffer::ElementType::Bool>("ignoreDiffseAlpha", DynamicConstantBuffer::ImguiData{ false });
+			layout.AddElement<DynamicConstantBuffer::ElementType::Bool>("specularOneChannelOnly", DynamicConstantBuffer::ImguiData{ false });
 
-			layout.AddElement<DynamicConstantBuffer::ElementType::Float>("specularShinnynes");
-			layout.AddElement<DynamicConstantBuffer::ElementType::Float>("specularPower");
+			layout.AddElement<DynamicConstantBuffer::ElementType::Float>("specularShinnynes", DynamicConstantBuffer::ImguiFloatData{ true, 0.001f, 150.0f });
+			layout.AddElement<DynamicConstantBuffer::ElementType::Float>("specularPower", DynamicConstantBuffer::ImguiFloatData{ true, 0.001f, 150.0f });
 
 
 			DynamicConstantBuffer::ConstantBufferData bufferData(layout);

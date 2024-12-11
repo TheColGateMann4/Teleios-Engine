@@ -36,6 +36,8 @@ public:
 
 	virtual void DrawAdditionalPropeties(Graphics& graphics, Pipeline& pipeline);
 
+	void DrawConstantBuffers(Graphics& graphics);
+
 	virtual void UpdateTransformMatrix(Graphics& graphics, Camera& camera);
 
 protected:
