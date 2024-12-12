@@ -24,6 +24,7 @@ PointLight::PointLight(Graphics& graphics, DirectX::XMFLOAT3 position, DirectX::
 	DynamicConstantBuffer::ConstantBufferLayout layout;
 	layout.AddElement<DynamicConstantBuffer::ElementType::Float3>("lightPosition", DynamicConstantBuffer::ImguiColorData{false});
 	layout.AddElement<DynamicConstantBuffer::ElementType::Float3>("diffuseColor");
+	layout.AddElement<DynamicConstantBuffer::ElementType::Float3>("specularColor");
 	layout.AddElement<DynamicConstantBuffer::ElementType::Float>("attenuationQuadratic",DynamicConstantBuffer::ImguiFloatData{ true, 0.001f, 1.8f, "%.3f" });
 	layout.AddElement<DynamicConstantBuffer::ElementType::Float>("attenuationLinear",	DynamicConstantBuffer::ImguiFloatData{ true, 0.0001f, 1.0f, "%.5f" });
 	layout.AddElement<DynamicConstantBuffer::ElementType::Float>("attenuationConstant", DynamicConstantBuffer::ImguiFloatData{ true, 0.000001f, 1.0f, "%.6f" });
@@ -31,6 +32,7 @@ PointLight::PointLight(Graphics& graphics, DirectX::XMFLOAT3 position, DirectX::
 	DynamicConstantBuffer::ConstantBufferData bufferData(layout);
 	// *bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float3>("lightPosition") = position; // we don't need to set this value since it will be overriden in Update() call by position in camera space
 	*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float3>("diffuseColor") = color;
+	*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float3>("specularColor") = color;
 	*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("attenuationQuadratic") = 0.2f;
 	*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("attenuationLinear") = 0.04f;
 	*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("attenuationConstant") = 0.07f;

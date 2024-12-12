@@ -19,6 +19,7 @@ cbuffer lightBuffer : register(b0)
 {
     float3 b_lightPositionInCameraSpace;
     float3 b_lightDiffuseColor;
+    float3 b_lightSpecularColor;
     float b_attenuationQuadratic;
     float b_attenuationLinear;
     float b_attenuationConstant;
@@ -117,7 +118,7 @@ float4 PSMain(
     const float3 w = normal * dot(vecDistanceToLight, normal);
     const float3 r = w * 2.0f - vecDistanceToLight;
 
-    float3 specular = (b_lightDiffuseColor * b_specularShinnynes) * attenuation * pow(max(0.0f, dot(normalize(-r), normalize(positionInCameraSpace))), specularPower);
+    float3 specular = (b_lightSpecularColor * b_specularShinnynes) * attenuation * pow(max(0.0f, dot(normalize(-r), normalize(positionInCameraSpace))), specularPower);
 
 
     return float4(diffuseColor * saturate(diffuse + b_ambient) + specularColor * specular, diffuseAlpha);
