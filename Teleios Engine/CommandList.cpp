@@ -91,6 +91,7 @@ void CommandList::SetResourceState(Graphics& graphics, RenderTarget* renderTarge
 		resourceBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 		resourceBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
 		resourceBarrier.Transition.pResource = pCurrFrontBuffer;
+		resourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 		resourceBarrier.Transition.StateBefore = renderTarget->GetResourceState(graphics);
 		resourceBarrier.Transition.StateAfter = newState;
 
@@ -109,6 +110,7 @@ void CommandList::SetResourceState(Graphics& graphics, ID3D12Resource* resource,
 	resourceBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 	resourceBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
 	resourceBarrier.Transition.pResource = resource;
+	resourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 	resourceBarrier.Transition.StateBefore = prevState;
 	resourceBarrier.Transition.StateAfter = newState;
 
