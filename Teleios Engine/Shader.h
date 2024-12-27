@@ -32,6 +32,8 @@ public:
 
 	virtual void BindToPipelineState(Graphics& graphics, GraphicsPipelineState* pipelineState) override;
 
+	virtual void BindToComputePipelineState(Graphics& graphics, ComputePipelineState* pipelineState) override;
+
 	ShaderType GetType() const;
 
 private:

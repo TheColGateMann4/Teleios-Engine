@@ -204,6 +204,11 @@ void Shader::BindToPipelineState(Graphics& graphics, GraphicsPipelineState* pipe
 	pipelineState->SetShader(this);
 }
 
+void Shader::BindToComputePipelineState(Graphics& graphics, ComputePipelineState* pipelineState)
+{
+	pipelineState->SetShader(this);
+}
+
 ShaderType Shader::GetType() const
 {
 	return m_type;
