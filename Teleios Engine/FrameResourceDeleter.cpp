@@ -1,9 +1,9 @@
 #include "FrameResourceDeleter.h"
 #include "Graphics.h"
 
-void FrameResourceDeleter::DeleteResource(Graphics& graphics, Microsoft::WRL::ComPtr<ID3D12Resource> pResource)
+void FrameResourceDeleter::DeleteResource(Graphics& graphics, std::any&& pResource)
 {
-	m_resources.push_back(FrameResourceForDeletion{ pResource, graphics.GetCurrentBufferIndex() });
+	m_resources.push_back(FrameResourceForDeletion{ std::move(pResource), graphics.GetCurrentBufferIndex() });
 }
 
 void FrameResourceDeleter::Update(Graphics& graphics)
@@ -12,7 +12,7 @@ void FrameResourceDeleter::Update(Graphics& graphics)
 	{
 		FrameResourceForDeletion& resourceForDeletion = m_resources.at(resourceIndex);
 
-		if(resourceForDeletion.frameIndex == graphics.GetCurrentBufferIndex())
+		if (resourceForDeletion.frameIndex == graphics.GetCurrentBufferIndex())
 		{
 			if (resourceForDeletion.firstIteration)
 				resourceForDeletion.firstIteration = false;
