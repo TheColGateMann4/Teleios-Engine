@@ -64,10 +64,10 @@ public: // bindable container functions
 
 	void SetTransformConstantBuffer(std::shared_ptr<TransformConstantBuffer> transformConstantBuffer);
 
-	const BindableContainer& GetBindableContainter() const;
+	const MeshBindableContainer& GetBindableContainter() const;
 
 protected:
-	BindableContainer m_bindableContainer;
+	MeshBindableContainer m_bindableContainer;
 
 	std::unique_ptr<GraphicsPipelineState> m_pipelineState;
 	std::unique_ptr<RootSignature> m_rootSignature;

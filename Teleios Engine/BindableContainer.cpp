@@ -6,91 +6,102 @@
 #include "IndexBuffer.h"
 #include "TransformConstantBuffer.h"
 #include "ConstantBuffer.h"
+#include "Texture.h"
 
-void BindableContainer::AddStaticBindable(const char* bindableName)
+void MeshBindableContainer::AddStaticBindable(const char* bindableName)
 {
 	m_staticBindableNames.push_back(bindableName);
 }
 
-void BindableContainer::AddBindable(std::shared_ptr<Bindable> bindable)
+void MeshBindableContainer::AddBindable(std::shared_ptr<Bindable> bindable)
 {
 	m_bindables.push_back(bindable);
 
 	SegregateBindable(bindable.get());
 }
 
-void BindableContainer::SetVertexBuffer(std::shared_ptr<VertexBuffer> vertexBuffer)
+
+void MeshBindableContainer::SetVertexBuffer(std::shared_ptr<VertexBuffer> vertexBuffer)
 {
 	m_vertexBuffer = vertexBuffer.get();
 
 	AddBindable(vertexBuffer);
 }
 
-void BindableContainer::SetIndexBuffer(std::shared_ptr<IndexBuffer> indexBuffer)
+void MeshBindableContainer::SetIndexBuffer(std::shared_ptr<IndexBuffer> indexBuffer)
 {
 	m_indexBuffer = indexBuffer.get();
 
 	AddBindable(indexBuffer);
 }
 
-void BindableContainer::SetTransformConstantBuffer(std::shared_ptr<TransformConstantBuffer> transformConstantBuffer)
+void MeshBindableContainer::SetTransformConstantBuffer(std::shared_ptr<TransformConstantBuffer> transformConstantBuffer)
 {
 	m_transformConstantBuffer = transformConstantBuffer.get();
 
 	AddBindable(transformConstantBuffer);
 }
 
-void BindableContainer::Initialize(Pipeline& pipeline)
+
+void MeshBindableContainer::Initialize(Pipeline& pipeline)
 {
 	for (auto staticBindableName : m_staticBindableNames)
-		SegregateBindableOnStartingPos(pipeline.GetStaticResource(staticBindableName));
+		SegregateBindableAtFirstPos(pipeline.GetStaticResource(staticBindableName));
 }
 
-const std::vector<CommandListBindable*>& BindableContainer::GetCommandListBindables() const
+
+const std::vector<CommandListBindable*>& MeshBindableContainer::GetCommandListBindables() const
 {
 	return m_commandListBindables;
 }
 
-const std::vector<DirectCommandListBindable*>& BindableContainer::GetDirectCommandListBindables() const
+const std::vector<DirectCommandListBindable*>& MeshBindableContainer::GetDirectCommandListBindables() const
 {
 	return m_directCommandListBindables;
 }
 
-const std::vector<RootSignatureBindable*>& BindableContainer::GetRootSignatureBindables() const
+const std::vector<RootSignatureBindable*>& MeshBindableContainer::GetRootSignatureBindables() const
 {
 	return m_rootSignatureBindables;
 }
 
-const std::vector<PipelineStateBindable*>& BindableContainer::GetPipelineStateBindables() const
+const std::vector<PipelineStateBindable*>& MeshBindableContainer::GetPipelineStateBindables() const
 {
 	return m_pipelineStateBindables;
 }
 
-VertexBuffer* BindableContainer::GetVertexBuffer() const
+VertexBuffer* MeshBindableContainer::GetVertexBuffer() const
 {
 	return m_vertexBuffer;
 }
 
-IndexBuffer* BindableContainer::GetIndexBuffer() const
+IndexBuffer* MeshBindableContainer::GetIndexBuffer() const
 {
 	return m_indexBuffer;
 }
 
-TransformConstantBuffer* BindableContainer::GetTransformConstantBuffer() const
+TransformConstantBuffer* MeshBindableContainer::GetTransformConstantBuffer() const
 {
 	return m_transformConstantBuffer;
 }
 
-const std::vector<CachedConstantBuffer*>& BindableContainer::GetCachedBuffers() const
+const std::vector<CachedConstantBuffer*>& MeshBindableContainer::GetCachedBuffers() const
 {
 	return m_cachedBuffers;
 }
 
-void BindableContainer::SegregateBindable(Bindable* bindable)
+const std::vector<Texture*>& MeshBindableContainer::GetTextures() const
 {
-	// we don't use this in SegregateBindableOnStartingPos() since that handles static bindables, they are meant to be read-only
+	return m_textures;
+}
+
+void MeshBindableContainer::SegregateBindable(Bindable* bindable)
+{
 	if (auto cachedConstantBuffer = dynamic_cast<CachedConstantBuffer*>(bindable))
 		m_cachedBuffers.push_back(cachedConstantBuffer);
+
+	if (auto texture = dynamic_cast<Texture*>(bindable))
+		m_textures.push_back(texture);
 
 
 	if (auto commandListBindable = dynamic_cast<CommandListBindable*>(bindable))
@@ -106,10 +117,10 @@ void BindableContainer::SegregateBindable(Bindable* bindable)
 		m_pipelineStateBindables.push_back(pipelineStateBindable);
 }
 
-void BindableContainer::SegregateBindableOnStartingPos(Bindable* bindable)
+void MeshBindableContainer::SegregateBindableAtFirstPos(Bindable* bindable)
 {
 	if (auto commandListBindable = dynamic_cast<CommandListBindable*>(bindable))
-		m_commandListBindables.push_back(commandListBindable);
+		m_commandListBindables.insert(m_commandListBindables.begin(), commandListBindable);
 
 	if (auto directCommandListBindable = dynamic_cast<DirectCommandListBindable*>(bindable))
 		m_directCommandListBindables.insert(m_directCommandListBindables.begin(), directCommandListBindable);
@@ -119,4 +130,53 @@ void BindableContainer::SegregateBindableOnStartingPos(Bindable* bindable)
 
 	if (auto pipelineStateBindable = dynamic_cast<PipelineStateBindable*>(bindable))
 		m_pipelineStateBindables.insert(m_pipelineStateBindables.begin(), pipelineStateBindable);
+}
+
+
+
+void SegregatedBindableContainer::AddBindable(std::shared_ptr<Bindable> bindable)
+{
+	m_temporaryBindables.push_back(bindable);
+
+	SegregateBindable(bindable.get());
+}
+
+void SegregatedBindableContainer::AddBindable(Bindable* bindable)
+{
+	SegregateBindable(bindable);
+}
+
+const std::vector<CommandListBindable*>& SegregatedBindableContainer::GetCommandListBindables() const
+{
+	return m_commandListBindables;
+}
+
+const std::vector<DirectCommandListBindable*>& SegregatedBindableContainer::GetDirectCommandListBindables() const
+{
+	return m_directCommandListBindables;
+}
+
+const std::vector<RootSignatureBindable*>& SegregatedBindableContainer::GetRootSignatureBindables() const
+{
+	return m_rootSignatureBindables;
+}
+
+const std::vector<PipelineStateBindable*>& SegregatedBindableContainer::GetPipelineStateBindables() const
+{
+	return m_pipelineStateBindables;
+}
+
+void SegregatedBindableContainer::SegregateBindable(Bindable* bindable)
+{
+	if (auto commandListBindable = dynamic_cast<CommandListBindable*>(bindable))
+		m_commandListBindables.push_back(commandListBindable);
+
+	if (auto directCommandListBindable = dynamic_cast<DirectCommandListBindable*>(bindable))
+		m_directCommandListBindables.push_back(directCommandListBindable);
+
+	if (auto rootSignatureBindable = dynamic_cast<RootSignatureBindable*>(bindable))
+		m_rootSignatureBindables.push_back(rootSignatureBindable);
+
+	if (auto pipelineStateBindable = dynamic_cast<PipelineStateBindable*>(bindable))
+		m_pipelineStateBindables.push_back(pipelineStateBindable);
 }

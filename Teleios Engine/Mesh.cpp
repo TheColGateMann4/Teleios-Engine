@@ -173,7 +173,7 @@ void Mesh::SetTransformConstantBuffer(std::shared_ptr<TransformConstantBuffer> t
 	m_bindableContainer.SetTransformConstantBuffer(transformConstantBuffer);
 }
 
-const BindableContainer& Mesh::GetBindableContainter() const
+const MeshBindableContainer& Mesh::GetBindableContainter() const
 {
 	return m_bindableContainer;
 }
