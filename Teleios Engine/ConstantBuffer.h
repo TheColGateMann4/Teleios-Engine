@@ -62,3 +62,25 @@ private:
 	DynamicConstantBuffer::ConstantBufferData m_data;
 	bool m_frequentlyUpdated;
 };
+
+// this buffer is meant for use without previous knowledgement. Compute pipelines
+class TempConstantBuffer : public ConstantBuffer
+{
+public:
+	TempConstantBuffer(Graphics& graphics, DynamicConstantBuffer::ConstantBufferData& data, std::vector<TargetSlotAndShader> targets = { {ShaderVisibilityGraphic::PixelShader, 0} }, bool frequentlyUpdated = false);
+
+	TempConstantBuffer(const CachedConstantBuffer&) = delete;
+
+	void Update(Graphics& graphics);
+
+	virtual void BindToComputeCommandList(Graphics& graphics, CommandList* commandList) override;
+
+	virtual void BindToComputeRootSignature(Graphics& graphics, RootSignature* rootSignature) override;
+
+	virtual D3D12_GPU_VIRTUAL_ADDRESS GetGPUAddress(Graphics& graphics) const override;
+
+	DynamicConstantBuffer::ConstantBufferData& GetData();
+
+private:
+	DynamicConstantBuffer::ConstantBufferData m_data;
+};

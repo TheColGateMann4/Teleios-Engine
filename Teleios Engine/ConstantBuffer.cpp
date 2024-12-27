@@ -55,7 +55,7 @@ CachedConstantBuffer::CachedConstantBuffer(Graphics& graphics, DynamicConstantBu
 	if(m_frequentlyUpdated)
 		resourceIndexInHeap = graphics.GetConstantBufferHeap().RequestMoreSpace(graphics, data.GetLayout().GetSize());
 	else
-		resourceIndexInHeap = graphics.GetConstantBufferHeap().RequestMoreStaticSpace(graphics, data.GetLayout().GetSize());
+		resourceIndexInHeap = graphics.GetConstantBufferHeap().RequestMoreStaticSpace(data.GetLayout().GetSize());
 }
 
 void CachedConstantBuffer::Initialize(Graphics& graphics)
@@ -90,4 +90,39 @@ void CachedConstantBuffer::DrawImguiProperties(Graphics& graphics)
 {
 	if (m_data.DrawImguiProperties())
 		Update(graphics);
+}
+
+TempConstantBuffer::TempConstantBuffer(Graphics& graphics, DynamicConstantBuffer::ConstantBufferData& data, std::vector<TargetSlotAndShader> targets, bool frequentlyUpdated)
+	:
+	ConstantBuffer(graphics, data.GetLayout(), targets),
+	m_data(data)
+{
+	resourceIndexInHeap = graphics.GetConstantBufferHeap().GetNextTempIndex(data.GetLayout().GetSize());
+
+	Update(graphics);
+}
+
+void TempConstantBuffer::Update(Graphics& graphics)
+{
+	graphics.GetConstantBufferHeap().UpdateTempResource(graphics, resourceIndexInHeap, m_data.GetPtr(), m_data.GetLayout().GetSize());
+}
+
+void TempConstantBuffer::BindToComputeCommandList(Graphics& graphics, CommandList* commandList)
+{
+	commandList->SetComputeConstBufferView(graphics, this);
+}
+
+void TempConstantBuffer::BindToComputeRootSignature(Graphics& graphics, RootSignature* rootSignature)
+{
+	rootSignature->AddConstBufferViewParameter(this);
+}
+
+D3D12_GPU_VIRTUAL_ADDRESS TempConstantBuffer::GetGPUAddress(Graphics& graphics) const
+{
+	return graphics.GetConstantBufferHeap().GetTempBufferAddress(resourceIndexInHeap);
+}
+
+DynamicConstantBuffer::ConstantBufferData& TempConstantBuffer::GetData()
+{
+	return m_data;
 }
