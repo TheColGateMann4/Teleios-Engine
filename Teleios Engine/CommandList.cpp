@@ -284,6 +284,30 @@ void CommandList::CopyBufferRegion(Graphics& graphics, ID3D12Resource* dstResour
 	));
 }
 
+void CommandList::CopyTextureRegion(Graphics& graphics, ID3D12Resource* dstResource, ID3D12Resource* srcResource, unsigned int MipMapLvel)
+{
+	THROW_OBJECT_STATE_ERROR_IF("Bundle command lists cannot copy resources", m_type == D3D12_COMMAND_LIST_TYPE_BUNDLE);
+
+	D3D12_TEXTURE_COPY_LOCATION dstTexture;
+	dstTexture.pResource = dstResource;
+	dstTexture.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
+	dstTexture.SubresourceIndex = MipMapLvel;
+
+	D3D12_TEXTURE_COPY_LOCATION srcTexture;
+	srcTexture.pResource = srcResource;
+	srcTexture.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
+	srcTexture.SubresourceIndex = MipMapLvel;
+
+	THROW_INFO_ERROR(pCommandList->CopyTextureRegion(
+		&dstTexture,
+		0,
+		0,
+		0,
+		&srcTexture,
+		nullptr
+	));
+}
+
 void CommandList::CopyResource(Graphics& graphics, ID3D12Resource* dstResource, ID3D12Resource* srcResource)
 {
 	THROW_OBJECT_STATE_ERROR_IF("Bundle command lists cannot copy resources", m_type == D3D12_COMMAND_LIST_TYPE_BUNDLE);
