@@ -1,6 +1,10 @@
 #include "Bindable.h"
 #include "Macros/ErrorMacros.h"
 
+void CommandListBindable::BindToComputeCommandList(Graphics& graphics, CommandList* commandList)
+{
+
+}
 
 RootSignatureBindable::RootSignatureBindable(std::vector<TargetSlotAndShader> targets)
 	:
@@ -19,7 +23,7 @@ void RootSignatureBindable::InternalInitialize(Graphics& graphics)
 	m_initialized = true;
 }
 
-void RootSignatureBindable::Initialize(Graphics& graphics)
+void RootSignatureBindable::BindToComputeRootSignature(Graphics& graphics, RootSignature* rootSignature)
 {
 
 }
@@ -37,4 +41,14 @@ D3D12_GPU_DESCRIPTOR_HANDLE RootSignatureBindable::GetDescriptorHeapGPUHandle(Gr
 std::vector<TargetSlotAndShader>& RootSignatureBindable::GetTargets()
 {
 	return m_targets;
+}
+
+void RootSignatureBindable::Initialize(Graphics& graphics)
+{
+
+}
+
+void PipelineStateBindable::BindToComputePipelineState(Graphics& graphics, ComputePipelineState* pipelineState)
+{
+
 }
