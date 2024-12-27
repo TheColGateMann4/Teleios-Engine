@@ -2,10 +2,13 @@
 #include "Graphics.h"
 #include "PipelineState.h"
 #include "Macros/ErrorMacros.h"
+
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
 #include "ConstantBuffer.h"
 #include "Texture.h"
+#include "UnorderedAccessView.h"
+
 #include "DescriptorHeap.h"
 
 CommandList::CommandList(Graphics& graphics, D3D12_COMMAND_LIST_TYPE type, PipelineState* pPipelineState)
@@ -66,6 +69,14 @@ void CommandList::DrawIndexed(Graphics& graphics, unsigned int indices)
 	THROW_OBJECT_STATE_ERROR_IF("Only Direct and Bundle command lists can DrawIndexed", m_type != D3D12_COMMAND_LIST_TYPE_DIRECT && m_type != D3D12_COMMAND_LIST_TYPE_BUNDLE);
 
 	THROW_INFO_ERROR(pCommandList->DrawIndexedInstanced(indices, 1, 0, 0, 0));
+}
+
+void CommandList::Dispatch(Graphics& graphics)
+{
+	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
+	THROW_OBJECT_STATE_ERROR_IF("Only Direct and Bundle command lists can dispatch compute pipeline", m_type != D3D12_COMMAND_LIST_TYPE_DIRECT && m_type != D3D12_COMMAND_LIST_TYPE_COMPUTE);
+
+	THROW_INFO_ERROR(pCommandList->Dispatch(1, 1, 1));
 }
 
 ID3D12GraphicsCommandList* CommandList::Get()
@@ -244,7 +255,7 @@ void CommandList::SetPipelineState(Graphics& graphics, PipelineState* pPipelineS
 void CommandList::SetComputeRootSignature(Graphics& graphics, RootSignature* rootSignature)
 {
 	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
-	THROW_OBJECT_STATE_ERROR_IF("Only Compute command lists can set compute root signature", m_type != D3D12_COMMAND_LIST_TYPE_COMPUTE);
+	THROW_OBJECT_STATE_ERROR_IF("Only Compute and Direct command lists can set compute root signature", m_type != D3D12_COMMAND_LIST_TYPE_COMPUTE && m_type != D3D12_COMMAND_LIST_TYPE_DIRECT);
 
 	THROW_INFO_ERROR(pCommandList->SetComputeRootSignature(rootSignature->Get()));
 }
@@ -252,7 +263,7 @@ void CommandList::SetComputeRootSignature(Graphics& graphics, RootSignature* roo
 void CommandList::SetComputeConstBufferView(Graphics& graphics, ConstantBuffer* constBuffer)
 {
 	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
-	THROW_OBJECT_STATE_ERROR_IF("Only Compute command lists can set compute root signature", m_type != D3D12_COMMAND_LIST_TYPE_COMPUTE);
+	THROW_OBJECT_STATE_ERROR_IF("Only Compute and Direct command lists can set compute constant buffer view", m_type != D3D12_COMMAND_LIST_TYPE_COMPUTE && m_type != D3D12_COMMAND_LIST_TYPE_DIRECT);
 
 	auto& targets = constBuffer->GetTargets();
 
@@ -263,12 +274,53 @@ void CommandList::SetComputeConstBufferView(Graphics& graphics, ConstantBuffer* 
 void CommandList::SetComputeDescriptorTable(Graphics& graphics, Texture* texture)
 {
 	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
-	THROW_OBJECT_STATE_ERROR_IF("Only Compute command lists can set compute root signature", m_type != D3D12_COMMAND_LIST_TYPE_COMPUTE);
+	THROW_OBJECT_STATE_ERROR_IF("Only Compute and Direct command lists can set compute descriptor table", m_type != D3D12_COMMAND_LIST_TYPE_COMPUTE && m_type != D3D12_COMMAND_LIST_TYPE_DIRECT);
 
-	auto& targets = texture->GetTargets();
+	THROW_INFO_ERROR(pCommandList->SetComputeRootDescriptorTable(texture->GetComputeRootIndex(), texture->GetDescriptorHeapGPUHandle(graphics)));
+}
+
+void CommandList::SetComputeDescriptorTable(Graphics& graphics, UnorderedAccessView* uav)
+{
+	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
+	THROW_OBJECT_STATE_ERROR_IF("Only Compute and Direct command lists can set compute descriptor table", m_type != D3D12_COMMAND_LIST_TYPE_COMPUTE && m_type != D3D12_COMMAND_LIST_TYPE_DIRECT);
+
+	auto& targets = uav->GetTargets();
 
 	for (auto& targetShader : targets)
-		THROW_INFO_ERROR(pCommandList->SetComputeRootDescriptorTable(targetShader.rootIndex, texture->GetDescriptorHeapGPUHandle(graphics)));
+		THROW_INFO_ERROR(pCommandList->SetComputeRootDescriptorTable(targetShader.rootIndex, uav->GetDescriptorHeapGPUHandle(graphics)));
+}
+
+void CommandList::SetComputeRootShaderResourceView(Graphics& graphics, ConstantBuffer* constBuffer)
+{
+	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
+	THROW_OBJECT_STATE_ERROR_IF("Only Compute and Direct command lists can set compute shader resource view", m_type != D3D12_COMMAND_LIST_TYPE_COMPUTE && m_type != D3D12_COMMAND_LIST_TYPE_DIRECT);
+
+	auto& targets = constBuffer->GetTargets();
+
+	for (auto& targetShader : targets)
+		THROW_INFO_ERROR(pCommandList->SetComputeRootShaderResourceView(targetShader.rootIndex, constBuffer->GetGPUAddress(graphics)));
+}
+
+void CommandList::SetComputeRootUnorderedAccessView(Graphics& graphics, ConstantBuffer* constBuffer)
+{
+	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
+	THROW_OBJECT_STATE_ERROR_IF("Only Compute and Direct command lists can set compute unordered access view", m_type != D3D12_COMMAND_LIST_TYPE_COMPUTE && m_type != D3D12_COMMAND_LIST_TYPE_DIRECT);
+
+	auto& targets = constBuffer->GetTargets();
+
+	for (auto& targetShader : targets)
+		THROW_INFO_ERROR(pCommandList->SetComputeRootUnorderedAccessView(targetShader.rootIndex, constBuffer->GetGPUAddress(graphics)));
+}
+
+void CommandList::SetComputeRootConstantBufferView(Graphics& graphics, ConstantBuffer* constBuffer)
+{
+	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
+	THROW_OBJECT_STATE_ERROR_IF("Only Compute and Direct command lists can set compute constant buffer view", m_type != D3D12_COMMAND_LIST_TYPE_COMPUTE && m_type != D3D12_COMMAND_LIST_TYPE_DIRECT);
+
+	auto& targets = constBuffer->GetTargets();
+
+	for (auto& targetShader : targets)
+		THROW_INFO_ERROR(pCommandList->SetComputeRootConstantBufferView(targetShader.rootIndex, constBuffer->GetGPUAddress(graphics)));
 }
 
 void CommandList::CopyBufferRegion(Graphics& graphics, ID3D12Resource* dstResource, UINT64 dstOffset, ID3D12Resource* srcResource, UINT64 srcOffset, UINT64 numBytes)

@@ -1,6 +1,7 @@
 #pragma once
 #include "includes/DirectXIncludes.h"
 #include "includes/WRLNoWarnings.h"
+#include "BindableContainer.h"
 
 class Graphics;
 class PipelineState;
@@ -13,8 +14,9 @@ class RootSignature;
 class ConstantBuffer;
 class Texture;
 class DescriptorHeap;
+class UnorderedAccessView;
 
-class ID3D12Resource;
+struct ID3D12Resource;
 
 class CommandList
 {
@@ -28,6 +30,8 @@ public:
 	void Close(Graphics& graphics);
 
 	void DrawIndexed(Graphics& graphics, unsigned int indices);
+
+	void Dispatch(Graphics& graphics);
 	
 	ID3D12GraphicsCommandList* Get();
 
@@ -35,10 +39,8 @@ public:
 
 public:
 	void SetResourceState(Graphics& graphics, RenderTarget* renderTarget, D3D12_RESOURCE_STATES newState) const;
-	
+
 	void SetResourceState(Graphics& graphics, ID3D12Resource* resource, D3D12_RESOURCE_STATES prevState, D3D12_RESOURCE_STATES newState) const;
-	
-	void SetRenderTarget(Graphics& graphics, RenderTarget* renderTarget, DepthStencilView* depthStencilView = nullptr);
 
 	void SetVertexBuffer(Graphics& graphics, VertexBuffer* vertexBuffer);
 
@@ -46,21 +48,28 @@ public:
 
 	void SetPrimitiveTopology(Graphics& graphics, D3D_PRIMITIVE_TOPOLOGY primitiveTechnology);
 
+	void SetDescriptorHeap(Graphics& graphics, DescriptorHeap* descriptorHeap);
+
+	void SetRenderTarget(Graphics& graphics, RenderTarget* renderTarget, DepthStencilView* depthStencilView = nullptr);
+
+	void SetPipelineState(Graphics& graphics, PipelineState* pPipelineState);
+
+	// graphics
 	void SetGraphicsRootSignature(Graphics& graphics, RootSignature* rootSignature);
 
 	void SetGraphicsConstBufferView(Graphics& graphics, ConstantBuffer* constBuffer);
 
-	void SetDescriptorHeap(Graphics& graphics, DescriptorHeap* descriptorHeap);
+	void SetGraphicsRootUnorderedAccessView(Graphics& graphics, ConstantBuffer* constBuffer);
+
+	void SetGraphicsRootShaderResourceView(Graphics& graphics, ConstantBuffer* constBuffer);
 
 	void SetGraphicsDescriptorTable(Graphics& graphics, Texture* texture);
-
-	void ExecuteBundle(Graphics& graphics, CommandList* commandList);
 
 	void ClearRenderTargetView(Graphics& graphics, RenderTarget* renderTarget);
 
 	void ClearDepthStencilView(Graphics& graphics, DepthStencilView* depthStencilView);
 
-	void SetPipelineState(Graphics& graphics, PipelineState* pPipelineState);
+	void ExecuteBundle(Graphics& graphics, CommandList* commandList);
 
 	// compute
 	void SetComputeRootSignature(Graphics& graphics, RootSignature* rootSignature);
@@ -68,6 +77,13 @@ public:
 	void SetComputeConstBufferView(Graphics& graphics, ConstantBuffer* constBuffer);
 
 	void SetComputeDescriptorTable(Graphics& graphics, Texture* texture);
+	void SetComputeDescriptorTable(Graphics& graphics, UnorderedAccessView* uav);
+
+	void SetComputeRootShaderResourceView(Graphics& graphics, ConstantBuffer* constBuffer);
+
+	void SetComputeRootUnorderedAccessView(Graphics& graphics, ConstantBuffer* constBuffer);
+
+	void SetComputeRootConstantBufferView(Graphics& graphics, ConstantBuffer* constBuffer);
 
 	// copy
 	void CopyBufferRegion(Graphics& graphics, ID3D12Resource* dstResource, UINT64 dstOffset, ID3D12Resource* srcResource, UINT64 srcOffset, UINT64 numBytes);
