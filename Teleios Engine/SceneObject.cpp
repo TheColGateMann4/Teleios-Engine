@@ -50,6 +50,15 @@ void SceneObject::InternalAddStaticResources(Pipeline& pipeline)
 		child->InternalAddStaticResources(pipeline);
 }
 
+void SceneObject::InitializeGraphicResources(Graphics& graphics, Pipeline& pipeline)
+{
+	for (auto& mesh : m_meshes)
+		mesh.InitializeGraphicResources(graphics, pipeline);
+
+	for (auto& child : m_children)
+		child->InitializeGraphicResources(graphics, pipeline);
+}
+
 void SceneObject::Initialize(Graphics& graphics, Pipeline& pipeline)
 {
 

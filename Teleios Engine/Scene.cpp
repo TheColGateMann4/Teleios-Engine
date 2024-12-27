@@ -54,10 +54,14 @@ void Scene::InitializeSceneObjects(Graphics& graphics)
 		sceneObject->InternalInitialize(graphics, m_pipeline);
 }
 
-void Scene::InitializeGraphicResources()
+void Scene::InitializeGraphicResources(Graphics& graphics)
 {
-	// create UAV buffer and SRV buffer
+	// copying constant buffers to GPU
+	graphics.GetConstantBufferHeap().CopyResources(graphics, m_pipeline.GetGraphicCommandList());
 
+	// running compute shaders and copying resources for specific resources like textures 
+	for (auto& sceneObject : m_sceneObjects)
+		sceneObject->InitializeGraphicResources(graphics, m_pipeline);
 }
 
 void Scene::DrawObjectInspector(Graphics& graphics)
@@ -119,7 +123,7 @@ void Scene::DrawSceneObjects(Graphics& graphics)
 	{
 		m_pipeline.BeginRender(graphics);
 
-		graphics.GetConstantBufferHeap().CopyResources(graphics, m_pipeline.GetGraphicCommandList());
+		InitializeGraphicResources(graphics);
 
 		m_pipeline.ExecuteCopyCalls(graphics);
 

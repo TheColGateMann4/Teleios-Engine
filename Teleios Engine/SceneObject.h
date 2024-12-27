@@ -20,6 +20,8 @@ public:
 
 	void InternalAddStaticResources(Pipeline& pipeline);
 
+	void InitializeGraphicResources(Graphics& graphics, Pipeline& pipeline);
+
 private:
 	virtual void Initialize(Graphics& graphics, Pipeline& pipeline);
 

@@ -127,7 +127,7 @@
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
       <AdditionalLibraryDirectories>D:\Libraries\DirectXTK12\Bin\Windows10_2022\$(LibrariesArchitecture)\$(Configuration);D:\Libraries\DirectXTex\DirectXTex\Bin\Windows10_2022\$(LibrariesArchitecture)\$(Configuration);D:\Libraries\assimp\lib\$(LibrariesArchitecture);$(OutDir)D3D12;D:\Libraries\DirectXCompiler2024_07_31\lib\$(LibrariesArchitecture)</AdditionalLibraryDirectories>
       <AdditionalDependencies>d3d12.lib;DirectXTK12.lib;DirectXTex.lib;assimp-vc143-mt.lib;DXGI.lib;dxcompiler.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
@@ -164,6 +164,7 @@
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="Bindable.cpp" />
+    <ClCompile Include="BindableContainer.cpp" />
     <ClCompile Include="BlendState.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="CommandList.cpp" />
@@ -203,15 +204,18 @@
     <ClCompile Include="SceneObject.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="Sphere.cpp" />
+    <ClCompile Include="TempCommandList.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="TransformConstantBuffer.cpp" />
     <ClCompile Include="Cube.cpp" />
+    <ClCompile Include="UnorderedAccessView.cpp" />
     <ClCompile Include="VertexBuffer.cpp" />
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
     <ClInclude Include="Bindable.h" />
+    <ClInclude Include="BindableContainer.h" />
     <ClInclude Include="BindableResourceList.h" />
     <ClInclude Include="BlendState.h" />
     <ClInclude Include="Camera.h" />
@@ -251,9 +255,11 @@
     <ClInclude Include="Shader.h" />
     <ClInclude Include="Sphere.h" />
     <ClInclude Include="TargetShaders.h" />
+    <ClInclude Include="TempCommandList.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="TransformConstantBuffer.h" />
     <ClInclude Include="Cube.h" />
+    <ClInclude Include="UnorderedAccessView.h" />
     <ClInclude Include="VertexBuffer.h" />
     <ClInclude Include="Window.h" />
     <ClInclude Include="includes\WRLNoWarnings.h" />

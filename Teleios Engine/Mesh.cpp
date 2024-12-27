@@ -30,13 +30,13 @@ void Mesh::Initialize(Graphics& graphics, Pipeline& pipeline)
 			}
 		}
 
-		m_bindableContainer.GetTransformConstantBuffer()->SetParentPtr(this);
+	m_bindableContainer.GetTransformConstantBuffer()->SetParentPtr(this);
 
 		m_rootSignature->Initialize(graphics);
-	}
+}
 
 	// initialize pipeline state object
-	{
+{
 		m_pipelineState = std::make_unique<GraphicsPipelineState>();
 
 		// initializing pipeline state desc
@@ -46,7 +46,7 @@ void Mesh::Initialize(Graphics& graphics, Pipeline& pipeline)
 
 				for (auto& pPipelineStateBindable : pipelineStateBindables)
 					pPipelineStateBindable->BindToPipelineState(graphics, m_pipelineState.get());
-			}
+}
 
 			m_pipelineState->SetRootSignature(m_rootSignature.get());
 
@@ -112,6 +112,12 @@ void Mesh::InternalUpdate(Graphics& graphics, Pipeline& pipeline)
 	m_bindableContainer.GetVertexBuffer()->BindToCopyPipelineIfNeeded(pipeline);
 
 	m_bindableContainer.GetIndexBuffer()->BindToCopyPipelineIfNeeded(pipeline);
+}
+
+void Mesh::InitializeGraphicResources(Graphics& graphics, Pipeline& pipeline)
+{
+	for (auto texture : m_bindableContainer.GetTextures())
+		texture->InitializeGraphicResources(graphics, pipeline);
 }
 
 void Mesh::DrawConstantBuffers(Graphics& graphics)

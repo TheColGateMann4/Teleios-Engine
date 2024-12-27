@@ -23,14 +23,12 @@ class Mesh
 public:
 	Mesh(DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation);
 	Mesh(Mesh&&) noexcept = default;
-	virtual ~Mesh() = default;
-
 	Mesh(const Mesh&) = delete;
+
+	virtual ~Mesh() = default;
 
 public:
 	void Initialize(Graphics& graphics, Pipeline& pipeline);
-
-	void RecordBundleList(Graphics& graphics);
 
 	void DrawMesh(Graphics& graphics, Pipeline& pipeline) const;
 
@@ -41,6 +39,8 @@ public:
 	DirectX::XMFLOAT3& GetRotationLVal();
 
 	void InternalUpdate(Graphics& graphics, Pipeline& pipeline);
+
+	void InitializeGraphicResources(Graphics& graphics, Pipeline& pipeline);
 
 	void DrawConstantBuffers(Graphics& graphics);
 

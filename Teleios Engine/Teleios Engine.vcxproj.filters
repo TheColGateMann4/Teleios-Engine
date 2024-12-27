@@ -162,10 +162,19 @@
     <ClCompile Include="Scene.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="UnorderedAccessView.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="ConstantBufferHeap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ModelImporter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BindableContainer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TempCommandList.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -305,10 +314,19 @@
     <ClInclude Include="Scene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="UnorderedAccessView.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="ConstantBufferHeap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ModelImporter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BindableContainer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TempCommandList.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -333,11 +351,23 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
-    <CopyFileToFolders Include="Dependencies\assimp-vc143-mt.dll" />
-    <CopyFileToFolders Include="Dependencies\zlib1.dll" />
-    <CopyFileToFolders Include="Dependencies\dxcompiler.dll" />
-    <CopyFileToFolders Include="Dependencies\dxil.dll" />
-    <CopyFileToFolders Include="Dependencies\AgilitySDK\D3D12Core.dll" />
-    <CopyFileToFolders Include="Dependencies\AgilitySDK\d3d12SDKLayers.dll" />
+    <CopyFileToFolders Include="Dependencies\zlib1.dll">
+      <Filter>Dependencies</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Dependencies\assimp-vc143-mt.dll">
+      <Filter>Dependencies</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Dependencies\AgilitySDK\D3D12Core.dll">
+      <Filter>Dependencies</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Dependencies\AgilitySDK\d3d12SDKLayers.dll">
+      <Filter>Dependencies</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Dependencies\dxcompiler.dll">
+      <Filter>Dependencies</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Dependencies\dxil.dll">
+      <Filter>Dependencies</Filter>
+    </CopyFileToFolders>
   </ItemGroup>
 </Project>
