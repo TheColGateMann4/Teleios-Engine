@@ -6,6 +6,7 @@
 class Graphics;
 class ConstantBuffer;
 class Texture;
+class UnorderedAccessView;
 class StaticSampler;
 
 class RootSignature
@@ -20,12 +21,18 @@ public:
 
 	// returns rootIndex that was used
 	void AddConstBufferViewParameter(ConstantBuffer* constantBuffer);
+
 	void AddDescriptorTableParameter(Texture* texture);
+	void AddComputeDescriptorTableParameter(Texture* texture, TargetSlotAndShader target);
+
 	//srv
-	// uav
+
+	void AddUnorderedAccessViewParameter(UnorderedAccessView* uav);
+
 	// constants
 
 	void AddStaticSampler(StaticSampler* staticSampler);
+	void AddComputeStaticSampler(StaticSampler* staticSampler, TargetSlotAndShader target);
 
 private:
 	void ConnectDescriptorParametersToRanges();
