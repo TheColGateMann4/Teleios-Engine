@@ -2,6 +2,8 @@
 #include "Graphics.h"
 #include "Macros/ErrorMacros.h"
 
+#define ADDITIONAL_DESCRIPTOR_HEAP_SIZE 1024
+
 void DescriptorHeap::RequestMoreSpace()
 {
 	THROW_OBJECT_STATE_ERROR_IF("Tried to increment DescriptorHeap size after it has been created", m_finished);
@@ -20,7 +22,7 @@ void DescriptorHeap::Finish(Graphics& graphics)
 	{
 		D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc = {};
 		descriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-		descriptorHeapDesc.NumDescriptors = m_requestedSize;
+		descriptorHeapDesc.NumDescriptors = m_requestedSize + ADDITIONAL_DESCRIPTOR_HEAP_SIZE; // requested time at initialization + more free slots for runtime
 		descriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 		descriptorHeapDesc.NodeMask = 0;
 
@@ -35,7 +37,7 @@ void DescriptorHeap::Finish(Graphics& graphics)
 DescriptorHeap::DescriptorInfo DescriptorHeap::GetNextHandle()
 {
 	THROW_OBJECT_STATE_ERROR_IF("Tried to get GPU handle when DescriptorHeap object wasn't finished yet", !m_finished);
-	THROW_OBJECT_STATE_ERROR_IF("Tried to get descriptor handle out of bounds", m_nextHandleIndex > m_requestedSize - 1);
+	THROW_OBJECT_STATE_ERROR_IF("Tried to get descriptor handle out of bounds", m_nextHandleIndex > m_requestedSize + ADDITIONAL_DESCRIPTOR_HEAP_SIZE - 1);
 
 	SIZE_T resourceOffset = static_cast<SIZE_T>(m_descriptorIncrementSize * m_nextHandleIndex);
 
