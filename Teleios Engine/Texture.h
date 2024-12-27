@@ -4,10 +4,13 @@
 #include "TargetShaders.h"
 #include "Bindable.h"
 
+#include "DescriptorHeap.h"
+
 class CommandList;
 class RootSignature;
 class DescriptorHeap;
 class Graphics;
+class Pipeline;
 
 class Texture : public Bindable, public CommandListBindable, public RootSignatureBindable
 {
@@ -23,28 +26,51 @@ public:
 	static std::string GetIdentifier(const char* path, bool generateMips, std::vector<TargetSlotAndShader> targets);
 
 public:
+	void InitializeGraphicResources(Graphics& graphics, Pipeline& pipeline);
+
 	virtual void BindToCommandList(Graphics& graphics, CommandList* commandList) override;
+
+	virtual void BindToComputeCommandList(Graphics& graphics, CommandList* commandList) override;
 
 	virtual void BindToRootSignature(Graphics& graphics, RootSignature* rootSignature) override;
 
-	virtual D3D12_GPU_DESCRIPTOR_HANDLE GetDescriptorHeapGPUHandle(Graphics& graphics) const override;
+	virtual void BindToComputeRootSignature(Graphics& graphics, RootSignature* rootSignature) override;
 
+	virtual D3D12_GPU_DESCRIPTOR_HANDLE GetDescriptorHeapGPUHandle(Graphics& graphics) const override;
+	
 	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUDescriptor(Graphics& graphics) const;
 
 	DXGI_FORMAT GetFormat() const;
 
 	UINT GetOffsetInDescriptor() const;
 
+	UINT GetUploadResourceOffsetInDescriptor() const;
+
+	ID3D12Resource* GetResource() const;
+
+	unsigned int GetComputeRootIndex() const;
+
+	void SetComputeRootIndex(unsigned int rootIndex);
+
+private:
+	static unsigned int GetMipLevels(unsigned int textureWidth);
+
 private:
 	Microsoft::WRL::ComPtr<ID3D12Resource> pTexture;
+	Microsoft::WRL::ComPtr<ID3D12Resource> pUploadTexture;
 
 private:
+	D3D12_RESOURCE_STATES m_targetResourceState = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
 	std::string m_path;
 	bool m_isAlphaOpaque = false;
-	bool m_generateMipMaps;
 	DXGI_FORMAT m_format = DXGI_FORMAT_UNKNOWN;
+	unsigned int m_minmapLevels = 1;
 
-	D3D12_GPU_DESCRIPTOR_HANDLE m_descriptorHeapGPUHandle = {};
-	D3D12_CPU_DESCRIPTOR_HANDLE m_descriptorCPUHandle = {};
-	UINT m_offsetInDescriptorFromStart = 0;
+	DescriptorHeap::DescriptorInfo m_textureDescriptor = {};
+	DescriptorHeap::DescriptorInfo m_uploadResourceDescriptor = {};
+
+	bool m_generateMipMaps;
+	bool m_mipsGenerated;
+
+	unsigned int m_computeRootIndex = 0;
 };
