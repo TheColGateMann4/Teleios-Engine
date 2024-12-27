@@ -52,6 +52,11 @@ void StaticSampler::BindToRootSignature(Graphics& graphics, RootSignature* rootS
 	rootSignature->AddStaticSampler(this);
 }
 
+void StaticSampler::BindToComputeRootSignature(Graphics& graphics, RootSignature* rootSignature)
+{
+	rootSignature->AddComputeStaticSampler(this, { ShaderVisibilityGraphic::AllShaders, 0 });
+}
+
 D3D12_STATIC_SAMPLER_DESC StaticSampler::Get() const
 {
 	return m_staticSamplerDesc;

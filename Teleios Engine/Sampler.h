@@ -18,6 +18,8 @@ public:
 public:
 	virtual void BindToRootSignature(Graphics& graphics, RootSignature* rootSignature) override;
 
+	virtual void BindToComputeRootSignature(Graphics& graphics, RootSignature* rootSignature) override;
+
 	D3D12_STATIC_SAMPLER_DESC Get() const;
 
 private:
