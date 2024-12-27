@@ -19,6 +19,32 @@ RootSignature::RootSignature()
 	m_rootSignatureDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT; // using this flag so input layout defines vertex buffer structures
 }
 
+RootSignature::RootSignature(RootSignature&& moved) noexcept
+	:
+	pRootSignature(moved.pRootSignature),
+	m_finished(moved.m_finished),
+
+	m_rootSignatureDesc(moved.m_rootSignatureDesc),
+	m_rootParameters(moved.m_rootParameters),
+	m_staticSamplers(moved.m_staticSamplers),
+	m_descriptorTableRanges(moved.m_descriptorTableRanges)
+{
+
+}
+
+RootSignature::RootSignature(const RootSignature& copied)
+	:
+	pRootSignature(copied.pRootSignature),
+	m_finished(copied.m_finished),
+
+	m_rootSignatureDesc(copied.m_rootSignatureDesc),
+	m_rootParameters(copied.m_rootParameters),
+	m_staticSamplers(copied.m_staticSamplers),
+	m_descriptorTableRanges(copied.m_descriptorTableRanges)
+{
+	THROW_INTERNAL_ERROR("Called copy constructor for root signature\n"); // we actually don't want to call this function, its only so we can use objects as std::any
+}
+
 ID3D12RootSignature* RootSignature::Get() const
 {
 	THROW_OBJECT_STATE_ERROR_IF("Object was not finished", !m_finished);

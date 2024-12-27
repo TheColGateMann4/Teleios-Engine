@@ -2,6 +2,7 @@
 #include "includes/DirectXIncludes.h"
 #include "includes/WRLNoWarnings.h"
 #include "TargetShaders.h"
+#include "Bindable.h"
 
 class Graphics;
 class ConstantBuffer;
@@ -13,6 +14,8 @@ class RootSignature
 {
 public:
 	RootSignature();
+	RootSignature(RootSignature&& moved) noexcept;
+	RootSignature(const RootSignature& copied);
 
 public:
 	ID3D12RootSignature* Get() const;
