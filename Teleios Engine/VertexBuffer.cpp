@@ -57,7 +57,7 @@ void VertexBuffer::CopyResources(Graphics& graphics, CommandList* copyCommandLis
 	copyCommandList->SetResourceState(graphics, pVertexBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
 	copyCommandList->SetResourceState(graphics, pUploadResource.Get(), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
 
-	graphics.GetFrameResourceDeleter()->DeleteResource(graphics, pUploadResource);
+	graphics.GetFrameResourceDeleter()->DeleteResource(graphics, std::move(pUploadResource));
 	pUploadResource.Reset();
 }
 
@@ -71,7 +71,7 @@ void VertexBuffer::Update(Graphics& graphics, void* pData, size_t numElements, s
 	// if sizes are not the same, we will be creating new GPU resource.
 	if (m_bufferSize != dataStride * numElements)
 	{
-		graphics.GetFrameResourceDeleter()->DeleteResource(graphics, pVertexBuffer);
+		graphics.GetFrameResourceDeleter()->DeleteResource(graphics, std::move(pVertexBuffer));
 		CreateResource(graphics, numElements, dataStride, pVertexBuffer);
 	}
 

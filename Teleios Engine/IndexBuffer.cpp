@@ -67,7 +67,7 @@ void IndexBuffer::CopyResources(Graphics& graphics, CommandList* copyCommandList
 	copyCommandList->SetResourceState(graphics, pIndexBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_INDEX_BUFFER);
 	copyCommandList->SetResourceState(graphics, pUploadResource.Get(), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_INDEX_BUFFER);
 
-	graphics.GetFrameResourceDeleter()->DeleteResource(graphics, pUploadResource);
+	graphics.GetFrameResourceDeleter()->DeleteResource(graphics, std::move(pUploadResource));
 	pUploadResource.Reset();
 }
 
@@ -81,7 +81,7 @@ void IndexBuffer::Update(Graphics& graphics, void* pData, size_t numElements, si
 	// if sizes are not the same, we will be creating new GPU resource.
 	if (m_bufferSize != numElements * structureSize)
 	{
-		graphics.GetFrameResourceDeleter()->DeleteResource(graphics, pIndexBuffer);
+		graphics.GetFrameResourceDeleter()->DeleteResource(graphics, std::move(pIndexBuffer));
 		CreateResource(graphics, numElements, structureSize, pIndexBuffer);
 	}
 
