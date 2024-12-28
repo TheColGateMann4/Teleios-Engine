@@ -143,7 +143,7 @@ void VertexBuffer::CreateResource(Graphics& graphics, size_t numElements, size_t
 	}
 
 	// initializing vertex buffer view only for GPU memory space resource
-	if(!pUploadResource)
+	if(!isUploadResource)
 	{
 		m_vertexBufferView.BufferLocation = resultResource->GetGPUVirtualAddress();
 		m_vertexBufferView.SizeInBytes = m_bufferSize;
