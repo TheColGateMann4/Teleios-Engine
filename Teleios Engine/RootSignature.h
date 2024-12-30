@@ -9,6 +9,7 @@ class ConstantBuffer;
 class Texture;
 class UnorderedAccessView;
 class StaticSampler;
+class TextureMipView;
 
 class RootSignature
 {
@@ -25,6 +26,7 @@ public:
 	// returns rootIndex that was used
 	void AddConstBufferViewParameter(ConstantBuffer* constantBuffer);
 
+	void AddDescriptorTableParameter(TextureMipView* textureMipView);
 	void AddDescriptorTableParameter(Texture* texture);
 	void AddComputeDescriptorTableParameter(Texture* texture, TargetSlotAndShader target);
 
@@ -39,6 +41,10 @@ public:
 
 private:
 	void ConnectDescriptorParametersToRanges();
+
+	// returns root index
+	unsigned int m_AddDescriptorTableParameter(UINT offsetInDescriptor, TargetSlotAndShader target, D3D12_DESCRIPTOR_RANGE_TYPE descriptorType);
+	void m_AddStaticSampler(StaticSampler* staticSampler, TargetSlotAndShader target);
 
 private:
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> pRootSignature;

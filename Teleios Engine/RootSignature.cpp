@@ -6,6 +6,7 @@
 #include "Texture.h"
 #include "UnorderedAccessView.h"
 #include "Sampler.h"
+#include "TextureMipView.h"
 
 RootSignature::RootSignature()
 	:
@@ -104,53 +105,74 @@ void RootSignature::AddConstBufferViewParameter(ConstantBuffer* constantBuffer)
 	m_rootSignatureDesc.pParameters = m_rootParameters.data();
 }
 
+void RootSignature::AddDescriptorTableParameter(TextureMipView* textureMipView)
+{
+	auto& targets = textureMipView->GetTargets();
+
+	for (auto& targetShader : targets)
+		targetShader.rootIndex = m_AddDescriptorTableParameter(textureMipView->GetOffsetInDescriptor(), targetShader, D3D12_DESCRIPTOR_RANGE_TYPE_SRV);
+}
+
 void RootSignature::AddDescriptorTableParameter(Texture* texture)
 {
 	auto& targets = texture->GetTargets();
 
 	for (auto& targetShader : targets)
-	{
-		targetShader.rootIndex = m_rootSignatureDesc.NumParameters;
-
-		m_rootSignatureDesc.NumParameters++;
-
-		D3D12_DESCRIPTOR_RANGE1 descriptorRange = {};
-		descriptorRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-		descriptorRange.NumDescriptors = 1;
-		descriptorRange.BaseShaderRegister = targetShader.slot;
-		descriptorRange.RegisterSpace = 0;
-		descriptorRange.Flags = D3D12_DESCRIPTOR_RANGE_FLAG_NONE;
-		descriptorRange.OffsetInDescriptorsFromTableStart = texture->GetOffsetInDescriptor();
-
-		m_descriptorTableRanges.push_back(descriptorRange);
-
-
-		D3D12_ROOT_PARAMETER1 rootParameter = {};
-		rootParameter.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-		rootParameter.DescriptorTable = {}; // we are not setting pointer to data here since every push invalidates pointers to data
-		rootParameter.DescriptorTable.NumDescriptorRanges = 1;
-		rootParameter.ShaderVisibility = static_cast<D3D12_SHADER_VISIBILITY>(targetShader.target);
-
-		m_rootParameters.push_back(rootParameter);
-	}
-
-	m_rootSignatureDesc.pParameters = m_rootParameters.data();
+		targetShader.rootIndex = m_AddDescriptorTableParameter(texture->GetOffsetInDescriptor(), targetShader, D3D12_DESCRIPTOR_RANGE_TYPE_SRV);
 }
 
 void RootSignature::AddComputeDescriptorTableParameter(Texture* texture, TargetSlotAndShader target)
 {
-	{
-		texture->SetComputeRootIndex(m_rootSignatureDesc.NumParameters);
+	texture->SetComputeRootIndex(m_AddDescriptorTableParameter(texture->GetOffsetInDescriptor(), target, D3D12_DESCRIPTOR_RANGE_TYPE_SRV));
+}
 
+void RootSignature::AddUnorderedAccessViewParameter(UnorderedAccessView* uav)
+{
+	auto& targets = uav->GetTargets();
+
+	for (auto& targetShader : targets)
+		targetShader.rootIndex = m_AddDescriptorTableParameter(uav->GetOffsetInDescriptor(), targetShader, D3D12_DESCRIPTOR_RANGE_TYPE_UAV);
+}
+
+void RootSignature::AddStaticSampler(StaticSampler* staticSampler)
+{
+	auto& targets = staticSampler->GetTargets();
+
+	for (auto& targetShader : targets)
+		m_AddStaticSampler(staticSampler, targetShader);
+}
+
+void RootSignature::AddComputeStaticSampler(StaticSampler* staticSampler, TargetSlotAndShader target)
+{
+	m_AddStaticSampler(staticSampler, target);
+}
+
+void RootSignature::ConnectDescriptorParametersToRanges()
+{
+	size_t descriptorIndex = 0;
+
+	for (size_t index = 0; index < m_rootParameters.size(); index++)
+		if(m_rootParameters.at(index).ParameterType == D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE)
+		{
+			m_rootParameters.at(index).DescriptorTable.pDescriptorRanges = &m_descriptorTableRanges.at(descriptorIndex);
+			descriptorIndex++;
+		}
+}
+
+unsigned int RootSignature::m_AddDescriptorTableParameter(UINT offsetInDescriptor, TargetSlotAndShader target, D3D12_DESCRIPTOR_RANGE_TYPE descriptorType)
+{
+	unsigned int resultRootIndex = m_rootSignatureDesc.NumParameters;
+
+	{
 		m_rootSignatureDesc.NumParameters++;
 
 		D3D12_DESCRIPTOR_RANGE1 descriptorRange = {};
-		descriptorRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+		descriptorRange.RangeType = descriptorType;
 		descriptorRange.NumDescriptors = 1;
 		descriptorRange.BaseShaderRegister = target.slot;
 		descriptorRange.RegisterSpace = 0;
 		descriptorRange.Flags = D3D12_DESCRIPTOR_RANGE_FLAG_NONE;
-		descriptorRange.OffsetInDescriptorsFromTableStart = texture->GetUploadResourceOffsetInDescriptor();
+		descriptorRange.OffsetInDescriptorsFromTableStart = offsetInDescriptor;
 
 		m_descriptorTableRanges.push_back(descriptorRange);
 
@@ -165,59 +187,11 @@ void RootSignature::AddComputeDescriptorTableParameter(Texture* texture, TargetS
 	}
 
 	m_rootSignatureDesc.pParameters = m_rootParameters.data();
+
+	return resultRootIndex;
 }
 
-void RootSignature::AddUnorderedAccessViewParameter(UnorderedAccessView* uav)
-{
-	auto& targets = uav->GetTargets();
-
-	for (auto& targetShader : targets)
-	{
-		targetShader.rootIndex = m_rootSignatureDesc.NumParameters;
-
-		m_rootSignatureDesc.NumParameters++;
-
-		D3D12_DESCRIPTOR_RANGE1 descriptorRange = {};
-		descriptorRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_UAV;
-		descriptorRange.NumDescriptors = 1;
-		descriptorRange.BaseShaderRegister = targetShader.slot;
-		descriptorRange.RegisterSpace = 0;
-		descriptorRange.Flags = D3D12_DESCRIPTOR_RANGE_FLAG_NONE;
-		descriptorRange.OffsetInDescriptorsFromTableStart = uav->GetOffsetInDescriptor();
-
-		m_descriptorTableRanges.push_back(descriptorRange);
-
-
-		D3D12_ROOT_PARAMETER1 rootParameter = {};
-		rootParameter.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-		rootParameter.DescriptorTable = {}; // we are not setting pointer to data here since every push invalidates pointers to data
-		rootParameter.DescriptorTable.NumDescriptorRanges = 1;
-		rootParameter.ShaderVisibility = static_cast<D3D12_SHADER_VISIBILITY>(targetShader.target);
-
-		m_rootParameters.push_back(rootParameter);
-	}
-
-	m_rootSignatureDesc.pParameters = m_rootParameters.data();
-}
-
-void RootSignature::AddStaticSampler(StaticSampler* staticSampler)
-{
-	m_rootSignatureDesc.NumStaticSamplers++;
-
-	auto& targets = staticSampler->GetTargets();
-
-	for (auto& targetShader : targets)
-	{
-		m_staticSamplers.push_back(staticSampler->Get());
-
-		m_staticSamplers.back().ShaderRegister = targetShader.slot;
-		m_staticSamplers.back().ShaderVisibility = static_cast<D3D12_SHADER_VISIBILITY>(targetShader.target);
-	}
-
-	m_rootSignatureDesc.pStaticSamplers = m_staticSamplers.data();
-}
-
-void RootSignature::AddComputeStaticSampler(StaticSampler* staticSampler, TargetSlotAndShader target)
+void RootSignature::m_AddStaticSampler(StaticSampler* staticSampler, TargetSlotAndShader target)
 {
 	m_rootSignatureDesc.NumStaticSamplers++;
 
@@ -227,16 +201,4 @@ void RootSignature::AddComputeStaticSampler(StaticSampler* staticSampler, Target
 	m_staticSamplers.back().ShaderVisibility = static_cast<D3D12_SHADER_VISIBILITY>(target.target);
 
 	m_rootSignatureDesc.pStaticSamplers = m_staticSamplers.data();
-}
-
-void RootSignature::ConnectDescriptorParametersToRanges()
-{
-	size_t descriptorIndex = 0;
-
-	for (size_t index = 0; index < m_rootParameters.size(); index++)
-		if(m_rootParameters.at(index).ParameterType == D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE)
-		{
-			m_rootParameters.at(index).DescriptorTable.pDescriptorRanges = &m_descriptorTableRanges.at(descriptorIndex);
-			descriptorIndex++;
-		}
 }
