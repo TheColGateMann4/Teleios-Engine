@@ -15,6 +15,7 @@ class ConstantBuffer;
 class Texture;
 class DescriptorHeap;
 class UnorderedAccessView;
+class TextureMipView;
 
 struct ID3D12Resource;
 
@@ -78,6 +79,7 @@ public:
 
 	void SetComputeDescriptorTable(Graphics& graphics, Texture* texture);
 	void SetComputeDescriptorTable(Graphics& graphics, UnorderedAccessView* uav);
+	void SetComputeDescriptorTable(Graphics& graphics, TextureMipView* srv);
 
 	void SetComputeRootShaderResourceView(Graphics& graphics, ConstantBuffer* constBuffer);
 

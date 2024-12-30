@@ -8,6 +8,7 @@
 #include "ConstantBuffer.h"
 #include "Texture.h"
 #include "UnorderedAccessView.h"
+#include "TextureMipView.h"
 
 #include "DescriptorHeap.h"
 
@@ -288,6 +289,17 @@ void CommandList::SetComputeDescriptorTable(Graphics& graphics, UnorderedAccessV
 
 	for (auto& targetShader : targets)
 		THROW_INFO_ERROR(pCommandList->SetComputeRootDescriptorTable(targetShader.rootIndex, uav->GetDescriptorHeapGPUHandle(graphics)));
+}
+
+void CommandList::SetComputeDescriptorTable(Graphics& graphics, TextureMipView* srv)
+{
+	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
+	THROW_OBJECT_STATE_ERROR_IF("Only Compute and Direct command lists can set compute descriptor table", m_type != D3D12_COMMAND_LIST_TYPE_COMPUTE && m_type != D3D12_COMMAND_LIST_TYPE_DIRECT);
+
+	auto& targets = srv->GetTargets();
+
+	for (auto& targetShader : targets)
+		THROW_INFO_ERROR(pCommandList->SetComputeRootDescriptorTable(targetShader.rootIndex, srv->GetDescriptorHeapGPUHandle(graphics)));
 }
 
 void CommandList::SetComputeRootShaderResourceView(Graphics& graphics, ConstantBuffer* constBuffer)
