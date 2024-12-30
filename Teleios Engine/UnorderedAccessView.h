@@ -1,7 +1,5 @@
 #pragma once
 #include "Bindable.h"
-#include "Includes/DirectXIncludes.h"
-#include "Includes/WRLNoWarnings.h"
 #include "DescriptorHeap.h"
 
 class Graphics;
