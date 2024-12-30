@@ -40,7 +40,7 @@ public:
 public:
 	void SetResourceState(Graphics& graphics, RenderTarget* renderTarget, D3D12_RESOURCE_STATES newState) const;
 
-	void SetResourceState(Graphics& graphics, ID3D12Resource* resource, D3D12_RESOURCE_STATES prevState, D3D12_RESOURCE_STATES newState) const;
+	void SetResourceState(Graphics& graphics, ID3D12Resource* resource, D3D12_RESOURCE_STATES prevState, D3D12_RESOURCE_STATES newState, unsigned int targetSubresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES) const;
 
 	void SetVertexBuffer(Graphics& graphics, VertexBuffer* vertexBuffer);
 

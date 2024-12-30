@@ -112,7 +112,7 @@ void CommandList::SetResourceState(Graphics& graphics, RenderTarget* renderTarge
 	renderTarget->SetResourceState(graphics, newState);
 }
 
-void CommandList::SetResourceState(Graphics& graphics, ID3D12Resource* resource, D3D12_RESOURCE_STATES prevState, D3D12_RESOURCE_STATES newState) const
+void CommandList::SetResourceState(Graphics& graphics, ID3D12Resource* resource, D3D12_RESOURCE_STATES prevState, D3D12_RESOURCE_STATES newState, unsigned int targetSubresource) const
 {
 	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
 	THROW_OBJECT_STATE_ERROR_IF("Non-direct command list object", m_type != D3D12_COMMAND_LIST_TYPE_DIRECT);
@@ -121,7 +121,7 @@ void CommandList::SetResourceState(Graphics& graphics, ID3D12Resource* resource,
 	resourceBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 	resourceBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
 	resourceBarrier.Transition.pResource = resource;
-	resourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+	resourceBarrier.Transition.Subresource = targetSubresource;
 	resourceBarrier.Transition.StateBefore = prevState;
 	resourceBarrier.Transition.StateAfter = newState;
 
