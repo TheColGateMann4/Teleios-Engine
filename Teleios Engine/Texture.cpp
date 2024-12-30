@@ -15,6 +15,7 @@
 #include "UnorderedAccessView.h"
 #include "ConstantBuffer.h"
 #include "Sampler.h"
+#include "TextureMipView.h"
 
 #include "Pipeline.h"
 
@@ -155,17 +156,6 @@ void Texture::Initialize(Graphics& graphics)
 			m_textureDescriptor.descriptorCpuHandle
 		));
 	}
-
-	// creating SRV for upload resource
-	{
-		m_uploadResourceDescriptor = graphics.GetDescriptorHeap().GetNextHandle();
-
-		THROW_INFO_ERROR(graphics.GetDevice()->CreateShaderResourceView(
-			pUploadTexture.Get(),
-			&shaderResourceViewDesc,
-			m_uploadResourceDescriptor.descriptorCpuHandle
-		));
-	}
 }
 
 std::shared_ptr<Texture> Texture::GetBindableResource(Graphics& graphics, const char* path, bool generateMips, std::vector<TargetSlotAndShader> targets)
@@ -197,8 +187,7 @@ void Texture::InitializeGraphicResources(Graphics& graphics, Pipeline& pipeline)
 	if (m_mipsGenerated || !m_generateMipMaps)
 		return;
 
-	// before any processing we copy mip level 0 to gpu resource
-	// and set resource states needed in next stage
+	// copy mip level 0 from upload to gpu resource
 	{
 		CommandList* copyCommandList = pipeline.GetGraphicCommandList();
 
@@ -207,8 +196,10 @@ void Texture::InitializeGraphicResources(Graphics& graphics, Pipeline& pipeline)
 
 		copyCommandList->CopyTextureRegion(graphics, pTexture.Get(), pUploadTexture.Get(), 0);
 
-		copyCommandList->SetResourceState(graphics, pUploadTexture.Get(), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_ALL_SHADER_RESOURCE); // all shader resouce since this will be used as SRV in compute shader
 		copyCommandList->SetResourceState(graphics, pTexture.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+
+		// cleaning up upload texture once we uploaded to gpu texture
+		graphics.GetFrameResourceDeleter()->DeleteResource(graphics, std::move(pUploadTexture));
 	}
 	
 	// compute stage
@@ -217,14 +208,24 @@ void Texture::InitializeGraphicResources(Graphics& graphics, Pipeline& pipeline)
 		std::shared_ptr<Shader> computeShader = Shader::GetBindableResource(graphics, L"CS_Test", ShaderType::ComputeShader);
 
 		// sampler to sample from texture SRV
-		std::shared_ptr<StaticSampler> sampler = StaticSampler::GetBindableResource(graphics, D3D12_FILTER_MIN_MAG_MIP_POINT, D3D12_TEXTURE_ADDRESS_MODE_WRAP, { {ShaderVisibilityGraphic::AllShaders, 0} });
+		std::shared_ptr<StaticSampler> sampler = StaticSampler::GetBindableResource(graphics, D3D12_FILTER_MIN_MAG_MIP_LINEAR, D3D12_TEXTURE_ADDRESS_MODE_WRAP, { {ShaderVisibilityGraphic::AllShaders, 0} });
 
 		for (unsigned int targetMipLevel = 1; targetMipLevel < m_minmapLevels; targetMipLevel++)
 		{
+
 			TempComputeCommandList computeCommandList(graphics, pipeline.GetGraphicCommandList());
 
 			// resource binding and creating stage-specific resources
 			{
+				// setting entry states
+				{
+					CommandList* commandList = pipeline.GetGraphicCommandList();
+
+					commandList->SetResourceState(graphics, pTexture.Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_ALL_SHADER_RESOURCE, targetMipLevel - 1);
+				}
+
+				TextureMipView srv(graphics, this, targetMipLevel - 1);
+
 				UnorderedAccessView uav(graphics, this, targetMipLevel);
 
 				DynamicConstantBuffer::ConstantBufferLayout layout;
@@ -238,9 +239,9 @@ void Texture::InitializeGraphicResources(Graphics& graphics, Pipeline& pipeline)
 
 				computeCommandList.Bind(computeShader);
 				computeCommandList.Bind(sampler);
-				computeCommandList.Bind(this); // binding SRV of local texture
-				computeCommandList.Bind(std::move(lodDataBuffer)); // binding buffer with info about LOD level
+				computeCommandList.Bind(std::move(srv)); // binding SRV of desired mip map
 				computeCommandList.Bind(std::move(uav)); // binding UAV
+				computeCommandList.Bind(std::move(lodDataBuffer)); // binding buffer with info about LOD level
 
 				computeCommandList.Dispatch(graphics);
 			}
@@ -253,19 +254,11 @@ void Texture::InitializeGraphicResources(Graphics& graphics, Pipeline& pipeline)
 	{
 		CommandList* commandList = pipeline.GetGraphicCommandList();
 
-		commandList->SetResourceState(graphics, pUploadTexture.Get(), D3D12_RESOURCE_STATE_ALL_SHADER_RESOURCE, m_targetResourceState);
-		commandList->SetResourceState(graphics, pTexture.Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, m_targetResourceState);
+		commandList->SetResourceState(graphics, pTexture.Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_ALL_SHADER_RESOURCE, m_minmapLevels - 1);
+		commandList->SetResourceState(graphics, pTexture.Get(), D3D12_RESOURCE_STATE_ALL_SHADER_RESOURCE, m_targetResourceState);
 	}
 
-	// cleanup
-	{
-		// this is needed since textures are usually shared and multiple objects will call this function
-		m_mipsGenerated = true;
-
-		graphics.GetFrameResourceDeleter()->DeleteResource(graphics, std::move(pUploadTexture));
-		// something like "graphics.GetDescriptorHeap()->DeleteDescriptor(m_uploadResourceDescriptor);" to mark that descriptor space can be reused
-		m_uploadResourceDescriptor = {};
-	}
+	m_mipsGenerated = true;
 }
 
 void Texture::BindToCommandList(Graphics& graphics, CommandList* commandList)
@@ -306,11 +299,6 @@ DXGI_FORMAT Texture::GetFormat() const
 UINT Texture::GetOffsetInDescriptor() const
 {
 	return m_textureDescriptor.offsetInDescriptorFromStart;
-}
-
-UINT Texture::GetUploadResourceOffsetInDescriptor() const
-{
-	return m_uploadResourceDescriptor.offsetInDescriptorFromStart;
 }
 
 ID3D12Resource* Texture::GetResource() const

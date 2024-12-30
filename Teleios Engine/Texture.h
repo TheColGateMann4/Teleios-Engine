@@ -44,8 +44,6 @@ public:
 
 	UINT GetOffsetInDescriptor() const;
 
-	UINT GetUploadResourceOffsetInDescriptor() const;
-
 	ID3D12Resource* GetResource() const;
 
 	unsigned int GetComputeRootIndex() const;
@@ -67,10 +65,9 @@ private:
 	unsigned int m_minmapLevels = 1;
 
 	DescriptorHeap::DescriptorInfo m_textureDescriptor = {};
-	DescriptorHeap::DescriptorInfo m_uploadResourceDescriptor = {};
 
 	bool m_generateMipMaps;
-	bool m_mipsGenerated;
+	bool m_mipsGenerated = false;
 
 	unsigned int m_computeRootIndex = 0;
 };
