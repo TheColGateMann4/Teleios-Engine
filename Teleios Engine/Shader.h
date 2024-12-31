@@ -37,6 +37,8 @@ public:
 
 	ShaderType GetType() const;
 
+	DirectX::XMUINT3 GetNumThreads() const;
+
 private:
 	void GetReflection(IDxcUtils* dxUtils, Microsoft::WRL::ComPtr<ID3DBlob>&& pReflectionBlob);
 

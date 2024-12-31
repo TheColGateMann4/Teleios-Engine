@@ -219,6 +219,17 @@ ShaderType Shader::GetType() const
 	return m_type;
 }
 
+DirectX::XMUINT3 Shader::GetNumThreads() const
+{
+	THROW_INTERNAL_ERROR_IF("Tried to get number of threads of non compute shader", m_type != ShaderType::ComputeShader);
+	
+	DirectX::XMUINT3 result;
+
+	pReflectionData->GetThreadGroupSize(&result.x, &result.y, &result.z);
+
+	return result;
+}
+
 void Shader::GetReflection(IDxcUtils* dxUtils, Microsoft::WRL::ComPtr<ID3DBlob>&& pReflectionBlob)
 {
 	DxcBuffer reflectionIDxcBlob =
