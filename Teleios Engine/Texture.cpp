@@ -260,20 +260,10 @@ void Texture::InitializeGraphicResources(Graphics& graphics, Pipeline& pipeline)
 
 				UnorderedAccessView uav(graphics, this, targetMipLevel);
 
-				DynamicConstantBuffer::ConstantBufferLayout layout;
-				layout.AddElement<DynamicConstantBuffer::ElementType::Int>("LevelOfDetail");
-
-				DynamicConstantBuffer::ConstantBufferData bufferData(layout);
-				*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Int>("LevelOfDetail") = targetMipLevel;
-
-				// cached buffer containing info about current LOD
-				TempConstantBuffer lodDataBuffer(graphics, bufferData, { {ShaderVisibilityGraphic::AllShaders, 0} });
-
 				computeCommandList.Bind(computeShader);
 				computeCommandList.Bind(sampler);
 				computeCommandList.Bind(std::move(srv)); // binding SRV of desired mip map
 				computeCommandList.Bind(std::move(uav)); // binding UAV
-				computeCommandList.Bind(std::move(lodDataBuffer)); // binding buffer with info about LOD level
 
 				computeCommandList.Dispatch(graphics, m_width, m_height);
 			}
