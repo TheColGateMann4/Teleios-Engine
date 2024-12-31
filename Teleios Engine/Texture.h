@@ -53,6 +53,8 @@ public:
 private:
 	static unsigned int GetMipLevels(unsigned int textureWidth);
 
+	DXGI_FORMAT SetCorrectedFormat(DXGI_FORMAT format);
+
 private:
 	Microsoft::WRL::ComPtr<ID3D12Resource> pTexture;
 	Microsoft::WRL::ComPtr<ID3D12Resource> pUploadTexture;

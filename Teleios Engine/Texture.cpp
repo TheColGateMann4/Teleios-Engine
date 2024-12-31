@@ -55,10 +55,6 @@ Texture::Texture(Graphics& graphics, const char* path, bool generateMips, std::v
 	}
 
 	m_isAlphaOpaque = metaData.GetAlphaMode() == DirectX::TEX_ALPHA_MODE_OPAQUE;
-	m_format = metaData.format;
-	m_format = m_format == DXGI_FORMAT_B8G8R8X8_UNORM ? DXGI_FORMAT_B8G8R8A8_UNORM : m_format;
-	m_format = m_format == DXGI_FORMAT_R8G8B8A8_UNORM_SRGB ? DXGI_FORMAT_R8G8B8A8_UNORM : m_format;
-	m_format = m_format == DXGI_FORMAT_B8G8R8A8_UNORM_SRGB ? DXGI_FORMAT_B8G8R8A8_UNORM : m_format;
 	m_minmapLevels = m_generateMipMaps ? GetMipLevels(metaData.width) : 1;
 
 	// upload resource creation
@@ -335,4 +331,23 @@ unsigned int Texture::GetMipLevels(unsigned int textureWidth)
 	THROW_INTERNAL_ERROR_IF("Texture width passed was equal to 0", textureWidth == 0);
 
 	return std::floor(std::log2(textureWidth)) + 1;
+}
+
+DXGI_FORMAT Texture::SetCorrectedFormat(DXGI_FORMAT format)
+{
+	switch (format)
+	{
+	case DXGI_FORMAT_B8G8R8X8_UNORM:
+		return DXGI_FORMAT_B8G8R8A8_UNORM;
+
+	case DXGI_FORMAT_R8G8B8A8_UNORM_SRGB:
+		m_isSRGB = true;
+		return DXGI_FORMAT_R8G8B8A8_UNORM;
+	case DXGI_FORMAT_B8G8R8A8_UNORM_SRGB:
+		m_isSRGB = true;
+		return DXGI_FORMAT_B8G8R8A8_UNORM;
+
+	default:
+		return format;
+	}
 }
