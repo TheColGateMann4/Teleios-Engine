@@ -72,12 +72,12 @@ void CommandList::DrawIndexed(Graphics& graphics, unsigned int indices)
 	THROW_INFO_ERROR(pCommandList->DrawIndexedInstanced(indices, 1, 0, 0, 0));
 }
 
-void CommandList::Dispatch(Graphics& graphics)
+void CommandList::Dispatch(Graphics& graphics, unsigned int workToProcessX, unsigned int workToProcessY, unsigned int workToProcessZ)
 {
 	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
 	THROW_OBJECT_STATE_ERROR_IF("Only Direct and Bundle command lists can dispatch compute pipeline", m_type != D3D12_COMMAND_LIST_TYPE_DIRECT && m_type != D3D12_COMMAND_LIST_TYPE_COMPUTE);
 
-	THROW_INFO_ERROR(pCommandList->Dispatch(1, 1, 1));
+	THROW_INFO_ERROR(pCommandList->Dispatch(workToProcessX, workToProcessY, workToProcessZ));
 }
 
 ID3D12GraphicsCommandList* CommandList::Get()

@@ -5,6 +5,8 @@
 
 #include "Macros/ErrorMacros.h"
 
+#include "Shader.h"
+
 TempComputeCommandList::TempComputeCommandList(Graphics& graphics, CommandList* commandList)
 	:
 	m_commandList(commandList)
@@ -27,7 +29,7 @@ CommandList* TempComputeCommandList::Get()
 	return m_commandList;
 }
 
-void TempComputeCommandList::Dispatch(Graphics& graphics)
+void TempComputeCommandList::Dispatch(Graphics& graphics, unsigned int workToProcessX, unsigned int workToProcessY, unsigned int workToProcessZ)
 {
 	Finish(graphics);
 
@@ -40,7 +42,12 @@ void TempComputeCommandList::Dispatch(Graphics& graphics)
 	for (auto commandListBindable : m_bindableContainer.GetCommandListBindables())
 		commandListBindable->BindToComputeCommandList(graphics, m_commandList);
 
-	m_commandList->Dispatch(graphics);
+	DirectX::XMUINT3 shaderNumThreads = m_bindableContainer.GetShader()->GetNumThreads();
+	workToProcessX = std::ceil(float(workToProcessX) / float(shaderNumThreads.x));
+	workToProcessY = std::ceil(float(workToProcessY) / float(shaderNumThreads.y));
+	workToProcessZ = std::ceil(float(workToProcessZ) / float(shaderNumThreads.z));
+
+	m_commandList->Dispatch(graphics, workToProcessX, workToProcessY, workToProcessZ);
 }
 
 void TempComputeCommandList::Bind(std::shared_ptr<Bindable> bindable)

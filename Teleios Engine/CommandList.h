@@ -32,7 +32,7 @@ public:
 
 	void DrawIndexed(Graphics& graphics, unsigned int indices);
 
-	void Dispatch(Graphics& graphics);
+	void Dispatch(Graphics& graphics, unsigned int workToProcessX = 1, unsigned int workToProcessY = 1, unsigned int workToProcessZ = 1);
 	
 	ID3D12GraphicsCommandList* Get();
 
