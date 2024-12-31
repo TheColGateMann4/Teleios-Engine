@@ -9,6 +9,7 @@ class IndexBuffer;
 class TransformConstantBuffer;
 class CachedConstantBuffer;
 class Texture;
+class Shader;
 
 class MeshBindableContainer
 {
@@ -59,7 +60,7 @@ private:
 	std::vector<Texture*> m_textures;
 };
 
-class SegregatedBindableContainer
+class ComputeBindableContainer
 {
 public:
 	template<class T, std::enable_if_t<std::is_base_of_v<Bindable, T>, int> = 0> 
@@ -78,6 +79,7 @@ public:
 	const std::vector<DirectCommandListBindable*>& GetDirectCommandListBindables() const;
 	const std::vector<RootSignatureBindable*>& GetRootSignatureBindables() const;
 	const std::vector<PipelineStateBindable*>& GetPipelineStateBindables() const;
+	const Shader* GetShader() const;
 
 private:
 	void SegregateBindable(Bindable* bindable);
@@ -90,4 +92,5 @@ private:
 	std::vector<DirectCommandListBindable*> m_directCommandListBindables;
 	std::vector<RootSignatureBindable*> m_rootSignatureBindables;
 	std::vector<PipelineStateBindable*> m_pipelineStateBindables;
+	Shader* m_shader;
 };
