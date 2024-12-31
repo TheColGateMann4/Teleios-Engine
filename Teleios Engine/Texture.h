@@ -61,13 +61,14 @@ private:
 	D3D12_RESOURCE_STATES m_targetResourceState = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
 	std::string m_path;
 	bool m_isAlphaOpaque = false;
+	bool m_isSRGB = false;
 	DXGI_FORMAT m_format = DXGI_FORMAT_UNKNOWN;
 	unsigned int m_minmapLevels = 1;
 
 	DescriptorHeap::DescriptorInfo m_textureDescriptor = {};
 
 	bool m_generateMipMaps;
-	bool m_mipsGenerated = false;
+	bool m_resourcesInitialized = false;
 
 	unsigned int m_computeRootIndex = 0;
 };

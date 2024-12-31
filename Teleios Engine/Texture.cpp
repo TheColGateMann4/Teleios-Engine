@@ -184,7 +184,7 @@ std::string Texture::GetIdentifier(const char* path, bool generateMips, std::vec
 
 void Texture::InitializeGraphicResources(Graphics& graphics, Pipeline& pipeline)
 {
-	if (m_mipsGenerated || !m_generateMipMaps)
+	if (m_resourcesInitialized)
 		return;
 
 	// copy mip level 0 from upload to gpu resource
@@ -202,6 +202,20 @@ void Texture::InitializeGraphicResources(Graphics& graphics, Pipeline& pipeline)
 		graphics.GetFrameResourceDeleter()->DeleteResource(graphics, std::move(pUploadTexture));
 	}
 	
+	// when we don't want to generate mip maps, we still want our resource to be copied
+	if (!m_generateMipMaps) 
+	{
+		// set target resource state
+		{
+			CommandList* copyCommandList = pipeline.GetGraphicCommandList();
+
+			copyCommandList->SetResourceState(graphics, pTexture.Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, m_targetResourceState);
+		}
+
+		m_resourcesInitialized = true;
+		return;
+	}
+
 	// compute stage
 	{
 		// compute shader
@@ -258,7 +272,7 @@ void Texture::InitializeGraphicResources(Graphics& graphics, Pipeline& pipeline)
 		commandList->SetResourceState(graphics, pTexture.Get(), D3D12_RESOURCE_STATE_ALL_SHADER_RESOURCE, m_targetResourceState);
 	}
 
-	m_mipsGenerated = true;
+	m_resourcesInitialized = true;
 }
 
 void Texture::BindToCommandList(Graphics& graphics, CommandList* commandList)
