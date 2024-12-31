@@ -201,6 +201,25 @@ void Texture::InitializeGraphicResources(Graphics& graphics, Pipeline& pipeline)
 		graphics.GetFrameResourceDeleter()->DeleteResource(graphics, std::move(pUploadTexture));
 	}
 	
+	// convert SRGB to linear RGB space
+	if(m_isSRGB)
+	{
+		std::shared_ptr<Shader> computeShader = Shader::GetBindableResource(graphics, L"CS_SRGB_Convert", ShaderType::ComputeShader);
+
+		TempComputeCommandList computeCommandList(graphics, pipeline.GetGraphicCommandList());
+
+		{
+			UnorderedAccessView uav(graphics, this, 0);
+
+			computeCommandList.Bind(computeShader);
+			computeCommandList.Bind(std::move(uav));
+
+			computeCommandList.Dispatch(graphics, m_width, m_height);
+		}
+
+		graphics.GetFrameResourceDeleter()->DeleteResource(graphics, std::move(computeCommandList));
+	}
+
 	// when we don't want to generate mip maps, we still want our resource to be copied
 	if (!m_generateMipMaps) 
 	{
