@@ -4,6 +4,7 @@
 #include "includes/WRLNoWarnings.h"
 #include "TargetShaders.h"
 #include "Bindable.h"
+#include <d3d12shader.h>
 #include <dxcapi.h>
 
 static constexpr const wchar_t* GetDefaultEntryPointName(ShaderType type);
@@ -37,6 +38,8 @@ public:
 	ShaderType GetType() const;
 
 private:
+	void GetReflection(IDxcUtils* dxUtils, Microsoft::WRL::ComPtr<ID3DBlob>&& pReflectionBlob);
+
 	Microsoft::WRL::ComPtr<IDxcResult> CompileBlob(Graphics& graphics, IDxcCompiler3* pDXCompiler, IDxcUtils* dxUtils, DxcBuffer* mainSourceBuffer, std::vector<const wchar_t*>& pArgs);
 
 	Microsoft::WRL::ComPtr<ID3DBlob> GetResult(Graphics& graphics, IDxcResult* pResult, DXC_OUT_KIND resultKind);
@@ -50,6 +53,7 @@ private:
 	void DebugBlobToFile(const char* extension, ID3DBlob* blob);
 
 private:
+	Microsoft::WRL::ComPtr<ID3D12ShaderReflection> pReflectionData;
 	Microsoft::WRL::ComPtr<ID3DBlob> pShaderCode;
 
 	ShaderType m_type;

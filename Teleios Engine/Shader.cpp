@@ -174,6 +174,11 @@ void Shader::Reload(Graphics& graphics)
 
 #ifdef _DEBUG
 
+	// getting shader reflection data
+	{
+		GetReflection(dxUtils.Get(), GetResult(graphics, pCompilerResult.Get(), DXC_OUT_REFLECTION));
+	}
+
 	// saving .pdb files for graphic debugger
 	{
 		Microsoft::WRL::ComPtr<ID3DBlob> pPDB = GetResult(graphics, pCompilerResult.Get(), DXC_OUT_PDB);
@@ -212,6 +217,18 @@ void Shader::BindToComputePipelineState(Graphics& graphics, ComputePipelineState
 ShaderType Shader::GetType() const
 {
 	return m_type;
+}
+
+void Shader::GetReflection(IDxcUtils* dxUtils, Microsoft::WRL::ComPtr<ID3DBlob>&& pReflectionBlob)
+{
+	DxcBuffer reflectionIDxcBlob =
+	{
+		.Ptr = pReflectionBlob->GetBufferPointer(),
+		.Size = pReflectionBlob->GetBufferSize(),
+		.Encoding = 0
+	};
+
+	dxUtils->CreateReflection(&reflectionIDxcBlob, IID_PPV_ARGS(&pReflectionData));
 }
 
 Microsoft::WRL::ComPtr<IDxcResult> Shader::CompileBlob(Graphics& graphics, IDxcCompiler3* pDXCompiler, IDxcUtils* dxUtils, DxcBuffer* mainSourceBuffer, std::vector<const wchar_t*>& pArgs)
