@@ -52,7 +52,7 @@ public:
 
 private:
 	static unsigned int GetMipLevels(unsigned int textureWidth);
-
+	
 	DXGI_FORMAT SetCorrectedFormat(DXGI_FORMAT format);
 
 private:
@@ -66,6 +66,8 @@ private:
 	bool m_isSRGB = false;
 	DXGI_FORMAT m_format = DXGI_FORMAT_UNKNOWN;
 	unsigned int m_minmapLevels = 1;
+	unsigned int m_width = 0;
+	unsigned int m_height = 0;
 
 	DescriptorHeap::DescriptorInfo m_textureDescriptor = {};
 

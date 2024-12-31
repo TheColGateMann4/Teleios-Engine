@@ -56,6 +56,9 @@ Texture::Texture(Graphics& graphics, const char* path, bool generateMips, std::v
 
 	m_isAlphaOpaque = metaData.GetAlphaMode() == DirectX::TEX_ALPHA_MODE_OPAQUE;
 	m_minmapLevels = m_generateMipMaps ? GetMipLevels(metaData.width) : 1;
+	m_format = SetCorrectedFormat(metaData.format);
+	m_width = metaData.width;
+	m_height = metaData.height;
 
 	// upload resource creation
 	{
@@ -253,7 +256,7 @@ void Texture::InitializeGraphicResources(Graphics& graphics, Pipeline& pipeline)
 				computeCommandList.Bind(std::move(uav)); // binding UAV
 				computeCommandList.Bind(std::move(lodDataBuffer)); // binding buffer with info about LOD level
 
-				computeCommandList.Dispatch(graphics);
+				computeCommandList.Dispatch(graphics, m_width, m_height);
 			}
 
 			graphics.GetFrameResourceDeleter()->DeleteResource(graphics, std::move(computeCommandList));
