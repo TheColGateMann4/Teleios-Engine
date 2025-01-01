@@ -171,13 +171,12 @@ void Shader::Reload(Graphics& graphics)
 
 	pShaderCode = GetResult(graphics, pCompilerResult.Get(), DXC_OUT_OBJECT);
 
-
-#ifdef _DEBUG
-
 	// getting shader reflection data
 	{
 		GetReflection(dxUtils.Get(), GetResult(graphics, pCompilerResult.Get(), DXC_OUT_REFLECTION));
 	}
+
+#ifdef _DEBUG
 
 	// saving .pdb files for graphic debugger
 	{
