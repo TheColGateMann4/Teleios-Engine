@@ -78,48 +78,35 @@ float4 PSMain(
 #endif
 
 #ifdef TEXTURE_DIFFUSE
-    float4 diffuseSample = texture_diffuse.Sample(sampler_, textureCoords);
-    float3 diffuseColor = diffuseSample.rgb;
-    float diffuseAlpha = b_ignoreDiffseAlpha ? 1.0f : diffuseSample.a;
+    const float4 diffuseSample = texture_diffuse.Sample(sampler_, textureCoords);
+    const float3 diffuseColor = diffuseSample.rgb;
+    const float diffuseAlpha = b_ignoreDiffseAlpha ? 1.0f : diffuseSample.a;
 #else
-    float3 diffuseColor = b_defaultDiffuseColor;
-    float diffuseAlpha = 1.0f;
+    const float3 diffuseColor = b_defaultDiffuseColor;
+    const float diffuseAlpha = 1.0f;
 #endif
 
-    float3 vecDistanceToLight = b_lightPositionInCameraSpace - positionInCameraSpace;
-    float fDistanceToLight = length(vecDistanceToLight);
-    float3 directionToLight = vecDistanceToLight / fDistanceToLight;
+    const float3 vecDistanceToLight = b_lightPositionInCameraSpace - positionInCameraSpace;
+    const float fDistanceToLight = length(vecDistanceToLight);
+    const float3 directionToLight = vecDistanceToLight / fDistanceToLight;
 
-    float attenuation = 1.0f / ((b_attenuationConstant) + (b_attenuationLinear * fDistanceToLight) + (b_attenuationQuadratic * fDistanceToLight * fDistanceToLight));
+    const float attenuation = 1.0f / ((b_attenuationConstant) + (b_attenuationLinear * fDistanceToLight) + (b_attenuationQuadratic * fDistanceToLight * fDistanceToLight));
 
-    float3 diffuse = b_lightDiffuseColor * attenuation * max(0.0f, dot(directionToLight, normal));
-
-    float3 specularColor;
-    float specularPower;
+    const float3 diffuse = b_lightDiffuseColor * attenuation * max(0.0f, dot(directionToLight, normal));
 
 #ifdef TEXTURE_SPECULAR
-    float4 specularSample = texture_specular.Sample(sampler_, textureCoords);
-
-    if(b_specularMapOnlyOneChannel)
-    {
-        specularColor = b_defaultSpecularColor;
-        specularPower = pow(2.0f, specularSample.r * 13.0f);
-    }
-    else
-    {
-        specularColor = specularSample.rgb;
-        specularPower = pow(2.0f, specularSample.a * 13.0f);
-    }
+    const float4 specularSample = texture_specular.Sample(sampler_, textureCoords);
+    const float3 specularColor = b_specularMapOnlyOneChannel ? b_defaultSpecularColor : specularSample.rgb;
+    const float specularPower = pow(2.0f, (b_specularMapOnlyOneChannel ? specularSample.r : specularSample.a) * 13.0f);
 #else
-    specularColor = b_defaultSpecularColor;
-    specularPower = b_specularPower;
+    const float3 specularColor = b_defaultSpecularColor;
+    const float specularPower = b_specularPower;
 #endif
 
     const float3 w = normal * dot(vecDistanceToLight, normal);
     const float3 r = w * 2.0f - vecDistanceToLight;
 
-    float3 specular = (b_lightSpecularColor * b_specularShinnynes) * attenuation * pow(max(0.0f, dot(normalize(-r), normalize(positionInCameraSpace))), specularPower);
-
+    const float3 specular = (b_lightSpecularColor * b_specularShinnynes) * attenuation * pow(max(0.0f, dot(normalize(-r), normalize(positionInCameraSpace))), specularPower);
 
     return float4(diffuseColor * saturate(diffuse + b_ambient) + specularColor * specular, diffuseAlpha);
 }
