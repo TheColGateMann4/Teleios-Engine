@@ -22,9 +22,10 @@ void ModelImporter::AddSceneObjectFromFile(Graphics& graphics, const char* path,
 		size_t lastSlashPosition = filePath.rfind('\\');
 
 		if (lastSlashPosition == std::string::npos)
-		{
 			lastSlashPosition = filePath.rfind('/');
-		}
+
+		if (lastSlashPosition == std::string::npos)
+			lastSlashPosition = 0;
 
 		fileName = std::string(filePath.begin() + lastSlashPosition + 1, filePath.end());
 		filePath = std::string(filePath.begin(), filePath.begin() + lastSlashPosition + 1);
