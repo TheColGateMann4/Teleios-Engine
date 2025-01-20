@@ -19,10 +19,11 @@
 
 #include "Pipeline.h"
 
-Texture::Texture(Graphics& graphics, const char* path, bool generateMips, std::vector<TargetSlotAndShader> targets)
+Texture::Texture(Graphics& graphics, const char* path, bool generateMips, bool disableSRGBCorrection, std::vector<TargetSlotAndShader> targets)
 	:
 	RootSignatureBindable(targets),
 	m_path(std::string("../../") + path),
+	m_disableSRGBCorrection(disableSRGBCorrection),
 	m_generateMipMaps(generateMips)
 {
 	graphics.GetDescriptorHeap().RequestMoreSpace();
@@ -157,12 +158,12 @@ void Texture::Initialize(Graphics& graphics)
 	}
 }
 
-std::shared_ptr<Texture> Texture::GetBindableResource(Graphics& graphics, const char* path, bool generateMips, std::vector<TargetSlotAndShader> targets)
+std::shared_ptr<Texture> Texture::GetBindableResource(Graphics& graphics, const char* path, bool generateMips, bool disableSRGBCorrection, std::vector<TargetSlotAndShader> targets)
 {
-	return BindableResourceList::GetBindableResource<Texture>(graphics, path, generateMips, targets);
+	return BindableResourceList::GetBindableResource<Texture>(graphics, path, generateMips, disableSRGBCorrection, targets);
 }
 
-std::string Texture::GetIdentifier(const char* path, bool generateMips, std::vector<TargetSlotAndShader> targets)
+std::string Texture::GetIdentifier(const char* path, bool generateMips, bool disableSRGBCorrection, std::vector<TargetSlotAndShader> targets)
 {
 	std::string resultString = "Texture#";
 
@@ -202,7 +203,7 @@ void Texture::InitializeGraphicResources(Graphics& graphics, Pipeline& pipeline)
 	}
 	
 	// convert SRGB to linear RGB space
-	if(m_isSRGB)
+	if(m_isSRGB && !m_disableSRGBCorrection)
 	{
 		std::shared_ptr<Shader> computeShader = Shader::GetBindableResource(graphics, L"CS_SRGB_Convert", ShaderType::ComputeShader);
 
@@ -237,7 +238,7 @@ void Texture::InitializeGraphicResources(Graphics& graphics, Pipeline& pipeline)
 	// compute stage
 	{
 		// compute shader
-		std::shared_ptr<Shader> computeShader = Shader::GetBindableResource(graphics, L"CS_Test", ShaderType::ComputeShader);
+		std::shared_ptr<Shader> computeShader = Shader::GetBindableResource(graphics, L"CS_MipMapGeneration", ShaderType::ComputeShader);
 
 		// sampler to sample from texture SRV
 		std::shared_ptr<StaticSampler> sampler = StaticSampler::GetBindableResource(graphics, D3D12_FILTER_MIN_MAG_MIP_LINEAR, D3D12_TEXTURE_ADDRESS_MODE_WRAP, { {ShaderVisibilityGraphic::AllShaders, 0} });
