@@ -18,7 +18,16 @@ InputLayout::InputLayout(Graphics& graphics, DynamicVertex::DynamicVertexLayout&
 
 std::shared_ptr<InputLayout> InputLayout::GetBindableResource(Graphics& graphics, DynamicVertex::DynamicVertexLayout& layout)
 {
-	return BindableResourceList::GetBindableResourceByID<InputLayout>(graphics, layout.GetIdentifier(), layout);
+	return BindableResourceList::GetBindableResource<InputLayout>(graphics, layout);
+}
+
+std::string InputLayout::GetIdentifier(DynamicVertex::DynamicVertexLayout& layout)
+{
+	std::string resultString = "InputLayout#";
+
+	resultString += layout.GetIdentifier();
+
+	return resultString;
 }
 
 D3D12_INPUT_LAYOUT_DESC InputLayout::Get()

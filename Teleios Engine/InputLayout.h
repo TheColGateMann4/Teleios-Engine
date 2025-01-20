@@ -19,6 +19,8 @@ public:
 public:
 	static std::shared_ptr<InputLayout> GetBindableResource(Graphics& graphics, DynamicVertex::DynamicVertexLayout& layout);
 
+	static std::string GetIdentifier(DynamicVertex::DynamicVertexLayout& layout);
+
 public:
 	D3D12_INPUT_LAYOUT_DESC Get();
 
