@@ -8,12 +8,12 @@ class GraphicsPipelineState;
 class RasterizerState : public Bindable, public PipelineStateBindable
 {
 public:
-	RasterizerState(Graphics& graphics);
+	RasterizerState(Graphics& graphics, bool twoSided = false);
 
 public:
-	static std::shared_ptr<RasterizerState> GetBindableResource(Graphics& graphics);
+	static std::shared_ptr<RasterizerState> GetBindableResource(Graphics& graphics, bool twoSided = false);
 
-	static std::string GetIdentifier();
+	static std::string GetIdentifier(bool twoSided);
 
 public:
 	D3D12_RASTERIZER_DESC Get();

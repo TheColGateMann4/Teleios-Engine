@@ -19,7 +19,7 @@ DepthStencilState::DepthStencilState(Graphics& graphics)
 	m_desc.StencilReadMask = D3D12_DEFAULT_STENCIL_READ_MASK;
 	m_desc.StencilWriteMask = D3D12_DEFAULT_STENCIL_WRITE_MASK;
 	m_desc.FrontFace = frontFaceStencil;
-	//m_desc.BackFace = ; // we don't use it anyways
+	m_desc.BackFace = frontFaceStencil;
 }
 
 std::shared_ptr<DepthStencilState> DepthStencilState::GetBindableResource(Graphics& graphics)
