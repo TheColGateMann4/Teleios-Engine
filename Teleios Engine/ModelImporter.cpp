@@ -16,9 +16,15 @@ void ModelImporter::AddSceneObjectFromFile(Graphics& graphics, const char* path,
 {
 	std::string filePath = path;
 	std::string fileName;
+	std::string fileExtension;
 
 	// setting file path and name
 	{
+		size_t lastDotPosition = filePath.rfind('.');
+
+		if (lastDotPosition == std::string::npos)
+			THROW_INTERNAL_ERROR("There was no extension given in model file name");
+
 		size_t lastSlashPosition = filePath.rfind('\\');
 
 		if (lastSlashPosition == std::string::npos)
@@ -26,26 +32,47 @@ void ModelImporter::AddSceneObjectFromFile(Graphics& graphics, const char* path,
 
 		if (lastSlashPosition == std::string::npos)
 			lastSlashPosition = 0;
+		else
+			lastSlashPosition++;
 
-		fileName = std::string(filePath.begin() + lastSlashPosition + 1, filePath.end());
-		filePath = std::string(filePath.begin(), filePath.begin() + lastSlashPosition + 1);
+		fileExtension = std::string(filePath.begin() + lastDotPosition, filePath.end());
+		fileName = std::string(filePath.begin() + lastSlashPosition, filePath.end());
+		filePath = std::string(filePath.begin(), filePath.begin() + lastSlashPosition);
 	}
 
 	std::string targetFile = "../../" + filePath + fileName;
 
-	Assimp::Importer importer;
+	if(strcmp(fileExtension.c_str(), ".obj") == 0 || strcmp(fileExtension.c_str(), ".gltf") == 0)
+	{
+		Assimp::Importer importer;
 
-	const aiScene* modelScene = importer.ReadFile(targetFile.c_str(),
-		aiProcess_ConvertToLeftHanded |
-		aiProcess_CalcTangentSpace |
-		aiProcess_GenNormals |
-		aiProcess_Triangulate |
-		aiProcess_JoinIdenticalVertices |
-		aiProcess_SortByPType);
+		const aiScene* modelScene = importer.ReadFile(targetFile.c_str(),
+			aiProcess_ConvertToLeftHanded |
+			aiProcess_Triangulate |
+			aiProcess_SortByPType |
+			aiProcess_GenNormals |
+			aiProcess_CalcTangentSpace |
+			aiProcess_GenUVCoords |
+			aiProcess_OptimizeMeshes |
+			aiProcess_ValidateDataStructure
+		);
 
-	THROW_INTERNAL_ERROR_IF(importer.GetErrorString(), modelScene == nullptr);
+		THROW_INTERNAL_ERROR_IF(importer.GetErrorString(), modelScene == nullptr);
 
 		PushModel(graphics, scene, scale, filePath, modelScene->mRootNode, modelScene->mMeshes, modelScene->mMaterials);
+	}
+	else if (strcmp(fileExtension.c_str(), ".fbx") == 0)
+	{
+
+	}
+	else 
+	{
+		std::string errorStr = "Invalid file extension was passed, extension: \"";
+		errorStr += fileExtension;
+		errorStr += "\".";
+
+		THROW_INTERNAL_ERROR(errorStr.c_str());
+	}
 }
 
 void ModelImporter::PushModel(Graphics& graphics, Scene& scene, float scale, std::string& filePath, aiNode* node, aiMesh** meshes, aiMaterial** materials, Model* pParent)
