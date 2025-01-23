@@ -31,11 +31,11 @@ cbuffer modelBuffer : register(b1)
     float3 b_defaultDiffuseColor;
     float3 b_defaultSpecularColor;
 
-    bool b_ignoreDiffseAlpha;
     bool b_specularMapOnlyOneChannel;
+    bool b_ignoreDiffseAlpha;
 
-	float b_specularShinnynes;
-	float b_specularPower;
+	float b_specular;
+	float b_glosiness;
 }
 
 float4 PSMain(
@@ -97,16 +97,16 @@ float4 PSMain(
 #ifdef TEXTURE_SPECULAR
     const float4 specularSample = texture_specular.Sample(sampler_, textureCoords);
     const float3 specularColor = b_specularMapOnlyOneChannel ? b_defaultSpecularColor : specularSample.rgb;
-    const float specularPower = pow(2.0f, (b_specularMapOnlyOneChannel ? specularSample.r : specularSample.a) * 13.0f);
+    const float glosiness = pow(2.0f, (b_specularMapOnlyOneChannel ? specularSample.r : specularSample.a) * 13.0f);
 #else
     const float3 specularColor = b_defaultSpecularColor;
-    const float specularPower = b_specularPower;
+    const float glosiness = b_glosiness;
 #endif
 
     const float3 w = normal * dot(vecDistanceToLight, normal);
     const float3 r = w * 2.0f - vecDistanceToLight;
 
-    const float3 specular = (b_lightSpecularColor * b_specularShinnynes) * attenuation * pow(max(0.0f, dot(normalize(-r), normalize(positionInCameraSpace))), specularPower);
+    const float3 specular = (b_lightSpecularColor * b_specular) * attenuation * pow(max(0.0f, dot(normalize(-r), normalize(positionInCameraSpace))), glosiness);
 
     return float4(diffuseColor * saturate(diffuse + b_ambient) + specularColor * specular, diffuseAlpha);
 }

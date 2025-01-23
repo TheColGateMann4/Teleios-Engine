@@ -183,6 +183,9 @@
     <ClCompile Include="TextureMipView.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ObjectTransform.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="includes\CppIncludes.h">
@@ -338,6 +341,9 @@
     <ClInclude Include="TextureMipView.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ObjectTransform.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Shaders\PS_Solid.hlsl">
@@ -355,7 +361,7 @@
     <FxCompile Include="Shaders\PS_WhiteColor.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="Shaders\CS_Test.hlsl">
+    <FxCompile Include="Shaders\CS_MipMapGeneration.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="Shaders\CS_SRGB_Convert.hlsl">
@@ -364,9 +370,6 @@
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="Dependencies\zlib1.dll">
-      <Filter>Dependencies</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="Dependencies\assimp-vc143-mt.dll">
       <Filter>Dependencies</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="Dependencies\AgilitySDK\D3D12Core.dll">
@@ -381,5 +384,10 @@
     <CopyFileToFolders Include="Dependencies\dxil.dll">
       <Filter>Dependencies</Filter>
     </CopyFileToFolders>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Dependencies\assimp-vc143-mt.dll">
+      <Filter>Dependencies</Filter>
+    </None>
   </ItemGroup>
 </Project>

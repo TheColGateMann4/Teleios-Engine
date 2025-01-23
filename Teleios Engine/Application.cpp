@@ -42,9 +42,15 @@ void Application::InitializeScene()
 {
 	scene.AddSceneObject(std::make_shared<Camera>(window.graphics));
 	//scene.AddSceneObject(std::make_shared<Cube>(window.graphics));
-	//scene.AddSceneObject(std::make_shared<Model>(window.graphics, "Models/nanosuit/nanosuit.obj"));
-	scene.AddSceneObjectFromFile(window.graphics, "Models/sponza/sponza.obj", 1.0f / 40.0f);
-	scene.AddSceneObject(std::make_shared<PointLight>(window.graphics));
+	//scene.AddSceneObjectFromFile(window.graphics, "Models/nanosuit/nanosuit.obj");
+	//scene.AddSceneObjectFromFile(window.graphics, "Models/sponza/sponza.obj", 1.0f / 40.0f);
+	//scene.AddSceneObjectFromFile(window.graphics, "Models/intel_sponza/main1_sponza/NewSponza_Main_Yup_003.fbx", 1.0f);
+	//scene.AddSceneObjectFromFile(window.graphics, "Models/intel_sponza/pkg_a_curtains/NewSponza_Curtains_FBX_YUp.fbx", 1.0f);
+
+	scene.AddSceneObjectFromFile(window.graphics, "Models/intel_sponza/main1_sponza/NewSponza_Main_glTF_003.gltf");
+	scene.AddSceneObjectFromFile(window.graphics, "Models/intel_sponza/pkg_a_curtains/NewSponza_Curtains_glTF.gltf");
+
+	scene.AddSceneObject(std::make_shared<PointLight>(window.graphics, scene));
 
 	scene.InitializeSceneObjects(window.graphics);
 }
