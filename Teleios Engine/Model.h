@@ -31,6 +31,7 @@ public:
 		// texture specific settings
 		bool specularOneChannelOnly = false;
 		bool ignoreDiffseAlpha = false;
+		bool twoSided = false;
 
 		// phong specular varibles
 		float specularShinnynes = 0.1f;

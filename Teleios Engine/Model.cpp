@@ -204,6 +204,8 @@ Model::Model(Graphics& graphics, Model* pParent, aiNode* node, std::vector<std::
 
 			objectMesh.AddBindable(std::make_shared<CachedConstantBuffer>(graphics, bufferData, std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::PixelShader, 1}}));
 		}
+
+			objectMesh.AddBindable(RasterizerState::GetBindableResource(graphics, materialPropeties.twoSided));
 	}
 
 	objectMesh.AddBindable(Shader::GetBindableResource(graphics, L"PS_Phong", ShaderType::PixelShader, shaderMacros));
@@ -211,7 +213,6 @@ Model::Model(Graphics& graphics, Model* pParent, aiNode* node, std::vector<std::
 	objectMesh.AddBindable(InputLayout::GetBindableResource(graphics, vertexLayout));
 
 	objectMesh.AddBindable(BlendState::GetBindableResource(graphics));
-	objectMesh.AddBindable(RasterizerState::GetBindableResource(graphics));
 	objectMesh.AddBindable(DepthStencilState::GetBindableResource(graphics));
 	objectMesh.AddBindable(PrimitiveTechnology::GetBindableResource(graphics, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE));
 
@@ -266,6 +267,8 @@ Model::MaterialPropeties Model::ProcessMaterialPropeties(aiMaterial* material)
 		{
 			resultPropeties.glosinessRoughness = 1.0f;
 		}
+
+	(void)material->Get(AI_MATKEY_TWOSIDED, resultPropeties.twoSided);
 
 	return resultPropeties;
 }
