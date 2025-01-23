@@ -10,6 +10,9 @@ class Camera;
 class SceneObject
 {
 public:
+	SceneObject(SceneObject* pParent = nullptr);
+
+public:
 	virtual ~SceneObject() = default;
 
 public:
@@ -48,14 +51,21 @@ public:
 
 	void DrawConstantBuffers(Graphics& graphics);
 
-	virtual void UpdateTransformMatrix(Graphics& graphics, Camera& camera);
+	bool isChild() const;
+
+	void MakeChild();
+
+	void HideInHierarchy();
+
+	bool IsVisibleInHierarchy();
+
+private:
+	bool hasVisibleChildren();
 
 protected:
 	void AddMesh(Mesh& mesh);
 
-	void AddChild(std::shared_ptr<SceneObject> object);
-
-	SceneObject* GetLastChild();
+	void AddChild(SceneObject* object);
 
 public:
 	ObjectTransform* GetTransform();
@@ -67,6 +77,8 @@ public:
 protected:
 	ObjectTransform m_transform;
 	std::vector<Mesh> m_meshes;
-	std::vector<std::shared_ptr<SceneObject>> m_children;
+	std::vector<SceneObject*> m_children;
 	std::string m_name = "unnamed";
+	bool m_isChild;
+	bool m_hideInHierarchy = false;
 };

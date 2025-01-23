@@ -74,7 +74,8 @@ void Scene::DrawObjectInspector(Graphics& graphics)
 		ImGui::Columns(2, nullptr, true);
 
 		for (auto& sceneObject : m_sceneObjects)
-			sceneObject->DrawHierarchy(&m_objectSelectedInHierarchy);
+			if(!sceneObject->isChild())
+				sceneObject->DrawHierarchy(&m_objectSelectedInHierarchy);
 
 		ImGui::NextColumn();
 

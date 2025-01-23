@@ -20,22 +20,14 @@ void SceneObject::InternalInitialize(Graphics& graphics, Pipeline& pipeline)
 
 	for (auto& mesh : m_meshes)
 		mesh.Initialize(graphics, pipeline);
-
-	for (auto& child : m_children)
-		child->InternalInitialize(graphics, pipeline);
 }
 
 void SceneObject::InternalUpdate(Graphics& graphics, Camera& camera, Pipeline& pipeline)
 {
-	UpdateTransformMatrix(graphics, camera);
-
 	Update(graphics, pipeline);
 
 	for (auto& mesh : m_meshes)
 		mesh.InternalUpdate(graphics, pipeline);
-
-	for (auto& child : m_children)
-		child->InternalUpdate(graphics, camera, pipeline);
 }
 
 
@@ -45,17 +37,11 @@ void SceneObject::InternalDraw(Graphics& graphics, Pipeline& pipeline) const
 
 	for (const auto& mesh : m_meshes)
 		mesh.DrawMesh(graphics, pipeline);
-
-	for (const auto& child : m_children)
-		child->InternalDraw(graphics, pipeline);
 }
 
 void SceneObject::InternalAddStaticResources(Pipeline& pipeline)
 {
 	AddStaticResources(pipeline);
-
-	for (const auto& child : m_children)
-		child->InternalAddStaticResources(pipeline);
 }
 
 void SceneObject::InitializeGraphicResources(Graphics& graphics, Pipeline& pipeline)
@@ -106,18 +92,29 @@ void SceneObject::AddStaticResources(Pipeline& pipeline)
 
 void SceneObject::DrawHierarchy(SceneObject** selectedObject)
 {
-	ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_Leaf;
+	if (m_hideInHierarchy)
+		return;
+
+	ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_None;
 
 	if (*selectedObject == this)
 		flags |= ImGuiTreeNodeFlags_Selected;
 
+	if (!hasVisibleChildren())
+		flags |= flags |= ImGuiTreeNodeFlags_Leaf;
+
 	const bool nodeExpanded = ImGui::TreeNodeEx(m_name.c_str(), flags);
 
 	if (ImGui::IsItemClicked())
-		*selectedObject = this;
+		*selectedObject = *selectedObject != this ? this : nullptr;
 
+	if (nodeExpanded)
+	{
+		for (auto& child : m_children)
+			child->DrawHierarchy(selectedObject);
 
-	ImGui::TreePop();
+		ImGui::TreePop();
+	}
 }
 
 void SceneObject::DrawTransformPropeties()
@@ -166,11 +163,33 @@ void SceneObject::DrawConstantBuffers(Graphics& graphics)
 		mesh.DrawConstantBuffers(graphics);
 }
 
-void SceneObject::UpdateTransformMatrix(Graphics& graphics, Camera& camera)
+bool SceneObject::isChild() const
 {
+	return m_isChild;
+}
 
-	for (auto& mesh : m_meshes)
-		mesh.UpdateTransformMatrix(graphics, camera);
+void SceneObject::MakeChild()
+{
+	m_isChild = this;
+}
+
+void SceneObject::HideInHierarchy()
+{
+	m_hideInHierarchy = true;
+}
+
+bool SceneObject::IsVisibleInHierarchy()
+{
+	return !m_hideInHierarchy;
+}
+
+bool SceneObject::hasVisibleChildren()
+{
+	for (const auto& child : m_children)
+		if (child->IsVisibleInHierarchy())
+			return true;
+
+	return false;
 }
 
 void SceneObject::AddMesh(Mesh& mesh)
@@ -178,20 +197,11 @@ void SceneObject::AddMesh(Mesh& mesh)
 	m_meshes.push_back(std::move(mesh));
 }
 
-void SceneObject::AddChild(std::shared_ptr<SceneObject> object)
+void SceneObject::AddChild(SceneObject* object)
 {
+	object->MakeChild();
+
 	m_children.push_back(object);
-}
-
-SceneObject* SceneObject::GetLastChild()
-{
-	return m_children.back().get();
-}
-
-void SceneObject::SetPosition(DirectX::XMFLOAT3 position)
-{
-	for (auto& mesh : m_meshes)
-		mesh.SetPosition(position);
 }
 
 ObjectTransform* SceneObject::GetTransform()
