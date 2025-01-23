@@ -1,6 +1,7 @@
 #pragma once
 #include "includes/CppIncludes.h"
 #include "Mesh.h"
+#include "ObjectTransform.h"
 
 class Graphics;
 class Pipeline;
@@ -21,6 +22,13 @@ public:
 	void InternalAddStaticResources(Pipeline& pipeline);
 
 	void InitializeGraphicResources(Graphics& graphics, Pipeline& pipeline);
+
+	void UpdateParentMatrix(DirectX::XMMATRIX parentMatrix = DirectX::XMMatrixIdentity());
+
+	// this function allows us to update transformCbuffer once per frame
+	void UpdateTransformBufferIfNeeded(Graphics& graphics, Camera& camera);
+
+	void UpdateLocalTransformIfNeeded();
 
 private:
 	virtual void Initialize(Graphics& graphics, Pipeline& pipeline);
@@ -50,13 +58,14 @@ protected:
 	SceneObject* GetLastChild();
 
 public:
-	void SetPosition(DirectX::XMFLOAT3 position);
+	ObjectTransform* GetTransform();
 
 	std::string GetName() const;
 
 	void SetName(std::string newName);
 
 protected:
+	ObjectTransform m_transform;
 	std::vector<Mesh> m_meshes;
 	std::vector<std::shared_ptr<SceneObject>> m_children;
 	std::string m_name = "unnamed";

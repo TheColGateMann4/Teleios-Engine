@@ -127,6 +127,9 @@ void Scene::DrawSceneObjects(Graphics& graphics)
 
 		m_pipeline.ExecuteCopyCalls(graphics);
 
+		// updating matrices before drawing
+		UpdateObjectMatrices(graphics);
+
 		// drawing scene objects
 		for (auto& sceneObject : m_sceneObjects)
 			sceneObject->InternalDraw(graphics, m_pipeline);
@@ -145,6 +148,22 @@ void Scene::DrawSceneObjects(Graphics& graphics)
 std::string Scene::GetOriginalName(std::string name)
 {
 	return name; // temporary
+}
+
+void Scene::UpdateObjectMatrices(Graphics& graphics)
+{
+	// calculating transform matrix for each object that needs it
+	for (auto& sceneObject : m_sceneObjects)
+		sceneObject->UpdateLocalTransformIfNeeded();
+
+	// passing calculated matrix down the object hierarchy
+	for (auto& sceneObject : m_sceneObjects)
+		if (!sceneObject->isChild())
+			sceneObject->UpdateParentMatrix();
+
+	// after all matrices are set up, we send them to camera
+	for (auto& sceneObject : m_sceneObjects)
+		sceneObject->UpdateTransformBufferIfNeeded(graphics, *m_pipeline.GetCurrentCamera());
 }
 
 ImguiLayer& Scene::GetImguiLayer()

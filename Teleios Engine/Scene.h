@@ -38,6 +38,8 @@ public:
 private:
 	std::string GetOriginalName(std::string name);
 
+	void UpdateObjectMatrices(Graphics& graphics);
+
 public:
 	ImguiLayer& GetImguiLayer();
 

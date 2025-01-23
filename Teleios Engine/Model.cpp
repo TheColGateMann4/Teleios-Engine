@@ -23,6 +23,7 @@
 Model::Model(Graphics& graphics, aiMesh* mesh, aiMaterial* material, std::string filePath, float scale, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation)
 {
 	std::string fileName = mesh->mName.C_Str();
+	m_transform.SetTransformConstantBuffer(std::make_shared<TransformConstantBuffer>(graphics));
 	size_t numVertices = mesh->mNumVertices + 1;
 
 	bool hasPositions = mesh->HasPositions();
@@ -31,7 +32,9 @@ Model::Model(Graphics& graphics, aiMesh* mesh, aiMaterial* material, std::string
 	bool hasTangentsAndBitangent = mesh->HasTangentsAndBitangents();
 	bool hasVertexColors = mesh->HasVertexColors(0);
 
-	Mesh objectMesh(position, rotation);
+		Mesh objectMesh;
+
+		objectMesh.AddBindable(m_transform.GetTransformConstantBuffer());
 
 	DynamicVertex::DynamicVertexLayout vertexLayout;
 
@@ -176,8 +179,6 @@ Model::Model(Graphics& graphics, aiMesh* mesh, aiMaterial* material, std::string
 			objectMesh.AddBindable(std::make_shared<CachedConstantBuffer>(graphics, bufferData, std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::PixelShader, 1}}));
 		}
 	}
-
-	objectMesh.SetTransformConstantBuffer(std::make_shared<TransformConstantBuffer>(graphics));
 
 	objectMesh.AddBindable(Shader::GetBindableResource(graphics, L"PS_Phong", ShaderType::PixelShader, shaderMacros));
 	objectMesh.AddBindable(Shader::GetBindableResource(graphics, L"VS", ShaderType::VertexShader, shaderMacros));

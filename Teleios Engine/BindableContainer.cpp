@@ -36,13 +36,6 @@ void MeshBindableContainer::SetIndexBuffer(std::shared_ptr<IndexBuffer> indexBuf
 	AddBindable(indexBuffer);
 }
 
-void MeshBindableContainer::SetTransformConstantBuffer(std::shared_ptr<TransformConstantBuffer> transformConstantBuffer)
-{
-	m_transformConstantBuffer = transformConstantBuffer.get();
-
-	AddBindable(transformConstantBuffer);
-}
-
 
 void MeshBindableContainer::Initialize(Pipeline& pipeline)
 {
@@ -79,11 +72,6 @@ VertexBuffer* MeshBindableContainer::GetVertexBuffer() const
 IndexBuffer* MeshBindableContainer::GetIndexBuffer() const
 {
 	return m_indexBuffer;
-}
-
-TransformConstantBuffer* MeshBindableContainer::GetTransformConstantBuffer() const
-{
-	return m_transformConstantBuffer;
 }
 
 const std::vector<CachedConstantBuffer*>& MeshBindableContainer::GetCachedBuffers() const

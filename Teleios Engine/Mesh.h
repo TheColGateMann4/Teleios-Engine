@@ -21,7 +21,7 @@ class Camera;
 class Mesh
 {
 public:
-	Mesh(DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation);
+	Mesh() = default;
 	Mesh(Mesh&&) noexcept = default;
 	Mesh(const Mesh&) = delete;
 
@@ -32,26 +32,11 @@ public:
 
 	void DrawMesh(Graphics& graphics, Pipeline& pipeline) const;
 
-	void SetPosition(DirectX::XMFLOAT3 position);
-
-	DirectX::XMFLOAT3& GetPositionLVal();
-
-	DirectX::XMFLOAT3& GetRotationLVal();
-
 	void InternalUpdate(Graphics& graphics, Pipeline& pipeline);
 
 	void InitializeGraphicResources(Graphics& graphics, Pipeline& pipeline);
 
 	void DrawConstantBuffers(Graphics& graphics);
-
-public:
-	void UpdateTransformMatrix(Graphics& graphics, Camera& camera);
-
-	DirectX::XMMATRIX GetTransformMatrix() const;
-
-	bool TransformChanged() const;
-
-	void SetTransformChanged(bool val);
 
 public: // bindable container functions
 	void AddStaticBindable(const char* bindableName);
@@ -62,8 +47,6 @@ public: // bindable container functions
 
 	void SetIndexBuffer(std::shared_ptr<IndexBuffer> indexBuffer);
 
-	void SetTransformConstantBuffer(std::shared_ptr<TransformConstantBuffer> transformConstantBuffer);
-
 	const MeshBindableContainer& GetBindableContainter() const;
 
 protected:
@@ -71,11 +54,5 @@ protected:
 
 	std::unique_ptr<GraphicsPipelineState> m_pipelineState;
 	std::unique_ptr<RootSignature> m_rootSignature;
-
-protected:
-	DirectX::XMFLOAT3 m_position = { 0.0f, 0.0f, 0.0f };
-	DirectX::XMFLOAT3 m_rotation = { 0.0f, 0.0f, 0.0f };
-
-	bool m_transformChanged = true;
 };
 

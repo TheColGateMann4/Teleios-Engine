@@ -19,7 +19,6 @@ public:
 
 	void SetVertexBuffer(std::shared_ptr<VertexBuffer> vertexBuffer);
 	void SetIndexBuffer(std::shared_ptr<IndexBuffer> indexBuffer);
-	void SetTransformConstantBuffer(std::shared_ptr<TransformConstantBuffer> transformConstantBuffer);
 
 	void Initialize(Pipeline& pipeline);
 
@@ -31,7 +30,6 @@ public:
 
 	VertexBuffer* GetVertexBuffer() const;
 	IndexBuffer* GetIndexBuffer() const;
-	TransformConstantBuffer* GetTransformConstantBuffer() const;
 	const std::vector<CachedConstantBuffer*>& GetCachedBuffers() const;
 	const std::vector<Texture*>& GetTextures() const;
 	
@@ -54,7 +52,6 @@ private:
 
 	VertexBuffer* m_vertexBuffer = nullptr;
 	IndexBuffer* m_indexBuffer = nullptr;
-	TransformConstantBuffer* m_transformConstantBuffer = nullptr;
 
 	std::vector<CachedConstantBuffer*> m_cachedBuffers;
 	std::vector<Texture*> m_textures;

@@ -54,9 +54,26 @@ void SceneObject::InitializeGraphicResources(Graphics& graphics, Pipeline& pipel
 {
 	for (auto& mesh : m_meshes)
 		mesh.InitializeGraphicResources(graphics, pipeline);
+}
+
+void SceneObject::UpdateParentMatrix(DirectX::XMMATRIX parentMatrix)
+{
+	m_transform.SetParentTransform(parentMatrix);
 
 	for (auto& child : m_children)
-		child->InitializeGraphicResources(graphics, pipeline);
+		child->UpdateParentMatrix(m_transform.GetWorldTransform());
+}
+
+void SceneObject::UpdateTransformBufferIfNeeded(Graphics& graphics, Camera& camera)
+{
+	// if object does not have any meshes then we don't need to update transformConstBuffer since no objects will be drawn using it
+	if(!m_meshes.empty())
+		m_transform.UpdateTransformBufferIfNeeded(graphics, camera);
+}
+
+void SceneObject::UpdateLocalTransformIfNeeded()
+{
+	m_transform.UpdateLocalTransformIfNeeded();
 }
 
 void SceneObject::Initialize(Graphics& graphics, Pipeline& pipeline)
@@ -97,11 +114,6 @@ void SceneObject::DrawHierarchy(SceneObject** selectedObject)
 
 void SceneObject::DrawTransformPropeties()
 {
-#ifdef _DEBUG
-	if (m_meshes.size() > 1)
-		std::cout << "unhandled meshes in selected object\n";
-#endif
-
 	auto checkChanged = [](bool& checkValue, bool expressionReturn) mutable
 		{
 			checkValue = checkValue || expressionReturn;
@@ -109,10 +121,9 @@ void SceneObject::DrawTransformPropeties()
 
 	bool transformChanged = false;
 
-	Mesh& targetMesh = m_meshes.front();
-
-	DirectX::XMFLOAT3& position = targetMesh.GetPositionLVal();
-	DirectX::XMFLOAT3& rotation = targetMesh.GetRotationLVal();
+	DirectX::XMFLOAT3& position = m_transform.GetPositionLVal();
+	DirectX::XMFLOAT3& rotation = m_transform.GetRotationLVal();
+	DirectX::XMFLOAT3& scale = m_transform.GetScaleLVal();
 
 	ImGui::Text("Position");
 	checkChanged(transformChanged, ImGui::SliderFloat("x##position", &position.x, -100.0f, 100.0f));
@@ -126,7 +137,14 @@ void SceneObject::DrawTransformPropeties()
 	checkChanged(transformChanged, ImGui::SliderAngle("y##rotation", &rotation.y, -180.0f, 180.0f));
 	checkChanged(transformChanged, ImGui::SliderAngle("z##rotation", &rotation.z, -180.0f, 180.0f));
 
-	targetMesh.SetTransformChanged(transformChanged);
+	ImGui::NewLine();
+
+	ImGui::Text("Scale");
+	checkChanged(transformChanged, ImGui::SliderFloat("x##scale", &scale.x, 0.01f, 10.0f));
+	checkChanged(transformChanged, ImGui::SliderFloat("y##scale", &scale.y, 0.01f, 10.0f));
+	checkChanged(transformChanged, ImGui::SliderFloat("z##scale", &scale.z, 0.01f, 10.0f));
+
+	m_transform.CheckIsTransformChanged(transformChanged);
 }
 
 void SceneObject::DrawAdditionalPropeties(Graphics& graphics, Pipeline& pipeline)
@@ -166,6 +184,11 @@ void SceneObject::SetPosition(DirectX::XMFLOAT3 position)
 {
 	for (auto& mesh : m_meshes)
 		mesh.SetPosition(position);
+}
+
+ObjectTransform* SceneObject::GetTransform()
+{
+	return &m_transform;
 }
 
 std::string SceneObject::GetName() const

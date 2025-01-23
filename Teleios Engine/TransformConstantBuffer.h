@@ -4,8 +4,8 @@
 
 class Graphics;
 class Camera;
-class Mesh;
 class CommandList;
+class ObjectTransform;
 
 class TransformConstantBuffer : public Bindable, public CommandListBindable, public RootSignatureBindable
 {
@@ -13,7 +13,7 @@ public:
 	TransformConstantBuffer(Graphics& graphics, std::vector<TargetSlotAndShader> targets = { {ShaderVisibilityGraphic::VertexShader, 0} });
 
 public:
-	void SetParentPtr(Mesh* pParent);
+	void SetParentPtr(ObjectTransform* pObjectTransform);
 
 	void Update(Graphics& graphics, Camera& camera);
 
@@ -25,6 +25,5 @@ public:
 
 private:
 	std::shared_ptr<NonCachedConstantBuffer> m_buffer;
-	Mesh* m_pParent = nullptr;
-	bool m_updated;
+	ObjectTransform* m_pObjectTransform = nullptr;
 };

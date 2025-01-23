@@ -19,7 +19,9 @@
 
 Cube::Cube(Graphics& graphics, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation)
 {
-	Mesh cubeMesh(position, rotation);
+	m_transform.SetTransformConstantBuffer(std::make_shared<TransformConstantBuffer>(graphics));
+
+	Mesh cubeMesh;
 
 	{
 		struct Vertice
@@ -98,7 +100,7 @@ Cube::Cube(Graphics& graphics, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rot
 
 		cubeMesh.SetVertexBuffer(std::make_shared<VertexBuffer>(graphics, vertices.data(), vertices.size(), sizeof(vertices.at(0))));
 		cubeMesh.SetIndexBuffer(std::make_shared<IndexBuffer>(graphics, indices));
-		cubeMesh.SetTransformConstantBuffer(std::make_shared<TransformConstantBuffer>(graphics));
+		cubeMesh.AddBindable(m_transform.GetTransformConstantBuffer());
 
 		cubeMesh.AddBindable(std::make_shared<Shader>(graphics, L"PS_Phong", ShaderType::PixelShader));
 		cubeMesh.AddBindable(std::make_shared<Shader>(graphics, L"VS_Phong", ShaderType::VertexShader));

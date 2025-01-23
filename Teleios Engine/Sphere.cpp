@@ -19,7 +19,9 @@ Sphere::Sphere(Graphics& graphics, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3
 	m_diameter(diameter),
 	m_tesselation(tesselation)
 {
-	Mesh modelMesh(position, rotation);
+	Mesh modelMesh;
+
+	m_transform.SetTransformConstantBuffer(std::make_shared<TransformConstantBuffer>(graphics));
 
 	{
 		DynamicVertex::DynamicVertexLayout vertexLayout;
@@ -29,8 +31,6 @@ Sphere::Sphere(Graphics& graphics, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3
 
 		modelMesh.AddBindable(InputLayout::GetBindableResource(graphics, vertexLayout));
 
-		modelMesh.SetTransformConstantBuffer(std::make_shared<TransformConstantBuffer>(graphics));
-
 		modelMesh.AddBindable(Shader::GetBindableResource(graphics, L"PS_WhiteColor", ShaderType::PixelShader));
 		std::vector<const char*> macros = {"NORMAL", "TEXCOORDS"};
 		modelMesh.AddBindable(Shader::GetBindableResource(graphics, L"VS", ShaderType::VertexShader));
@@ -38,6 +38,7 @@ Sphere::Sphere(Graphics& graphics, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3
 		modelMesh.AddBindable(RasterizerState::GetBindableResource(graphics));
 		modelMesh.AddBindable(DepthStencilState::GetBindableResource(graphics));
 		modelMesh.AddBindable(PrimitiveTechnology::GetBindableResource(graphics, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE));
+		modelMesh.AddBindable(m_transform.GetTransformConstantBuffer());
 	}
 
 	AddMesh(modelMesh);

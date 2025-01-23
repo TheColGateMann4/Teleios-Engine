@@ -3,15 +3,6 @@
 #include "Pipeline.h"
 #include "Camera.h"
 
-
-Mesh::Mesh(DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation)
-	:
-	m_position(position),
-	m_rotation(rotation)
-{
-
-}
-
 void Mesh::Initialize(Graphics& graphics, Pipeline& pipeline)
 {
 	m_bindableContainer.Initialize(pipeline);
@@ -30,10 +21,8 @@ void Mesh::Initialize(Graphics& graphics, Pipeline& pipeline)
 			}
 		}
 
-	m_bindableContainer.GetTransformConstantBuffer()->SetParentPtr(this);
-
 		m_rootSignature->Initialize(graphics);
-}
+	}
 
 	// initialize pipeline state object
 {
@@ -92,21 +81,6 @@ void Mesh::DrawMesh(Graphics& graphics, Pipeline& pipeline) const
 	directCommandList->DrawIndexed(graphics, m_bindableContainer.GetIndexBuffer()->GetIndexCount());
 };
 
-void Mesh::SetPosition(DirectX::XMFLOAT3 position)
-{
-	m_position = position;
-}
-
-DirectX::XMFLOAT3& Mesh::GetPositionLVal()
-{
-	return m_position;
-}
-
-DirectX::XMFLOAT3& Mesh::GetRotationLVal()
-{
-	return m_rotation;
-}
-
 void Mesh::InternalUpdate(Graphics& graphics, Pipeline& pipeline)
 {
 	m_bindableContainer.GetVertexBuffer()->BindToCopyPipelineIfNeeded(pipeline);
@@ -128,32 +102,6 @@ void Mesh::DrawConstantBuffers(Graphics& graphics)
 		cachedBuffer->DrawImguiProperties(graphics);
 }
 
-void Mesh::UpdateTransformMatrix(Graphics& graphics, Camera& camera)
-{
-	if(m_transformChanged || camera.ViewChanged())
-		m_bindableContainer.GetTransformConstantBuffer()->Update(graphics, camera);
-}
-
-DirectX::XMMATRIX Mesh::GetTransformMatrix() const
-{
-	DirectX::FXMVECTOR vecPosition = DirectX::XMLoadFloat3(&m_position);
-	DirectX::FXMVECTOR vecRotation = DirectX::XMLoadFloat3(&m_rotation);
-
-	//  multiplying position matrix by rotation matrix
-	return DirectX::XMMatrixRotationRollPitchYawFromVector(vecRotation) * DirectX::XMMatrixTranslationFromVector(vecPosition);
-}
-
-
-bool Mesh::TransformChanged() const
-{
-	return m_transformChanged;
-}
-
-void Mesh::SetTransformChanged(bool val)
-{
-	m_transformChanged = val;
-}
-
 void Mesh::AddStaticBindable(const char* bindableName)
 {
 	m_bindableContainer.AddStaticBindable(bindableName);
@@ -172,11 +120,6 @@ void Mesh::SetVertexBuffer(std::shared_ptr<VertexBuffer> vertexBuffer)
 void Mesh::SetIndexBuffer(std::shared_ptr<IndexBuffer> indexBuffer)
 {
 	m_bindableContainer.SetIndexBuffer(indexBuffer);
-}
-
-void Mesh::SetTransformConstantBuffer(std::shared_ptr<TransformConstantBuffer> transformConstantBuffer)
-{
-	m_bindableContainer.SetTransformConstantBuffer(transformConstantBuffer);
 }
 
 const MeshBindableContainer& Mesh::GetBindableContainter() const

@@ -66,7 +66,7 @@ void PointLight::Update(Graphics& graphics, Pipeline& pipeline)
 	}
 
 	// dragging our model with us
-	m_sphereModel->SetPosition(m_position);
+	m_pSphereModel->GetTransform()->SetPosition(m_position);
 }
 
 void PointLight::DrawTransformPropeties()
