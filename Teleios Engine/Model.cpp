@@ -257,10 +257,15 @@ Model::MaterialPropeties Model::ProcessMaterialPropeties(aiMaterial* material)
 
 	(void)material->Get(AI_MATKEY_COLOR_SPECULAR, resultPropeties.specularColor);
 
+		if (material->Get(AI_MATKEY_SHININESS, resultPropeties.specularMetalness) != aiReturn_SUCCESS || resultPropeties.specularMetalness == 0.0f)
+		{
+			resultPropeties.specularMetalness = 1.0f;
+		}
 
-	(void)material->Get(AI_MATKEY_SHININESS, resultPropeties.specularPower);
-
-	(void)material->Get(AI_MATKEY_SHININESS_STRENGTH, resultPropeties.specularShinnynes);
+		if (material->Get(AI_MATKEY_SHININESS_STRENGTH, resultPropeties.glosinessRoughness) != aiReturn_SUCCESS || resultPropeties.glosinessRoughness == 0.0f)
+		{
+			resultPropeties.glosinessRoughness = 1.0f;
+		}
 
 	return resultPropeties;
 }
