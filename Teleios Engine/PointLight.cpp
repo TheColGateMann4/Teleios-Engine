@@ -2,12 +2,13 @@
 #include "Pipeline.h"
 #include "Camera.h"
 #include "Sphere.h"
+#include "Scene.h"
 
 #include <imgui.h>
 
 #include "DynamicConstantBuffer.h"
 
-PointLight::PointLight(Graphics& graphics, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 color)
+PointLight::PointLight(Graphics& graphics, Scene& scene, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 color)
 	:
 	m_position(position),
 	m_color(color),
@@ -15,11 +16,16 @@ PointLight::PointLight(Graphics& graphics, DirectX::XMFLOAT3 position, DirectX::
 {
 	SetName("PointLight");
 
-	std::shared_ptr<Sphere> sphereModel = std::make_shared<Sphere>(graphics, m_position, DirectX::XMFLOAT3{ 0.0f, 0.0f, 0.0f }, 0.5f, 21);
+	// creating Sphere model
+	{
+		std::shared_ptr<Sphere> sphereModel = std::make_shared<Sphere>(graphics, m_position, DirectX::XMFLOAT3{ 0.0f, 1.0f, 0.0f }, 0.5f, 21);
 
-	AddChild(sphereModel);
+		m_pSphereModel = sphereModel.get();
+		AddChild(m_pSphereModel);
+		m_pSphereModel->HideInHierarchy();
 
-	m_sphereModel = GetLastChild();
+		scene.AddSceneObject(std::move(sphereModel));
+	}
 
 	DynamicConstantBuffer::ConstantBufferLayout layout;
 	layout.AddElement<DynamicConstantBuffer::ElementType::Float3>("lightPosition", DynamicConstantBuffer::ImguiColorData{false});
@@ -93,6 +99,5 @@ void PointLight::DrawAdditionalPropeties(Graphics& graphics, Pipeline& pipeline)
 
 	m_lightBuffer->DrawImguiProperties(graphics);
 
-	// drawing propeties of sphere to mess with its mesh
-	GetLastChild()->DrawAdditionalPropeties(graphics, pipeline);
+	m_pSphereModel->DrawAdditionalPropeties(graphics, pipeline);
 }
