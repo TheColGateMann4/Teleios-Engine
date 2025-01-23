@@ -24,7 +24,28 @@ Model::Model(Graphics& graphics, Model* pParent, aiNode* node, std::vector<std::
 	:
 	SceneObject(pParent)
 {
-	std::string fileName = mesh->mName.C_Str();
+
+	std::string fileName = std::string(node->mName.data, node->mName.length);
+
+	// getting transfrom from assimp node
+	{
+		DirectX::XMFLOAT3 rotation;
+		aiVector3D aiScaling, aiRotation, aiPosition;
+		node->mTransformation.Decompose(aiScaling, aiRotation, aiPosition);
+
+		position.x += aiPosition.x;
+		position.y += aiPosition.y;
+		position.z += aiPosition.z;
+		
+		rotation.x = aiRotation.y;
+		rotation.y = aiRotation.x;
+		rotation.z = aiRotation.z;
+
+		m_transform.SetPosition(position);
+		m_transform.SetRotation(rotation);
+		m_transform.SetScale(*reinterpret_cast<DirectX::XMFLOAT3*>(&aiScaling));
+	}
+
 	m_transform.SetTransformConstantBuffer(std::make_shared<TransformConstantBuffer>(graphics));
 		aiMesh* mesh = modelMesh.first;
 		aiMaterial* material = modelMesh.second;
