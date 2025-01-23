@@ -6,6 +6,14 @@
 
 #include <imgui.h>
 
+SceneObject::SceneObject(SceneObject* pParent)
+	:
+	m_isChild(pParent != nullptr)
+{
+	if (pParent != nullptr)
+		pParent->AddChild(this);
+}
+
 void SceneObject::InternalInitialize(Graphics& graphics, Pipeline& pipeline)
 {
 	Initialize(graphics, pipeline);

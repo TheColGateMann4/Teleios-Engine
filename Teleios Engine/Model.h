@@ -2,6 +2,7 @@
 #include "includes/CppIncludes.h"
 #include "SceneObject.h"
 
+class aiNode;
 class aiMesh;
 class aiMaterial;
 
@@ -37,7 +38,7 @@ public:
 	};
 
 public:
-	Model(Graphics& graphics, aiMesh* mesh, aiMaterial* material, std::string filePath, float scale = 1.0f, DirectX::XMFLOAT3 position = { -2.0f, 0.0f, 0.0f }, DirectX::XMFLOAT3 rotation = { 0.0f, 0.0f, 0.0f });
+	Model(Graphics& graphics, Model* pParent, aiNode* node, std::vector<std::pair<aiMesh*, aiMaterial*>> modelMeshes, std::string filePath, float scale = 1.0f, DirectX::XMFLOAT3 position = { 0.0f, 0.0f, 0.0f });
 
 	Model(const Model&) = delete;
 

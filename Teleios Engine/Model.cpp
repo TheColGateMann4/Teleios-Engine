@@ -20,10 +20,15 @@
 #include <assimp/scene.h>           // Output data structure
 #include <assimp/postprocess.h>     // Post processing flags
 
-Model::Model(Graphics& graphics, aiMesh* mesh, aiMaterial* material, std::string filePath, float scale, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation)
+Model::Model(Graphics& graphics, Model* pParent, aiNode* node, std::vector<std::pair<aiMesh*, aiMaterial*>> modelMeshes, std::string filePath, float scale, DirectX::XMFLOAT3 position)
+	:
+	SceneObject(pParent)
 {
 	std::string fileName = mesh->mName.C_Str();
 	m_transform.SetTransformConstantBuffer(std::make_shared<TransformConstantBuffer>(graphics));
+		aiMesh* mesh = modelMesh.first;
+		aiMaterial* material = modelMesh.second;
+
 	size_t numVertices = mesh->mNumVertices + 1;
 
 	bool hasPositions = mesh->HasPositions();

@@ -45,11 +45,28 @@ void ModelImporter::AddSceneObjectFromFile(Graphics& graphics, const char* path,
 
 	THROW_INTERNAL_ERROR_IF(importer.GetErrorString(), modelScene == nullptr);
 
-	for (size_t meshIndex = 0; meshIndex < modelScene->mNumMeshes; meshIndex++)
-	{
-		aiMesh* mesh = modelScene->mMeshes[meshIndex];
-		aiMaterial* material = modelScene->mMaterials[mesh->mMaterialIndex];
+		PushModel(graphics, scene, scale, filePath, modelScene->mRootNode, modelScene->mMeshes, modelScene->mMaterials);
+}
 
-		scene.AddSceneObjectFromFile(std::make_shared<Model>(graphics, mesh, material, filePath, scale), mesh->mName.C_Str());
+void ModelImporter::PushModel(Graphics& graphics, Scene& scene, float scale, std::string& filePath, aiNode* node, aiMesh** meshes, aiMaterial** materials, Model* pParent)
+{
+	std::vector<std::pair<aiMesh*, aiMaterial*>> modelMeshes;
+	modelMeshes.reserve(node->mNumMeshes);
+
+	for (unsigned int meshIndex = 0; meshIndex < node->mNumMeshes; meshIndex++)
+	{
+		aiMesh* targetMesh = meshes[node->mMeshes[meshIndex]];
+		modelMeshes.push_back({ targetMesh, materials[targetMesh->mMaterialIndex] });
 	}
+
+	Model* pLocalModel;
+	{
+		std::shared_ptr<Model> pModel = std::make_shared<Model>(graphics, pParent, node, modelMeshes, filePath, scale);
+		pLocalModel = pModel.get();
+
+		scene.AddSceneObjectFromFile(std::move(pModel), std::string(node->mName.data, node->mName.length));
+	}
+
+	for (unsigned int childIndex = 0; childIndex < node->mNumChildren; childIndex++)
+		PushModel(graphics, scene, scale, filePath, node->mChildren[childIndex], meshes, materials, pLocalModel);
 }
