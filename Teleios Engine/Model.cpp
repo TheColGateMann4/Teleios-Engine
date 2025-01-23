@@ -151,13 +151,13 @@ Model::Model(Graphics& graphics, Model* pParent, aiNode* node, std::vector<std::
 
 			if (materialPropeties.hasDiffuseMap)
 			{
-				objectMesh.AddBindable(Texture::GetBindableResource(graphics, (filePath + materialPropeties.diffuseMapPath).c_str(), true, { {ShaderVisibilityGraphic::PixelShader, 0} }));
+					objectMesh.AddBindable(Texture::GetBindableResource(graphics, (filePath + materialPropeties.diffuseMapPath).c_str(), true, false, { {ShaderVisibilityGraphic::PixelShader, 0} }));
 				shaderMacros.push_back(L"TEXTURE_DIFFUSE");
 			}
 
 			if (materialPropeties.hasNormalMap)
 			{
-				objectMesh.AddBindable(Texture::GetBindableResource(graphics, (filePath + materialPropeties.normalMapPath).c_str(), true, { {ShaderVisibilityGraphic::PixelShader, 1} }));
+					objectMesh.AddBindable(Texture::GetBindableResource(graphics, (filePath + materialPropeties.normalMapPath).c_str(), true, true, { {ShaderVisibilityGraphic::PixelShader, 1} }));
 				shaderMacros.push_back(L"TEXTURE_NORMAL");
 
 				shaderMacros.push_back(L"INPUT_TANGENT");
@@ -166,10 +166,9 @@ Model::Model(Graphics& graphics, Model* pParent, aiNode* node, std::vector<std::
 
 			if (materialPropeties.hasSpecularMap)
 			{
-				std::shared_ptr<Texture> specularTexture = Texture::GetBindableResource(graphics, (filePath + materialPropeties.specularMapPath).c_str(), true, { {ShaderVisibilityGraphic::PixelShader, 2} });
-				DXGI_FORMAT specularTextureFormat = specularTexture->GetFormat();
+					std::shared_ptr<Texture> specularTexture = Texture::GetBindableResource(graphics, (filePath + materialPropeties.specularMetalnessMapPath).c_str(), true, false, { {ShaderVisibilityGraphic::PixelShader, 2} });
 
-				materialPropeties.specularOneChannelOnly = specularTextureFormat == DXGI_FORMAT_R8_UNORM;
+					materialPropeties.specularOneChannelOnly = specularTexture->GetFormat() == DXGI_FORMAT_R8_UNORM;
 
 				objectMesh.AddBindable(std::move(specularTexture));
 				shaderMacros.push_back(L"TEXTURE_SPECULAR");
@@ -183,11 +182,11 @@ Model::Model(Graphics& graphics, Model* pParent, aiNode* node, std::vector<std::
 			layout.AddElement<DynamicConstantBuffer::ElementType::Float3>("defaultDiffuseColor");
 			layout.AddElement<DynamicConstantBuffer::ElementType::Float3>("defaultSpecularColor");
 
-			layout.AddElement<DynamicConstantBuffer::ElementType::Bool>("ignoreDiffseAlpha", DynamicConstantBuffer::ImguiData{ false });
 			layout.AddElement<DynamicConstantBuffer::ElementType::Bool>("specularOneChannelOnly", DynamicConstantBuffer::ImguiData{ false });
+				layout.AddElement<DynamicConstantBuffer::ElementType::Bool>("ignoreDiffseAlpha", DynamicConstantBuffer::ImguiData{ false });
 
-			layout.AddElement<DynamicConstantBuffer::ElementType::Float>("specularShinnynes", DynamicConstantBuffer::ImguiFloatData{ true, 0.001f, 150.0f });
-			layout.AddElement<DynamicConstantBuffer::ElementType::Float>("specularPower", DynamicConstantBuffer::ImguiFloatData{ true, 0.001f, 150.0f });
+				layout.AddElement<DynamicConstantBuffer::ElementType::Float>("specular", DynamicConstantBuffer::ImguiFloatData{ true, 0.001f, 150.0f });
+				layout.AddElement<DynamicConstantBuffer::ElementType::Float>("glosiness", DynamicConstantBuffer::ImguiFloatData{ true, 0.001f, 150.0f });
 
 
 			DynamicConstantBuffer::ConstantBufferData bufferData(layout);
@@ -195,11 +194,11 @@ Model::Model(Graphics& graphics, Model* pParent, aiNode* node, std::vector<std::
 			*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float3>("defaultDiffuseColor") = materialPropeties.diffuseColor;
 			*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float3>("defaultSpecularColor") = materialPropeties.specularColor;
 
+				*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Bool>("specularOneChannelOnly") = materialPropeties.specularOneChannelOnly;
 			*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Bool>("ignoreDiffseAlpha") = materialPropeties.ignoreDiffseAlpha;
-			*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Bool>("specularOneChannelOnly") = materialPropeties.specularOneChannelOnly;
 
-			*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("specularShinnynes") = materialPropeties.specularShinnynes;
-			*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("specularPower") = materialPropeties.specularPower;
+				*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("specular") = materialPropeties.specularMetalness;
+				*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("glosiness") = materialPropeties.glosinessRoughness;
 
 
 			objectMesh.AddBindable(std::make_shared<CachedConstantBuffer>(graphics, bufferData, std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::PixelShader, 1}}));
@@ -232,7 +231,7 @@ Model::MaterialPropeties Model::ProcessMaterialPropeties(aiMaterial* material)
 		resultPropeties.hasAnyMap = true;
 
 		resultPropeties.hasDiffuseMap = true;
-		resultPropeties.diffuseMapPath = resultTexturePath.C_Str();
+		resultPropeties.diffuseMapPath = std::string(resultTexturePath.data, resultTexturePath.length);
 	}
 
 	if (material->GetTexture(aiTextureType_NORMALS, 0, &resultTexturePath) == aiReturn_SUCCESS)
@@ -240,15 +239,53 @@ Model::MaterialPropeties Model::ProcessMaterialPropeties(aiMaterial* material)
 		resultPropeties.hasAnyMap = true;
 
 		resultPropeties.hasNormalMap = true;
-		resultPropeties.normalMapPath = resultTexturePath.C_Str();
+		resultPropeties.normalMapPath = std::string(resultTexturePath.data, resultTexturePath.length);
 	}
 
 	if (material->GetTexture(aiTextureType_SPECULAR, 0, &resultTexturePath) == aiReturn_SUCCESS)
 	{
+		if (resultPropeties.hasMetalnessMap || resultPropeties.hasRoughnessMap)
+			THROW_INTERNAL_ERROR("Tried to mix two PBR systems");
+
 		resultPropeties.hasAnyMap = true;
 
 		resultPropeties.hasSpecularMap = true;
-		resultPropeties.specularMapPath = resultTexturePath.C_Str();
+		resultPropeties.specularMetalnessMapPath = std::string(resultTexturePath.data, resultTexturePath.length);
+	}
+
+	if (material->GetTexture(aiTextureType_SHININESS, 0, &resultTexturePath) == aiReturn_SUCCESS)
+	{
+		if (resultPropeties.hasMetalnessMap || resultPropeties.hasRoughnessMap)
+			THROW_INTERNAL_ERROR("Tried to mix two PBR systems");
+
+		resultPropeties.hasAnyMap = true;
+
+		resultPropeties.hasGlosinessMap = true;
+		resultPropeties.glosinessRoughnessMapPath = std::string(resultTexturePath.data, resultTexturePath.length);
+	}
+
+	if (material->GetTexture(aiTextureType_METALNESS, 0, &resultTexturePath) == aiReturn_SUCCESS)
+	{
+		if (resultPropeties.hasSpecularMap || resultPropeties.hasGlosinessMap)
+			THROW_INTERNAL_ERROR("Tried to mix two PBR systems");
+
+		resultPropeties.hasAnyMap = true;
+
+		resultPropeties.hasMetalnessMap = true;
+		resultPropeties.metalRoughnessSystem = true;
+		resultPropeties.specularMetalnessMapPath = std::string(resultTexturePath.data, resultTexturePath.length);
+	}
+
+	if (material->GetTexture(aiTextureType_DIFFUSE_ROUGHNESS, 0, &resultTexturePath) == aiReturn_SUCCESS)
+	{
+		if (resultPropeties.hasSpecularMap || resultPropeties.hasGlosinessMap)
+			THROW_INTERNAL_ERROR("Tried to mix two PBR systems");
+
+		resultPropeties.hasAnyMap = true;
+
+		resultPropeties.hasRoughnessMap = true;
+		resultPropeties.metalRoughnessSystem = true;
+		resultPropeties.glosinessRoughnessMapPath = std::string(resultTexturePath.data, resultTexturePath.length);
 	}
 
 
@@ -258,6 +295,9 @@ Model::MaterialPropeties Model::ProcessMaterialPropeties(aiMaterial* material)
 
 	(void)material->Get(AI_MATKEY_COLOR_SPECULAR, resultPropeties.specularColor);
 
+
+	if (!resultPropeties.metalRoughnessSystem)
+	{
 		if (material->Get(AI_MATKEY_SHININESS, resultPropeties.specularMetalness) != aiReturn_SUCCESS || resultPropeties.specularMetalness == 0.0f)
 		{
 			resultPropeties.specularMetalness = 1.0f;
@@ -267,6 +307,7 @@ Model::MaterialPropeties Model::ProcessMaterialPropeties(aiMaterial* material)
 		{
 			resultPropeties.glosinessRoughness = 1.0f;
 		}
+	}
 
 	(void)material->Get(AI_MATKEY_TWOSIDED, resultPropeties.twoSided);
 

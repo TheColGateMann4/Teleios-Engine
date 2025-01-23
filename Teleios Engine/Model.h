@@ -18,10 +18,16 @@ public:
 		bool hasDiffuseMap = false;
 		bool hasNormalMap = false;
 		bool hasSpecularMap = false;
+		bool hasGlosinessMap = false;
+		bool hasMetalnessMap = false;
+		bool hasRoughnessMap = false;
+
+		bool metalRoughnessSystem = false;
 
 		std::string diffuseMapPath;
 		std::string normalMapPath;
-		std::string specularMapPath;
+		std::string specularMetalnessMapPath;
+		std::string glosinessRoughnessMapPath;
 
 		// colors
 		DirectX::XMFLOAT3 ambientColor = { 0.0f, 0.0f, 0.0f };
@@ -33,9 +39,9 @@ public:
 		bool ignoreDiffseAlpha = false;
 		bool twoSided = false;
 
-		// phong specular varibles
-		float specularShinnynes = 0.1f;
-		float specularPower = 1.0f;
+		// specular/golsiness values
+		float specularMetalness = 0.1f;
+		float glosinessRoughness = 1.0f;
 	};
 
 public:
