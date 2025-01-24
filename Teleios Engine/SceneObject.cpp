@@ -127,7 +127,7 @@ void SceneObject::DrawTransformPropeties()
 	bool transformChanged = false;
 
 	DirectX::XMFLOAT3& position = m_transform.GetPositionLVal();
-	DirectX::XMFLOAT3& rotation = m_transform.GetRotationLVal();
+	//DirectX::XMFLOAT3& rotation = m_transform.GetRotationLVal();
 	DirectX::XMFLOAT3& scale = m_transform.GetScaleLVal();
 
 	ImGui::Text("Position");
@@ -135,12 +135,12 @@ void SceneObject::DrawTransformPropeties()
 	checkChanged(transformChanged, ImGui::SliderFloat("y##position", &position.y, -100.0f, 100.0f));
 	checkChanged(transformChanged, ImGui::SliderFloat("z##position", &position.z, -100.0f, 100.0f));
 
-	ImGui::NewLine();
-
-	ImGui::Text("Rotation");
-	checkChanged(transformChanged, ImGui::SliderAngle("x##rotation", &rotation.x, -180.0f, 180.0f));
-	checkChanged(transformChanged, ImGui::SliderAngle("y##rotation", &rotation.y, -180.0f, 180.0f));
-	checkChanged(transformChanged, ImGui::SliderAngle("z##rotation", &rotation.z, -180.0f, 180.0f));
+//	ImGui::NewLine();
+//
+//	ImGui::Text("Rotation");
+//	checkChanged(transformChanged, ImGui::SliderAngle("x##rotation", &rotation.x, -180.0f, 180.0f));
+//	checkChanged(transformChanged, ImGui::SliderAngle("y##rotation", &rotation.y, -180.0f, 180.0f));
+//	checkChanged(transformChanged, ImGui::SliderAngle("z##rotation", &rotation.z, -180.0f, 180.0f));
 
 	ImGui::NewLine();
 

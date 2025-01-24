@@ -29,21 +29,29 @@ Model::Model(Graphics& graphics, Model* pParent, aiNode* node, std::vector<std::
 
 	// getting transfrom from assimp node
 	{
-		DirectX::XMFLOAT3 rotation;
-		aiVector3D aiScaling, aiRotation, aiPosition;
-		node->mTransformation.Decompose(aiScaling, aiRotation, aiPosition);
+		{
+			DirectX::XMMATRIX nodeMatrix = DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4(reinterpret_cast<DirectX::XMFLOAT4X4*>(&node->mTransformation)));
+			DirectX::XMVECTOR vecPos, vecRotQuat, vecScale;
 
-		position.x += aiPosition.x;
-		position.y += aiPosition.y;
-		position.z += aiPosition.z;
+			bool retVal = DirectX::XMMatrixDecompose(&vecScale, &vecRotQuat, &vecPos, nodeMatrix);
 		
-		rotation.x = aiRotation.y;
-		rotation.y = aiRotation.x;
-		rotation.z = aiRotation.z;
+			THROW_INTERNAL_ERROR_IF("Couldn't decompose node matrix", !retVal);
+
+			// 'float scale' is used to scale vertices and positions of objects, used "externally"
+			// 'float3 modelScale' is internal model scale which is needed to preserve scene look
+			DirectX::XMFLOAT3 modelScale;
+
+			DirectX::XMStoreFloat3(&position, vecPos);
+			DirectX::XMStoreFloat3(&modelScale, vecScale);
+
+			position.x *= scale;
+			position.y *= scale;
+			position.z *= scale;
 
 		m_transform.SetPosition(position);
-		m_transform.SetRotation(rotation);
-		m_transform.SetScale(*reinterpret_cast<DirectX::XMFLOAT3*>(&aiScaling));
+			m_transform.SetQuaternionRotation(vecRotQuat);
+			m_transform.SetScale(modelScale);
+		}
 	}
 
 	m_transform.SetTransformConstantBuffer(std::make_shared<TransformConstantBuffer>(graphics));

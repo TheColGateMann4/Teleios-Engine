@@ -8,9 +8,16 @@ void ObjectTransform::SetPosition(DirectX::XMFLOAT3 position)
 	m_localTransformChanged = true;
 }
 
-void ObjectTransform::SetRotation(DirectX::XMFLOAT3 rotation)
+void ObjectTransform::SetQuaternionRotation(DirectX::XMVECTOR rotation)
 {
 	m_rotation = rotation;
+
+	m_localTransformChanged = true;
+}
+
+void ObjectTransform::SetEulerAnglesRotation(DirectX::XMFLOAT3 rotation)
+{
+	m_rotation = DirectX::XMQuaternionRotationRollPitchYaw(rotation.x, rotation.y, rotation.z);
 
 	m_localTransformChanged = true;
 }
@@ -27,7 +34,7 @@ DirectX::XMFLOAT3 ObjectTransform::GetPosition() const
 	return m_position;
 }
 
-DirectX::XMFLOAT3 ObjectTransform::GetRotation() const
+DirectX::XMVECTOR ObjectTransform::GetRotation() const
 {
 	return m_rotation;
 }
@@ -42,7 +49,7 @@ DirectX::XMFLOAT3& ObjectTransform::GetPositionLVal()
 	return m_position;
 }
 
-DirectX::XMFLOAT3& ObjectTransform::GetRotationLVal()
+DirectX::XMVECTOR& ObjectTransform::GetRotationLVal()
 {
 	return m_rotation;
 }
@@ -103,7 +110,7 @@ void ObjectTransform::UpdateLocalTransform()
 {
 	m_localTransform =
 		DirectX::XMMatrixScaling(m_scale.x, m_scale.y, m_scale.z) *
-		DirectX::XMMatrixRotationRollPitchYaw(m_rotation.y, m_rotation.x, m_rotation.z) *
+		DirectX::XMMatrixRotationQuaternion(m_rotation) *
 		DirectX::XMMatrixTranslation(m_position.x, m_position.y, m_position.z);
 
 	UpdateWorldTransform();
