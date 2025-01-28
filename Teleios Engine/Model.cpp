@@ -153,6 +153,9 @@ Model::Model(Graphics& graphics, Model* pParent, aiNode* node, std::vector<std::
 
 			shaderMacros.push_back(L"METALNESS_PIPELINE");
 
+			if(materialPropeties.roughnessMetalnessInOneTexture)
+				shaderMacros.push_back(L"METALNESS_ROUGHNESS_ONE_TEXTURE");
+
 			// textures
 			if (materialPropeties.hasAnyMap)
 			{
@@ -339,10 +342,17 @@ Model::MaterialPropeties Model::ProcessMaterialPropeties(aiMaterial* material)
 		if (resultPropeties.hasSpecularMap || resultPropeties.hasGlosinessMap)
 			THROW_INTERNAL_ERROR("Tried to mix two PBR systems");
 
-		resultPropeties.hasAnyMap = true;
-		resultPropeties.hasRoughnessMap = true;
-		resultPropeties.metalRoughnessSystem = true;
-		resultPropeties.glosinessRoughnessMapPath = std::string(resultTexturePath.data, resultTexturePath.length);
+		if (resultPropeties.hasMetalnessMap && strcmp(resultPropeties.specularMetalnessMapPath.c_str(), resultTexturePath.C_Str()) == 0)
+		{
+			resultPropeties.roughnessMetalnessInOneTexture = true;
+		}
+		else
+		{
+			resultPropeties.hasAnyMap = true;
+			resultPropeties.hasRoughnessMap = true;
+			resultPropeties.metalRoughnessSystem = true;
+			resultPropeties.glosinessRoughnessMapPath = std::string(resultTexturePath.data, resultTexturePath.length);
+		}
 	}
 
 	if (material->GetTexture(aiTextureType_AMBIENT, 0, &resultTexturePath) == aiReturn_SUCCESS)

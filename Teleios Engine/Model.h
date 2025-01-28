@@ -41,6 +41,7 @@ public:
 		bool specularOneChannelOnly = false;
 		bool ignoreDiffseAlpha = false;
 		bool twoSided = false;
+		bool roughnessMetalnessInOneTexture = false;
 
 		// specular/golsiness values
 		float specular = 0.1f;

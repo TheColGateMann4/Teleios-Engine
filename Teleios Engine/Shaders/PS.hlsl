@@ -15,12 +15,16 @@
     Texture2D t_specular : register(t2);
 #endif
 
-#ifdef TEXTURE_METALNESS
-    Texture2D t_metalness : register(t3);
-#endif
-
-#ifdef TEXTURE_ROUGHNESS
-    Texture2D t_roughness : register(t4);
+#ifdef METALNESS_ROUGHNESS_ONE_TEXTURE
+    Texture2D t_metalnessRoughness : register(t3);
+#else
+    #ifdef TEXTURE_METALNESS
+        Texture2D t_metalness : register(t3);
+    #endif
+    
+    #ifdef TEXTURE_ROUGHNESS
+        Texture2D t_roughness : register(t4);
+    #endif
 #endif
 
 #ifdef TEXTURE_REFLECTIVITY
@@ -151,19 +155,28 @@ float4 PSMain(
     float textureOpacity = b_opacity;
 #endif
     
-    
-#ifdef TEXTURE_METALNESS
-    float metalness = t_metalness.Sample(s_sampler, textureCoords).r;
+#ifdef METALNESS_ROUGHNESS_ONE_TEXTURE
+    float metalness = t_metalnessRoughness.Sample(s_sampler, textureCoords).b;
 #else
-    float metalness = b_metalness;
-#endif
+    #ifdef TEXTURE_METALNESS
+        float metalness = t_metalness.Sample(s_sampler, textureCoords).r;
+    #else
+        float metalness = b_metalness;
+    #endif
+#endif    
     
     
-#ifdef TEXTURE_ROUGHNESS
-    float roughness = t_roughness.Sample(s_sampler, textureCoords).r;
+#ifdef METALNESS_ROUGHNESS_ONE_TEXTURE
+    float roughness = t_metalnessRoughness.Sample(s_sampler, textureCoords).g;
 #else
-    float roughness = b_roughness;
+    #ifdef TEXTURE_ROUGHNESS
+        float roughness = t_roughness.Sample(s_sampler, textureCoords).r;
+    #else
+        float roughness = b_roughness;
+    #endif
 #endif
+
+
     
     
 #ifdef TEXTURE_REFLECTIVITY
