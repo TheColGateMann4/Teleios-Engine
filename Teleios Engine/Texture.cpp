@@ -19,11 +19,11 @@
 
 #include "Pipeline.h"
 
-Texture::Texture(Graphics& graphics, const char* path, bool generateMips, bool disableSRGBCorrection, std::vector<TargetSlotAndShader> targets)
+Texture::Texture(Graphics& graphics, const char* path, bool generateMips, bool SRGBCorrection, std::vector<TargetSlotAndShader> targets)
 	:
 	RootSignatureBindable(targets),
 	m_path(std::string("../../") + path),
-	m_disableSRGBCorrection(disableSRGBCorrection),
+	m_SRGBCorrection(SRGBCorrection),
 	m_generateMipMaps(generateMips)
 {
 	graphics.GetDescriptorHeap().RequestMoreSpace();
@@ -158,16 +158,21 @@ void Texture::Initialize(Graphics& graphics)
 	}
 }
 
-std::shared_ptr<Texture> Texture::GetBindableResource(Graphics& graphics, const char* path, bool generateMips, bool disableSRGBCorrection, std::vector<TargetSlotAndShader> targets)
+std::shared_ptr<Texture> Texture::GetBindableResource(Graphics& graphics, const char* path, bool generateMips, bool SRGBCorrection, std::vector<TargetSlotAndShader> targets)
 {
-	return BindableResourceList::GetBindableResource<Texture>(graphics, path, generateMips, disableSRGBCorrection, targets);
+	return BindableResourceList::GetBindableResource<Texture>(graphics, path, generateMips, SRGBCorrection, targets);
 }
 
-std::string Texture::GetIdentifier(const char* path, bool generateMips, bool disableSRGBCorrection, std::vector<TargetSlotAndShader> targets)
+std::string Texture::GetIdentifier(const char* path, bool generateMips, bool SRGBCorrection, std::vector<TargetSlotAndShader> targets)
 {
 	std::string resultString = "Texture#";
 
 	resultString += path;
+	resultString += '#';
+
+	resultString += std::to_string(generateMips);
+	resultString += '#';
+	resultString += std::to_string(SRGBCorrection);
 	resultString += '#';
 
 	for (const auto target : targets)
@@ -203,7 +208,7 @@ void Texture::InitializeGraphicResources(Graphics& graphics, Pipeline& pipeline)
 	}
 	
 	// convert SRGB to linear RGB space
-	if(m_isSRGB && !m_disableSRGBCorrection)
+	if(m_isSRGB && m_SRGBCorrection)
 	{
 		std::shared_ptr<Shader> computeShader = Shader::GetBindableResource(graphics, L"CS_SRGB_Convert", ShaderType::ComputeShader);
 

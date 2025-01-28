@@ -71,7 +71,7 @@ private:
 
 	DescriptorHeap::DescriptorInfo m_textureDescriptor = {};
 
-	bool m_disableSRGBCorrection;
+	bool m_SRGBCorrection;
 	bool m_generateMipMaps;
 	bool m_resourcesInitialized = false;
 
