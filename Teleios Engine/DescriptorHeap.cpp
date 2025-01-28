@@ -2,7 +2,7 @@
 #include "Graphics.h"
 #include "Macros/ErrorMacros.h"
 
-#define ADDITIONAL_DESCRIPTOR_HEAP_SIZE 2048
+#define ADDITIONAL_DESCRIPTOR_HEAP_SIZE 4096
 
 void DescriptorHeap::RequestMoreSpace()
 {

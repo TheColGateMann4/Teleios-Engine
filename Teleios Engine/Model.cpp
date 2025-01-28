@@ -34,7 +34,7 @@ Model::Model(Graphics& graphics, Model* pParent, aiNode* node, std::vector<std::
 			DirectX::XMVECTOR vecPos, vecRotQuat, vecScale;
 
 			bool retVal = DirectX::XMMatrixDecompose(&vecScale, &vecRotQuat, &vecPos, nodeMatrix);
-		
+
 			THROW_INTERNAL_ERROR_IF("Couldn't decompose node matrix", !retVal);
 
 			// 'float scale' is used to scale vertices and positions of objects, used "externally"
@@ -48,7 +48,7 @@ Model::Model(Graphics& graphics, Model* pParent, aiNode* node, std::vector<std::
 			position.y *= scale;
 			position.z *= scale;
 
-		m_transform.SetPosition(position);
+			m_transform.SetPosition(position);
 			m_transform.SetQuaternionRotation(vecRotQuat);
 			m_transform.SetScale(modelScale);
 		}
@@ -151,10 +151,15 @@ Model::Model(Graphics& graphics, Model* pParent, aiNode* node, std::vector<std::
 		{
 			MaterialPropeties materialPropeties = ProcessMaterialPropeties(material);
 
+			shaderMacros.push_back(L"METALNESS_PIPELINE");
+
 			// textures
 			if (materialPropeties.hasAnyMap)
 			{
 				objectMesh.AddBindable(StaticSampler::GetBindableResource(graphics, D3D12_FILTER_MIN_MAG_MIP_POINT));
+
+				if(materialPropeties.ignoreDiffseAlpha)
+					shaderMacros.push_back(L"IGNORE_DIFFUSE_ALPHA");
 
 				shaderMacros.push_back(L"TEXTURE_ANY");
 				shaderMacros.push_back(L"INPUT_TEXCCORDS"); // since we are handling textures, we will need texcoords argument provided to our shaders
@@ -162,55 +167,107 @@ Model::Model(Graphics& graphics, Model* pParent, aiNode* node, std::vector<std::
 
 				if (materialPropeties.hasDiffuseMap)
 				{
-					objectMesh.AddBindable(Texture::GetBindableResource(graphics, (filePath + materialPropeties.diffuseMapPath).c_str(), true, false, { {ShaderVisibilityGraphic::PixelShader, 0} }));
+					objectMesh.AddBindable(Texture::GetBindableResource(graphics, (filePath + materialPropeties.diffuseMapPath).c_str(), true, true, { {ShaderVisibilityGraphic::PixelShader, 0} }));
 					shaderMacros.push_back(L"TEXTURE_DIFFUSE");
 				}
 
 				if (materialPropeties.hasNormalMap)
 				{
-					objectMesh.AddBindable(Texture::GetBindableResource(graphics, (filePath + materialPropeties.normalMapPath).c_str(), true, true, { {ShaderVisibilityGraphic::PixelShader, 1} }));
+					objectMesh.AddBindable(Texture::GetBindableResource(graphics, (filePath + materialPropeties.normalMapPath).c_str(), true, false, { {ShaderVisibilityGraphic::PixelShader, 1} }));
 					shaderMacros.push_back(L"TEXTURE_NORMAL");
 
 					shaderMacros.push_back(L"INPUT_TANGENT");
 					shaderMacros.push_back(L"INPUT_BITANGENT");
 				}
-
-				if (materialPropeties.hasSpecularMap)
+				
+				if(materialPropeties.metalRoughnessSystem)
 				{
-					std::shared_ptr<Texture> specularTexture = Texture::GetBindableResource(graphics, (filePath + materialPropeties.specularMetalnessMapPath).c_str(), true, false, { {ShaderVisibilityGraphic::PixelShader, 2} });
+					if (materialPropeties.hasMetalnessMap)
+					{
+						std::shared_ptr<Texture> specularTexture = Texture::GetBindableResource(graphics, (filePath + materialPropeties.specularMetalnessMapPath).c_str(), true, false, { {ShaderVisibilityGraphic::PixelShader, 3} });
 
-					materialPropeties.specularOneChannelOnly = specularTexture->GetFormat() == DXGI_FORMAT_R8_UNORM;
+						objectMesh.AddBindable(std::move(specularTexture));
+						shaderMacros.push_back(L"TEXTURE_METALNESS");
+					}
+
+					if (materialPropeties.hasRoughnessMap)
+					{
+						std::shared_ptr<Texture> specularTexture = Texture::GetBindableResource(graphics, (filePath + materialPropeties.specularMetalnessMapPath).c_str(), true, false, { {ShaderVisibilityGraphic::PixelShader, 4} });
+
+						objectMesh.AddBindable(std::move(specularTexture));
+						shaderMacros.push_back(L"TEXTURE_ROUGHNESS");
+					}
+
+					// reflectivity 5
+				}
+				else
+				{
+					if (materialPropeties.hasSpecularMap)
+					{
+						std::shared_ptr<Texture> specularTexture = Texture::GetBindableResource(graphics, (filePath + materialPropeties.specularMetalnessMapPath).c_str(), true, false, { {ShaderVisibilityGraphic::PixelShader, 2} });
+
+						materialPropeties.specularOneChannelOnly = specularTexture->GetFormat() == DXGI_FORMAT_R8_UNORM;
+
+						objectMesh.AddBindable(std::move(specularTexture));
+						shaderMacros.push_back(L"TEXTURE_SPECULAR");
+					}
+				}
+
+				if (materialPropeties.hasAmbientMap)
+				{
+					std::shared_ptr<Texture> specularTexture = Texture::GetBindableResource(graphics, (filePath + materialPropeties.specularMetalnessMapPath).c_str(), true, false, { {ShaderVisibilityGraphic::PixelShader, 6} });
 
 					objectMesh.AddBindable(std::move(specularTexture));
 					shaderMacros.push_back(L"TEXTURE_SPECULAR");
 				}
+
+				// opacity 7
+
 			}
 
 			//Constant buffer describing model material propeties
 			{
 				DynamicConstantBuffer::ConstantBufferLayout layout;
-				layout.AddElement<DynamicConstantBuffer::ElementType::Float3>("ambient");
-				layout.AddElement<DynamicConstantBuffer::ElementType::Float3>("defaultDiffuseColor");
-				layout.AddElement<DynamicConstantBuffer::ElementType::Float3>("defaultSpecularColor");
+				{
+					layout.AddElement<DynamicConstantBuffer::ElementType::Float3>("ambient");
+					layout.AddElement<DynamicConstantBuffer::ElementType::Float3>("diffuse");
 
-				layout.AddElement<DynamicConstantBuffer::ElementType::Bool>("specularOneChannelOnly", DynamicConstantBuffer::ImguiData{ false });
-				layout.AddElement<DynamicConstantBuffer::ElementType::Bool>("ignoreDiffseAlpha", DynamicConstantBuffer::ImguiData{ false });
-
-				layout.AddElement<DynamicConstantBuffer::ElementType::Float>("specular", DynamicConstantBuffer::ImguiFloatData{ true, 0.001f, 150.0f });
-				layout.AddElement<DynamicConstantBuffer::ElementType::Float>("glosiness", DynamicConstantBuffer::ImguiFloatData{ true, 0.001f, 150.0f });
-
+					if (materialPropeties.metalRoughnessSystem)
+					{
+						layout.AddElement<DynamicConstantBuffer::ElementType::Float3>("reflectivity");
+						layout.AddElement<DynamicConstantBuffer::ElementType::Float>("metalness", DynamicConstantBuffer::ImguiFloatData{ true, 0.0f, 1.0f });
+						layout.AddElement<DynamicConstantBuffer::ElementType::Float>("roughness", DynamicConstantBuffer::ImguiFloatData{ true, 0.0f, 1.0f });
+					}
+					else
+					{
+						layout.AddElement<DynamicConstantBuffer::ElementType::Float3>("defaultSpecularColor");
+						layout.AddElement<DynamicConstantBuffer::ElementType::Bool>("specularOneChannelOnly", DynamicConstantBuffer::ImguiData{ false });
+						layout.AddElement<DynamicConstantBuffer::ElementType::Float>("specular", DynamicConstantBuffer::ImguiFloatData{ true, 0.001f, 150.0f });
+						layout.AddElement<DynamicConstantBuffer::ElementType::Float>("glosiness", DynamicConstantBuffer::ImguiFloatData{ true, 0.001f, 150.0f });
+					}
+					layout.AddElement<DynamicConstantBuffer::ElementType::Float>("opacity", DynamicConstantBuffer::ImguiFloatData{ true, 0.0f, 1.0f });
+				}
 
 				DynamicConstantBuffer::ConstantBufferData bufferData(layout);
-				*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float3>("ambient") = materialPropeties.ambientColor;
-				*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float3>("defaultDiffuseColor") = materialPropeties.diffuseColor;
-				*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float3>("defaultSpecularColor") = materialPropeties.specularColor;
+				{
+					*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float3>("ambient") = materialPropeties.ambient;
+					*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float3>("diffuse") = materialPropeties.diffuse;
 
-				*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Bool>("specularOneChannelOnly") = materialPropeties.specularOneChannelOnly;
-				*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Bool>("ignoreDiffseAlpha") = materialPropeties.ignoreDiffseAlpha;
-
-				*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("specular") = materialPropeties.specularMetalness;
-				*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("glosiness") = materialPropeties.glosinessRoughness;
-
+					if (materialPropeties.metalRoughnessSystem)
+					{
+						*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float3>("reflectivity") = materialPropeties.reflective;
+						*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("metalness") = materialPropeties.metalness;
+						*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("roughness") = materialPropeties.roughness;
+					}
+					else
+					{
+						*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float3>("defaultSpecularColor") = materialPropeties.specularColor;
+						*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Bool>("specularOneChannelOnly") = materialPropeties.specularOneChannelOnly;
+						*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("specular") = materialPropeties.specular;
+						*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("glosiness") = materialPropeties.glosiness;
+					}
+					*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("opacity") = materialPropeties.opacity;
+				}
 
 				objectMesh.AddBindable(std::make_shared<CachedConstantBuffer>(graphics, bufferData, std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::PixelShader, 1}}));
 			}
@@ -218,7 +275,7 @@ Model::Model(Graphics& graphics, Model* pParent, aiNode* node, std::vector<std::
 			objectMesh.AddBindable(RasterizerState::GetBindableResource(graphics, materialPropeties.twoSided));
 		}
 
-		objectMesh.AddBindable(Shader::GetBindableResource(graphics, L"PS_Phong", ShaderType::PixelShader, shaderMacros));
+		objectMesh.AddBindable(Shader::GetBindableResource(graphics, L"PS", ShaderType::PixelShader, shaderMacros));
 		objectMesh.AddBindable(Shader::GetBindableResource(graphics, L"VS", ShaderType::VertexShader, shaderMacros));
 		objectMesh.AddBindable(InputLayout::GetBindableResource(graphics, vertexLayout));
 
@@ -265,17 +322,6 @@ Model::MaterialPropeties Model::ProcessMaterialPropeties(aiMaterial* material)
 		resultPropeties.specularMetalnessMapPath = std::string(resultTexturePath.data, resultTexturePath.length);
 	}
 
-	if (material->GetTexture(aiTextureType_SHININESS, 0, &resultTexturePath) == aiReturn_SUCCESS)
-	{
-		if (resultPropeties.hasMetalnessMap || resultPropeties.hasRoughnessMap)
-			THROW_INTERNAL_ERROR("Tried to mix two PBR systems");
-
-		resultPropeties.hasAnyMap = true;
-
-		resultPropeties.hasGlosinessMap = true;
-		resultPropeties.glosinessRoughnessMapPath = std::string(resultTexturePath.data, resultTexturePath.length);
-	}
-
 	if (material->GetTexture(aiTextureType_METALNESS, 0, &resultTexturePath) == aiReturn_SUCCESS)
 	{
 		if (resultPropeties.hasSpecularMap || resultPropeties.hasGlosinessMap)
@@ -294,34 +340,53 @@ Model::MaterialPropeties Model::ProcessMaterialPropeties(aiMaterial* material)
 			THROW_INTERNAL_ERROR("Tried to mix two PBR systems");
 
 		resultPropeties.hasAnyMap = true;
-
 		resultPropeties.hasRoughnessMap = true;
 		resultPropeties.metalRoughnessSystem = true;
 		resultPropeties.glosinessRoughnessMapPath = std::string(resultTexturePath.data, resultTexturePath.length);
 	}
 
+	if (material->GetTexture(aiTextureType_AMBIENT, 0, &resultTexturePath) == aiReturn_SUCCESS)
+	{
+		resultPropeties.hasAnyMap = true;
 
-	(void)material->Get(AI_MATKEY_COLOR_AMBIENT, resultPropeties.ambientColor); // we can ignore if the function succeded since we have this member initialized
+		resultPropeties.hasAmbientMap = true;
+		resultPropeties.ambientMapPath = std::string(resultTexturePath.data, resultTexturePath.length);
+	}
 
-	(void)material->Get(AI_MATKEY_COLOR_DIFFUSE, resultPropeties.diffuseColor);
+	if (material->GetTexture(aiTextureType_OPACITY, 0, &resultTexturePath) == aiReturn_SUCCESS)
+	{
+		resultPropeties.hasAnyMap = true;
+
+		resultPropeties.hasAmbientMap = true;
+		resultPropeties.ambientMapPath = std::string(resultTexturePath.data, resultTexturePath.length);
+	}
+
+
+	(void)material->Get(AI_MATKEY_COLOR_AMBIENT, resultPropeties.ambient); // we can ignore if the function succeded since we have this member initialized
+
+	(void)material->Get(AI_MATKEY_COLOR_DIFFUSE, resultPropeties.diffuse);
 
 	(void)material->Get(AI_MATKEY_COLOR_SPECULAR, resultPropeties.specularColor);
+
+	(void)material->Get(AI_MATKEY_COLOR_REFLECTIVE, resultPropeties.reflective);
 
 
 	if (!resultPropeties.metalRoughnessSystem)
 	{
-		if (material->Get(AI_MATKEY_SHININESS, resultPropeties.specularMetalness) != aiReturn_SUCCESS || resultPropeties.specularMetalness == 0.0f)
+		if (material->Get(AI_MATKEY_SHININESS, resultPropeties.specular) != aiReturn_SUCCESS || resultPropeties.specular == 0.0f)
 		{
-			resultPropeties.specularMetalness = 1.0f;
+			resultPropeties.specular = 1.0f;
 		}
 
-		if (material->Get(AI_MATKEY_SHININESS_STRENGTH, resultPropeties.glosinessRoughness) != aiReturn_SUCCESS || resultPropeties.glosinessRoughness == 0.0f)
+		if (material->Get(AI_MATKEY_SHININESS_STRENGTH, resultPropeties.glosiness) != aiReturn_SUCCESS || resultPropeties.glosiness == 0.0f)
 		{
-			resultPropeties.glosinessRoughness = 1.0f;
+			resultPropeties.glosiness = 1.0f;
 		}
 	}
 
 	(void)material->Get(AI_MATKEY_TWOSIDED, resultPropeties.twoSided);
+
+	(void)material->Get(AI_MATKEY_OPACITY, resultPropeties.opacity);
 
 	return resultPropeties;
 }

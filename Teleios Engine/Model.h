@@ -21,6 +21,7 @@ public:
 		bool hasGlosinessMap = false;
 		bool hasMetalnessMap = false;
 		bool hasRoughnessMap = false;
+		bool hasAmbientMap = false;
 
 		bool metalRoughnessSystem = false;
 
@@ -28,11 +29,13 @@ public:
 		std::string normalMapPath;
 		std::string specularMetalnessMapPath;
 		std::string glosinessRoughnessMapPath;
+		std::string ambientMapPath;
 
 		// colors
-		DirectX::XMFLOAT3 ambientColor = { 0.0f, 0.0f, 0.0f };
-		DirectX::XMFLOAT3 diffuseColor = { 0.0f, 0.0f, 0.0f };
+		DirectX::XMFLOAT3 ambient = { 0.0f, 0.0f, 0.0f };
+		DirectX::XMFLOAT3 diffuse = { 0.0f, 0.0f, 0.0f };
 		DirectX::XMFLOAT3 specularColor = { 1.0f, 1.0f, 1.0f };
+		DirectX::XMFLOAT3 reflective = { 0.03f, 0.03f, 0.03f };
 
 		// texture specific settings
 		bool specularOneChannelOnly = false;
@@ -40,8 +43,11 @@ public:
 		bool twoSided = false;
 
 		// specular/golsiness values
-		float specularMetalness = 0.1f;
-		float glosinessRoughness = 1.0f;
+		float specular = 0.1f;
+		float glosiness = 1.0f;
+		float metalness = 0.0f;
+		float roughness = 0.5f;
+		float opacity = 1.0f;
 	};
 
 public:

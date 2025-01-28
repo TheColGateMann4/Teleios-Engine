@@ -355,7 +355,7 @@
     <FxCompile Include="Shaders\PS_Texture.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="Shaders\PS_Phong.hlsl">
+    <FxCompile Include="Shaders\PS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="Shaders\PS_WhiteColor.hlsl">
