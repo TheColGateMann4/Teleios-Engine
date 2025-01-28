@@ -89,11 +89,14 @@ std::string Shader::GetIdentifier(const wchar_t* name, ShaderType type, std::vec
 	resultString += std::to_string(size_t(type));
 	resultString += '#';
 
-	for (const auto shaderMacro : shaderMacros)
+	if(!shaderMacros.empty())
 	{
-		std::wstring_view wArg = shaderMacro;
+		std::wstring allMacros = {};
 
-		resultString += std::string(wArg.begin(), wArg.end());
+		for (const auto shaderMacro : shaderMacros)
+			allMacros += shaderMacro;
+
+		resultString += std::to_string(std::hash<std::wstring>{}(allMacros));
 		resultString += '#';
 	}
 
