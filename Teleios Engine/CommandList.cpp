@@ -8,6 +8,7 @@
 #include "ConstantBuffer.h"
 #include "Texture.h"
 #include "UnorderedAccessView.h"
+#include "Buffer.h"
 #include "TextureMipView.h"
 
 #include "DescriptorHeap.h"
@@ -88,6 +89,24 @@ ID3D12GraphicsCommandList* CommandList::Get()
 bool CommandList::IsOpen() const
 {
 	return m_open;
+}
+
+void CommandList::SetResourceState(Graphics& graphics, Buffer* buffer, D3D12_RESOURCE_STATES newState) const
+{
+	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
+	THROW_OBJECT_STATE_ERROR_IF("Non-direct command list object", m_type != D3D12_COMMAND_LIST_TYPE_DIRECT);
+
+	D3D12_RESOURCE_BARRIER resourceBarrier = {};
+	resourceBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+	resourceBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+	resourceBarrier.Transition.pResource = buffer->GetResource();
+	resourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+	resourceBarrier.Transition.StateBefore = buffer->GetResourceState();
+	resourceBarrier.Transition.StateAfter = newState;
+
+	buffer->SetResourceState(newState);
+
+	THROW_INFO_ERROR(pCommandList->ResourceBarrier(1, &resourceBarrier));
 }
 
 void CommandList::SetResourceState(Graphics& graphics, RenderTarget* renderTarget, D3D12_RESOURCE_STATES newState) const
@@ -289,6 +308,17 @@ void CommandList::SetComputeDescriptorTable(Graphics& graphics, UnorderedAccessV
 
 	for (auto& targetShader : targets)
 		THROW_INFO_ERROR(pCommandList->SetComputeRootDescriptorTable(targetShader.rootIndex, uav->GetDescriptorHeapGPUHandle(graphics)));
+}
+
+void CommandList::SetComputeDescriptorTable(Graphics& graphics, Buffer* buf)
+{
+	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
+	THROW_OBJECT_STATE_ERROR_IF("Only Compute and Direct command lists can set compute descriptor table", m_type != D3D12_COMMAND_LIST_TYPE_COMPUTE && m_type != D3D12_COMMAND_LIST_TYPE_DIRECT);
+
+	auto& targets = buf->GetTargets();
+
+	for (auto& targetShader : targets)
+		THROW_INFO_ERROR(pCommandList->SetComputeRootDescriptorTable(targetShader.rootIndex, buf->GetDescriptorHeapGPUHandle(graphics)));
 }
 
 void CommandList::SetComputeDescriptorTable(Graphics& graphics, TextureMipView* srv)

@@ -2,7 +2,9 @@
 #include "includes/CppIncludes.h"
 #include "includes/DirectXIncludes.h"
 #include "includes/WRLNoWarnings.h"
+
 #include "Bindable.h"
+#include "Buffer.h"
 
 class Pipeline;
 class Graphics;
@@ -24,9 +26,7 @@ public:
     static std::shared_ptr<IndexBuffer> GetBindableResource(Graphics& graphics, std::string identifier, std::vector<unsigned short> indices);
 
 public:
-	void BindToCopyPipelineIfNeeded(Pipeline& pipeline);
-
-	void CopyResources(Graphics& graphics, CommandList* copyCommandList);
+	void BindToCopyPipelineIfNeeded(Graphics& graphics, Pipeline& pipeline);
 
     virtual void BindToCommandList(Graphics& graphics, CommandList* commandList) override;
 
@@ -37,15 +37,13 @@ public:
     size_t GetIndexCount() const;
 
 private:
-    void UpdateBufferData(Graphics& graphics, void* pData, size_t numElements, size_t structureSize);
-
-    void CreateResource(Graphics& graphics, size_t numElements, size_t structureSize, Microsoft::WRL::ComPtr<ID3D12Resource>& resultResource, bool isUploadResource = false);
+    void UpdateBufferData(Graphics& graphics, void* pData);
 
 private:
-    Microsoft::WRL::ComPtr<ID3D12Resource> pIndexBuffer;
-	Microsoft::WRL::ComPtr<ID3D12Resource> pUploadResource;
+    std::shared_ptr<Buffer> m_buffer;
+    std::shared_ptr<Buffer> m_uploadBuffer;
+
     D3D12_INDEX_BUFFER_VIEW m_indexBufferView;
     DXGI_FORMAT m_dataFormat;
     size_t m_indexCount;
-    size_t m_bufferSize = 0;
 };

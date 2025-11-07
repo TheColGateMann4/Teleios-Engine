@@ -166,6 +166,7 @@
     <ClCompile Include="Bindable.cpp" />
     <ClCompile Include="BindableContainer.cpp" />
     <ClCompile Include="BlendState.cpp" />
+    <ClCompile Include="Buffer.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="CommandList.cpp" />
     <ClCompile Include="ConstantBuffer.cpp" />
@@ -220,6 +221,7 @@
     <ClInclude Include="BindableContainer.h" />
     <ClInclude Include="BindableResourceList.h" />
     <ClInclude Include="BlendState.h" />
+    <ClInclude Include="Buffer.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="CommandList.h" />
     <ClInclude Include="ConstantBuffer.h" />

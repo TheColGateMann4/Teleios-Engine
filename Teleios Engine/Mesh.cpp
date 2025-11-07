@@ -83,9 +83,9 @@ void Mesh::DrawMesh(Graphics& graphics, Pipeline& pipeline) const
 
 void Mesh::InternalUpdate(Graphics& graphics, Pipeline& pipeline)
 {
-	m_bindableContainer.GetVertexBuffer()->BindToCopyPipelineIfNeeded(pipeline);
+	m_bindableContainer.GetVertexBuffer()->BindToCopyPipelineIfNeeded(graphics, pipeline);
 
-	m_bindableContainer.GetIndexBuffer()->BindToCopyPipelineIfNeeded(pipeline);
+	m_bindableContainer.GetIndexBuffer()->BindToCopyPipelineIfNeeded(graphics, pipeline);
 }
 
 void Mesh::InitializeGraphicResources(Graphics& graphics, Pipeline& pipeline)

@@ -15,6 +15,7 @@ class ConstantBuffer;
 class Texture;
 class DescriptorHeap;
 class UnorderedAccessView;
+class Buffer;
 class TextureMipView;
 
 struct ID3D12Resource;
@@ -39,6 +40,8 @@ public:
 	bool IsOpen() const;
 
 public:
+	void SetResourceState(Graphics& graphics, Buffer* buffer, D3D12_RESOURCE_STATES newState) const;
+
 	void SetResourceState(Graphics& graphics, RenderTarget* renderTarget, D3D12_RESOURCE_STATES newState) const;
 
 	void SetResourceState(Graphics& graphics, ID3D12Resource* resource, D3D12_RESOURCE_STATES prevState, D3D12_RESOURCE_STATES newState, unsigned int targetSubresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES) const;
@@ -79,6 +82,7 @@ public:
 
 	void SetComputeDescriptorTable(Graphics& graphics, Texture* texture);
 	void SetComputeDescriptorTable(Graphics& graphics, UnorderedAccessView* uav);
+	void SetComputeDescriptorTable(Graphics& graphics, Buffer* buf);
 	void SetComputeDescriptorTable(Graphics& graphics, TextureMipView* srv);
 
 	void SetComputeRootShaderResourceView(Graphics& graphics, ConstantBuffer* constBuffer);

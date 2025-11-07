@@ -2,8 +2,6 @@
 #include "Includes/CppIncludes.h"
 #include "CommandList.h"
 
-class VertexBuffer;
-class IndexBuffer;
 class Bindable;
 class Camera;
 
@@ -27,9 +25,7 @@ public:
 	void SetCurrentCamera(Camera* newCurrentCamera);
 
 public:
-	void AddBufferToCopyPipeline(VertexBuffer* vertexBuffer);
-
-	void AddBufferToCopyPipeline(IndexBuffer* indexBuffer);
+	void AddBufferToCopyPipeline(Buffer* dst, Buffer* src);
 
 public:
 	void Execute(Graphics& graphics);
@@ -42,6 +38,11 @@ public:
 	std::vector<std::pair<const char*, Bindable*>> m_staticResources;
 	Camera* m_camera = nullptr;
 
-	std::vector<VertexBuffer*> m_vertexBuffersToCopy;
-	std::vector<IndexBuffer*> m_indexBuffersToCopy;
+	struct CopyData
+	{
+		Buffer* dst;
+		Buffer* src;
+	};
+
+	std::vector<CopyData> m_buffersToCopy;
 };
