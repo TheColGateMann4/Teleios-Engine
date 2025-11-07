@@ -138,7 +138,7 @@ Model::Model(Graphics& graphics, Model* pParent, aiNode* node, std::vector<std::
 
 			for (size_t faceIndex = 0; faceIndex < mesh->mNumFaces; faceIndex++)
 				for (size_t indiceIndex = 0; indiceIndex < mesh->mFaces[faceIndex].mNumIndices; indiceIndex++)
-					indices.push_back(mesh->mFaces[faceIndex].mIndices[indiceIndex]);
+					indices.at(faceIndex * 3 + indiceIndex) = mesh->mFaces[faceIndex].mIndices[indiceIndex];
 
 			objectMesh.SetIndexBuffer(IndexBuffer::GetBindableResource(graphics, mesh->mName.C_Str(), indices));
 		}
