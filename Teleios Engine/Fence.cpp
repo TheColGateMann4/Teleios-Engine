@@ -79,7 +79,9 @@ void Fence::WaitForValue(Graphics& graphics)
 	if (graphics.GetDevice()->GetDeviceRemovedReason() != S_OK)
 		return;
 
-	if (pFence->GetCompletedValue() < m_fenceValue)
+	UINT64 fenceValue = pFence->GetCompletedValue();
+
+	if (fenceValue < m_fenceValue)
 	{
 		THROW_ERROR(pFence->SetEventOnCompletion(m_fenceValue, m_fenceEvent));
 		WaitForSingleObject(m_fenceEvent, INFINITE);

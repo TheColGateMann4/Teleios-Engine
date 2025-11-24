@@ -21,7 +21,7 @@ Cube::Cube(Graphics& graphics, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rot
 {
 	m_transform.SetTransformConstantBuffer(std::make_shared<TransformConstantBuffer>(graphics));
 
-	Mesh cubeMesh;
+	LODMesh cubeMesh;
 
 	{
 		struct Vertice

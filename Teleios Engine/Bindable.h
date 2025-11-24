@@ -21,6 +21,7 @@ class Bindable
 public:
 	Bindable() = default;
 	Bindable(Bindable&&) noexcept = default;
+	Bindable& operator=(Bindable&&) noexcept = default;
 
 	virtual ~Bindable() = default;
 };

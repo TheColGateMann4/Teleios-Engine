@@ -25,7 +25,7 @@ void Mesh::Initialize(Graphics& graphics, Pipeline& pipeline)
 	}
 
 	// initialize pipeline state object
-{
+	{
 		m_pipelineState = std::make_unique<GraphicsPipelineState>();
 
 		// initializing pipeline state desc
@@ -35,7 +35,7 @@ void Mesh::Initialize(Graphics& graphics, Pipeline& pipeline)
 
 				for (auto& pPipelineStateBindable : pipelineStateBindables)
 					pPipelineStateBindable->BindToPipelineState(graphics, m_pipelineState.get());
-}
+			}
 
 			m_pipelineState->SetRootSignature(m_rootSignature.get());
 
@@ -78,14 +78,14 @@ void Mesh::DrawMesh(Graphics& graphics, Pipeline& pipeline) const
 			pCommandListBindable->BindToCommandList(graphics, directCommandList);
 	}
 
-	directCommandList->DrawIndexed(graphics, m_bindableContainer.GetIndexBuffer()->GetIndexCount());
+	directCommandList->DrawIndexed(graphics, GetIndexBuffer()->GetIndexCount());
 };
 
 void Mesh::InternalUpdate(Graphics& graphics, Pipeline& pipeline)
 {
-	m_bindableContainer.GetVertexBuffer()->BindToCopyPipelineIfNeeded(graphics, pipeline);
+	GetVertexBuffer()->BindToCopyPipelineIfNeeded(graphics, pipeline);
 
-	m_bindableContainer.GetIndexBuffer()->BindToCopyPipelineIfNeeded(graphics, pipeline);
+	GetIndexBuffer()->BindToCopyPipelineIfNeeded(graphics, pipeline);
 }
 
 void Mesh::InitializeGraphicResources(Graphics& graphics, Pipeline& pipeline)
@@ -114,15 +114,24 @@ void Mesh::AddBindable(std::shared_ptr<Bindable> bindable)
 
 void Mesh::SetVertexBuffer(std::shared_ptr<VertexBuffer> vertexBuffer)
 {
-	m_bindableContainer.SetVertexBuffer(vertexBuffer);
+	m_vertexBuffer = vertexBuffer.get();
+
+	m_bindableContainer.AddBindable(vertexBuffer);
 }
 
 void Mesh::SetIndexBuffer(std::shared_ptr<IndexBuffer> indexBuffer)
 {
-	m_bindableContainer.SetIndexBuffer(indexBuffer);
+	m_indexBuffer = indexBuffer.get();
+
+	m_bindableContainer.AddBindable(indexBuffer);
 }
 
-const MeshBindableContainer& Mesh::GetBindableContainter() const
+VertexBuffer* Mesh::GetVertexBuffer() const
 {
-	return m_bindableContainer;
+	return m_vertexBuffer;
+}
+
+IndexBuffer* Mesh::GetIndexBuffer() const
+{
+	return m_indexBuffer;
 }

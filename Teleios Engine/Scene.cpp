@@ -37,6 +37,22 @@ void Scene::AddSceneObject(std::shared_ptr<SceneObject> sceneObject)
 	m_sceneObjects.push_back(sceneObject);
 }
 
+void Scene::BeginInitialization(Graphics& graphics)
+{
+	// for now we will use graphic command list for simplicity
+	m_pipeline.GetGraphicCommandList()->Open(graphics);
+}
+
+void Scene::FinishInitialization(Graphics& graphics)
+{
+	// for now we will use graphic command list for simplicity
+	m_pipeline.GetGraphicCommandList()->Close(graphics);
+	
+	m_pipeline.Execute(graphics);
+	
+	graphics.WaitForGPU();
+}
+
 void Scene::InitializeSceneObjects(Graphics& graphics)
 {
 	// adding static resources to scene first

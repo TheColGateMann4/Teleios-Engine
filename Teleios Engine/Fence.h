@@ -33,4 +33,3 @@ private:
 	bool m_valueSet = false;
 	bool m_moved = false;
 };
-

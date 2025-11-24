@@ -36,7 +36,11 @@
 #endif
 
 #ifdef TEXTURE_OPACITY
-    Texture2D t_opacity : register(t6);
+    Texture2D t_opacity : register(t7);
+#endif
+
+#ifdef TEXTURE_ENVIRONMENT_MAP
+    Texture2D t_environmentMap : register(t8);
 #endif
 
 cbuffer lightBuffer : register(b0)
@@ -72,10 +76,8 @@ cbuffer modelBuffer : register(b1)
 float NormalDistribution(const float alpha, const float NdotH)
 {
     const float alpha2 = alpha * alpha;
-    const float numerator = alpha2;
-    const float denominator = (NdotH * NdotH * (alpha2 - 1.0f) + 1.0f);
-    
-    return numerator / denominator;
+    const float denominator = NdotH * NdotH * (alpha2 - 1.0f) + 1.0f;
+    return alpha2 / (3.14159265 * denominator * denominator);
 }
 
 float GeometryShadowingFunction(const float alpha, const float NdotX)
@@ -156,7 +158,7 @@ float4 PSMain(
 #endif
     
 #ifdef METALNESS_ROUGHNESS_ONE_TEXTURE
-    float metalness = t_metalnessRoughness.Sample(s_sampler, textureCoords).b;
+    float metalness = t_metalnessRoughness.Sample(s_sampler, textureCoords).b; // r
 #else
     #ifdef TEXTURE_METALNESS
         float metalness = t_metalness.Sample(s_sampler, textureCoords).r;
@@ -211,10 +213,9 @@ float4 PSMain(
     const float LdotN = max(dot(L, N), 0.0f);
     const float VdotN = max(dot(V, N), 0.0f);
     
-    
-    const float3 F0 = pow(1.0f - reflectivity, 2.0f) / pow(1.0f + reflectivity, 2.0f);
-    const float alpha = pow(roughness, 2.0f);
-    const float3 Ks = FrenselSchlick(F0, NdotL);
+    float3 F0 = lerp(float3(0.04, 0.04, 0.04), diffuse, metalness);
+    const float alpha = roughness * roughness;
+    const float3 Ks = FrenselSchlick(F0, NdotH);
     const float3 Kd = (1.0f - Ks) * (1.0f - metalness);
     
 
@@ -225,14 +226,21 @@ float4 PSMain(
     const float cookTorranceDenominator = max(4.0f * VdotN * LdotN, 0.000001f);
     const float3 cookTorrance = cookTorranceNumerator / cookTorranceDenominator;
     
-    const float3 DiffuseBRDF = Kd * lambert * opacity * (1.0f + ambient);
-    const float3 SpecularBRDF = Ks * cookTorrance;
+    const float3 DiffuseBRDF = Kd * lambert * opacity;
+    const float3 SpecularBRDF = cookTorrance;
     
     const float lengthOfDistanceToLight = length(b_lightPositionInCameraSpace - positionInCameraSpace);
     const float attenuation = GetAttenuation(lengthOfDistanceToLight);
-    const float3 lightIntensity = b_lightDiffuseColor * attenuation;
+    const float3 lightIntensity = b_lightDiffuseColor;
     
-    float3 outgoingLight = (DiffuseBRDF + SpecularBRDF) * lightIntensity * LdotN;
+    float3 outgoingLight = (DiffuseBRDF + SpecularBRDF) * LdotN * attenuation * lightIntensity + ambient;
+
+#ifdef TEXTURE_ENVIRONMENT_MAP
+    float3 skyboxSampleVector = normalize(reflect(-worldPosition, worldNormal));
+    outgoingLight += (t_environmentMap.Sample(s_sampler, skyboxSampleVector).xyz * metalness) * reflectivity;
+#else
+
+#endif
 
     return float4(saturate(outgoingLight), textureOpacity);
 }

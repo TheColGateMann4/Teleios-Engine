@@ -17,6 +17,8 @@ UnorderedAccessView::UnorderedAccessView(Graphics& graphics, Texture* texture, u
 	:
 	RootSignatureBindable({ {ShaderVisibilityGraphic::AllShaders, 0} })
 {
+	THROW_INTERNAL_ERROR_IF("Texture was NULL", texture == nullptr);
+
 	HRESULT hr;
 
 	m_descriptor = graphics.GetDescriptorHeap().GetNextHandle();
@@ -39,10 +41,36 @@ UnorderedAccessView::UnorderedAccessView(Graphics& graphics, Texture* texture, u
 	}
 }
 
-//UnorderedAccessView::UnorderedAccessView(Graphics& graphics, Buffer* buffer)
-//{
-//	
-//}
+UnorderedAccessView::UnorderedAccessView(Graphics& graphics, Buffer* buffer, UINT slot)
+	:
+	RootSignatureBindable({ {ShaderVisibilityGraphic::AllShaders, slot} })
+{
+	THROW_INTERNAL_ERROR_IF("Buffer was NULL", buffer == nullptr);
+
+	HRESULT hr;
+
+	m_descriptor = graphics.GetDescriptorHeap().GetNextHandle();
+
+	// creating UAV itself
+	{
+		D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
+		uavDesc.Format = DXGI_FORMAT_UNKNOWN;
+		uavDesc.ViewDimension = D3D12_UAV_DIMENSION_BUFFER;
+		uavDesc.Buffer = {};
+		uavDesc.Buffer.FirstElement = 0;
+		uavDesc.Buffer.NumElements = buffer->GetNumElements();
+		uavDesc.Buffer.StructureByteStride = buffer->GetByteStride();
+		uavDesc.Buffer.CounterOffsetInBytes = 0;
+		uavDesc.Buffer.Flags = D3D12_BUFFER_UAV_FLAG_NONE;
+
+		THROW_INFO_ERROR(graphics.GetDevice()->CreateUnorderedAccessView(
+			buffer->GetResource(),
+			nullptr,
+			&uavDesc,
+			m_descriptor.descriptorCpuHandle
+		));
+	}
+}
 
 void UnorderedAccessView::BindToRootSignature(Graphics& graphics, RootSignature* rootSignature)
 {

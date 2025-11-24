@@ -7,11 +7,17 @@
 #include "IndexBuffer.h"
 #include "ConstantBuffer.h"
 #include "Texture.h"
+#include "ShaderResourceView.h"
 #include "UnorderedAccessView.h"
 #include "Buffer.h"
 #include "TextureMipView.h"
 
 #include "DescriptorHeap.h"
+
+#ifdef _DEBUG
+	#include <pix3.h>
+	#pragma comment(lib, "WinPixEventRuntime.lib")
+#endif
 
 CommandList::CommandList(Graphics& graphics, D3D12_COMMAND_LIST_TYPE type, PipelineState* pPipelineState)
 	:
@@ -43,13 +49,12 @@ void CommandList::Open(Graphics& graphics, PipelineState* pPipelineState)
 	HRESULT hr;
 	ID3D12PipelineState* pipelineState = (pPipelineState == nullptr) ? nullptr : pPipelineState->Get();
 	
+	m_currCommandAllocatorIndex = graphics.GetCurrentBufferIndex();
+
 	// reset currently used command allocator
 	THROW_ERROR(m_pCommandAllocators.at(m_currCommandAllocatorIndex)->Reset());
 
 	THROW_ERROR(pCommandList->Reset(m_pCommandAllocators.at(m_currCommandAllocatorIndex).Get(), pipelineState));
-
-	// proceeding to next allocator for new frame
-	m_currCommandAllocatorIndex = graphics.GetNextBufferIndex();
 
 	m_open = true;
 }
@@ -90,6 +95,37 @@ bool CommandList::IsOpen() const
 {
 	return m_open;
 }
+
+#ifdef _DEBUG
+void CommandList::SetMarker(std::string_view name)
+{
+	static UINT markerColor = PIX_COLOR(0, 255, 255);
+
+	PIXSetMarker(pCommandList.Get(), markerColor, name.data());
+}
+
+void CommandList::BeginEvent(std::string_view name)
+{
+	static UINT eventColor = PIX_COLOR(255, 0, 255);
+
+	PIXBeginEvent(pCommandList.Get(), eventColor, name.data());
+}
+
+void CommandList::EndEvent()
+{
+	PIXEndEvent(pCommandList.Get());
+}
+#endif
+
+//void CommandList::BeginRenderPass()
+//{
+//	//pCommandList->BeginRenderPass;
+//}
+//
+//void CommandList::EndRenderPass()
+//{ 
+//
+//}
 
 void CommandList::SetResourceState(Graphics& graphics, Buffer* buffer, D3D12_RESOURCE_STATES newState) const
 {
@@ -227,6 +263,17 @@ void CommandList::SetGraphicsDescriptorTable(Graphics& graphics, Texture* textur
 		THROW_INFO_ERROR(pCommandList->SetGraphicsRootDescriptorTable(targetShader.rootIndex, texture->GetDescriptorHeapGPUHandle(graphics)));
 }
 
+void CommandList::SetGraphicsDescriptorTable(Graphics& graphics, ShaderResourceView* srv)
+{
+	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
+	THROW_OBJECT_STATE_ERROR_IF("Only Direct and Bundle command lists can set graphics constant buffers", m_type != D3D12_COMMAND_LIST_TYPE_DIRECT && m_type != D3D12_COMMAND_LIST_TYPE_BUNDLE);
+
+	auto& targets = srv->GetTargets();
+
+	for (auto& targetShader : targets)
+		THROW_INFO_ERROR(pCommandList->SetGraphicsRootDescriptorTable(targetShader.rootIndex, srv->GetDescriptorHeapGPUHandle(graphics)));
+}
+
 void CommandList::ExecuteBundle(Graphics& graphics, CommandList* commandList)
 {
 	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
@@ -299,6 +346,14 @@ void CommandList::SetComputeDescriptorTable(Graphics& graphics, Texture* texture
 	THROW_INFO_ERROR(pCommandList->SetComputeRootDescriptorTable(texture->GetComputeRootIndex(), texture->GetDescriptorHeapGPUHandle(graphics)));
 }
 
+void CommandList::SetComputeDescriptorTable(Graphics& graphics, ShaderResourceView* srv)
+{
+	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
+	THROW_OBJECT_STATE_ERROR_IF("Only Compute and Direct command lists can set compute descriptor table", m_type != D3D12_COMMAND_LIST_TYPE_COMPUTE && m_type != D3D12_COMMAND_LIST_TYPE_DIRECT);
+
+	THROW_INFO_ERROR(pCommandList->SetComputeRootDescriptorTable(srv->GetComputeRootIndex(), srv->GetDescriptorHeapGPUHandle(graphics)));
+}
+
 void CommandList::SetComputeDescriptorTable(Graphics& graphics, UnorderedAccessView* uav)
 {
 	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
@@ -308,17 +363,6 @@ void CommandList::SetComputeDescriptorTable(Graphics& graphics, UnorderedAccessV
 
 	for (auto& targetShader : targets)
 		THROW_INFO_ERROR(pCommandList->SetComputeRootDescriptorTable(targetShader.rootIndex, uav->GetDescriptorHeapGPUHandle(graphics)));
-}
-
-void CommandList::SetComputeDescriptorTable(Graphics& graphics, Buffer* buf)
-{
-	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
-	THROW_OBJECT_STATE_ERROR_IF("Only Compute and Direct command lists can set compute descriptor table", m_type != D3D12_COMMAND_LIST_TYPE_COMPUTE && m_type != D3D12_COMMAND_LIST_TYPE_DIRECT);
-
-	auto& targets = buf->GetTargets();
-
-	for (auto& targetShader : targets)
-		THROW_INFO_ERROR(pCommandList->SetComputeRootDescriptorTable(targetShader.rootIndex, buf->GetDescriptorHeapGPUHandle(graphics)));
 }
 
 void CommandList::SetComputeDescriptorTable(Graphics& graphics, TextureMipView* srv)

@@ -14,7 +14,7 @@ class UnorderedAccessView : public Bindable, public RootSignatureBindable, publi
 {
 public:
 	UnorderedAccessView(Graphics& graphics, Texture* texture, unsigned int targetMip);
-	//UnorderedAccessView(Graphics& graphics, Buffer* buffer);
+	UnorderedAccessView(Graphics& graphics, Buffer* buffer, UINT slot = 0);
 
 public:
 	virtual void BindToRootSignature(Graphics& graphics, RootSignature* rootSignature) override;

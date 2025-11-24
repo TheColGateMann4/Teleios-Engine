@@ -28,9 +28,9 @@ public:
 	virtual ~Mesh() = default;
 
 public:
-	void Initialize(Graphics& graphics, Pipeline& pipeline);
+	virtual void Initialize(Graphics& graphics, Pipeline& pipeline);
 
-	void DrawMesh(Graphics& graphics, Pipeline& pipeline) const;
+	virtual void DrawMesh(Graphics& graphics, Pipeline& pipeline) const;
 
 	void InternalUpdate(Graphics& graphics, Pipeline& pipeline);
 
@@ -43,16 +43,19 @@ public: // bindable container functions
 
 	void AddBindable(std::shared_ptr<Bindable> bindable);
 
-	void SetVertexBuffer(std::shared_ptr<VertexBuffer> vertexBuffer);
+	virtual void SetVertexBuffer(std::shared_ptr<VertexBuffer> vertexBuffer);
+	virtual void SetIndexBuffer(std::shared_ptr<IndexBuffer> indexBuffer);
 
-	void SetIndexBuffer(std::shared_ptr<IndexBuffer> indexBuffer);
-
-	const MeshBindableContainer& GetBindableContainter() const;
+	VertexBuffer* GetVertexBuffer() const;
+	IndexBuffer* GetIndexBuffer() const;
 
 protected:
 	MeshBindableContainer m_bindableContainer;
 
 	std::unique_ptr<GraphicsPipelineState> m_pipelineState;
 	std::unique_ptr<RootSignature> m_rootSignature;
+
+	VertexBuffer* m_vertexBuffer;
+	IndexBuffer* m_indexBuffer;
 };
 

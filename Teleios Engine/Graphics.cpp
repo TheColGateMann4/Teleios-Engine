@@ -150,7 +150,9 @@ void Graphics::FinishFrame()
 
 void Graphics::WaitForGPU()
 {
-	m_graphicFences.at(GetCurrentBufferIndex()).WaitForGPU(*this);
+	m_graphicFences.at(GetCurrentBufferIndex()).SetWaitValue(*this);
+
+	m_graphicFences.at(GetCurrentBufferIndex()).WaitForValue(*this);
 }
 
 void Graphics::WaitForGPUIfNeeded()

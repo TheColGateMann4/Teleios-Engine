@@ -29,6 +29,17 @@ DynamicConstantBuffer::ImguiIntData::ImguiIntData(bool show_, int min_, int max_
 
 }
 
+DynamicConstantBuffer::ImguiUintData::ImguiUintData(bool show_, unsigned int min_, unsigned int max_, const char* format_, int flags_)
+	:
+	ImguiData(show_),
+	min(min_),
+	max(max_),
+	format(format_),
+	flags(flags_)
+{
+
+}
+
 
 DynamicConstantBuffer::ImguiFloatData::ImguiFloatData(bool show_, float min_, float max_, const char* format_, int flags_)
 	:
@@ -167,6 +178,22 @@ bool DynamicConstantBuffer::ConstantBufferData::DrawImguiProperties()
 
 				if (imguiIntData->ShouldShow())
 					checkChanged(changed, ImGui::SliderInt(layoutElement.name, reinterpret_cast<int*>(elementData), imguiIntData->min, imguiIntData->max, imguiIntData->format, imguiIntData->flags));
+				break;
+			}
+			case ElementType::Uint:
+			{
+				auto imguiIntData = dynamic_cast<ImguiUintData*>(layoutElement.imguiData.get());
+
+				if (imguiIntData->ShouldShow())
+					checkChanged(changed, ImGui::SliderScalar(layoutElement.name, ImGuiDataType_U32, reinterpret_cast<unsigned int*>(elementData), &imguiIntData->min, &imguiIntData->max, imguiIntData->format, imguiIntData->flags));
+				break;
+			}
+			case ElementType::Uint3:
+			{
+				auto imguiIntData = dynamic_cast<ImguiUintData*>(layoutElement.imguiData.get());
+
+				if (imguiIntData->ShouldShow())
+					checkChanged(changed, ImGui::SliderScalarN(layoutElement.name, ImGuiDataType_U32, reinterpret_cast<unsigned int*>(elementData), 3, &imguiIntData->min, &imguiIntData->max, imguiIntData->format, imguiIntData->flags));
 				break;
 			}
 			case ElementType::Bool:

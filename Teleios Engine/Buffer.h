@@ -11,7 +11,7 @@ class RootSignature;
 class CommandList;
 
 
-class Buffer : public Bindable, public RootSignatureBindable, public CommandListBindable
+class Buffer
 {
 public:
 	enum class CPUAccess
@@ -23,7 +23,9 @@ public:
 	};
 	
 public:
-	Buffer(Graphics& graphics, unsigned int bufferSize, DXGI_FORMAT format = DXGI_FORMAT_UNKNOWN, CPUAccess cpuAccess = CPUAccess::notavailable, D3D12_RESOURCE_STATES state = D3D12_RESOURCE_STATE_COMMON);
+	Buffer(Graphics& graphics, unsigned int numElements, unsigned int byteStride, CPUAccess cpuAccess = CPUAccess::notavailable, D3D12_RESOURCE_STATES state = D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_FLAGS flags = D3D12_RESOURCE_FLAG_NONE);
+
+	Buffer(Buffer&&) noexcept = default;
 
 public:
 	void Update(Graphics& graphics, void* data, size_t size);
@@ -31,22 +33,10 @@ public:
 	//virtual Microsoft::WRL::ComPtr<ID3D12Resource> GetBuffer(Graphics& graphics) = 0;
 	Microsoft::WRL::ComPtr<ID3D12Resource> GetBuffer(Graphics& graphics);
 
-	DXGI_FORMAT GetFormat() const;
-
 	ID3D12Resource* GetResource() const;
-	size_t GetSize() const;
-
-	virtual void BindToRootSignature(Graphics& graphics, RootSignature* rootSignature) override;
-
-	virtual void BindToComputeRootSignature(Graphics& graphics, RootSignature* rootSignature) override;
-
-	virtual void BindToCommandList(Graphics& graphics, CommandList* commandList) override;
-
-	virtual void BindToComputeCommandList(Graphics& graphics, CommandList* commandList) override;
-
-	UINT GetOffsetInDescriptor() const;
-
-	virtual D3D12_GPU_DESCRIPTOR_HANDLE GetDescriptorHeapGPUHandle(Graphics& graphics) const override;
+	size_t GetByteSize() const;
+	size_t GetNumElements() const;
+	size_t GetByteStride() const;
 
 	void CopyResourcesTo(Graphics& graphics, CommandList* copyCommandList, Buffer* dst);
 
@@ -56,20 +46,23 @@ public:
 
 	CPUAccess GetCPUAccess() const;
 
+public:
+	static int GetDXGIFormatSize(DXGI_FORMAT format);
+
 private:
-	D3D12_CPU_PAGE_PROPERTY GetHardwareHeapUsagePropety(CPUAccess cpuAccess);
-	D3D12_MEMORY_POOL GetHardwareHeapMemoryPool(CPUAccess cpuAccess);
-	D3D12_HEAP_TYPE GetHardwareHeapType(CPUAccess cpuAccess);
+	static D3D12_CPU_PAGE_PROPERTY GetHardwareHeapUsagePropety(CPUAccess cpuAccess);
+	static D3D12_MEMORY_POOL GetHardwareHeapMemoryPool(CPUAccess cpuAccess);
+	static D3D12_HEAP_TYPE GetHardwareHeapType(CPUAccess cpuAccess);
 
 private:
 	Microsoft::WRL::ComPtr<ID3D12Resource> m_pBuffer;
 	DXGI_FORMAT m_format;
-	size_t m_size;
+	size_t m_byteSize;
+	size_t m_byteStride;
+	size_t m_numElements;
 	CPUAccess m_cpuAccess;
 	D3D12_RESOURCE_STATES m_state;
 	D3D12_RESOURCE_STATES m_targetState;
-
-	DescriptorHeap::DescriptorInfo m_descriptor = {};
 };
 
 class SingleFrameBuffer

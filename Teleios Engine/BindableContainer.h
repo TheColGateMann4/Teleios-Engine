@@ -17,9 +17,6 @@ public:
 	void AddStaticBindable(const char* bindableName);
 	void AddBindable(std::shared_ptr<Bindable> bindable);
 
-	void SetVertexBuffer(std::shared_ptr<VertexBuffer> vertexBuffer);
-	void SetIndexBuffer(std::shared_ptr<IndexBuffer> indexBuffer);
-
 	void Initialize(Pipeline& pipeline);
 
 public:
@@ -28,8 +25,6 @@ public:
 	const std::vector<RootSignatureBindable*>& GetRootSignatureBindables() const;
 	const std::vector<PipelineStateBindable*>& GetPipelineStateBindables() const;
 
-	VertexBuffer* GetVertexBuffer() const;
-	IndexBuffer* GetIndexBuffer() const;
 	const std::vector<CachedConstantBuffer*>& GetCachedBuffers() const;
 	const std::vector<Texture*>& GetTextures() const;
 	
@@ -49,9 +44,6 @@ private:
 	std::vector<DirectCommandListBindable*> m_directCommandListBindables;
 	std::vector<RootSignatureBindable*> m_rootSignatureBindables;
 	std::vector<PipelineStateBindable*> m_pipelineStateBindables;
-
-	VertexBuffer* m_vertexBuffer = nullptr;
-	IndexBuffer* m_indexBuffer = nullptr;
 
 	std::vector<CachedConstantBuffer*> m_cachedBuffers;
 	std::vector<Texture*> m_textures;

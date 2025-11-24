@@ -14,7 +14,7 @@
 
 #include "Macros/ErrorMacros.h"
 
-#include "Mesh.h"
+#include "LODMesh.h"
 
 #include <assimp/Importer.hpp>      // C++ importer interface
 #include <assimp/scene.h>           // Output data structure
@@ -69,7 +69,7 @@ Model::Model(Graphics& graphics, Model* pParent, aiNode* node, std::vector<std::
 		bool hasTangentsAndBitangent = mesh->HasTangentsAndBitangents();
 		bool hasVertexColors = mesh->HasVertexColors(0);
 
-		Mesh objectMesh;
+		LODMesh objectMesh;
 
 		objectMesh.AddBindable(m_transform.GetTransformConstantBuffer());
 
@@ -153,9 +153,6 @@ Model::Model(Graphics& graphics, Model* pParent, aiNode* node, std::vector<std::
 
 			shaderMacros.push_back(L"METALNESS_PIPELINE");
 
-			if(materialPropeties.roughnessMetalnessInOneTexture)
-				shaderMacros.push_back(L"METALNESS_ROUGHNESS_ONE_TEXTURE");
-
 			// textures
 			if (materialPropeties.hasAnyMap)
 			{
@@ -163,6 +160,9 @@ Model::Model(Graphics& graphics, Model* pParent, aiNode* node, std::vector<std::
 
 				if(materialPropeties.ignoreDiffseAlpha)
 					shaderMacros.push_back(L"IGNORE_DIFFUSE_ALPHA");
+
+				if (materialPropeties.roughnessMetalnessInOneTexture)
+					shaderMacros.push_back(L"METALNESS_ROUGHNESS_ONE_TEXTURE");
 
 				shaderMacros.push_back(L"TEXTURE_ANY");
 				shaderMacros.push_back(L"INPUT_TEXCCORDS"); // since we are handling textures, we will need texcoords argument provided to our shaders
@@ -294,6 +294,15 @@ Model::Model(Graphics& graphics, Model* pParent, aiNode* node, std::vector<std::
 
 Model::MaterialPropeties Model::ProcessMaterialPropeties(aiMaterial* material)
 {
+	//for (int i = 0; i < material->mNumProperties; i++)
+	//{
+	//	const aiMaterialProperty& propety = *material->mProperties[i];
+	//
+	//	std::cout << propety.mKey.C_Str() << "\n";
+	//	std::cout << propety.mSemantic << "\n";
+	//	std::cout << propety.mType << "\n\n\n";
+	//}
+
 	MaterialPropeties resultPropeties;
 
 	aiString resultTexturePath = {};

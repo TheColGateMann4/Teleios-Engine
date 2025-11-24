@@ -13,12 +13,23 @@ class VertexBuffer;
 class RootSignature;
 class ConstantBuffer;
 class Texture;
+class ShaderResourceView;
 class DescriptorHeap;
 class UnorderedAccessView;
 class Buffer;
 class TextureMipView;
 
 struct ID3D12Resource;
+
+#ifdef _DEBUG
+	#define SET_COMMAND_LIST_MARKER(CommandList, Str) CommandList->SetMarker(Str)
+	#define BEGIN_COMMAND_LIST_EVENT(CommandList, Str) CommandList->BeginEvent(Str)
+	#define END_COMMAND_LIST_EVENT(CommandList) CommandList->EndEvent()
+#else
+	#define SET_COMMAND_LIST_MARKER(CommandList, Str)
+	#define BEGIN_COMMAND_LIST_EVENT(CommandList, Str)
+	#define END_COMMAND_LIST_EVENT(CommandList)
+#endif
 
 class CommandList
 {
@@ -38,6 +49,18 @@ public:
 	ID3D12GraphicsCommandList* Get();
 
 	bool IsOpen() const;
+
+public:
+
+#ifdef _DEBUG
+	void SetMarker(std::string_view name);
+
+	void BeginEvent(std::string_view name);
+	void EndEvent();
+#endif
+
+	//void BeginRenderPass();
+	//void EndRenderPass();
 
 public:
 	void SetResourceState(Graphics& graphics, Buffer* buffer, D3D12_RESOURCE_STATES newState) const;
@@ -68,6 +91,7 @@ public:
 	void SetGraphicsRootShaderResourceView(Graphics& graphics, ConstantBuffer* constBuffer);
 
 	void SetGraphicsDescriptorTable(Graphics& graphics, Texture* texture);
+	void SetGraphicsDescriptorTable(Graphics& graphics, ShaderResourceView* srv);
 
 	void ClearRenderTargetView(Graphics& graphics, RenderTarget* renderTarget);
 
@@ -81,8 +105,8 @@ public:
 	void SetComputeConstBufferView(Graphics& graphics, ConstantBuffer* constBuffer);
 
 	void SetComputeDescriptorTable(Graphics& graphics, Texture* texture);
+	void SetComputeDescriptorTable(Graphics& graphics, ShaderResourceView* srv);
 	void SetComputeDescriptorTable(Graphics& graphics, UnorderedAccessView* uav);
-	void SetComputeDescriptorTable(Graphics& graphics, Buffer* buf);
 	void SetComputeDescriptorTable(Graphics& graphics, TextureMipView* srv);
 
 	void SetComputeRootShaderResourceView(Graphics& graphics, ConstantBuffer* constBuffer);

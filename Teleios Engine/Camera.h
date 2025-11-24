@@ -20,7 +20,7 @@ public:
 	};
 
 public:
-	Camera(Graphics& graphics, DirectX::XMFLOAT3 position = { 0.0f, 0.0f, -5.0f }, DirectX::XMFLOAT3 rotation = { 0.0f, 0.0f, 0.0f }, Settings* settings = nullptr);
+	Camera(Graphics& graphics, DirectX::XMFLOAT3 position = { 6.0f, 2.0f, 0.0f }, DirectX::XMFLOAT3 rotation = { 0.0f, 0.0f, 0.0f }, Settings* settings = nullptr);
 
 public:
 	virtual void Initialize(Graphics& graphics, Pipeline& pipeline) override;

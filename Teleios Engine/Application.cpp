@@ -23,8 +23,6 @@ int Application::Run()
 {
 	InitializeScene();
 
-	window.graphics.WaitForGPU();
-
 	while(true)
 	{
 		window.input.Update();
@@ -40,19 +38,27 @@ int Application::Run()
 
 void Application::InitializeScene()
 {
+	scene.BeginInitialization(window.graphics);
+
+
 	scene.AddSceneObject(std::make_shared<Camera>(window.graphics));
 	//scene.AddSceneObject(std::make_shared<Cube>(window.graphics));
-	//scene.AddSceneObjectFromFile(window.graphics, "Models/nanosuit/nanosuit.obj");
+	scene.AddSceneObjectFromFile(window.graphics, "Models/nanosuit/nanosuit.obj");
 	//scene.AddSceneObjectFromFile(window.graphics, "Models/sponza/sponza.obj", 1.0f / 40.0f);
 	//scene.AddSceneObjectFromFile(window.graphics, "Models/intel_sponza/main1_sponza/NewSponza_Main_Yup_003.fbx", 1.0f);
 	//scene.AddSceneObjectFromFile(window.graphics, "Models/intel_sponza/pkg_a_curtains/NewSponza_Curtains_FBX_YUp.fbx", 1.0f);
 
-	scene.AddSceneObjectFromFile(window.graphics, "Models/intel_sponza/main1_sponza/NewSponza_Main_glTF_003.gltf");
-	scene.AddSceneObjectFromFile(window.graphics, "Models/intel_sponza/pkg_a_curtains/NewSponza_Curtains_glTF.gltf");
+	//scene.AddSceneObjectFromFile(window.graphics, "Models/intel_sponza/main1_sponza/NewSponza_Main_glTF_003.gltf");
+	//scene.AddSceneObjectFromFile(window.graphics, "Models/intel_sponza/pkg_a_curtains/NewSponza_Curtains_glTF.gltf");
+
+	//scene.AddSceneObjectFromFile(window.graphics, "Models/gltf_tests/MetalRoughSpheres/glTF/MetalRoughSpheres.gltf");
 
 	scene.AddSceneObject(std::make_shared<PointLight>(window.graphics, scene));
 
 	scene.InitializeSceneObjects(window.graphics);
+
+
+	scene.FinishInitialization(window.graphics);
 }
 
 void Application::Update()
@@ -60,7 +66,6 @@ void Application::Update()
 	window.graphics.BeginFrame();
 
 	ImguiLayer& imguiLayer = scene.GetImguiLayer();
-
 
 	if (imguiLayer.IsVisible())
 		if (window.input.GetKeyDown(VK_OEM_3)) // VK_OEM_3 in US standard keyboard is `~ key

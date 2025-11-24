@@ -21,22 +21,6 @@ void MeshBindableContainer::AddBindable(std::shared_ptr<Bindable> bindable)
 	SegregateBindable(bindable.get());
 }
 
-
-void MeshBindableContainer::SetVertexBuffer(std::shared_ptr<VertexBuffer> vertexBuffer)
-{
-	m_vertexBuffer = vertexBuffer.get();
-
-	AddBindable(vertexBuffer);
-}
-
-void MeshBindableContainer::SetIndexBuffer(std::shared_ptr<IndexBuffer> indexBuffer)
-{
-	m_indexBuffer = indexBuffer.get();
-
-	AddBindable(indexBuffer);
-}
-
-
 void MeshBindableContainer::Initialize(Pipeline& pipeline)
 {
 	for (auto staticBindableName : m_staticBindableNames)
@@ -62,16 +46,6 @@ const std::vector<RootSignatureBindable*>& MeshBindableContainer::GetRootSignatu
 const std::vector<PipelineStateBindable*>& MeshBindableContainer::GetPipelineStateBindables() const
 {
 	return m_pipelineStateBindables;
-}
-
-VertexBuffer* MeshBindableContainer::GetVertexBuffer() const
-{
-	return m_vertexBuffer;
-}
-
-IndexBuffer* MeshBindableContainer::GetIndexBuffer() const
-{
-	return m_indexBuffer;
 }
 
 const std::vector<CachedConstantBuffer*>& MeshBindableContainer::GetCachedBuffers() const

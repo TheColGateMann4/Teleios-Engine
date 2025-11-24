@@ -33,10 +33,14 @@ void SceneObject::InternalUpdate(Graphics& graphics, Camera& camera, Pipeline& p
 
 void SceneObject::InternalDraw(Graphics& graphics, Pipeline& pipeline) const
 {
+	BEGIN_COMMAND_LIST_EVENT(pipeline.GetGraphicCommandList(), std::string("Drawing ") + m_name);
+
 	Draw(graphics, pipeline);
 
 	for (const auto& mesh : m_meshes)
 		mesh.DrawMesh(graphics, pipeline);
+
+	END_COMMAND_LIST_EVENT(pipeline.GetGraphicCommandList());
 }
 
 void SceneObject::InternalAddStaticResources(Pipeline& pipeline)
@@ -192,7 +196,7 @@ bool SceneObject::hasVisibleChildren()
 	return false;
 }
 
-void SceneObject::AddMesh(Mesh& mesh)
+void SceneObject::AddMesh(LODMesh& mesh)
 {
 	m_meshes.push_back(std::move(mesh));
 }

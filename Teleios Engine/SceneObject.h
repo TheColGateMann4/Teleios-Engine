@@ -1,6 +1,6 @@
 #pragma once
 #include "includes/CppIncludes.h"
-#include "Mesh.h"
+#include "LODMesh.h"
 #include "ObjectTransform.h"
 
 class Graphics;
@@ -63,7 +63,7 @@ private:
 	bool hasVisibleChildren();
 
 protected:
-	void AddMesh(Mesh& mesh);
+	void AddMesh(LODMesh& mesh);
 
 	void AddChild(SceneObject* object);
 
@@ -76,7 +76,7 @@ public:
 
 protected:
 	ObjectTransform m_transform;
-	std::vector<Mesh> m_meshes;
+	std::vector<LODMesh> m_meshes;
 	std::vector<SceneObject*> m_children;
 	std::string m_name = "unnamed";
 	bool m_isChild;

@@ -22,6 +22,12 @@ public:
 	void AddSceneObject(std::shared_ptr<SceneObject> sceneObject);
 
 public:
+	// starts initialization state in pipeline, allows copying GPU resources and performing GPU operations
+	void BeginInitialization(Graphics& graphics);
+
+	// ends initialization state in pipeline
+	void FinishInitialization(Graphics& graphics);
+
 	void InitializeSceneObjects(Graphics& graphics);
 
 	// resources that need to be initialized using compute shaders, eg. mip maps for textures

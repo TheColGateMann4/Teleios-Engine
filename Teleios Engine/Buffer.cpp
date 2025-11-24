@@ -3,18 +3,18 @@
 #include "Graphics.h"
 #include "CommandList.h"
 
-Buffer::Buffer(Graphics& graphics, unsigned int bufferSize, DXGI_FORMAT format, CPUAccess cpuAccess, D3D12_RESOURCE_STATES state)
+Buffer::Buffer(Graphics& graphics, unsigned int numElements, unsigned int byteStride, CPUAccess cpuAccess, D3D12_RESOURCE_STATES state, D3D12_RESOURCE_FLAGS flags)
 	:
-	RootSignatureBindable({ {ShaderVisibilityGraphic::AllShaders, 0} }),
-	m_format(format),
-	m_size(bufferSize),
+	m_byteSize(numElements * byteStride),
+	m_byteStride(byteStride),
+	m_numElements(numElements),
 	m_cpuAccess(cpuAccess),
 	m_state(D3D12_RESOURCE_STATE_COMMON),
 	m_targetState(state)
 {
 	HRESULT hr;
 	unsigned int numberOfBuffers = graphics.GetBufferCount();
-
+	
 	// creating resource
 	{
 		D3D12_HEAP_PROPERTIES heapPropeties = {};
@@ -26,15 +26,15 @@ Buffer::Buffer(Graphics& graphics, unsigned int bufferSize, DXGI_FORMAT format, 
 		D3D12_RESOURCE_DESC resourceDesc = {};
 		resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
 		resourceDesc.Alignment = 0;
-		resourceDesc.Width = bufferSize;
+		resourceDesc.Width = m_byteSize;
 		resourceDesc.Height = 1;
 		resourceDesc.DepthOrArraySize = 1;
 		resourceDesc.MipLevels = 1;
-		resourceDesc.Format = format;
+		resourceDesc.Format = DXGI_FORMAT_UNKNOWN;
 		resourceDesc.SampleDesc.Count = 1;
 		resourceDesc.SampleDesc.Quality = 0;
 		resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-		resourceDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
+		resourceDesc.Flags = flags; 
 
 		// this is very incorrect practice since creating many different commited resources for one purpose is bad practice. It is only temporary solution
 		THROW_ERROR(graphics.GetDevice()->CreateCommittedResource(
@@ -83,54 +83,31 @@ Microsoft::WRL::ComPtr<ID3D12Resource> Buffer::GetBuffer(Graphics & graphics)
 	return m_pBuffer;
 }
 
-DXGI_FORMAT Buffer::GetFormat() const
-{
-	return m_format;
-}
-
 ID3D12Resource* Buffer::GetResource() const
 {
 	return m_pBuffer.Get();
 }
 
-size_t Buffer::GetSize() const
+size_t Buffer::GetByteSize() const
 {
-	return m_size;
+	return m_byteSize;
 }
 
-void Buffer::BindToRootSignature(Graphics& graphics, RootSignature* rootSignature)
+size_t Buffer::GetNumElements() const
 {
-	THROW_INTERNAL_ERROR("Tried to bind UAV to graphic root signature");
+	return m_numElements;
 }
 
-void Buffer::BindToComputeRootSignature(Graphics& graphics, RootSignature* rootSignature)
+size_t Buffer::GetByteStride() const
 {
-	rootSignature->AddBufferParameter(this);
-}
-
-void Buffer::BindToCommandList(Graphics& graphics, CommandList* commandList)
-{
-	THROW_INTERNAL_ERROR("Tried to bind UAV to graphic command list");
-}
-
-void Buffer::BindToComputeCommandList(Graphics& graphics, CommandList* commandList)
-{
-	commandList->SetComputeDescriptorTable(graphics, this);
-}
-
-UINT Buffer::GetOffsetInDescriptor() const
-{
-	return m_descriptor.offsetInDescriptorFromStart;
-}
-
-D3D12_GPU_DESCRIPTOR_HANDLE Buffer::GetDescriptorHeapGPUHandle(Graphics& graphics) const
-{
-	return m_descriptor.descriptorHeapGpuHandle;
+	return m_byteStride;
 }
 
 void Buffer::CopyResourcesTo(Graphics& graphics, CommandList* copyCommandList, Buffer* dst)
 {
 	THROW_INTERNAL_ERROR_IF("Dest resource was NULL", dst == nullptr);
+
+	BEGIN_COMMAND_LIST_EVENT(copyCommandList, "Copying Buffer");
 
 	copyCommandList->SetResourceState(graphics, this, D3D12_RESOURCE_STATE_COPY_SOURCE);
 	copyCommandList->SetResourceState(graphics, dst, D3D12_RESOURCE_STATE_COPY_DEST);
@@ -139,6 +116,8 @@ void Buffer::CopyResourcesTo(Graphics& graphics, CommandList* copyCommandList, B
 
 	copyCommandList->SetResourceState(graphics, dst, dst->GetResourceTargetState());
 	copyCommandList->SetResourceState(graphics, this, this->GetResourceTargetState());
+
+	END_COMMAND_LIST_EVENT(copyCommandList);
 }
 
 D3D12_RESOURCE_STATES Buffer::GetResourceState() const
@@ -159,6 +138,73 @@ void Buffer::SetResourceState(D3D12_RESOURCE_STATES newState)
 Buffer::CPUAccess Buffer::GetCPUAccess() const
 {
 	return m_cpuAccess;
+}
+
+int Buffer::GetDXGIFormatSize(DXGI_FORMAT format)
+{
+	switch (format)
+	{
+		case DXGI_FORMAT_R32G32B32A32_FLOAT:
+		case DXGI_FORMAT_R32G32B32A32_UINT:
+		case DXGI_FORMAT_R32G32B32A32_SINT:
+			return 16;
+
+		case DXGI_FORMAT_R32G32B32_FLOAT:
+		case DXGI_FORMAT_R32G32B32_UINT:
+		case DXGI_FORMAT_R32G32B32_SINT:
+			return 12;
+
+		case DXGI_FORMAT_R16G16B16A16_FLOAT:
+		case DXGI_FORMAT_R16G16B16A16_UNORM:
+		case DXGI_FORMAT_R16G16B16A16_UINT:
+		case DXGI_FORMAT_R16G16B16A16_SNORM:
+		case DXGI_FORMAT_R16G16B16A16_SINT:
+		case DXGI_FORMAT_R32G32_FLOAT:
+		case DXGI_FORMAT_R32G32_UINT:
+		case DXGI_FORMAT_R32G32_SINT:
+			return 8;
+
+		case DXGI_FORMAT_R10G10B10A2_UNORM:
+		case DXGI_FORMAT_R10G10B10A2_UINT:
+		case DXGI_FORMAT_R11G11B10_FLOAT:
+		case DXGI_FORMAT_R8G8B8A8_UNORM:
+		case DXGI_FORMAT_R8G8B8A8_UNORM_SRGB:
+		case DXGI_FORMAT_R8G8B8A8_UINT:
+		case DXGI_FORMAT_R8G8B8A8_SNORM:
+		case DXGI_FORMAT_R8G8B8A8_SINT:
+		case DXGI_FORMAT_B8G8R8A8_UNORM:
+		case DXGI_FORMAT_B8G8R8X8_UNORM:
+		case DXGI_FORMAT_R16G16_FLOAT:
+		case DXGI_FORMAT_R16G16_UNORM:
+		case DXGI_FORMAT_R16G16_UINT:
+		case DXGI_FORMAT_R16G16_SNORM:
+		case DXGI_FORMAT_R16G16_SINT:
+		case DXGI_FORMAT_R32_FLOAT:
+		case DXGI_FORMAT_R32_UINT:
+		case DXGI_FORMAT_R32_SINT:
+			return 4;
+
+		case DXGI_FORMAT_R8G8_UNORM:
+		case DXGI_FORMAT_R8G8_UINT:
+		case DXGI_FORMAT_R8G8_SNORM:
+		case DXGI_FORMAT_R8G8_SINT:
+		case DXGI_FORMAT_R16_FLOAT:
+		case DXGI_FORMAT_R16_UNORM:
+		case DXGI_FORMAT_R16_UINT:
+		case DXGI_FORMAT_R16_SNORM:
+		case DXGI_FORMAT_R16_SINT:
+			return 2;
+
+		case DXGI_FORMAT_R8_UNORM:
+		case DXGI_FORMAT_R8_UINT:
+		case DXGI_FORMAT_R8_SNORM:
+		case DXGI_FORMAT_R8_SINT:
+		case DXGI_FORMAT_A8_UNORM:
+			return 1;
+
+		default:
+			return 0;
+	}
 }
 
 D3D12_CPU_PAGE_PROPERTY Buffer::GetHardwareHeapUsagePropety(CPUAccess cpuAccess)

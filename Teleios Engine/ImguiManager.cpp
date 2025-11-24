@@ -3,8 +3,8 @@
 #include "Graphics.h"
 
 #include <imgui.h>
-#include <backend/imgui_impl_dx12.h>
-#include <backend/imgui_impl_win32.h>
+#include <backends/imgui_impl_dx12.h>
+#include <backends/imgui_impl_win32.h>
 
 ImguiManager::ImguiManager(Graphics& graphics, HWND hWnd)
 {
@@ -12,7 +12,7 @@ ImguiManager::ImguiManager(Graphics& graphics, HWND hWnd)
 
 	// imgui initialization stuff
 	{
-		IMGUI_CHECKVERSION();
+		ImGui::DebugCheckVersionAndDataLayout("1.92.0 WIP", sizeof(ImGuiIO), sizeof(ImGuiStyle), sizeof(ImVec2), sizeof(ImVec4), sizeof(ImDrawVert), sizeof(ImDrawIdx));
 
 		ImGui::CreateContext();
 	}

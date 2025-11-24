@@ -2,8 +2,6 @@
 #include "includes/CppIncludes.h"
 #include "Bindable.h"
 
-#include "IndexBuffer.h"
-
 class Graphics;
 
 class BindableResourceList
@@ -25,7 +23,7 @@ public:
 
 		if (foundItem == bindableResourceMap.end()) // item not found?
 		{
-			std::shared_ptr<T> bindable = std::make_unique<T>(graphics, std::forward<Params&&>(creationParams)...);
+			std::shared_ptr<T> bindable = std::make_shared<T>(graphics, std::forward<Params&&>(creationParams)...);
 
 			bindableResourceMap[identifier] = bindable; // pushing newly created bindable to our map
 

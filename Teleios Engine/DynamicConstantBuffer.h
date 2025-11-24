@@ -8,6 +8,8 @@ namespace DynamicConstantBuffer
 	enum class ElementType
 	{
 		Int,
+		Uint3,
+		Uint,
 		Bool,
 		Float,
 		Float2,
@@ -38,6 +40,20 @@ namespace DynamicConstantBuffer
 	public:
 		int min;
 		int max;
+
+		const char* format;
+		int flags;
+	};
+
+	struct ImguiUintData : public ImguiData
+	{
+		virtual ~ImguiUintData() = default;
+
+		ImguiUintData(bool show_ = true, unsigned int min_ = 0, unsigned int max_ = 10, const char* format_ = "%d", int flags_ = 0);
+
+	public:
+		unsigned int min;
+		unsigned int max;
 
 		const char* format;
 		int flags;
@@ -83,6 +99,24 @@ namespace DynamicConstantBuffer
 		using dataType = INT;
 		static constexpr unsigned int size = sizeof(dataType);
 		using imguiDataType = ImguiIntData;
+	};
+	template<>
+	struct ElementMap<ElementType::Uint>
+	{
+		static constexpr bool valid = true;
+
+		using dataType = UINT;
+		static constexpr unsigned int size = sizeof(dataType);
+		using imguiDataType = ImguiUintData;
+	};
+	template<>
+	struct ElementMap<ElementType::Uint3>
+	{
+		static constexpr bool valid = true;
+
+		using dataType = DirectX::XMUINT3;
+		static constexpr unsigned int size = sizeof(dataType);
+		using imguiDataType = ImguiUintData;
 	};
 	template<>
 	struct ElementMap<ElementType::Bool>
