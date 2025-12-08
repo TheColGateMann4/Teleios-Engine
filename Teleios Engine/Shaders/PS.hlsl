@@ -212,10 +212,11 @@ float4 PSMain(
     const float NdotH = max(dot(N, H), 0.0f);
     const float LdotN = max(dot(L, N), 0.0f);
     const float VdotN = max(dot(V, N), 0.0f);
+    const float VdotH = max(dot(V, H), 0.0f);
     
     float3 F0 = lerp(float3(0.04, 0.04, 0.04), diffuse, metalness);
     const float alpha = roughness * roughness;
-    const float3 Ks = FrenselSchlick(F0, NdotH);
+    const float3 Ks = FrenselSchlick(F0, VdotH);
     const float3 Kd = (1.0f - Ks) * (1.0f - metalness);
     
 

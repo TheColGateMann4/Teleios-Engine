@@ -19,11 +19,10 @@
 
 #include "Pipeline.h"
 
-Texture::Texture(Graphics& graphics, const char* path, bool generateMips, bool SRGBCorrection, std::vector<TargetSlotAndShader> targets)
+Texture::Texture(Graphics& graphics, const char* path, bool generateMips, std::vector<TargetSlotAndShader> targets)
 	:
 	RootSignatureBindable(targets),
 	m_path(std::string("../../") + path),
-	m_SRGBCorrection(SRGBCorrection),
 	m_generateMipMaps(generateMips)
 {
 	graphics.GetDescriptorHeap().RequestMoreSpace();
@@ -57,7 +56,7 @@ Texture::Texture(Graphics& graphics, const char* path, bool generateMips, bool S
 
 	m_isAlphaOpaque = metaData.GetAlphaMode() == DirectX::TEX_ALPHA_MODE_OPAQUE;
 	m_minmapLevels = m_generateMipMaps ? GetMipLevels(metaData.width) : 1;
-	m_format = SetCorrectedFormat(metaData.format);
+	m_format = metaData.format;
 	m_width = metaData.width;
 	m_height = metaData.height;
 
@@ -158,12 +157,12 @@ void Texture::Initialize(Graphics& graphics)
 	}
 }
 
-std::shared_ptr<Texture> Texture::GetBindableResource(Graphics& graphics, const char* path, bool generateMips, bool SRGBCorrection, std::vector<TargetSlotAndShader> targets)
+std::shared_ptr<Texture> Texture::GetBindableResource(Graphics& graphics, const char* path, bool generateMips, std::vector<TargetSlotAndShader> targets)
 {
-	return BindableResourceList::GetBindableResource<Texture>(graphics, path, generateMips, SRGBCorrection, targets);
+	return BindableResourceList::GetBindableResource<Texture>(graphics, path, generateMips, targets);
 }
 
-std::string Texture::GetIdentifier(const char* path, bool generateMips, bool SRGBCorrection, std::vector<TargetSlotAndShader> targets)
+std::string Texture::GetIdentifier(const char* path, bool generateMips, std::vector<TargetSlotAndShader> targets)
 {
 	std::string resultString = "Texture#";
 
@@ -171,8 +170,6 @@ std::string Texture::GetIdentifier(const char* path, bool generateMips, bool SRG
 	resultString += '#';
 
 	resultString += std::to_string(generateMips);
-	resultString += '#';
-	resultString += std::to_string(SRGBCorrection);
 	resultString += '#';
 
 	for (const auto target : targets)
@@ -207,25 +204,6 @@ void Texture::InitializeGraphicResources(Graphics& graphics, Pipeline& pipeline)
 
 		// cleaning up upload texture once we uploaded to gpu texture
 		graphics.GetFrameResourceDeleter()->DeleteResource(graphics, std::move(pUploadTexture));
-	}
-	
-	// convert SRGB to linear RGB space
-	if(m_isSRGB && m_SRGBCorrection)
-	{
-		std::shared_ptr<Shader> computeShader = Shader::GetBindableResource(graphics, L"CS_SRGB_Convert", ShaderType::ComputeShader);
-
-		TempComputeCommandList computeCommandList(graphics, pipeline.GetGraphicCommandList());
-
-		{
-			UnorderedAccessView uav(graphics, this, 0);
-
-			computeCommandList.Bind(computeShader);
-			computeCommandList.Bind(std::move(uav));
-
-			computeCommandList.Dispatch(graphics, m_width, m_height);
-		}
-
-		graphics.GetFrameResourceDeleter()->DeleteResource(graphics, std::move(computeCommandList));
 	}
 
 	// when we don't want to generate mip maps, we still want our resource to be copied
@@ -353,23 +331,4 @@ unsigned int Texture::GetMipLevels(unsigned int textureWidth)
 	THROW_INTERNAL_ERROR_IF("Texture width passed was equal to 0", textureWidth == 0);
 
 	return std::floor(std::log2(textureWidth)) + 1;
-}
-
-DXGI_FORMAT Texture::SetCorrectedFormat(DXGI_FORMAT format)
-{
-	switch (format)
-	{
-	case DXGI_FORMAT_B8G8R8X8_UNORM:
-		return DXGI_FORMAT_B8G8R8A8_UNORM;
-
-	case DXGI_FORMAT_R8G8B8A8_UNORM_SRGB:
-		m_isSRGB = true;
-		return DXGI_FORMAT_R8G8B8A8_UNORM;
-	case DXGI_FORMAT_B8G8R8A8_UNORM_SRGB:
-		m_isSRGB = true;
-		return DXGI_FORMAT_B8G8R8A8_UNORM;
-
-	default:
-		return format;
-	}
 }

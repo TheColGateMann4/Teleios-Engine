@@ -170,13 +170,13 @@ Model::Model(Graphics& graphics, Model* pParent, aiNode* node, std::vector<std::
 
 				if (materialPropeties.hasDiffuseMap)
 				{
-					objectMesh.AddBindable(Texture::GetBindableResource(graphics, (filePath + materialPropeties.diffuseMapPath).c_str(), true, true, { {ShaderVisibilityGraphic::PixelShader, 0} }));
+					objectMesh.AddBindable(Texture::GetBindableResource(graphics, (filePath + materialPropeties.diffuseMapPath).c_str(), true, { {ShaderVisibilityGraphic::PixelShader, 0} }));
 					shaderMacros.push_back(L"TEXTURE_DIFFUSE");
 				}
 
 				if (materialPropeties.hasNormalMap)
 				{
-					objectMesh.AddBindable(Texture::GetBindableResource(graphics, (filePath + materialPropeties.normalMapPath).c_str(), true, false, { {ShaderVisibilityGraphic::PixelShader, 1} }));
+					objectMesh.AddBindable(Texture::GetBindableResource(graphics, (filePath + materialPropeties.normalMapPath).c_str(), true, { {ShaderVisibilityGraphic::PixelShader, 1} }));
 					shaderMacros.push_back(L"TEXTURE_NORMAL");
 
 					shaderMacros.push_back(L"INPUT_TANGENT");
@@ -187,7 +187,7 @@ Model::Model(Graphics& graphics, Model* pParent, aiNode* node, std::vector<std::
 				{
 					if (materialPropeties.hasMetalnessMap)
 					{
-						std::shared_ptr<Texture> specularTexture = Texture::GetBindableResource(graphics, (filePath + materialPropeties.specularMetalnessMapPath).c_str(), true, false, { {ShaderVisibilityGraphic::PixelShader, 3} });
+						std::shared_ptr<Texture> specularTexture = Texture::GetBindableResource(graphics, (filePath + materialPropeties.specularMetalnessMapPath).c_str(), true, { {ShaderVisibilityGraphic::PixelShader, 3} });
 
 						objectMesh.AddBindable(std::move(specularTexture));
 						shaderMacros.push_back(L"TEXTURE_METALNESS");
@@ -195,7 +195,7 @@ Model::Model(Graphics& graphics, Model* pParent, aiNode* node, std::vector<std::
 
 					if (materialPropeties.hasRoughnessMap)
 					{
-						std::shared_ptr<Texture> specularTexture = Texture::GetBindableResource(graphics, (filePath + materialPropeties.specularMetalnessMapPath).c_str(), true, false, { {ShaderVisibilityGraphic::PixelShader, 4} });
+						std::shared_ptr<Texture> specularTexture = Texture::GetBindableResource(graphics, (filePath + materialPropeties.specularMetalnessMapPath).c_str(), true, { {ShaderVisibilityGraphic::PixelShader, 4} });
 
 						objectMesh.AddBindable(std::move(specularTexture));
 						shaderMacros.push_back(L"TEXTURE_ROUGHNESS");
@@ -207,7 +207,7 @@ Model::Model(Graphics& graphics, Model* pParent, aiNode* node, std::vector<std::
 				{
 					if (materialPropeties.hasSpecularMap)
 					{
-						std::shared_ptr<Texture> specularTexture = Texture::GetBindableResource(graphics, (filePath + materialPropeties.specularMetalnessMapPath).c_str(), true, false, { {ShaderVisibilityGraphic::PixelShader, 2} });
+						std::shared_ptr<Texture> specularTexture = Texture::GetBindableResource(graphics, (filePath + materialPropeties.specularMetalnessMapPath).c_str(), true, { {ShaderVisibilityGraphic::PixelShader, 2} });
 
 						materialPropeties.specularOneChannelOnly = specularTexture->GetFormat() == DXGI_FORMAT_R8_UNORM;
 
@@ -218,10 +218,10 @@ Model::Model(Graphics& graphics, Model* pParent, aiNode* node, std::vector<std::
 
 				if (materialPropeties.hasAmbientMap)
 				{
-					std::shared_ptr<Texture> specularTexture = Texture::GetBindableResource(graphics, (filePath + materialPropeties.specularMetalnessMapPath).c_str(), true, false, { {ShaderVisibilityGraphic::PixelShader, 6} });
+					std::shared_ptr<Texture> specularTexture = Texture::GetBindableResource(graphics, (filePath + materialPropeties.ambientMapPath).c_str(), true, { {ShaderVisibilityGraphic::PixelShader, 6} });
 
 					objectMesh.AddBindable(std::move(specularTexture));
-					shaderMacros.push_back(L"TEXTURE_SPECULAR");
+					shaderMacros.push_back(L"TEXTURE_AMBIENT");
 				}
 
 				// opacity 7
@@ -365,10 +365,10 @@ Model::MaterialPropeties Model::ProcessMaterialPropeties(aiMaterial* material)
 
 	if (material->GetTexture(aiTextureType_OPACITY, 0, &resultTexturePath) == aiReturn_SUCCESS)
 	{
-		resultPropeties.hasAnyMap = true;
-
-		resultPropeties.hasAmbientMap = true;
-		resultPropeties.ambientMapPath = std::string(resultTexturePath.data, resultTexturePath.length);
+		//resultPropeties.hasAnyMap = true;
+		//
+		//resultPropeties.hasOpacityMap = true;
+		//resultPropeties.opacityMapPath = std::string(resultTexturePath.data, resultTexturePath.length);
 	}
 
 
