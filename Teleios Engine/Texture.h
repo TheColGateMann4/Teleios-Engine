@@ -15,15 +15,15 @@ class Pipeline;
 class Texture : public Bindable, public CommandListBindable, public RootSignatureBindable
 {
 public:
-	Texture(Graphics& graphics, const char* path, bool generateMips = true, bool disableSRGBCorrection = false, std::vector<TargetSlotAndShader> targets = { {ShaderVisibilityGraphic::PixelShader, 0} });
+	Texture(Graphics& graphics, const char* path, bool generateMips = true, std::vector<TargetSlotAndShader> targets = { {ShaderVisibilityGraphic::PixelShader, 0} });
 
 protected:
 	virtual void Initialize(Graphics& graphics) override;
 
 public:
-	static std::shared_ptr<Texture> GetBindableResource(Graphics& graphics, const char* path, bool generateMips = true, bool disableSRGBCorrection = false, std::vector<TargetSlotAndShader> targets = { {ShaderVisibilityGraphic::PixelShader, 0} });
+	static std::shared_ptr<Texture> GetBindableResource(Graphics& graphics, const char* path, bool generateMips = true, std::vector<TargetSlotAndShader> targets = { {ShaderVisibilityGraphic::PixelShader, 0} });
 
-	static std::string GetIdentifier(const char* path, bool generateMips, bool disableSRGBCorrection, std::vector<TargetSlotAndShader> targets);
+	static std::string GetIdentifier(const char* path, bool generateMips, std::vector<TargetSlotAndShader> targets);
 
 public:
 	void InitializeGraphicResources(Graphics& graphics, Pipeline& pipeline);
@@ -52,8 +52,6 @@ public:
 
 private:
 	static unsigned int GetMipLevels(unsigned int textureWidth);
-	
-	DXGI_FORMAT SetCorrectedFormat(DXGI_FORMAT format);
 
 private:
 	Microsoft::WRL::ComPtr<ID3D12Resource> pTexture;
@@ -71,7 +69,6 @@ private:
 
 	DescriptorHeap::DescriptorInfo m_textureDescriptor = {};
 
-	bool m_SRGBCorrection;
 	bool m_generateMipMaps;
 	bool m_resourcesInitialized = false;
 
