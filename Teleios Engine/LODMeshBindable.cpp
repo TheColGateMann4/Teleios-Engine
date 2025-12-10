@@ -167,7 +167,7 @@ VertexBuffer* LODMeshBindable::GetVertexBuffer(int lod)
 	if (lod == 0)
 		return m_mesh->GetVertexBuffer();
 
-	return &m_vertexBufferLODs.at(lod + 1);
+	return &m_vertexBufferLODs.at(lod);
 }
 
 IndexBuffer* LODMeshBindable::GetIndexBuffer(int lod)
@@ -175,7 +175,7 @@ IndexBuffer* LODMeshBindable::GetIndexBuffer(int lod)
 	if (lod == 0)
 		return m_mesh->GetIndexBuffer();
 
-	return &m_indexBufferLODs.at(lod + 1);
+	return &m_indexBufferLODs.at(lod);
 }
 
 int LODMeshBindable::GetLODLevel(Graphics& graphics)
@@ -206,6 +206,7 @@ int LODMeshBindable::GetLODLevel(Graphics& graphics)
 	
 		alreadyPressedMinus = holdsMinus;
 	}
-	
+	std::cout << m_currentLOD << '\n';
+
 	return m_currentLOD;
 }

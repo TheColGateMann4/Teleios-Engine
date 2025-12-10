@@ -69,6 +69,9 @@ Model::Model(Graphics& graphics, Model* pParent, aiNode* node, std::vector<std::
 		bool hasTangentsAndBitangent = mesh->HasTangentsAndBitangents();
 		bool hasVertexColors = mesh->HasVertexColors(0);
 
+		if (mesh->HasBones())
+			std::cout << mesh->mName.C_Str() << " has bones\n";
+
 		LODMesh objectMesh;
 
 		objectMesh.AddBindable(m_transform.GetTransformConstantBuffer());

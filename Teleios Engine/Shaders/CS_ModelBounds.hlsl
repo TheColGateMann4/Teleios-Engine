@@ -8,6 +8,18 @@ cbuffer Params : register(b0)
     uint numVertices;
 }
 
+uint FloatToOrderedUint(float val)
+{
+    uint u = asuint(val);
+    return (u & 0x80000000u) != 0u ? ~u : (u ^ 0x80000000u);
+}
+
+float OrderedUintToFloat(uint u)
+{
+    uint f = (u & 0x80000000u) != 0u ? (u ^ 0x80000000u) : ~u;
+    return asfloat(f);
+}
+
 groupshared float3 sharedMin[256];
 groupshared float3 sharedMax[256];
 
@@ -15,13 +27,15 @@ groupshared float3 sharedMax[256];
 void CSMain(uint3 DTid : SV_DispatchThreadID, uint3 GroupThreadID : SV_GroupThreadID)
 {
     uint tid = DTid.x;
+    uint vInd = tid * 3;
+    
     if (tid >= numVertices)
         return;
 
     float3 pos = float3(
-        vertIn[fieldOffsetOfVertices + tid],
-        vertIn[fieldOffsetOfVertices + tid + 1],
-        vertIn[fieldOffsetOfVertices + tid + 2]
+        vertIn[fieldOffsetOfVertices + vInd],
+        vertIn[fieldOffsetOfVertices + vInd + 1],
+        vertIn[fieldOffsetOfVertices + vInd + 2]
     );
 
     // Initialize shared memory
@@ -65,12 +79,12 @@ void CSMain(uint3 DTid : SV_DispatchThreadID, uint3 GroupThreadID : SV_GroupThre
 
         float tmp;
 
-        InterlockedMin(outMin[0], asuint(finalMin.x), tmp);
-        InterlockedMin(outMin[1], asuint(finalMin.y), tmp);
-        InterlockedMin(outMin[2], asuint(finalMin.z), tmp);
+        InterlockedMin(outMin[0], FloatToOrderedUint(finalMin.x), tmp);
+        InterlockedMin(outMin[1], FloatToOrderedUint(finalMin.y), tmp);
+        InterlockedMin(outMin[2], FloatToOrderedUint(finalMin.z), tmp);
 
-        InterlockedMax(outMax[0], asuint(finalMax.x), tmp);
-        InterlockedMax(outMax[1], asuint(finalMax.y), tmp);
-        InterlockedMax(outMax[2], asuint(finalMax.z), tmp);
+        InterlockedMax(outMax[0], FloatToOrderedUint(finalMax.x), tmp);
+        InterlockedMax(outMax[1], FloatToOrderedUint(finalMax.y), tmp);
+        InterlockedMax(outMax[2], FloatToOrderedUint(finalMax.z), tmp);
     }
 }

@@ -7,6 +7,7 @@
 #include "DescriptorHeap.h"
 
 class Graphics;
+class Pipeline;
 class RootSignature;
 class CommandList;
 
@@ -28,7 +29,20 @@ public:
 	Buffer(Buffer&&) noexcept = default;
 
 public:
-	void Update(Graphics& graphics, void* data, size_t size);
+	void Update(Graphics& graphics, const void* data, size_t size);
+	void Update(Graphics& graphics, Pipeline& pipeline, const void* data, size_t size);
+
+	template<class T>
+	void Update(Graphics& graphics, std::initializer_list<T> list)
+	{
+		Update(graphics, list.begin(), list.size() * sizeof(T));
+	}
+
+	template<class T>
+	void Update(Graphics& graphics, Pipeline& pipeline, std::initializer_list<T> list)
+	{
+		Update(graphics, pipeline, list.begin(), list.size() * sizeof(T));
+	}
 
 	//virtual Microsoft::WRL::ComPtr<ID3D12Resource> GetBuffer(Graphics& graphics) = 0;
 	Microsoft::WRL::ComPtr<ID3D12Resource> GetBuffer(Graphics& graphics);
@@ -46,10 +60,10 @@ public:
 
 	CPUAccess GetCPUAccess() const;
 
-public:
-	static int GetDXGIFormatSize(DXGI_FORMAT format);
-
 private:
+	void UpdateUsingTempResource(Graphics& graphics, Pipeline& pipeline, const void* data, size_t size);
+	void UpdateLocalResource(Graphics& graphics, const void* data, size_t size);
+
 	static D3D12_CPU_PAGE_PROPERTY GetHardwareHeapUsagePropety(CPUAccess cpuAccess);
 	static D3D12_MEMORY_POOL GetHardwareHeapMemoryPool(CPUAccess cpuAccess);
 	static D3D12_HEAP_TYPE GetHardwareHeapType(CPUAccess cpuAccess);

@@ -1,6 +1,7 @@
 #include "Buffer.h"
 #include "Macros/ErrorMacros.h"
 #include "Graphics.h"
+#include "Pipeline.h"
 #include "CommandList.h"
 
 Buffer::Buffer(Graphics& graphics, unsigned int numElements, unsigned int byteStride, CPUAccess cpuAccess, D3D12_RESOURCE_STATES state, D3D12_RESOURCE_FLAGS flags)
@@ -48,33 +49,27 @@ Buffer::Buffer(Graphics& graphics, unsigned int numElements, unsigned int byteSt
 	}
 }
 
-void Buffer::Update(Graphics& graphics, void* data, size_t size)
+void Buffer::Update(Graphics& graphics, const void* data, size_t size)
 {
-	Microsoft::WRL::ComPtr<ID3D12Resource> pConstBuffer = GetBuffer(graphics);
-
-	HRESULT hr;
-
-	// passing data to constant buffer resource
+	if (m_cpuAccess == CPUAccess::readwrite || m_cpuAccess == CPUAccess::write)
 	{
-		D3D12_RANGE readRange = {};
-		readRange.Begin = 0;
-		readRange.End = 0;
+		UpdateLocalResource(graphics, data, size);
+	}
+	else
+	{
+		THROW_INTERNAL_ERROR("Tried to Update resource without CPU access. Use pipeline access to update it using temp resource");
+	}
+}
 
-		D3D12_RANGE writeRange = {};
-		writeRange.Begin = 0;
-		writeRange.End = size;
-
-		void* pMappedData = nullptr;
-
-		THROW_ERROR(pConstBuffer->Map(
-			0,
-			&readRange,
-			&pMappedData
-		));
-
-		memcpy_s(pMappedData, size, data, size);
-
-		pConstBuffer->Unmap(0, &writeRange);
+void Buffer::Update(Graphics& graphics, Pipeline& pipeline, const void* data, size_t size)
+{
+	if (m_cpuAccess == CPUAccess::readwrite || m_cpuAccess == CPUAccess::write)
+	{
+		UpdateLocalResource(graphics, data, size);
+	}
+	else
+	{
+		UpdateUsingTempResource(graphics, pipeline, data, size);
 	}
 }
 
@@ -140,70 +135,42 @@ Buffer::CPUAccess Buffer::GetCPUAccess() const
 	return m_cpuAccess;
 }
 
-int Buffer::GetDXGIFormatSize(DXGI_FORMAT format)
+void Buffer::UpdateUsingTempResource(Graphics& graphics, Pipeline& pipeline, const void* data, size_t size)
 {
-	switch (format)
+	Buffer uploadBuffer(graphics, size, 1, CPUAccess::write);
+	uploadBuffer.Update(graphics, data, size);
+
+	uploadBuffer.CopyResourcesTo(graphics, pipeline.GetGraphicCommandList(), this);
+}
+void Buffer::UpdateLocalResource(Graphics& graphics, const void* data, size_t size)
+{
+	THROW_INTERNAL_ERROR_IF("Buffer was larger than resource itself", size > m_byteSize);
+
+	Microsoft::WRL::ComPtr<ID3D12Resource> pConstBuffer = GetBuffer(graphics);
+
+	HRESULT hr;
+
+	// passing data to constant buffer resource
 	{
-		case DXGI_FORMAT_R32G32B32A32_FLOAT:
-		case DXGI_FORMAT_R32G32B32A32_UINT:
-		case DXGI_FORMAT_R32G32B32A32_SINT:
-			return 16;
+		D3D12_RANGE readRange = {};
+		readRange.Begin = 0;
+		readRange.End = 0;
 
-		case DXGI_FORMAT_R32G32B32_FLOAT:
-		case DXGI_FORMAT_R32G32B32_UINT:
-		case DXGI_FORMAT_R32G32B32_SINT:
-			return 12;
+		D3D12_RANGE writeRange = {};
+		writeRange.Begin = 0;
+		writeRange.End = size;
 
-		case DXGI_FORMAT_R16G16B16A16_FLOAT:
-		case DXGI_FORMAT_R16G16B16A16_UNORM:
-		case DXGI_FORMAT_R16G16B16A16_UINT:
-		case DXGI_FORMAT_R16G16B16A16_SNORM:
-		case DXGI_FORMAT_R16G16B16A16_SINT:
-		case DXGI_FORMAT_R32G32_FLOAT:
-		case DXGI_FORMAT_R32G32_UINT:
-		case DXGI_FORMAT_R32G32_SINT:
-			return 8;
+		void* pMappedData = nullptr;
 
-		case DXGI_FORMAT_R10G10B10A2_UNORM:
-		case DXGI_FORMAT_R10G10B10A2_UINT:
-		case DXGI_FORMAT_R11G11B10_FLOAT:
-		case DXGI_FORMAT_R8G8B8A8_UNORM:
-		case DXGI_FORMAT_R8G8B8A8_UNORM_SRGB:
-		case DXGI_FORMAT_R8G8B8A8_UINT:
-		case DXGI_FORMAT_R8G8B8A8_SNORM:
-		case DXGI_FORMAT_R8G8B8A8_SINT:
-		case DXGI_FORMAT_B8G8R8A8_UNORM:
-		case DXGI_FORMAT_B8G8R8X8_UNORM:
-		case DXGI_FORMAT_R16G16_FLOAT:
-		case DXGI_FORMAT_R16G16_UNORM:
-		case DXGI_FORMAT_R16G16_UINT:
-		case DXGI_FORMAT_R16G16_SNORM:
-		case DXGI_FORMAT_R16G16_SINT:
-		case DXGI_FORMAT_R32_FLOAT:
-		case DXGI_FORMAT_R32_UINT:
-		case DXGI_FORMAT_R32_SINT:
-			return 4;
+		THROW_ERROR(pConstBuffer->Map(
+			0,
+			&readRange,
+			&pMappedData
+		));
 
-		case DXGI_FORMAT_R8G8_UNORM:
-		case DXGI_FORMAT_R8G8_UINT:
-		case DXGI_FORMAT_R8G8_SNORM:
-		case DXGI_FORMAT_R8G8_SINT:
-		case DXGI_FORMAT_R16_FLOAT:
-		case DXGI_FORMAT_R16_UNORM:
-		case DXGI_FORMAT_R16_UINT:
-		case DXGI_FORMAT_R16_SNORM:
-		case DXGI_FORMAT_R16_SINT:
-			return 2;
+		memcpy_s(pMappedData, size, data, size);
 
-		case DXGI_FORMAT_R8_UNORM:
-		case DXGI_FORMAT_R8_UINT:
-		case DXGI_FORMAT_R8_SNORM:
-		case DXGI_FORMAT_R8_SINT:
-		case DXGI_FORMAT_A8_UNORM:
-			return 1;
-
-		default:
-			return 0;
+		pConstBuffer->Unmap(0, &writeRange);
 	}
 }
 

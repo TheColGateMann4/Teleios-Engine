@@ -6,8 +6,8 @@ cbuffer GridParams : register(b0)
 }
 
 StructuredBuffer<float3> vertIn : register(t0);
-StructuredBuffer<float3> bbMin : register(t1);
-StructuredBuffer<float3> bbMax : register(t2);
+StructuredBuffer<uint> bbMin : register(t1);
+StructuredBuffer<uint> bbMax : register(t2);
 
 RWStructuredBuffer<float3> cellSum : register(u0);   // global cell sums
 RWStructuredBuffer<uint> cellCount : register(u1);   // global cell counts

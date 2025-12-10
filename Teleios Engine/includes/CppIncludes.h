@@ -19,6 +19,7 @@ static constexpr float _pi = 3.14159265358979f;
 #include <vector>
 #include <string>
 #include <map>
+#include <initializer_list>
 
 // stripping windows.h not needed stuff
 #define NOGDICAPMASKS
@@ -69,3 +70,16 @@ static constexpr float _pi = 3.14159265358979f;
 	#define CLEANUP_CONSOLE
 	#define CONSOLE_HANDLE
 #endif
+
+
+constexpr uint32_t FloatToOrderedInt(float val)
+{
+	uint32_t u = std::bit_cast<uint32_t>(val);
+	return u & 0x80000000 ? ~u : u ^ 0x80000000;
+}
+
+constexpr float OrderedIntToFloat(uint32_t u)
+{
+	uint32_t f = u & 0x80000000 ? u ^ 0x80000000 : ~u;
+	return std::bit_cast<float>(f);
+}

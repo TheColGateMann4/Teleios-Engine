@@ -81,8 +81,15 @@ void LODMesh::GetModelBounds(Graphics& graphics, Pipeline& pipeline)
 
 	std::shared_ptr<TempConstantBuffer> modelInfo = std::make_shared<TempConstantBuffer>(graphics, bufferData, std::vector<TargetSlotAndShader>{ {ShaderVisibilityGraphic::AllShaders, 0} });
 
-	m_boundaryBoxMin = std::make_shared<Buffer>(graphics, sizeof(float), 3, Buffer::CPUAccess::readwrite, D3D12_RESOURCE_STATE_COMMON,D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
-	m_boundaryBoxMax = std::make_shared<Buffer>(graphics, sizeof(float), 3, Buffer::CPUAccess::readwrite, D3D12_RESOURCE_STATE_COMMON,D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+	m_boundaryBoxMin = std::make_shared<Buffer>(graphics, 3, sizeof(float), Buffer::CPUAccess::readwrite, D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+	m_boundaryBoxMax = std::make_shared<Buffer>(graphics, 3, sizeof(float), Buffer::CPUAccess::readwrite, D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+
+	constexpr uint32_t minFloat = FloatToOrderedInt(-FLT_MAX);
+	constexpr uint32_t maxFloat = FloatToOrderedInt(FLT_MAX);
+
+	m_boundaryBoxMin->Update(graphics, pipeline, { maxFloat, maxFloat, maxFloat });
+	m_boundaryBoxMax->Update(graphics, pipeline, { minFloat, minFloat, minFloat });
+
 	static const std::shared_ptr<Shader> computeShader = Shader::GetBindableResource(graphics, L"CS_ModelBounds", ShaderType::ComputeShader);
 
 	TempComputeCommandList computeCommandList(graphics, pipeline.GetGraphicCommandList());
