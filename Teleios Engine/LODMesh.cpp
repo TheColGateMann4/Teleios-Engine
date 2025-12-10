@@ -69,46 +69,49 @@ void LODMesh::GetModelBounds(Graphics& graphics, Pipeline& pipeline)
 {
 	BEGIN_COMMAND_LIST_EVENT(pipeline.GetGraphicCommandList(), "Computing Model Bounds");
 
-	Buffer* vertIn = GetVertexBuffer()->GetBuffer();
-	
-	DynamicConstantBuffer::ConstantBufferLayout layout;
-	layout.AddElement<DynamicConstantBuffer::ElementType::Uint>("fieldOffsetOfVertices");
-	layout.AddElement<DynamicConstantBuffer::ElementType::Uint>("numVertices");
-
-	DynamicConstantBuffer::ConstantBufferData bufferData(layout);
-	*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Uint>("fieldOffsetOfVertices") = int(GetVertexBuffer()->GetLayout().GetElementOffset<DynamicVertex::ElementType::Position>());
-	*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Uint>("numVertices") = vertIn->GetNumElements();
-
-	std::shared_ptr<TempConstantBuffer> modelInfo = std::make_shared<TempConstantBuffer>(graphics, bufferData, std::vector<TargetSlotAndShader>{ {ShaderVisibilityGraphic::AllShaders, 0} });
-
-	m_boundaryBoxMin = std::make_shared<Buffer>(graphics, 3, sizeof(float), Buffer::CPUAccess::readwrite, D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
-	m_boundaryBoxMax = std::make_shared<Buffer>(graphics, 3, sizeof(float), Buffer::CPUAccess::readwrite, D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
-
-	constexpr uint32_t minFloat = FloatToOrderedInt(-FLT_MAX);
-	constexpr uint32_t maxFloat = FloatToOrderedInt(FLT_MAX);
-
-	m_boundaryBoxMin->Update(graphics, pipeline, { maxFloat, maxFloat, maxFloat });
-	m_boundaryBoxMax->Update(graphics, pipeline, { minFloat, minFloat, minFloat });
-
-	static const std::shared_ptr<Shader> computeShader = Shader::GetBindableResource(graphics, L"CS_ModelBounds", ShaderType::ComputeShader);
-
-	TempComputeCommandList computeCommandList(graphics, pipeline.GetGraphicCommandList());
-
 	{
-		ShaderResourceView vertInSRV(graphics, vertIn, 0);
-		UnorderedAccessView outMinUAV(graphics, m_boundaryBoxMin.get(), 0);
-		UnorderedAccessView outMaxUAV(graphics, m_boundaryBoxMax.get(), 1);
+		TempComputeCommandList computeCommandList(graphics, pipeline.GetGraphicCommandList());
 
-		computeCommandList.Bind(computeShader);
-		computeCommandList.Bind(std::move(vertInSRV)); //t0
-		computeCommandList.Bind(modelInfo); // b0
-		computeCommandList.Bind(std::move(outMinUAV)); // u0
-		computeCommandList.Bind(std::move(outMaxUAV)); // u1
+		Buffer* vertIn = GetVertexBuffer()->GetBuffer();
+		size_t numVertices = vertIn->GetNumElements();
 
-		computeCommandList.Dispatch(graphics, vertIn->GetNumElements());
+		DynamicConstantBuffer::ConstantBufferLayout layout;
+		layout.AddElement<DynamicConstantBuffer::ElementType::Uint>("fieldOffsetOfVertices");
+		layout.AddElement<DynamicConstantBuffer::ElementType::Uint>("numVertices");
+
+		DynamicConstantBuffer::ConstantBufferData bufferData(layout);
+		*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Uint>("fieldOffsetOfVertices") = int(GetVertexBuffer()->GetLayout().GetElementOffset<DynamicVertex::ElementType::Position>());
+		*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Uint>("numVertices") = vertIn->GetNumElements();
+
+		std::shared_ptr<TempConstantBuffer> modelInfo = std::make_shared<TempConstantBuffer>(graphics, bufferData, std::vector<TargetSlotAndShader>{ {ShaderVisibilityGraphic::AllShaders, 0} });
+
+		// workflow with this shader is simple, we have two buffers, min and max, which are work buffers, we dispatch the shader enough times to have 1 element left in each buffer
+		static const std::shared_ptr<Shader> computeShader = Shader::GetBindableResource(graphics, L"CS_ModelBounds", ShaderType::ComputeShader);
+
+		size_t numberOfEntries = (numVertices / computeShader->GetNumThreads().x) + 1;
+
+		m_boundaryBoxMin = std::make_shared<Buffer>(graphics, numberOfEntries, sizeof(float) * 3, Buffer::CPUAccess::readwrite, D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+		m_boundaryBoxMax = std::make_shared<Buffer>(graphics, numberOfEntries, sizeof(float) * 3, Buffer::CPUAccess::readwrite, D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+
+		std::shared_ptr<ShaderResourceView> vertInSRV = std::make_shared<ShaderResourceView>(graphics, vertIn, 0);
+		std::shared_ptr<UnorderedAccessView> outMinUAV = std::make_shared<UnorderedAccessView>(graphics, m_boundaryBoxMin.get(), 0);
+		std::shared_ptr<UnorderedAccessView> outMaxUAV = std::make_shared<UnorderedAccessView>(graphics, m_boundaryBoxMax.get(), 1);
+
+		// calculating number of times the shader has to pass to leave 1 entry in boundingbox positions
+		int numLoops = static_cast<int>(std::ceil(std::log2(numVertices) / 8)); // 8 because 2 to power of 8 = 256
+		for (int i = 0; i < numLoops; i++)
+		{
+			computeCommandList.Bind(computeShader);
+			computeCommandList.Bind(vertInSRV); //t0
+			computeCommandList.Bind(modelInfo); // b0
+			computeCommandList.Bind(outMinUAV); // u0
+			computeCommandList.Bind(outMaxUAV); // u1
+
+			computeCommandList.Dispatch(graphics, numVertices);
+		}
+
+		graphics.GetFrameResourceDeleter()->DeleteResource(graphics, std::move(computeCommandList));
 	}
-
-	graphics.GetFrameResourceDeleter()->DeleteResource(graphics, std::move(computeCommandList));
 
 	END_COMMAND_LIST_EVENT(pipeline.GetGraphicCommandList());
 }
