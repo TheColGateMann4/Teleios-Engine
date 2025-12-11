@@ -26,7 +26,7 @@ UnorderedAccessView::UnorderedAccessView(Graphics& graphics, Texture* texture, u
 	// creating UAV itself
 	{
 		D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
-		uavDesc.Format = texture->GetFormat();
+		uavDesc.Format = GetTypedUAVFormat(texture->GetFormat());
 		uavDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
 		uavDesc.Texture2D = {};
 		uavDesc.Texture2D.MipSlice = targetMip;
@@ -105,4 +105,20 @@ D3D12_GPU_DESCRIPTOR_HANDLE UnorderedAccessView::GetDescriptorHeapGPUHandle(Grap
 D3D12_CPU_DESCRIPTOR_HANDLE UnorderedAccessView::GetCPUDescriptor(Graphics& graphics) const
 {
 	return m_descriptor.descriptorCpuHandle;
+}
+
+DXGI_FORMAT UnorderedAccessView::GetTypedUAVFormat(DXGI_FORMAT format)
+{
+	switch (format)
+	{
+		case DXGI_FORMAT_R8G8B8A8_UNORM_SRGB:
+			return DXGI_FORMAT_R8G8B8A8_UNORM;
+
+		case DXGI_FORMAT_B8G8R8A8_UNORM_SRGB:
+		case DXGI_FORMAT_B8G8R8X8_UNORM_SRGB:
+			return DXGI_FORMAT_B8G8R8A8_UNORM;
+
+		default:
+			return format;
+	}
 }

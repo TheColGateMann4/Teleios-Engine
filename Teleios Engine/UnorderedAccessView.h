@@ -31,6 +31,8 @@ public:
 
 	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUDescriptor(Graphics& graphics) const;
 
+	static DXGI_FORMAT GetTypedUAVFormat(DXGI_FORMAT format);
+
 private:
 	DescriptorHeap::DescriptorInfo m_descriptor = {};
 };
