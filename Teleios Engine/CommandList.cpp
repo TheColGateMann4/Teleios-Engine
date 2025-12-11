@@ -49,14 +49,12 @@ void CommandList::Open(Graphics& graphics, PipelineState* pPipelineState)
 	HRESULT hr;
 	ID3D12PipelineState* pipelineState = (pPipelineState == nullptr) ? nullptr : pPipelineState->Get();
 	
+	m_currCommandAllocatorIndex = graphics.GetCurrentBufferIndex();
 
 	// reset currently used command allocator
 	THROW_ERROR(m_pCommandAllocators.at(m_currCommandAllocatorIndex)->Reset());
 
 	THROW_ERROR(pCommandList->Reset(m_pCommandAllocators.at(m_currCommandAllocatorIndex).Get(), pipelineState));
-
-	// proceeding to next allocator for new frame
-	m_currCommandAllocatorIndex = graphics.GetNextBufferIndex();
 
 	m_open = true;
 }
