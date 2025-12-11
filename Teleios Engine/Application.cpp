@@ -23,8 +23,6 @@ int Application::Run()
 {
 	InitializeScene();
 
-	window.graphics.WaitForGPU();
-
 	while(true)
 	{
 		window.input.Update();
@@ -40,6 +38,9 @@ int Application::Run()
 
 void Application::InitializeScene()
 {
+	scene.BeginInitialization(window.graphics);
+
+
 	scene.AddSceneObject(std::make_shared<Camera>(window.graphics));
 	//scene.AddSceneObject(std::make_shared<Cube>(window.graphics));
 	//scene.AddSceneObjectFromFile(window.graphics, "Models/nanosuit/nanosuit.obj");
@@ -53,6 +54,9 @@ void Application::InitializeScene()
 	scene.AddSceneObject(std::make_shared<PointLight>(window.graphics, scene));
 
 	scene.InitializeSceneObjects(window.graphics);
+
+
+	scene.FinishInitialization(window.graphics);
 }
 
 void Application::Update()
