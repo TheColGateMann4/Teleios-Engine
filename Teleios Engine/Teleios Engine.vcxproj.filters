@@ -31,6 +31,9 @@
     <Filter Include="Dependencies">
       <UniqueIdentifier>{32ea1445-d72d-4b56-ba35-a396d9d534e2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shaders\MeshSimplification">
+      <UniqueIdentifier>{afddfa15-a97d-4ee5-a3b3-bb7353344430}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="EntryPoint.cpp">
@@ -187,6 +190,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ObjectTransform.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderResourceView.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -350,15 +356,15 @@
     <ClInclude Include="ObjectTransform.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ShaderResourceView.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Shaders\PS_Solid.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="Shaders\VS.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="Shaders\PS_Texture.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="Shaders\PS.hlsl">
@@ -371,6 +377,21 @@
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="Shaders\CS_SRGB_Convert.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\PS_Texture.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\CS_AssignVertices.hlsl">
+      <Filter>Shaders\MeshSimplification</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\CS_AverageVertices.hlsl">
+      <Filter>Shaders\MeshSimplification</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\CS_BuildIndices.hlsl">
+      <Filter>Shaders\MeshSimplification</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\CS_ModelBounds.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>
@@ -390,10 +411,11 @@
     <CopyFileToFolders Include="Dependencies\dxil.dll">
       <Filter>Dependencies</Filter>
     </CopyFileToFolders>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Dependencies\assimp-vc143-mt.dll">
+    <CopyFileToFolders Include="Dependencies\assimp-vc143-mt.dll">
       <Filter>Dependencies</Filter>
-    </None>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\..\..\Libraries\PIX3\bin\x64\WinPixEventRuntime.dll">
+      <Filter>Dependencies</Filter>
+    </CopyFileToFolders>
   </ItemGroup>
 </Project>

@@ -2,6 +2,7 @@
 #include "Bindable.h"
 #include "Graphics.h"
 
+class Buffer;
 class RootSignature;
 class CommandList;
 
