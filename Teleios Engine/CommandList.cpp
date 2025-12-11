@@ -14,6 +14,11 @@
 
 #include "DescriptorHeap.h"
 
+#ifdef _DEBUG
+	#include <pix3.h>
+	#pragma comment(lib, "WinPixEventRuntime.lib")
+#endif
+
 CommandList::CommandList(Graphics& graphics, D3D12_COMMAND_LIST_TYPE type, PipelineState* pPipelineState)
 	:
 	m_pCommandAllocators(graphics.GetBufferCount()),
@@ -44,6 +49,7 @@ void CommandList::Open(Graphics& graphics, PipelineState* pPipelineState)
 	HRESULT hr;
 	ID3D12PipelineState* pipelineState = (pPipelineState == nullptr) ? nullptr : pPipelineState->Get();
 	
+
 	// reset currently used command allocator
 	THROW_ERROR(m_pCommandAllocators.at(m_currCommandAllocatorIndex)->Reset());
 
@@ -91,6 +97,37 @@ bool CommandList::IsOpen() const
 {
 	return m_open;
 }
+
+#ifdef _DEBUG
+void CommandList::SetMarker(std::string_view name)
+{
+	static UINT markerColor = PIX_COLOR(0, 255, 255);
+
+	PIXSetMarker(pCommandList.Get(), markerColor, name.data());
+}
+
+void CommandList::BeginEvent(std::string_view name)
+{
+	static UINT eventColor = PIX_COLOR(255, 0, 255);
+
+	PIXBeginEvent(pCommandList.Get(), eventColor, name.data());
+}
+
+void CommandList::EndEvent()
+{
+	PIXEndEvent(pCommandList.Get());
+}
+#endif
+
+//void CommandList::BeginRenderPass()
+//{
+//	//pCommandList->BeginRenderPass;
+//}
+//
+//void CommandList::EndRenderPass()
+//{ 
+//
+//}
 
 void CommandList::SetResourceState(Graphics& graphics, Buffer* buffer, D3D12_RESOURCE_STATES newState) const
 {
