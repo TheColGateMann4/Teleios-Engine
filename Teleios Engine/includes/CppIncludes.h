@@ -19,6 +19,7 @@ static constexpr float _pi = 3.14159265358979f;
 #include <vector>
 #include <string>
 #include <map>
+#include <initializer_list>
 
 // stripping windows.h not needed stuff
 #define NOGDICAPMASKS

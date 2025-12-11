@@ -19,6 +19,8 @@ Sphere::Sphere(Graphics& graphics, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3
 	m_diameter(diameter),
 	m_tesselation(tesselation)
 {
+	SetName("Sphere");
+
 	Mesh modelMesh;
 
 	m_transform.SetTransformConstantBuffer(std::make_shared<TransformConstantBuffer>(graphics));

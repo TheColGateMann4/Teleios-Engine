@@ -2,7 +2,6 @@
 #include "includes/CppIncludes.h"
 #include "includes/DirectXIncludes.h"
 #include "includes/WRLNoWarnings.h"
-#include "TargetShaders.h"
 #include "DynamicConstantBuffer.h"
 #include "Bindable.h"
 
