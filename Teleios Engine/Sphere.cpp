@@ -78,13 +78,19 @@ void Sphere::UpdateMesh(Graphics& graphics)
 	std::vector<DirectX::VertexPositionNormalTexture> vertices;
 	std::vector<uint16_t> indices;
 
+	DynamicVertex::DynamicVertexLayout vertexLayout;
+	vertexLayout.AddElement<DynamicVertex::ElementType::Position>();
+	vertexLayout.AddElement<DynamicVertex::ElementType::Normal>();
+	vertexLayout.AddElement<DynamicVertex::ElementType::TextureCoords>();
+	vertexLayout.Finish();
+
 	DirectX::ComputeSphere(vertices, indices, m_diameter, m_tesselation, false, false);
 
 	Mesh& modelMesh = m_meshes.front();
 
 	if (!m_initialized)
 	{
-		modelMesh.SetVertexBuffer(VertexBuffer::GetBindableResource(graphics, "Sphere", vertices.data(), vertices.size(), sizeof(vertices.at(0))));
+		modelMesh.SetVertexBuffer(VertexBuffer::GetBindableResource(graphics, "Sphere", vertices.data(), vertexLayout, vertices.size()));
 		modelMesh.SetIndexBuffer(IndexBuffer::GetBindableResource(graphics, "Sphere", indices));
 
 		m_initialized = true;

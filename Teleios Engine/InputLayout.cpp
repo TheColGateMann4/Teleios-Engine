@@ -5,7 +5,7 @@
 
 #include "BindableResourceList.h"
 
-InputLayout::InputLayout(Graphics& graphics, DynamicVertex::DynamicVertexLayout& layout)
+InputLayout::InputLayout(Graphics& graphics, const DynamicVertex::DynamicVertexLayout& layout)
 	:
 	m_layoutElements(layout.GetInputLayout())
 {
@@ -16,12 +16,12 @@ InputLayout::InputLayout(Graphics& graphics, DynamicVertex::DynamicVertexLayout&
 	m_desc.NumElements = m_layoutElements.size();
 }
 
-std::shared_ptr<InputLayout> InputLayout::GetBindableResource(Graphics& graphics, DynamicVertex::DynamicVertexLayout& layout)
+std::shared_ptr<InputLayout> InputLayout::GetBindableResource(Graphics& graphics, const DynamicVertex::DynamicVertexLayout& layout)
 {
 	return BindableResourceList::GetBindableResource<InputLayout>(graphics, layout);
 }
 
-std::string InputLayout::GetIdentifier(DynamicVertex::DynamicVertexLayout& layout)
+std::string InputLayout::GetIdentifier(const DynamicVertex::DynamicVertexLayout& layout)
 {
 	std::string resultString = "InputLayout#";
 
