@@ -192,6 +192,8 @@ void Texture::InitializeGraphicResources(Graphics& graphics, Pipeline& pipeline)
 	if (m_resourcesInitialized)
 		return;
 
+	BEGIN_COMMAND_LIST_EVENT(pipeline.GetGraphicCommandList(), "Initializing Texture " + m_path);
+
 	// copy mip level 0 from upload to gpu resource
 	{
 		CommandList* copyCommandList = pipeline.GetGraphicCommandList();
@@ -285,6 +287,8 @@ void Texture::InitializeGraphicResources(Graphics& graphics, Pipeline& pipeline)
 		commandList->SetResourceState(graphics, pTexture.Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_ALL_SHADER_RESOURCE, m_minmapLevels - 1);
 		commandList->SetResourceState(graphics, pTexture.Get(), D3D12_RESOURCE_STATE_ALL_SHADER_RESOURCE, m_targetResourceState);
 	}
+
+	END_COMMAND_LIST_EVENT(pipeline.GetGraphicCommandList());
 
 	m_resourcesInitialized = true;
 }
