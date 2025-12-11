@@ -1,20 +1,21 @@
 #include "Buffer.h"
 #include "Macros/ErrorMacros.h"
 #include "Graphics.h"
+#include "Pipeline.h"
 #include "CommandList.h"
 
-Buffer::Buffer(Graphics& graphics, unsigned int bufferSize, DXGI_FORMAT format, CPUAccess cpuAccess, D3D12_RESOURCE_STATES state)
+Buffer::Buffer(Graphics& graphics, unsigned int numElements, unsigned int byteStride, CPUAccess cpuAccess, D3D12_RESOURCE_STATES state, D3D12_RESOURCE_FLAGS flags)
 	:
-	RootSignatureBindable({ {ShaderVisibilityGraphic::AllShaders, 0} }),
-	m_format(format),
-	m_size(bufferSize),
+	m_byteSize(numElements * byteStride),
+	m_byteStride(byteStride),
+	m_numElements(numElements),
 	m_cpuAccess(cpuAccess),
 	m_state(D3D12_RESOURCE_STATE_COMMON),
 	m_targetState(state)
 {
 	HRESULT hr;
 	unsigned int numberOfBuffers = graphics.GetBufferCount();
-
+	
 	// creating resource
 	{
 		D3D12_HEAP_PROPERTIES heapPropeties = {};
@@ -26,15 +27,15 @@ Buffer::Buffer(Graphics& graphics, unsigned int bufferSize, DXGI_FORMAT format, 
 		D3D12_RESOURCE_DESC resourceDesc = {};
 		resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
 		resourceDesc.Alignment = 0;
-		resourceDesc.Width = bufferSize;
+		resourceDesc.Width = m_byteSize;
 		resourceDesc.Height = 1;
 		resourceDesc.DepthOrArraySize = 1;
 		resourceDesc.MipLevels = 1;
-		resourceDesc.Format = format;
+		resourceDesc.Format = DXGI_FORMAT_UNKNOWN;
 		resourceDesc.SampleDesc.Count = 1;
 		resourceDesc.SampleDesc.Quality = 0;
 		resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-		resourceDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
+		resourceDesc.Flags = flags; 
 
 		// this is very incorrect practice since creating many different commited resources for one purpose is bad practice. It is only temporary solution
 		THROW_ERROR(graphics.GetDevice()->CreateCommittedResource(
@@ -48,8 +49,103 @@ Buffer::Buffer(Graphics& graphics, unsigned int bufferSize, DXGI_FORMAT format, 
 	}
 }
 
-void Buffer::Update(Graphics& graphics, void* data, size_t size)
+void Buffer::Update(Graphics& graphics, const void* data, size_t size)
 {
+	if (m_cpuAccess == CPUAccess::readwrite || m_cpuAccess == CPUAccess::write)
+	{
+		UpdateLocalResource(graphics, data, size);
+	}
+	else
+	{
+		THROW_INTERNAL_ERROR("Tried to Update resource without CPU access. Use pipeline access to update it using temp resource");
+	}
+}
+
+void Buffer::Update(Graphics& graphics, Pipeline& pipeline, const void* data, size_t size)
+{
+	if (m_cpuAccess == CPUAccess::readwrite || m_cpuAccess == CPUAccess::write)
+	{
+		UpdateLocalResource(graphics, data, size);
+	}
+	else
+	{
+		UpdateUsingTempResource(graphics, pipeline, data, size);
+	}
+}
+
+Microsoft::WRL::ComPtr<ID3D12Resource> Buffer::GetBuffer(Graphics & graphics)
+{
+	return m_pBuffer;
+}
+
+ID3D12Resource* Buffer::GetResource() const
+{
+	return m_pBuffer.Get();
+}
+
+size_t Buffer::GetByteSize() const
+{
+	return m_byteSize;
+}
+
+size_t Buffer::GetNumElements() const
+{
+	return m_numElements;
+}
+
+size_t Buffer::GetByteStride() const
+{
+	return m_byteStride;
+}
+
+void Buffer::CopyResourcesTo(Graphics& graphics, CommandList* copyCommandList, Buffer* dst)
+{
+	THROW_INTERNAL_ERROR_IF("Dest resource was NULL", dst == nullptr);
+
+	BEGIN_COMMAND_LIST_EVENT(copyCommandList, "Copying Buffer");
+
+	copyCommandList->SetResourceState(graphics, this, D3D12_RESOURCE_STATE_COPY_SOURCE);
+	copyCommandList->SetResourceState(graphics, dst, D3D12_RESOURCE_STATE_COPY_DEST);
+
+	copyCommandList->CopyResource(graphics, dst->GetResource(), this->GetResource());
+
+	copyCommandList->SetResourceState(graphics, dst, dst->GetResourceTargetState());
+	copyCommandList->SetResourceState(graphics, this, this->GetResourceTargetState());
+
+	END_COMMAND_LIST_EVENT(copyCommandList);
+}
+
+D3D12_RESOURCE_STATES Buffer::GetResourceState() const
+{
+	return m_state;
+}
+
+D3D12_RESOURCE_STATES Buffer::GetResourceTargetState() const
+{
+	return m_targetState;
+}
+
+void Buffer::SetResourceState(D3D12_RESOURCE_STATES newState)
+{
+	m_state = newState;
+}
+
+Buffer::CPUAccess Buffer::GetCPUAccess() const
+{
+	return m_cpuAccess;
+}
+
+void Buffer::UpdateUsingTempResource(Graphics& graphics, Pipeline& pipeline, const void* data, size_t size)
+{
+	Buffer uploadBuffer(graphics, size, 1, CPUAccess::write);
+	uploadBuffer.Update(graphics, data, size);
+
+	uploadBuffer.CopyResourcesTo(graphics, pipeline.GetGraphicCommandList(), this);
+}
+void Buffer::UpdateLocalResource(Graphics& graphics, const void* data, size_t size)
+{
+	THROW_INTERNAL_ERROR_IF("Buffer was larger than resource itself", size > m_byteSize);
+
 	Microsoft::WRL::ComPtr<ID3D12Resource> pConstBuffer = GetBuffer(graphics);
 
 	HRESULT hr;
@@ -76,89 +172,6 @@ void Buffer::Update(Graphics& graphics, void* data, size_t size)
 
 		pConstBuffer->Unmap(0, &writeRange);
 	}
-}
-
-Microsoft::WRL::ComPtr<ID3D12Resource> Buffer::GetBuffer(Graphics & graphics)
-{
-	return m_pBuffer;
-}
-
-DXGI_FORMAT Buffer::GetFormat() const
-{
-	return m_format;
-}
-
-ID3D12Resource* Buffer::GetResource() const
-{
-	return m_pBuffer.Get();
-}
-
-size_t Buffer::GetSize() const
-{
-	return m_size;
-}
-
-void Buffer::BindToRootSignature(Graphics& graphics, RootSignature* rootSignature)
-{
-	THROW_INTERNAL_ERROR("Tried to bind UAV to graphic root signature");
-}
-
-void Buffer::BindToComputeRootSignature(Graphics& graphics, RootSignature* rootSignature)
-{
-	rootSignature->AddBufferParameter(this);
-}
-
-void Buffer::BindToCommandList(Graphics& graphics, CommandList* commandList)
-{
-	THROW_INTERNAL_ERROR("Tried to bind UAV to graphic command list");
-}
-
-void Buffer::BindToComputeCommandList(Graphics& graphics, CommandList* commandList)
-{
-	commandList->SetComputeDescriptorTable(graphics, this);
-}
-
-UINT Buffer::GetOffsetInDescriptor() const
-{
-	return m_descriptor.offsetInDescriptorFromStart;
-}
-
-D3D12_GPU_DESCRIPTOR_HANDLE Buffer::GetDescriptorHeapGPUHandle(Graphics& graphics) const
-{
-	return m_descriptor.descriptorHeapGpuHandle;
-}
-
-void Buffer::CopyResourcesTo(Graphics& graphics, CommandList* copyCommandList, Buffer* dst)
-{
-	THROW_INTERNAL_ERROR_IF("Dest resource was NULL", dst == nullptr);
-
-	copyCommandList->SetResourceState(graphics, this, D3D12_RESOURCE_STATE_COPY_SOURCE);
-	copyCommandList->SetResourceState(graphics, dst, D3D12_RESOURCE_STATE_COPY_DEST);
-
-	copyCommandList->CopyResource(graphics, dst->GetResource(), this->GetResource());
-
-	copyCommandList->SetResourceState(graphics, dst, dst->GetResourceTargetState());
-	copyCommandList->SetResourceState(graphics, this, this->GetResourceTargetState());
-}
-
-D3D12_RESOURCE_STATES Buffer::GetResourceState() const
-{
-	return m_state;
-}
-
-D3D12_RESOURCE_STATES Buffer::GetResourceTargetState() const
-{
-	return m_targetState;
-}
-
-void Buffer::SetResourceState(D3D12_RESOURCE_STATES newState)
-{
-	m_state = newState;
-}
-
-Buffer::CPUAccess Buffer::GetCPUAccess() const
-{
-	return m_cpuAccess;
 }
 
 D3D12_CPU_PAGE_PROPERTY Buffer::GetHardwareHeapUsagePropety(CPUAccess cpuAccess)
