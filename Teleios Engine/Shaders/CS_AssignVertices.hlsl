@@ -45,5 +45,24 @@ void CSMain(uint3 DTid : SV_DispatchThreadID, uint3 GroupThreadID : SV_GroupThre
         sharedSums[GroupThreadID.x] = waveSum;
         sharedCounts[GroupThreadID.x] = waveCount;
     }
-
+    
+    GroupMemoryBarrierWithGroupSync();
+    
+    if (GroupThreadID.x == 0)
+    {
+        float3 totalSum = 0;
+        uint totalCount = 0;
+    
+        // accounting for int-rounding, making it "round" upwards
+        uint waveCount = (NUM_THREADS + WaveGetLaneCount() - 1) / WaveGetLaneCount();
+        
+        for (int i = 0; i < waveCount; i++)
+        {
+            totalSum += sharedSums[i];
+            totalCount += sharedCounts[i];
+        }
+        
+        cellSum[cellHash] = totalSum;
+        cellCount[cellHash] = totalCount;
+    }
 }

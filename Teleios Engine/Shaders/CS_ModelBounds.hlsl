@@ -1,4 +1,47 @@
-StructuredBuffer<float3> vertIn : register(t0);
+
+static uint offset = 0;
+
+static uint positionOffset = offset;
+offset += 12;
+
+#ifdef INPUT_TEXCCORDS  
+static uint textureCoordsOffset = offset;
+offset += 8;
+#endif
+
+static uint normalOffset = offset;
+offset += 12;
+
+static uint tangentOffset = offset;
+offset += 12;
+
+static uint bitangentOffset = offset;
+offset += 12;
+
+static uint VertexDataSize = offset;
+
+struct VertexData
+{
+    float3 position;
+	
+#ifdef INPUT_TEXCCORDS  
+     float2 textureCoords;
+#endif
+
+#ifdef INPUT_NORMAL  
+     float3 normal;
+#endif	
+
+#ifdef INPUT_TANGENT  
+     float3 tangent;
+#endif	
+
+#ifdef INPUT_BITANGENT  
+     float3 bitangent;
+#endif	
+};
+
+ByteAddressBuffer vertIn : register(t0);
 RWStructuredBuffer<float3> outMin : register(u0);
 RWStructuredBuffer<float3> outMax : register(u1);
 
@@ -24,7 +67,7 @@ void CSMain(uint3 DTid : SV_DispatchThreadID, uint3 GroupThreadID : SV_GroupThre
     if (tid >= numVertices)
         return;
 
-    float3 pos = vertIn[fieldOffsetOfVertices + tid];
+    float3 pos = vertIn[fieldOffsetOfVertices + tid].position;
 
     // Wave-level reduction within threadgroup
     float3 waveMin = WaveActiveMin(pos);
@@ -33,9 +76,8 @@ void CSMain(uint3 DTid : SV_DispatchThreadID, uint3 GroupThreadID : SV_GroupThre
     // First lane in wave writes to shared memory
     if (WaveIsFirstLane())
     {
-        uint waveIndex = GroupThreadID.x / WaveGetLaneCount();
-        sharedMin[waveIndex] = waveMin;
-        sharedMax[waveIndex] = waveMax;
+        sharedMin[GroupThreadID.x] = waveMin;
+        sharedMax[GroupThreadID.x] = waveMax;
     }
     
     GroupMemoryBarrierWithGroupSync();
@@ -45,7 +87,7 @@ void CSMain(uint3 DTid : SV_DispatchThreadID, uint3 GroupThreadID : SV_GroupThre
         float3 finalMin = float3(FLT_MAX, FLT_MAX, FLT_MAX);
         float3 finalMax = float3(-FLT_MAX, -FLT_MAX, -FLT_MAX);
 
-        // accounting for rounding error, like 257 / 32 would round it to correct number
+        // accounting for int-rounding, making it "round" upwards
         uint waveCount = (NUM_THREADS + WaveGetLaneCount() - 1) / WaveGetLaneCount();
         
         for (int i = 0; i < waveCount; i++)
