@@ -12,18 +12,22 @@ class CommandList;
 
 class IndexBuffer : public Bindable, public CommandListBindable
 {
-private:
-    IndexBuffer(Graphics& graphics, void* pData, size_t indexCount, DXGI_FORMAT dataFormat);
-
 public:
     IndexBuffer(Graphics& graphics, std::vector<unsigned int> indices);
 
     IndexBuffer(Graphics& graphics, std::vector<unsigned short> indices);
 
+    IndexBuffer(Graphics& graphics, void* pData, size_t indexCount, DXGI_FORMAT dataFormat);
+
+    IndexBuffer(IndexBuffer&&) noexcept = default;
+    IndexBuffer& operator=(IndexBuffer&&) noexcept = default;
+
 public:
     static std::shared_ptr<IndexBuffer> GetBindableResource(Graphics& graphics, std::string identifier, std::vector<unsigned int> indices);
 
     static std::shared_ptr<IndexBuffer> GetBindableResource(Graphics& graphics, std::string identifier, std::vector<unsigned short> indices);
+
+    Buffer* GetBuffer();
 
 public:
 	void BindToCopyPipelineIfNeeded(Graphics& graphics, Pipeline& pipeline);
@@ -35,6 +39,7 @@ public:
     const D3D12_INDEX_BUFFER_VIEW* Get() const;
 
     size_t GetIndexCount() const;
+    DXGI_FORMAT GetFormat() const;
 
 private:
     void UpdateBufferData(Graphics& graphics, void* pData);
@@ -45,5 +50,4 @@ private:
 
     D3D12_INDEX_BUFFER_VIEW m_indexBufferView;
     DXGI_FORMAT m_dataFormat;
-    size_t m_indexCount;
 };
