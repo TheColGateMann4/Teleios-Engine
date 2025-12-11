@@ -7,6 +7,7 @@
 #include "IndexBuffer.h"
 #include "ConstantBuffer.h"
 #include "Texture.h"
+#include "ShaderResourceView.h"
 #include "UnorderedAccessView.h"
 #include "Buffer.h"
 #include "TextureMipView.h"
@@ -227,6 +228,17 @@ void CommandList::SetGraphicsDescriptorTable(Graphics& graphics, Texture* textur
 		THROW_INFO_ERROR(pCommandList->SetGraphicsRootDescriptorTable(targetShader.rootIndex, texture->GetDescriptorHeapGPUHandle(graphics)));
 }
 
+void CommandList::SetGraphicsDescriptorTable(Graphics& graphics, ShaderResourceView* srv)
+{
+	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
+	THROW_OBJECT_STATE_ERROR_IF("Only Direct and Bundle command lists can set graphics constant buffers", m_type != D3D12_COMMAND_LIST_TYPE_DIRECT && m_type != D3D12_COMMAND_LIST_TYPE_BUNDLE);
+
+	auto& targets = srv->GetTargets();
+
+	for (auto& targetShader : targets)
+		THROW_INFO_ERROR(pCommandList->SetGraphicsRootDescriptorTable(targetShader.rootIndex, srv->GetDescriptorHeapGPUHandle(graphics)));
+}
+
 void CommandList::ExecuteBundle(Graphics& graphics, CommandList* commandList)
 {
 	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
@@ -299,15 +311,12 @@ void CommandList::SetComputeDescriptorTable(Graphics& graphics, Texture* texture
 	THROW_INFO_ERROR(pCommandList->SetComputeRootDescriptorTable(texture->GetComputeRootIndex(), texture->GetDescriptorHeapGPUHandle(graphics)));
 }
 
-void CommandList::SetComputeDescriptorTable(Graphics& graphics, UnorderedAccessView* uav)
+void CommandList::SetComputeDescriptorTable(Graphics& graphics, ShaderResourceView* srv)
 {
 	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
 	THROW_OBJECT_STATE_ERROR_IF("Only Compute and Direct command lists can set compute descriptor table", m_type != D3D12_COMMAND_LIST_TYPE_COMPUTE && m_type != D3D12_COMMAND_LIST_TYPE_DIRECT);
 
-	auto& targets = uav->GetTargets();
-
-	for (auto& targetShader : targets)
-		THROW_INFO_ERROR(pCommandList->SetComputeRootDescriptorTable(targetShader.rootIndex, uav->GetDescriptorHeapGPUHandle(graphics)));
+	THROW_INFO_ERROR(pCommandList->SetComputeRootDescriptorTable(srv->GetComputeRootIndex(), srv->GetDescriptorHeapGPUHandle(graphics)));
 }
 
 void CommandList::SetComputeDescriptorTable(Graphics& graphics, Buffer* buf)

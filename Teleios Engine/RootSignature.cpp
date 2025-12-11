@@ -4,6 +4,7 @@
 
 #include "ConstantBuffer.h"
 #include "Texture.h"
+#include "ShaderResourceView.h"
 #include "UnorderedAccessView.h"
 #include "Sampler.h"
 #include "TextureMipView.h"
@@ -121,10 +122,24 @@ void RootSignature::AddDescriptorTableParameter(Texture* texture)
 		targetShader.rootIndex = m_AddDescriptorTableParameter(texture->GetOffsetInDescriptor(), targetShader, D3D12_DESCRIPTOR_RANGE_TYPE_SRV);
 }
 
+void RootSignature::AddDescriptorTableParameter(ShaderResourceView* srv)
+{
+	auto& targets = srv->GetTargets();
+
+	for (auto& targetShader : targets)
+		targetShader.rootIndex = m_AddDescriptorTableParameter(srv->GetOffsetInDescriptor(), targetShader, D3D12_DESCRIPTOR_RANGE_TYPE_SRV);
+}
+
 void RootSignature::AddComputeDescriptorTableParameter(Texture* texture, TargetSlotAndShader target)
 {
 	texture->SetComputeRootIndex(m_AddDescriptorTableParameter(texture->GetOffsetInDescriptor(), target, D3D12_DESCRIPTOR_RANGE_TYPE_SRV));
 }
+
+void RootSignature::AddComputeDescriptorTableParameter(ShaderResourceView* srv, TargetSlotAndShader target)
+{
+	srv->SetComputeRootIndex(m_AddDescriptorTableParameter(srv->GetOffsetInDescriptor(), target, D3D12_DESCRIPTOR_RANGE_TYPE_SRV));
+}
+
 
 void RootSignature::AddUnorderedAccessViewParameter(UnorderedAccessView* uav)
 {

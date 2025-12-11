@@ -7,6 +7,7 @@
 class Graphics;
 class ConstantBuffer;
 class Texture;
+class ShaderResourceView;
 class UnorderedAccessView;
 class StaticSampler;
 class TextureMipView;
@@ -28,9 +29,9 @@ public:
 
 	void AddDescriptorTableParameter(TextureMipView* textureMipView);
 	void AddDescriptorTableParameter(Texture* texture);
+	void AddDescriptorTableParameter(ShaderResourceView* srv);
 	void AddComputeDescriptorTableParameter(Texture* texture, TargetSlotAndShader target);
-
-	//srv
+	void AddComputeDescriptorTableParameter(ShaderResourceView* srv, TargetSlotAndShader target);
 
 	void AddUnorderedAccessViewParameter(UnorderedAccessView* uav);
 
