@@ -16,7 +16,7 @@ class Texture;
 class ShaderResourceView;
 class DescriptorHeap;
 class UnorderedAccessView;
-class Buffer;
+class GraphicsResource;
 class TextureMipView;
 
 struct ID3D12Resource;
@@ -63,11 +63,11 @@ public:
 	//void EndRenderPass();
 
 public:
-	void SetResourceState(Graphics& graphics, Buffer* buffer, D3D12_RESOURCE_STATES newState) const;
+	void SetResourceState(Graphics& graphics, GraphicsResource* resource, D3D12_RESOURCE_STATES newState) const;;
 
 	void SetResourceState(Graphics& graphics, RenderTarget* renderTarget, D3D12_RESOURCE_STATES newState) const;
 
-	void SetResourceState(Graphics& graphics, ID3D12Resource* resource, D3D12_RESOURCE_STATES prevState, D3D12_RESOURCE_STATES newState, unsigned int targetSubresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES) const;
+	void SetResourceState(Graphics& graphics, ID3D12Resource* resource, D3D12_RESOURCE_STATES prevState, D3D12_RESOURCE_STATES newState, unsigned int targetSubresource = 0) const;
 
 	void SetVertexBuffer(Graphics& graphics, VertexBuffer* vertexBuffer);
 

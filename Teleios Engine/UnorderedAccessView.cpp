@@ -9,7 +9,7 @@
 #include "CommandList.h"
 
 #include "Texture.h"
-#include "Buffer.h"
+#include "GraphicsBuffer.h"
 
 #include "Macros/ErrorMacros.h"
 
@@ -41,11 +41,11 @@ UnorderedAccessView::UnorderedAccessView(Graphics& graphics, Texture* texture, u
 	}
 }
 
-UnorderedAccessView::UnorderedAccessView(Graphics& graphics, Buffer* buffer, UINT slot)
+UnorderedAccessView::UnorderedAccessView(Graphics& graphics, GraphicsBuffer* buffer, UINT slot)
 	:
 	RootSignatureBindable({ {ShaderVisibilityGraphic::AllShaders, slot} })
 {
-	THROW_INTERNAL_ERROR_IF("Buffer was NULL", buffer == nullptr);
+	THROW_INTERNAL_ERROR_IF("GraphicsBuffer was NULL", buffer == nullptr);
 
 	HRESULT hr;
 

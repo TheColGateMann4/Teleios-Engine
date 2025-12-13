@@ -8,13 +8,13 @@ class RootSignature;
 class CommandList;
 
 class Texture;
-class Buffer;
+class GraphicsBuffer;
 
 class UnorderedAccessView : public Bindable, public RootSignatureBindable, public CommandListBindable
 {
 public:
 	UnorderedAccessView(Graphics& graphics, Texture* texture, unsigned int targetMip);
-	UnorderedAccessView(Graphics& graphics, Buffer* buffer, UINT slot = 0);
+	UnorderedAccessView(Graphics& graphics, GraphicsBuffer* buffer, UINT slot = 0);
 
 public:
 	virtual void BindToRootSignature(Graphics& graphics, RootSignature* rootSignature) override;

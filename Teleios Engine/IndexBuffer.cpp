@@ -27,10 +27,10 @@ IndexBuffer::IndexBuffer(Graphics& graphics, void* pData, size_t indexCount, DXG
 
 	uint8_t structureSize = m_dataFormat == DXGI_FORMAT_R32_UINT ? 4 : 2; // 4bytes for 32bits and 2bytes for 16bits
 
-	m_buffer = std::make_shared<Buffer>(graphics, indexCount, structureSize, Buffer::CPUAccess::unknown, D3D12_RESOURCE_STATE_INDEX_BUFFER, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
-	m_uploadBuffer = std::make_shared<Buffer>(graphics, indexCount, structureSize, Buffer::CPUAccess::write);
+	m_buffer = std::make_shared<GraphicsBuffer>(graphics, indexCount, structureSize, GraphicsBuffer::CPUAccess::unknown, D3D12_RESOURCE_STATE_INDEX_BUFFER, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+	m_uploadBuffer = std::make_shared<GraphicsBuffer>(graphics, indexCount, structureSize, GraphicsBuffer::CPUAccess::write);
 
-	m_indexBufferView.BufferLocation = m_buffer->GetBuffer(graphics)->GetGPUVirtualAddress();
+	m_indexBufferView.BufferLocation = m_buffer->GetResource()->GetGPUVirtualAddress();
 	m_indexBufferView.SizeInBytes = indexCount * structureSize;
 	m_indexBufferView.Format = m_dataFormat;
 
@@ -49,7 +49,7 @@ std::shared_ptr<IndexBuffer> IndexBuffer::GetBindableResource(Graphics& graphics
 	return BindableResourceList::GetBindableResourceByID<IndexBuffer>(graphics, "IndexBuffer#" + identifier, indices);
 }
 
-Buffer* IndexBuffer::GetBuffer()
+GraphicsBuffer* IndexBuffer::GetBuffer()
 {
 	return m_buffer.get();
 }
@@ -75,14 +75,14 @@ void IndexBuffer::Update(Graphics& graphics, void* pData, size_t numElements, si
 	if (m_buffer->GetByteSize() != numElements * structureSize)
 	{
 		graphics.GetFrameResourceDeleter()->DeleteResource(graphics, std::move(m_buffer));
-		m_buffer = std::make_shared<Buffer>(graphics, numElements, structureSize, Buffer::CPUAccess::unknown, D3D12_RESOURCE_STATE_INDEX_BUFFER, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+		m_buffer = std::make_shared<GraphicsBuffer>(graphics, numElements, structureSize, GraphicsBuffer::CPUAccess::unknown, D3D12_RESOURCE_STATE_INDEX_BUFFER, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
 
-		m_indexBufferView.BufferLocation = m_buffer->GetBuffer(graphics)->GetGPUVirtualAddress();
+		m_indexBufferView.BufferLocation = m_buffer->GetResource()->GetGPUVirtualAddress();
 		m_indexBufferView.SizeInBytes = numElements * structureSize;
 		m_indexBufferView.Format = m_dataFormat;
 	}
 
-	m_uploadBuffer = std::make_shared<Buffer>(graphics, numElements, structureSize, Buffer::CPUAccess::write);
+	m_uploadBuffer = std::make_shared<GraphicsBuffer>(graphics, numElements, structureSize, GraphicsBuffer::CPUAccess::write);
 	UpdateBufferData(graphics, pData);
 }
 

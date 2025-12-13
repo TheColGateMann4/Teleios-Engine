@@ -10,8 +10,8 @@
 
 VertexBuffer::VertexBuffer(Graphics& graphics, void* pData, size_t numElements, size_t dataStride)
 {
-	m_buffer = std::make_shared<Buffer>(graphics, numElements, dataStride, Buffer::CPUAccess::unknown, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
-	m_uploadBuffer = std::make_shared<Buffer>(graphics, numElements, dataStride, Buffer::CPUAccess::write);
+	m_buffer = std::make_shared<GraphicsBuffer>(graphics, numElements, dataStride, GraphicsBuffer::CPUAccess::unknown, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+	m_uploadBuffer = std::make_shared<GraphicsBuffer>(graphics, numElements, dataStride, GraphicsBuffer::CPUAccess::write);
 
 	m_vertexBufferView.BufferLocation = m_buffer->GetResource()->GetGPUVirtualAddress();
 	m_vertexBufferView.SizeInBytes = numElements * dataStride;
@@ -79,18 +79,18 @@ void VertexBuffer::Update(Graphics& graphics, void* pData, size_t numElements, s
 	if (m_buffer->GetByteSize() != numElements * dataStride)
 	{
 		graphics.GetFrameResourceDeleter()->DeleteResource(graphics, std::move(m_buffer));
-		m_buffer = std::make_shared<Buffer>(graphics, numElements, dataStride, Buffer::CPUAccess::unknown, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+		m_buffer = std::make_shared<GraphicsBuffer>(graphics, numElements, dataStride, GraphicsBuffer::CPUAccess::unknown, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
 
 		m_vertexBufferView.BufferLocation = m_buffer->GetResource()->GetGPUVirtualAddress();
 		m_vertexBufferView.SizeInBytes = numElements * dataStride;
 		m_vertexBufferView.StrideInBytes = dataStride;
 	}
 
-	m_uploadBuffer = std::make_shared<Buffer>(graphics, numElements, dataStride, Buffer::CPUAccess::write);
+	m_uploadBuffer = std::make_shared<GraphicsBuffer>(graphics, numElements, dataStride, GraphicsBuffer::CPUAccess::write);
 	UpdateBufferData(graphics, pData);
 }
 
-Buffer* VertexBuffer::GetBuffer()
+GraphicsBuffer* VertexBuffer::GetBuffer()
 {
 	return m_buffer.get();
 }

@@ -168,7 +168,7 @@
     <ClCompile Include="Bindable.cpp" />
     <ClCompile Include="BindableContainer.cpp" />
     <ClCompile Include="BlendState.cpp" />
-    <ClCompile Include="Buffer.cpp" />
+    <ClCompile Include="GraphicsBuffer.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="CommandList.cpp" />
     <ClCompile Include="ConstantBuffer.cpp" />
@@ -176,6 +176,7 @@
     <ClCompile Include="DepthStencilState.cpp" />
     <ClCompile Include="DepthStencilView.cpp" />
     <ClCompile Include="DescriptorHeap.cpp" />
+    <ClCompile Include="GraphicsResource.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="DynamicConstantBuffer.cpp" />
     <ClCompile Include="DynamicVertex.cpp" />
@@ -224,7 +225,7 @@
     <ClInclude Include="BindableContainer.h" />
     <ClInclude Include="BindableResourceList.h" />
     <ClInclude Include="BlendState.h" />
-    <ClInclude Include="Buffer.h" />
+    <ClInclude Include="GraphicsBuffer.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="CommandList.h" />
     <ClInclude Include="ConstantBuffer.h" />
@@ -232,6 +233,7 @@
     <ClInclude Include="DepthStencilState.h" />
     <ClInclude Include="DepthStencilView.h" />
     <ClInclude Include="DescriptorHeap.h" />
+    <ClInclude Include="GraphicsResource.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="DynamicConstantBuffer.h" />
     <ClInclude Include="DynamicVertex.h" />

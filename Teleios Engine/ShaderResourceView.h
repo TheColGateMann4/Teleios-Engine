@@ -2,14 +2,14 @@
 #include "Bindable.h"
 #include "Graphics.h"
 
-class Buffer;
+class GraphicsBuffer;
 class RootSignature;
 class CommandList;
 
 class ShaderResourceView : public Bindable, public CommandListBindable, public RootSignatureBindable
 {
 public:
-	ShaderResourceView(Graphics& graphics, Buffer* buffer, UINT slot = 0);
+	ShaderResourceView(Graphics& graphics, GraphicsBuffer* buffer, UINT slot = 0);
 	ShaderResourceView(ShaderResourceView&&) noexcept = default;
 
 public:

@@ -81,7 +81,7 @@ void Pipeline::SetCurrentCamera(Camera* newCurrentCamera)
 	m_camera = newCurrentCamera;
 }
 
-void Pipeline::AddBufferToCopyPipeline(Buffer* dst, Buffer* src)
+void Pipeline::AddBufferToCopyPipeline(GraphicsResource* dst, GraphicsResource* src)
 {
 	m_buffersToCopy.push_back({ dst , src});
 }

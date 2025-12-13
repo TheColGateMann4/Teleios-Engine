@@ -3,13 +3,13 @@
 #include "CommandList.h"
 #include "Macros/ErrorMacros.h"
 
-#include "Buffer.h"
+#include "GraphicsBuffer.h"
 
-ShaderResourceView::ShaderResourceView(Graphics& graphics, Buffer* buffer, UINT slot)
+ShaderResourceView::ShaderResourceView(Graphics& graphics, GraphicsBuffer* buffer, UINT slot)
 	:
 	RootSignatureBindable(std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::AllShaders, slot}})
 {
-	THROW_INTERNAL_ERROR_IF("Buffer was NULL", buffer == nullptr);
+	THROW_INTERNAL_ERROR_IF("GraphicsBuffer was NULL", buffer == nullptr);
 
 	m_descriptor = graphics.GetDescriptorHeap().GetNextHandle();
 

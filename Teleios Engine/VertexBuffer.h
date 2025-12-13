@@ -2,7 +2,7 @@
 #include "includes/DirectXIncludes.h"
 #include "includes/WRLNoWarnings.h"
 #include "Bindable.h"
-#include "Buffer.h"
+#include "GraphicsBuffer.h"
 #include "DynamicVertex.h"
 
 class Pipeline;
@@ -36,7 +36,7 @@ public:
 
 	void Update(Graphics& graphics, void* pData, size_t numElements, size_t dataStride);
 
-	Buffer* GetBuffer();
+	GraphicsBuffer* GetBuffer();
 
 	const DynamicVertex::DynamicVertexLayout& GetLayout() const;
 
@@ -47,8 +47,8 @@ public:
 	const D3D12_VERTEX_BUFFER_VIEW* Get() const;
 
 private:
-	std::shared_ptr<Buffer> m_buffer;
-	std::shared_ptr<Buffer> m_uploadBuffer;
+	std::shared_ptr<GraphicsBuffer> m_buffer;
+	std::shared_ptr<GraphicsBuffer> m_uploadBuffer;
 
 	D3D12_VERTEX_BUFFER_VIEW m_vertexBufferView;
 

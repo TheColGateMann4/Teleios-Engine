@@ -4,7 +4,7 @@
 #include "includes/WRLNoWarnings.h"
 
 #include "Bindable.h"
-#include "Buffer.h"
+#include "GraphicsBuffer.h"
 
 class Pipeline;
 class Graphics;
@@ -27,7 +27,7 @@ public:
 
     static std::shared_ptr<IndexBuffer> GetBindableResource(Graphics& graphics, std::string identifier, std::vector<unsigned short> indices);
 
-    Buffer* GetBuffer();
+    GraphicsBuffer* GetBuffer();
 
 public:
 	void BindToCopyPipelineIfNeeded(Graphics& graphics, Pipeline& pipeline);
@@ -45,8 +45,8 @@ private:
     void UpdateBufferData(Graphics& graphics, void* pData);
 
 private:
-    std::shared_ptr<Buffer> m_buffer;
-    std::shared_ptr<Buffer> m_uploadBuffer;
+    std::shared_ptr<GraphicsBuffer> m_buffer;
+    std::shared_ptr<GraphicsBuffer> m_uploadBuffer;
 
     D3D12_INDEX_BUFFER_VIEW m_indexBufferView;
     DXGI_FORMAT m_dataFormat;

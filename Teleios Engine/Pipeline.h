@@ -25,7 +25,7 @@ public:
 	void SetCurrentCamera(Camera* newCurrentCamera);
 
 public:
-	void AddBufferToCopyPipeline(Buffer* dst, Buffer* src);
+	void AddBufferToCopyPipeline(GraphicsResource* dst, GraphicsResource* src);
 
 public:
 	void Execute(Graphics& graphics);
@@ -40,8 +40,8 @@ public:
 
 	struct CopyData
 	{
-		Buffer* dst;
-		Buffer* src;
+		GraphicsResource* dst;
+		GraphicsResource* src;
 	};
 
 	std::vector<CopyData> m_buffersToCopy;

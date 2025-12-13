@@ -171,7 +171,7 @@
     <ClCompile Include="UnorderedAccessView.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Buffer.cpp">
+    <ClCompile Include="GraphicsBuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ConstantBufferHeap.cpp">
@@ -193,6 +193,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ShaderResourceView.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphicsResource.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -335,7 +338,7 @@
     <ClInclude Include="UnorderedAccessView.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Buffer.h">
+    <ClInclude Include="GraphicsBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ConstantBufferHeap.h">
@@ -357,6 +360,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ShaderResourceView.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphicsResource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

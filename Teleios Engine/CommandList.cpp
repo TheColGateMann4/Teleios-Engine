@@ -9,7 +9,7 @@
 #include "Texture.h"
 #include "ShaderResourceView.h"
 #include "UnorderedAccessView.h"
-#include "Buffer.h"
+#include "GraphicsResource.h"
 #include "TextureMipView.h"
 
 #include "DescriptorHeap.h"
@@ -127,43 +127,16 @@ void CommandList::EndEvent()
 //
 //}
 
-void CommandList::SetResourceState(Graphics& graphics, Buffer* buffer, D3D12_RESOURCE_STATES newState) const
+void CommandList::SetResourceState(Graphics& graphics, GraphicsResource* resource, D3D12_RESOURCE_STATES newState) const
 {
-	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
-	THROW_OBJECT_STATE_ERROR_IF("Non-direct command list object", m_type != D3D12_COMMAND_LIST_TYPE_DIRECT);
+	SetResourceState(graphics, resource->GetResource(), resource->GetResourceState(), newState);
 
-	D3D12_RESOURCE_BARRIER resourceBarrier = {};
-	resourceBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-	resourceBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-	resourceBarrier.Transition.pResource = buffer->GetResource();
-	resourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-	resourceBarrier.Transition.StateBefore = buffer->GetResourceState();
-	resourceBarrier.Transition.StateAfter = newState;
-
-	buffer->SetResourceState(newState);
-
-	THROW_INFO_ERROR(pCommandList->ResourceBarrier(1, &resourceBarrier));
+	resource->SetResourceState(newState);
 }
 
 void CommandList::SetResourceState(Graphics& graphics, RenderTarget* renderTarget, D3D12_RESOURCE_STATES newState) const
 {
-	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
-	THROW_OBJECT_STATE_ERROR_IF("Non-direct command list object", m_type != D3D12_COMMAND_LIST_TYPE_DIRECT);
-
-	// marking out current front buffer as the one that will be changing states, from present back to render target
-	{
-		ID3D12Resource* pCurrFrontBuffer = renderTarget->GetResource(graphics);
-
-		D3D12_RESOURCE_BARRIER resourceBarrier = {};
-		resourceBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-		resourceBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-		resourceBarrier.Transition.pResource = pCurrFrontBuffer;
-		resourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-		resourceBarrier.Transition.StateBefore = renderTarget->GetResourceState(graphics);
-		resourceBarrier.Transition.StateAfter = newState;
-
-		THROW_INFO_ERROR(pCommandList->ResourceBarrier(1, &resourceBarrier));
-	}
+	SetResourceState(graphics, renderTarget->GetResource(graphics), renderTarget->GetResourceState(graphics), newState);
 
 	renderTarget->SetResourceState(graphics, newState);
 }
