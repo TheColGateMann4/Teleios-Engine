@@ -8,6 +8,8 @@
 #include "ConstantBuffer.h"
 #include "PrimitiveTechnology.h"
 #include "Sampler.h"
+#include "Texture.h"
+#include "GraphicsTexture.h"
 
 #include "DynamicVertex.h"
 #include "DynamicConstantBuffer.h"
@@ -170,13 +172,13 @@ Model::Model(Graphics& graphics, Model* pParent, aiNode* node, std::vector<std::
 
 				if (materialPropeties.hasDiffuseMap)
 				{
-					objectMesh.AddBindable(Texture::GetBindableResource(graphics, (filePath + materialPropeties.diffuseMapPath).c_str(), true, { {ShaderVisibilityGraphic::PixelShader, 0} }));
+					objectMesh.AddBindable(Texture::GetBindableResource(graphics, (filePath + materialPropeties.diffuseMapPath).c_str(), true, true, { {ShaderVisibilityGraphic::PixelShader, 0} }));
 					shaderMacros.push_back(L"TEXTURE_DIFFUSE");
 				}
 
 				if (materialPropeties.hasNormalMap)
 				{
-					objectMesh.AddBindable(Texture::GetBindableResource(graphics, (filePath + materialPropeties.normalMapPath).c_str(), true, { {ShaderVisibilityGraphic::PixelShader, 1} }));
+					objectMesh.AddBindable(Texture::GetBindableResource(graphics, (filePath + materialPropeties.normalMapPath).c_str(), false, true, { {ShaderVisibilityGraphic::PixelShader, 1} }));
 					shaderMacros.push_back(L"TEXTURE_NORMAL");
 
 					shaderMacros.push_back(L"INPUT_TANGENT");
@@ -187,7 +189,7 @@ Model::Model(Graphics& graphics, Model* pParent, aiNode* node, std::vector<std::
 				{
 					if (materialPropeties.hasMetalnessMap)
 					{
-						std::shared_ptr<Texture> specularTexture = Texture::GetBindableResource(graphics, (filePath + materialPropeties.specularMetalnessMapPath).c_str(), true, { {ShaderVisibilityGraphic::PixelShader, 3} });
+						std::shared_ptr<Texture> specularTexture = Texture::GetBindableResource(graphics, (filePath + materialPropeties.specularMetalnessMapPath).c_str(), false, true, { {ShaderVisibilityGraphic::PixelShader, 3} });
 
 						objectMesh.AddBindable(std::move(specularTexture));
 						shaderMacros.push_back(L"TEXTURE_METALNESS");
@@ -195,7 +197,7 @@ Model::Model(Graphics& graphics, Model* pParent, aiNode* node, std::vector<std::
 
 					if (materialPropeties.hasRoughnessMap)
 					{
-						std::shared_ptr<Texture> specularTexture = Texture::GetBindableResource(graphics, (filePath + materialPropeties.specularMetalnessMapPath).c_str(), true, { {ShaderVisibilityGraphic::PixelShader, 4} });
+						std::shared_ptr<Texture> specularTexture = Texture::GetBindableResource(graphics, (filePath + materialPropeties.specularMetalnessMapPath).c_str(), false, true, { {ShaderVisibilityGraphic::PixelShader, 4} });
 
 						objectMesh.AddBindable(std::move(specularTexture));
 						shaderMacros.push_back(L"TEXTURE_ROUGHNESS");
@@ -207,9 +209,9 @@ Model::Model(Graphics& graphics, Model* pParent, aiNode* node, std::vector<std::
 				{
 					if (materialPropeties.hasSpecularMap)
 					{
-						std::shared_ptr<Texture> specularTexture = Texture::GetBindableResource(graphics, (filePath + materialPropeties.specularMetalnessMapPath).c_str(), true, { {ShaderVisibilityGraphic::PixelShader, 2} });
+						std::shared_ptr<Texture> specularTexture = Texture::GetBindableResource(graphics, (filePath + materialPropeties.specularMetalnessMapPath).c_str(), false, true, { {ShaderVisibilityGraphic::PixelShader, 2} });
 
-						materialPropeties.specularOneChannelOnly = specularTexture->GetFormat() == DXGI_FORMAT_R8_UNORM;
+						materialPropeties.specularOneChannelOnly = specularTexture->GetTexture()->GetFormat() == DXGI_FORMAT_R8_UNORM;
 
 						objectMesh.AddBindable(std::move(specularTexture));
 						shaderMacros.push_back(L"TEXTURE_SPECULAR");
@@ -218,7 +220,7 @@ Model::Model(Graphics& graphics, Model* pParent, aiNode* node, std::vector<std::
 
 				if (materialPropeties.hasAmbientMap)
 				{
-					std::shared_ptr<Texture> specularTexture = Texture::GetBindableResource(graphics, (filePath + materialPropeties.ambientMapPath).c_str(), true, { {ShaderVisibilityGraphic::PixelShader, 6} });
+					std::shared_ptr<Texture> specularTexture = Texture::GetBindableResource(graphics, (filePath + materialPropeties.ambientMapPath).c_str(), false, true, { {ShaderVisibilityGraphic::PixelShader, 6} });
 
 					objectMesh.AddBindable(std::move(specularTexture));
 					shaderMacros.push_back(L"TEXTURE_AMBIENT");

@@ -213,7 +213,6 @@
     <ClCompile Include="ShaderResourceView.cpp" />
     <ClCompile Include="TempCommandList.cpp" />
     <ClCompile Include="Texture.cpp" />
-    <ClCompile Include="TextureMipView.cpp" />
     <ClCompile Include="TransformConstantBuffer.cpp" />
     <ClCompile Include="Cube.cpp" />
     <ClCompile Include="UnorderedAccessView.cpp" />
@@ -270,7 +269,6 @@
     <ClInclude Include="TargetShaders.h" />
     <ClInclude Include="TempCommandList.h" />
     <ClInclude Include="Texture.h" />
-    <ClInclude Include="TextureMipView.h" />
     <ClInclude Include="TransformConstantBuffer.h" />
     <ClInclude Include="Cube.h" />
     <ClInclude Include="UnorderedAccessView.h" />

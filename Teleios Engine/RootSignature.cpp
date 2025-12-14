@@ -7,7 +7,6 @@
 #include "ShaderResourceView.h"
 #include "UnorderedAccessView.h"
 #include "Sampler.h"
-#include "TextureMipView.h"
 
 RootSignature::RootSignature()
 	:
@@ -104,14 +103,6 @@ void RootSignature::AddConstBufferViewParameter(ConstantBuffer* constantBuffer)
 	}
 
 	m_rootSignatureDesc.pParameters = m_rootParameters.data();
-}
-
-void RootSignature::AddDescriptorTableParameter(TextureMipView* textureMipView)
-{
-	auto& targets = textureMipView->GetTargets();
-
-	for (auto& targetShader : targets)
-		targetShader.rootIndex = m_AddDescriptorTableParameter(textureMipView->GetOffsetInDescriptor(), targetShader, D3D12_DESCRIPTOR_RANGE_TYPE_SRV);
 }
 
 void RootSignature::AddDescriptorTableParameter(Texture* texture)

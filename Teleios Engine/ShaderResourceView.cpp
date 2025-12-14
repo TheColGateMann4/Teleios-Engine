@@ -3,7 +3,37 @@
 #include "CommandList.h"
 #include "Macros/ErrorMacros.h"
 
+#include "Texture.h" // for Texture::GetLinearFormat()
+#include "GraphicsTexture.h"
 #include "GraphicsBuffer.h"
+
+ShaderResourceView::ShaderResourceView(Graphics& graphics, GraphicsTexture* texture, unsigned int targetMip, UINT slot)
+	:
+	RootSignatureBindable(std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::AllShaders, slot}})
+{
+	THROW_INTERNAL_ERROR_IF("GraphicsTexture was NULL", texture == nullptr);
+
+	m_descriptor = graphics.GetDescriptorHeap().GetNextHandle();
+
+	// creating UAV
+	{
+		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+		srvDesc.Format = Texture::GetLinearFormat(texture->GetFormat());
+		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+		srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+		srvDesc.Texture2D = {};
+		srvDesc.Texture2D.MostDetailedMip = 0;
+		srvDesc.Texture2D.MipLevels = targetMip + 1;
+		srvDesc.Texture2D.PlaneSlice = 0;
+		srvDesc.Texture2D.ResourceMinLODClamp = targetMip;
+
+		THROW_INFO_ERROR(graphics.GetDevice()->CreateShaderResourceView(
+			texture->GetResource(),
+			&srvDesc,
+			m_descriptor.descriptorCpuHandle
+		));
+	}
+}
 
 ShaderResourceView::ShaderResourceView(Graphics& graphics, GraphicsBuffer* buffer, UINT slot)
 	:

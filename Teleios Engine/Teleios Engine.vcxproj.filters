@@ -186,9 +186,6 @@
     <ClCompile Include="TempCommandList.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="TextureMipView.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ObjectTransform.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -354,9 +351,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="TempCommandList.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="TextureMipView.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ObjectTransform.h">

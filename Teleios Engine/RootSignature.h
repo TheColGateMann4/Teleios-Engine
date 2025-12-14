@@ -10,7 +10,6 @@ class Texture;
 class ShaderResourceView;
 class UnorderedAccessView;
 class StaticSampler;
-class TextureMipView;
 
 class RootSignature
 {
@@ -27,7 +26,6 @@ public:
 	// returns rootIndex that was used
 	void AddConstBufferViewParameter(ConstantBuffer* constantBuffer);
 
-	void AddDescriptorTableParameter(TextureMipView* textureMipView);
 	void AddDescriptorTableParameter(Texture* texture);
 	void AddDescriptorTableParameter(ShaderResourceView* srv);
 	void AddComputeDescriptorTableParameter(Texture* texture, TargetSlotAndShader target);

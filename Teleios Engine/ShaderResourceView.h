@@ -2,6 +2,7 @@
 #include "Bindable.h"
 #include "Graphics.h"
 
+class GraphicsTexture;
 class GraphicsBuffer;
 class RootSignature;
 class CommandList;
@@ -9,6 +10,7 @@ class CommandList;
 class ShaderResourceView : public Bindable, public CommandListBindable, public RootSignatureBindable
 {
 public:
+	ShaderResourceView(Graphics& graphics, GraphicsTexture* texture, unsigned int targetMip, UINT slot = 0);
 	ShaderResourceView(Graphics& graphics, GraphicsBuffer* buffer, UINT slot = 0);
 	ShaderResourceView(ShaderResourceView&&) noexcept = default;
 

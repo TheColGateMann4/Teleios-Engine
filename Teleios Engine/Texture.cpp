@@ -13,9 +13,9 @@
 #include "CommandList.h"
 #include "Shader.h"
 #include "UnorderedAccessView.h"
+#include "ShaderResourceView.h"
 #include "ConstantBuffer.h"
 #include "Sampler.h"
-#include "TextureMipView.h"
 
 #include "Pipeline.h"
 
@@ -291,9 +291,7 @@ void Texture::GenerateMipMaps(Graphics& graphics, Pipeline& pipeline)
 
 			// resource binding and creating stage-specific resources
 			{
-				//ShaderResourceView srv(graphics, this->GetTexture(), targetMipLevel - 1);
-				TextureMipView srv(graphics, this, targetMipLevel - 1);
-
+				ShaderResourceView srv(graphics, this->GetTexture(), targetMipLevel - 1);
 				UnorderedAccessView uav(graphics, this->GetTexture(), targetMipLevel);
 
 				computeCommandList.Bind(computeShader);

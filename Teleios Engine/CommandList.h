@@ -18,7 +18,6 @@ class DescriptorHeap;
 class UnorderedAccessView;
 class GraphicsResource;
 class GraphicsTexture;
-class TextureMipView;
 
 struct ID3D12Resource;
 
@@ -91,10 +90,6 @@ public:
 
 	void SetGraphicsConstBufferView(Graphics& graphics, ConstantBuffer* constBuffer);
 
-	void SetGraphicsRootUnorderedAccessView(Graphics& graphics, ConstantBuffer* constBuffer);
-
-	void SetGraphicsRootShaderResourceView(Graphics& graphics, ConstantBuffer* constBuffer);
-
 	void SetGraphicsDescriptorTable(Graphics& graphics, Texture* texture);
 	void SetGraphicsDescriptorTable(Graphics& graphics, ShaderResourceView* srv);
 
@@ -112,7 +107,6 @@ public:
 	void SetComputeDescriptorTable(Graphics& graphics, Texture* texture);
 	void SetComputeDescriptorTable(Graphics& graphics, ShaderResourceView* srv);
 	void SetComputeDescriptorTable(Graphics& graphics, UnorderedAccessView* uav);
-	void SetComputeDescriptorTable(Graphics& graphics, TextureMipView* srv);
 
 	void SetComputeRootShaderResourceView(Graphics& graphics, ConstantBuffer* constBuffer);
 
