@@ -8,22 +8,23 @@
 
 class CommandList;
 class RootSignature;
-class DescriptorHeap;
 class Graphics;
 class Pipeline;
+
+class GraphicsTexture;
 
 class Texture : public Bindable, public CommandListBindable, public RootSignatureBindable
 {
 public:
-	Texture(Graphics& graphics, const char* path, bool generateMips = true, std::vector<TargetSlotAndShader> targets = { {ShaderVisibilityGraphic::PixelShader, 0} });
+	Texture(Graphics& graphics, const char* path, bool allowSRGB = false, bool generateMips = true, std::vector<TargetSlotAndShader> targets = { {ShaderVisibilityGraphic::PixelShader, 0} });
 
 protected:
 	virtual void Initialize(Graphics& graphics) override;
 
 public:
-	static std::shared_ptr<Texture> GetBindableResource(Graphics& graphics, const char* path, bool generateMips = true, std::vector<TargetSlotAndShader> targets = { {ShaderVisibilityGraphic::PixelShader, 0} });
+	static std::shared_ptr<Texture> GetBindableResource(Graphics& graphics, const char* path, bool srgb = false, bool generateMips = true, std::vector<TargetSlotAndShader> targets = { {ShaderVisibilityGraphic::PixelShader, 0} });
 
-	static std::string GetIdentifier(const char* path, bool generateMips, std::vector<TargetSlotAndShader> targets);
+	static std::string GetIdentifier(const char* path, bool srgb, bool generateMips, std::vector<TargetSlotAndShader> targets);
 
 public:
 	void InitializeGraphicResources(Graphics& graphics, Pipeline& pipeline);
@@ -40,32 +41,32 @@ public:
 	
 	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUDescriptor(Graphics& graphics) const;
 
-	DXGI_FORMAT GetFormat() const;
-
 	UINT GetOffsetInDescriptor() const;
 
-	ID3D12Resource* GetResource() const;
+	GraphicsTexture* GetTexture() const;
 
 	unsigned int GetComputeRootIndex() const;
 
 	void SetComputeRootIndex(unsigned int rootIndex);
+	
+	static DXGI_FORMAT GetCorrectedFormat(DXGI_FORMAT format);
+	static DXGI_FORMAT GetLinearFormat(DXGI_FORMAT format);
+	static DXGI_FORMAT GetSRGBFormat(DXGI_FORMAT format);
 
 private:
 	static unsigned int GetMipLevels(unsigned int textureWidth);
 
 private:
-	Microsoft::WRL::ComPtr<ID3D12Resource> pTexture;
-	Microsoft::WRL::ComPtr<ID3D12Resource> pUploadTexture;
+	void UploadData(Graphics& graphics, Pipeline& pipeline);
+	void GenerateMipMaps(Graphics& graphics, Pipeline& pipeline);
 
 private:
-	D3D12_RESOURCE_STATES m_targetResourceState = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+	std::shared_ptr<GraphicsTexture> m_gpuTexture;
+
 	std::string m_path;
 	bool m_isAlphaOpaque = false;
-	bool m_isSRGB = false;
-	DXGI_FORMAT m_format = DXGI_FORMAT_UNKNOWN;
-	unsigned int m_minmapLevels = 1;
-	unsigned int m_width = 0;
-	unsigned int m_height = 0;
+	bool m_srgb = false;
+	unsigned int m_mipmapLevels = 1;
 
 	DescriptorHeap::DescriptorInfo m_textureDescriptor = {};
 

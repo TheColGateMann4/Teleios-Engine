@@ -177,6 +177,7 @@
     <ClCompile Include="DepthStencilView.cpp" />
     <ClCompile Include="DescriptorHeap.cpp" />
     <ClCompile Include="GraphicsResource.cpp" />
+    <ClCompile Include="GraphicsTexture.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="DynamicConstantBuffer.cpp" />
     <ClCompile Include="DynamicVertex.cpp" />
@@ -234,6 +235,7 @@
     <ClInclude Include="DepthStencilView.h" />
     <ClInclude Include="DescriptorHeap.h" />
     <ClInclude Include="GraphicsResource.h" />
+    <ClInclude Include="GraphicsTexture.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="DynamicConstantBuffer.h" />
     <ClInclude Include="DynamicVertex.h" />

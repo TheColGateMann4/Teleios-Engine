@@ -10,6 +10,7 @@
 #include "ShaderResourceView.h"
 #include "UnorderedAccessView.h"
 #include "GraphicsResource.h"
+#include "GraphicsTexture.h"
 #include "TextureMipView.h"
 
 #include "DescriptorHeap.h"
@@ -127,6 +128,22 @@ void CommandList::EndEvent()
 //
 //}
 
+void CommandList::SetResourceState(Graphics& graphics, GraphicsTexture* texture, D3D12_RESOURCE_STATES newState, unsigned int targetMip) const
+{
+	SetResourceState(graphics, texture->GetResource(), texture->GetResourceMipState(targetMip), newState, targetMip);
+
+	texture->SetResourceMipState(newState, targetMip);
+}
+
+void CommandList::SetResourceState(Graphics& graphics, GraphicsResource* resource) const
+{
+	D3D12_RESOURCE_STATES newState = resource->GetResourceTargetState();
+
+	SetResourceState(graphics, resource->GetResource(), resource->GetResourceState(), newState);
+
+	resource->SetResourceState(newState);
+}
+
 void CommandList::SetResourceState(Graphics& graphics, GraphicsResource* resource, D3D12_RESOURCE_STATES newState) const
 {
 	SetResourceState(graphics, resource->GetResource(), resource->GetResourceState(), newState);
@@ -145,6 +162,9 @@ void CommandList::SetResourceState(Graphics& graphics, ID3D12Resource* resource,
 {
 	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
 	THROW_OBJECT_STATE_ERROR_IF("Non-direct command list object", m_type != D3D12_COMMAND_LIST_TYPE_DIRECT);
+
+	if (prevState == newState)
+		return;
 
 	D3D12_RESOURCE_BARRIER resourceBarrier = {};
 	resourceBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;

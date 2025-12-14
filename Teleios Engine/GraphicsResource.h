@@ -18,7 +18,7 @@ public:
 	};
 
 protected:
-	GraphicsResource(CPUAccess cpuAccess, D3D12_RESOURCE_STATES targetState);
+	GraphicsResource(DXGI_FORMAT format, CPUAccess cpuAccess, D3D12_RESOURCE_STATES targetState);
 
 public:
 	virtual ~GraphicsResource() = default;
@@ -30,9 +30,12 @@ public:
 	void CopyResourcesTo(Graphics& graphics, CommandList* copyCommandList, GraphicsResource* dst);
 
 public:
+	DXGI_FORMAT GetFormat() const;
+
 	D3D12_RESOURCE_STATES GetResourceState() const;
-	D3D12_RESOURCE_STATES GetResourceTargetState() const;
+	D3D12_RESOURCE_STATES GetResourceTargetState();
 	void SetResourceState(D3D12_RESOURCE_STATES newState);
+	void SetTargetResourceState(D3D12_RESOURCE_STATES newState);
 
 	CPUAccess GetCPUAccess() const;
 
@@ -43,6 +46,7 @@ protected:
 
 protected:
 	Microsoft::WRL::ComPtr<ID3D12Resource> m_pResource;
+	DXGI_FORMAT m_format;
 	CPUAccess m_cpuAccess;
 	D3D12_RESOURCE_STATES m_state;
 	D3D12_RESOURCE_STATES m_targetState;

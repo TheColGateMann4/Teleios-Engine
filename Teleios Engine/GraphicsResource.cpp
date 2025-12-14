@@ -3,8 +3,9 @@
 
 #include "CommandList.h"
 
-GraphicsResource::GraphicsResource(CPUAccess cpuAccess, D3D12_RESOURCE_STATES targetState)
+GraphicsResource::GraphicsResource(DXGI_FORMAT format, CPUAccess cpuAccess, D3D12_RESOURCE_STATES targetState)
 	:
+	m_format(format),
 	m_cpuAccess(cpuAccess),
 	m_state(D3D12_RESOURCE_STATE_COMMON),
 	m_targetState(targetState)
@@ -34,13 +35,17 @@ void GraphicsResource::CopyResourcesTo(Graphics& graphics, CommandList* copyComm
 	END_COMMAND_LIST_EVENT(copyCommandList);
 }
 
+DXGI_FORMAT GraphicsResource::GetFormat() const
+{
+	return m_format;
+}
 
 D3D12_RESOURCE_STATES GraphicsResource::GetResourceState() const
 {
 	return m_state;
 }
 
-D3D12_RESOURCE_STATES GraphicsResource::GetResourceTargetState() const
+D3D12_RESOURCE_STATES GraphicsResource::GetResourceTargetState()
 {
 	return m_targetState;
 }
@@ -48,6 +53,11 @@ D3D12_RESOURCE_STATES GraphicsResource::GetResourceTargetState() const
 void GraphicsResource::SetResourceState(D3D12_RESOURCE_STATES newState)
 {
 	m_state = newState;
+}
+
+void GraphicsResource::SetTargetResourceState(D3D12_RESOURCE_STATES newState)
+{
+	m_targetState = newState;
 }
 
 GraphicsResource::CPUAccess GraphicsResource::GetCPUAccess() const

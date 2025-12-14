@@ -7,13 +7,13 @@ class Graphics;
 class RootSignature;
 class CommandList;
 
-class Texture;
+class GraphicsTexture;
 class GraphicsBuffer;
 
 class UnorderedAccessView : public Bindable, public RootSignatureBindable, public CommandListBindable
 {
 public:
-	UnorderedAccessView(Graphics& graphics, Texture* texture, unsigned int targetMip);
+	UnorderedAccessView(Graphics& graphics, GraphicsTexture* texture, unsigned int targetMip);
 	UnorderedAccessView(Graphics& graphics, GraphicsBuffer* buffer, UINT slot = 0);
 
 public:

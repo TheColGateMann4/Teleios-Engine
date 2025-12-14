@@ -6,7 +6,7 @@
 
 GraphicsBuffer::GraphicsBuffer(Graphics& graphics, unsigned int numElements, unsigned int byteStride, CPUAccess cpuAccess, D3D12_RESOURCE_STATES state, D3D12_RESOURCE_FLAGS flags)
 	:
-	GraphicsResource(cpuAccess, state),
+	GraphicsResource(DXGI_FORMAT_UNKNOWN, cpuAccess, state),
 	m_byteSize(numElements * byteStride),
 	m_byteStride(byteStride),
 	m_numElements(numElements)
@@ -29,7 +29,7 @@ GraphicsBuffer::GraphicsBuffer(Graphics& graphics, unsigned int numElements, uns
 		resourceDesc.Height = 1;
 		resourceDesc.DepthOrArraySize = 1;
 		resourceDesc.MipLevels = 1;
-		resourceDesc.Format = DXGI_FORMAT_UNKNOWN;
+		resourceDesc.Format = m_format;
 		resourceDesc.SampleDesc.Count = 1;
 		resourceDesc.SampleDesc.Quality = 0;
 		resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;

@@ -8,6 +8,7 @@
 #include "RootSignature.h"
 
 #include "Texture.h"
+#include "GraphicsTexture.h"
 
 TextureMipView::TextureMipView(Graphics& graphics, Texture* texture, unsigned int targetMip)
 	:
@@ -20,7 +21,7 @@ TextureMipView::TextureMipView(Graphics& graphics, Texture* texture, unsigned in
 	// creating UAV itself
 	{
 		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-		srvDesc.Format = texture->GetFormat();
+		srvDesc.Format = Texture::GetLinearFormat(texture->GetTexture()->GetFormat());
 		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 		srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 		srvDesc.Texture2D = {};
@@ -30,7 +31,7 @@ TextureMipView::TextureMipView(Graphics& graphics, Texture* texture, unsigned in
 		srvDesc.Texture2D.ResourceMinLODClamp = targetMip;
 
 		THROW_INFO_ERROR(graphics.GetDevice()->CreateShaderResourceView(
-			texture->GetResource(),
+			texture->GetTexture()->GetResource(),
 			&srvDesc,
 			m_descriptor.descriptorCpuHandle
 		));

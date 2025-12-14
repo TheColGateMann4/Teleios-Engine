@@ -8,16 +8,16 @@
 #include "RootSignature.h"
 #include "CommandList.h"
 
-#include "Texture.h"
+#include "GraphicsTexture.h"
 #include "GraphicsBuffer.h"
 
 #include "Macros/ErrorMacros.h"
 
-UnorderedAccessView::UnorderedAccessView(Graphics& graphics, Texture* texture, unsigned int targetMip)
+UnorderedAccessView::UnorderedAccessView(Graphics& graphics, GraphicsTexture* texture, unsigned int targetMip)
 	:
 	RootSignatureBindable({ {ShaderVisibilityGraphic::AllShaders, 0} })
 {
-	THROW_INTERNAL_ERROR_IF("Texture was NULL", texture == nullptr);
+	THROW_INTERNAL_ERROR_IF("GraphicsTexture was NULL", texture == nullptr);
 
 	HRESULT hr;
 
@@ -54,7 +54,7 @@ UnorderedAccessView::UnorderedAccessView(Graphics& graphics, GraphicsBuffer* buf
 	// creating UAV itself
 	{
 		D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
-		uavDesc.Format = DXGI_FORMAT_UNKNOWN;
+		uavDesc.Format = buffer->GetFormat();
 		uavDesc.ViewDimension = D3D12_UAV_DIMENSION_BUFFER;
 		uavDesc.Buffer = {};
 		uavDesc.Buffer.FirstElement = 0;
