@@ -88,10 +88,12 @@ size_t GraphicsBuffer::GetByteStride() const
 
 void GraphicsBuffer::UpdateUsingTempResource(Graphics& graphics, Pipeline& pipeline, const void* data, size_t size)
 {
-	GraphicsBuffer uploadBuffer(graphics, size, 1, CPUAccess::write);
-	uploadBuffer.Update(graphics, data, size);
+	std::shared_ptr<GraphicsBuffer> uploadBuffer = std::make_shared<GraphicsBuffer>(graphics, size, 1, CPUAccess::write);
+	uploadBuffer->Update(graphics, data, size);
 
-	uploadBuffer.CopyResourcesTo(graphics, pipeline.GetGraphicCommandList(), this);
+	uploadBuffer->CopyResourcesTo(graphics, pipeline.GetGraphicCommandList(), this);
+
+	graphics.GetFrameResourceDeleter()->DeleteResource(graphics, std::move(uploadBuffer));
 }
 void GraphicsBuffer::UpdateLocalResource(Graphics& graphics, const void* data, size_t size)
 {
