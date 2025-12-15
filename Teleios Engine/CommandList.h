@@ -18,6 +18,7 @@ class DescriptorHeap;
 class UnorderedAccessView;
 class GraphicsResource;
 class GraphicsTexture;
+class ViewPort;
 
 struct ID3D12Resource;
 
@@ -86,6 +87,8 @@ public:
 	void SetPipelineState(Graphics& graphics, PipelineState* pPipelineState);
 
 	// graphics
+	void SetViewPort(Graphics& graphics, ViewPort* viewPort);
+
 	void SetGraphicsRootSignature(Graphics& graphics, RootSignature* rootSignature);
 
 	void SetGraphicsConstBufferView(Graphics& graphics, ConstantBuffer* constBuffer);

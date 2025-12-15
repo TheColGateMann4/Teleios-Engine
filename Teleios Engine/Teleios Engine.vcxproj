@@ -217,6 +217,7 @@
     <ClCompile Include="Cube.cpp" />
     <ClCompile Include="UnorderedAccessView.cpp" />
     <ClCompile Include="VertexBuffer.cpp" />
+    <ClCompile Include="ViewPort.cpp" />
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -273,6 +274,7 @@
     <ClInclude Include="Cube.h" />
     <ClInclude Include="UnorderedAccessView.h" />
     <ClInclude Include="VertexBuffer.h" />
+    <ClInclude Include="ViewPort.h" />
     <ClInclude Include="Window.h" />
     <ClInclude Include="includes\WRLNoWarnings.h" />
   </ItemGroup>

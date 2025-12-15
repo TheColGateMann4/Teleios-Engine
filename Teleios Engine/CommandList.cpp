@@ -11,6 +11,7 @@
 #include "UnorderedAccessView.h"
 #include "GraphicsResource.h"
 #include "GraphicsTexture.h"
+#include "ViewPort.h"
 
 #include "DescriptorHeap.h"
 
@@ -213,6 +214,15 @@ void CommandList::SetPrimitiveTopology(Graphics& graphics, D3D_PRIMITIVE_TOPOLOG
 	THROW_OBJECT_STATE_ERROR_IF("Only Direct and Bundle command lists can set topology", m_type != D3D12_COMMAND_LIST_TYPE_DIRECT && m_type != D3D12_COMMAND_LIST_TYPE_BUNDLE);
 
 	THROW_INFO_ERROR(pCommandList->IASetPrimitiveTopology(primitiveTechnology));
+}
+
+void CommandList::SetViewPort(Graphics& graphics, ViewPort* viewPort)
+{
+	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
+	THROW_OBJECT_STATE_ERROR_IF("Only graphics command list can set viewport", m_type != D3D12_COMMAND_LIST_TYPE_DIRECT);
+
+	THROW_INFO_ERROR(pCommandList->RSSetViewports(1, &viewPort->GetViewport()));
+	THROW_INFO_ERROR(pCommandList->RSSetScissorRects(1, &viewPort->GetViewportRect()));
 }
 
 void CommandList::SetGraphicsRootSignature(Graphics& graphics, RootSignature* rootSignature)
