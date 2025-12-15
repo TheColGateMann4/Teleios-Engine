@@ -60,6 +60,7 @@ std::string InfoQueue::ProcessMessage(D3D12_MESSAGE* message) const
 		std::string resultStr = "Category Call ";
 		resultStr += std::to_string(static_cast<int>(message->Category));
 		resultStr += " wasn't defined in Category map";
+		THROW_INTERNAL_ERROR(resultStr.c_str());
 	}
 
 	//getting message Severity and checking return value
@@ -68,6 +69,7 @@ std::string InfoQueue::ProcessMessage(D3D12_MESSAGE* message) const
 		std::string resultStr = "Severity Call ";
 		resultStr += std::to_string(static_cast<int>(message->Severity));
 		resultStr += " wasn't defined in Severity map";
+		THROW_INTERNAL_ERROR(resultStr.c_str());
 	}
 
 	//getting message ID and checking return value
@@ -77,6 +79,7 @@ std::string InfoQueue::ProcessMessage(D3D12_MESSAGE* message) const
 		std::string resultStr = "ID Call ";
 		resultStr += std::to_string(static_cast<int>(message->ID));
 		resultStr += " wasn't defined in ID map";
+		THROW_INTERNAL_ERROR(resultStr.c_str());
 	}
 
 	result += "\n[Category]: ";
