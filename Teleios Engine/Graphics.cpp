@@ -79,14 +79,14 @@ void Graphics::Initialize(HWND hWnd, DXGI_FORMAT renderTargetFormat)
 			THROW_ERROR_AT_GFX_INIT(pFactory->CreateSwapChain(pCommandQueue.Get(), &swapChainDesc, &pSwapChain));
 		}
 
-		// Initializing backbuffer render target
+		// Initializing swapchain holding RenderTarget class
 		{
 			std::vector<Microsoft::WRL::ComPtr<ID3D12Resource>> bufferList(swapChainBufferCount);
 
 			for(unsigned int bufferIndex = 0; bufferIndex < swapChainBufferCount; bufferIndex++)
 				THROW_ERROR_AT_GFX_INIT(pSwapChain->GetBuffer(bufferIndex, IID_PPV_ARGS(&bufferList.at(bufferIndex))));
 
-			// getting width and height out of gotten render target
+			// getting width and height out of gotten resource
 			{
 				D3D12_RESOURCE_DESC renderTargetDesc = bufferList.front()->GetDesc();
 
@@ -94,8 +94,12 @@ void Graphics::Initialize(HWND hWnd, DXGI_FORMAT renderTargetFormat)
 				m_height = renderTargetDesc.Height;
 			}
 
-			m_backBuffer = std::make_shared<BackBufferRenderTarget>(*this, renderTargetFormat, bufferList);
+			m_swapChainBuffer = std::make_shared<SwapChainRenderTarget>(*this, renderTargetFormat, bufferList);
 		}
+
+		// intializing back buffers
+		m_backBuffer = std::make_shared<BackBufferRenderTarget>(*this, renderTargetFormat);
+
 
 		// initializing depth stencil view
 		m_depthStencilView = std::make_shared<DepthStencilView>(*this);
@@ -201,6 +205,11 @@ InfoQueue* Graphics::GetInfoQueue()
 	return m_infoQueue.get();
 }
 #endif
+
+SwapChainRenderTarget* Graphics::GetSwapChainBuffer()
+{
+	return m_swapChainBuffer.get();
+}
 
 BackBufferRenderTarget* Graphics::GetBackBuffer()
 {

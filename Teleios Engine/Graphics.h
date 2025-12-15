@@ -48,6 +48,7 @@ public:
 	ID3D12Device* GetDevice();
 	ID3D12CommandQueue* GetCommandQueue();
 
+	SwapChainRenderTarget* GetSwapChainBuffer();
 	BackBufferRenderTarget* GetBackBuffer();
 	DepthStencilView* GetDepthStencil();
 
@@ -80,6 +81,7 @@ private:
 	std::unique_ptr<ImguiManager> m_imguiManager;
 	std::vector<Fence> m_graphicFences;
 
+	std::shared_ptr<SwapChainRenderTarget> m_swapChainBuffer;
 	std::shared_ptr<BackBufferRenderTarget> m_backBuffer;
 	std::shared_ptr<DepthStencilView> m_depthStencilView;
 
