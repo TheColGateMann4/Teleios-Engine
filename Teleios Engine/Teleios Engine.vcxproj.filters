@@ -192,6 +192,9 @@
     <ClCompile Include="ShaderResourceView.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="PostProcessing.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="GraphicsTexture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -362,6 +365,9 @@
     <ClInclude Include="ShaderResourceView.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="PostProcessing.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="GraphicsTexture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -404,6 +410,12 @@
       <Filter>Shaders\MeshSimplification</Filter>
     </FxCompile>
     <FxCompile Include="Shaders\CS_ModelBounds.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\PS_Fullscreen.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\VS_Fullscreen.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>

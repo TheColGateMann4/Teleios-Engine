@@ -1,6 +1,7 @@
 #pragma once
 #include "Includes/CppIncludes.h"
 #include "CommandList.h"
+#include "PostProcessing.h"
 
 class Bindable;
 class Camera;
@@ -12,7 +13,7 @@ public:
 
 public:
 	void BeginRender(Graphics& graphics) const;
-	void FinishRender(Graphics& graphics) const;
+	void FinishRender(Graphics& graphics);
 
 	CommandList* GetGraphicCommandList() const;
 
@@ -45,4 +46,5 @@ public:
 	};
 
 	std::vector<CopyData> m_buffersToCopy;
+	PostProcessing m_postProcessing;
 };

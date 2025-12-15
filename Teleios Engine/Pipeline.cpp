@@ -2,12 +2,14 @@
 #include "Graphics.h"
 #include "Macros/ErrorMacros.h"
 #include "PipelineState.h"
+#include "PostProcessing.h"
 #include "ViewPort.h"
 
-#include "VertexBuffer.h"
 #include "IndexBuffer.h"
 
 Pipeline::Pipeline(Graphics& graphics)
+	:
+	m_postProcessing(graphics, *this)
 {
 	m_graphicsCommandList = std::make_shared<CommandList>(graphics, D3D12_COMMAND_LIST_TYPE_DIRECT);
 }
@@ -15,6 +17,10 @@ Pipeline::Pipeline(Graphics& graphics)
 void Pipeline::BeginRender(Graphics& graphics) const
 {
 	m_graphicsCommandList->Open(graphics);	// opening graphics command list and clearning allocator
+
+	// setting correct states
+	//m_graphicsCommandList->SetResourceState(graphics, graphics.GetDepthStencil(), D3D12_RESOURCE_STATE_DEPTH_WRITE);
+	m_graphicsCommandList->SetResourceState(graphics, graphics.GetBackBuffer(), D3D12_RESOURCE_STATE_RENDER_TARGET);
 
 	// setting render target
 	m_graphicsCommandList->SetRenderTarget(graphics, graphics.GetBackBuffer(), graphics.GetDepthStencil());
@@ -27,9 +33,15 @@ void Pipeline::BeginRender(Graphics& graphics) const
 	m_graphicsCommandList->ClearDepthStencilView(graphics, graphics.GetDepthStencil()); // clearning depth stencil from previous frames
 }
 
-void Pipeline::FinishRender(Graphics& graphics) const
+void Pipeline::FinishRender(Graphics& graphics)
 {
-	m_graphicsCommandList->SetResourceState(graphics, graphics.GetBackBuffer(), D3D12_RESOURCE_STATE_PRESENT); // setting backbuffer state to present since we finished drawing
+	m_graphicsCommandList->SetResourceState(graphics, graphics.GetSwapChainBuffer(), D3D12_RESOURCE_STATE_RENDER_TARGET);
+
+	// drawing backbuffer on top of swapchain
+	m_postProcessing.Finish(graphics, *this);
+
+	m_graphicsCommandList->SetResourceState(graphics, graphics.GetSwapChainBuffer(), D3D12_RESOURCE_STATE_PRESENT);
+
 	m_graphicsCommandList->Close(graphics); // closing graphics command list
 }
 
