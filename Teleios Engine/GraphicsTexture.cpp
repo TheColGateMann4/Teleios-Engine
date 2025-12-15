@@ -12,15 +12,55 @@ GraphicsTexture::GraphicsTexture(Graphics& graphics, unsigned int width, unsigne
 	m_mipLevels(mipLevels),
 	m_mipStates(m_mipLevels, state)
 {
+	Initialize(graphics, flags, nullptr);
+}
+
+GraphicsTexture::GraphicsTexture(Graphics& graphics, unsigned int width, unsigned int height, unsigned int mipLevels, DXGI_FORMAT format, DirectX::XMFLOAT4 optimizedClearValue, CPUAccess cpuAccess, D3D12_RESOURCE_STATES state, D3D12_RESOURCE_FLAGS flags)
+	:
+	GraphicsResource(format, cpuAccess, state),
+	m_width(width),
+	m_height(height),
+	m_mipLevels(mipLevels),
+	m_mipStates(m_mipLevels, state)
+{
+	D3D12_CLEAR_VALUE clearValue = {};
+	clearValue.Format = format;
+	clearValue.Color[0] = optimizedClearValue.x;
+	clearValue.Color[1] = optimizedClearValue.y;
+	clearValue.Color[2] = optimizedClearValue.z;
+	clearValue.Color[3] = optimizedClearValue.w;
+
+	Initialize(graphics, flags, &clearValue);
+}
+
+GraphicsTexture::GraphicsTexture(Graphics& graphics, unsigned int width, unsigned int height, unsigned int mipLevels, DXGI_FORMAT format, float depthClearValue, uint8_t stencilClearValue, CPUAccess cpuAccess, D3D12_RESOURCE_STATES state, D3D12_RESOURCE_FLAGS flags)
+	:
+	GraphicsResource(format, cpuAccess, state),
+	m_width(width),
+	m_height(height),
+	m_mipLevels(mipLevels),
+	m_mipStates(m_mipLevels, state)
+{
+	D3D12_CLEAR_VALUE clearValue = {};
+	clearValue.Format = format;
+	clearValue.DepthStencil = {};
+	clearValue.DepthStencil.Depth = depthClearValue;
+	clearValue.DepthStencil.Stencil = stencilClearValue;
+
+	Initialize(graphics, flags, &clearValue);
+}
+
+void GraphicsTexture::Initialize(Graphics& graphics, D3D12_RESOURCE_FLAGS flags, D3D12_CLEAR_VALUE* clearValue)
+{
 	HRESULT hr;
 	unsigned int numberOfBuffers = graphics.GetBufferCount();
 
 	// creating resource
 	{
 		D3D12_HEAP_PROPERTIES heapPropeties = {};
-		heapPropeties.Type = GetHardwareHeapType(cpuAccess);
-		heapPropeties.CPUPageProperty = GetHardwareHeapUsagePropety(cpuAccess);
-		heapPropeties.MemoryPoolPreference = GetHardwareHeapMemoryPool(cpuAccess);
+		heapPropeties.Type = GetHardwareHeapType(m_cpuAccess);
+		heapPropeties.CPUPageProperty = GetHardwareHeapUsagePropety(m_cpuAccess);
+		heapPropeties.MemoryPoolPreference = GetHardwareHeapMemoryPool(m_cpuAccess);
 		heapPropeties.VisibleNodeMask = 0;
 
 		D3D12_RESOURCE_DESC resourceDesc = {};
@@ -29,7 +69,7 @@ GraphicsTexture::GraphicsTexture(Graphics& graphics, unsigned int width, unsigne
 		resourceDesc.Width = m_width;
 		resourceDesc.Height = m_height;
 		resourceDesc.DepthOrArraySize = 1;
-		resourceDesc.MipLevels = mipLevels;
+		resourceDesc.MipLevels = m_mipLevels;
 		resourceDesc.Format = m_format;
 		resourceDesc.SampleDesc.Count = 1;
 		resourceDesc.SampleDesc.Quality = 0;
@@ -41,7 +81,7 @@ GraphicsTexture::GraphicsTexture(Graphics& graphics, unsigned int width, unsigne
 			D3D12_HEAP_FLAG_NONE,
 			&resourceDesc,
 			D3D12_RESOURCE_STATE_COMMON,
-			nullptr,
+			clearValue,
 			IID_PPV_ARGS(&m_pResource)
 		));
 	}
