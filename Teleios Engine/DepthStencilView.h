@@ -7,7 +7,7 @@ class DepthStencilView
 public:
 	DepthStencilView(class Graphics& graphics);
 
-	const D3D12_CPU_DESCRIPTOR_HANDLE* GetDescriptor() const;
+	const D3D12_CPU_DESCRIPTOR_HANDLE& GetDescriptor() const;
 
 	DXGI_FORMAT GetFormat() const;
 

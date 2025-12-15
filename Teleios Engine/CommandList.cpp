@@ -184,11 +184,12 @@ void CommandList::SetRenderTarget(Graphics& graphics, RenderTarget* renderTarget
 
 	// binding render target to command list
 	{
-		const D3D12_CPU_DESCRIPTOR_HANDLE* renderTargetViewDescriptor = renderTarget->GetDescriptor(graphics);
+		// here we can set to bind arrays of rtv and dsv descriptors, for now we will just pass ptr to single descriptor
+		const D3D12_CPU_DESCRIPTOR_HANDLE* pRenderTargetViewDescriptor = &renderTarget->GetDescriptor(graphics);
 
-		const D3D12_CPU_DESCRIPTOR_HANDLE* depthStencilViewDescriptor = depthStencilView != nullptr ? depthStencilView->GetDescriptor() : nullptr;
+		const D3D12_CPU_DESCRIPTOR_HANDLE* pDepthStencilViewDescriptor = depthStencilView != nullptr ? &depthStencilView->GetDescriptor() : nullptr;
 
-		THROW_INFO_ERROR(pCommandList->OMSetRenderTargets(1, renderTargetViewDescriptor, false, depthStencilViewDescriptor));
+		THROW_INFO_ERROR(pCommandList->OMSetRenderTargets(1, pRenderTargetViewDescriptor, false, pDepthStencilViewDescriptor));
 	}
 }
 
@@ -292,7 +293,7 @@ void CommandList::ClearRenderTargetView(Graphics& graphics, RenderTarget* render
 	FLOAT clearColor[] = { 0.01f, 0.02f, 0.03f, 1.0f };
 
 	THROW_INFO_ERROR(pCommandList->ClearRenderTargetView(
-		*graphics.GetBackBuffer()->GetDescriptor(graphics),
+		graphics.GetBackBuffer()->GetDescriptor(graphics),
 		clearColor,
 		0,
 		nullptr
@@ -305,7 +306,7 @@ void CommandList::ClearDepthStencilView(Graphics& graphics, DepthStencilView* de
 	THROW_OBJECT_STATE_ERROR_IF("Non-direct command list object", m_type != D3D12_COMMAND_LIST_TYPE_DIRECT);
 
 	THROW_INFO_ERROR(pCommandList->ClearDepthStencilView(
-		*graphics.GetDepthStencil()->GetDescriptor(),
+		graphics.GetDepthStencil()->GetDescriptor(),
 		D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL,
 		1.0f,
 		0.0f,

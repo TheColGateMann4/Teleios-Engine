@@ -75,9 +75,9 @@ DepthStencilView::DepthStencilView(Graphics& graphics)
 	}
 }
 
-const D3D12_CPU_DESCRIPTOR_HANDLE* DepthStencilView::GetDescriptor() const
+const D3D12_CPU_DESCRIPTOR_HANDLE& DepthStencilView::GetDescriptor() const
 {
-	return &m_descriptor;
+	return m_descriptor;
 }
 
 DXGI_FORMAT DepthStencilView::GetFormat() const
