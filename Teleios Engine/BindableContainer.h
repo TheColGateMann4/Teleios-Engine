@@ -16,6 +16,15 @@ class MeshBindableContainer
 public:
 	void AddStaticBindable(const char* bindableName);
 	void AddBindable(std::shared_ptr<Bindable> bindable);
+	void AddBindable(Bindable* bindable);
+
+	template<class T, std::enable_if_t<std::is_base_of_v<Bindable, T>, int> = 0>
+	void AddBindable(T&& bindable)
+	{
+		m_bindables.push_back(std::make_shared<T>(std::move(bindable)));
+
+		SegregateBindable(m_bindables.back().get());
+	}
 
 	void SetVertexBuffer(std::shared_ptr<VertexBuffer> vertexBuffer);
 	void SetIndexBuffer(std::shared_ptr<IndexBuffer> indexBuffer);
@@ -40,7 +49,6 @@ private:
 private:
 	// vector owning potentially shared scene bindables
 	std::vector<std::shared_ptr<Bindable>> m_bindables;
-
 
 	// vector with names of static scene resources
 	std::vector<const char*> m_staticBindableNames;

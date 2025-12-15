@@ -21,6 +21,11 @@ void MeshBindableContainer::AddBindable(std::shared_ptr<Bindable> bindable)
 	SegregateBindable(bindable.get());
 }
 
+void MeshBindableContainer::AddBindable(Bindable* bindable)
+{
+	SegregateBindable(bindable);
+}
+
 
 void MeshBindableContainer::SetVertexBuffer(std::shared_ptr<VertexBuffer> vertexBuffer)
 {

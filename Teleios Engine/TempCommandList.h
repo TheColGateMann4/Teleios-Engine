@@ -39,3 +39,40 @@ private:
 	RootSignature m_rootSignature;
 	ComputePipelineState m_pipelineState;
 };
+
+class TempGraphicsCommandList
+{
+public:
+	TempGraphicsCommandList(Graphics& graphics, CommandList* commandList);
+
+	TempGraphicsCommandList(TempGraphicsCommandList&&) noexcept = default;
+
+	TempGraphicsCommandList(const TempGraphicsCommandList& copied);
+
+public:
+	CommandList* Get();
+
+public:
+	void DrawIndexed(Graphics& graphics);
+
+	template<class T, std::enable_if_t<std::is_base_of_v<Bindable, T>, int> = 0>
+	void Bind(T&& bindable)
+	{
+		m_bindableContainer.AddBindable(std::move(bindable));
+	}
+
+	void Bind(std::shared_ptr<Bindable> bindable);
+	void BindIndexBuffer(std::shared_ptr<IndexBuffer> bindable);
+	void BindVertexBuffer(std::shared_ptr<VertexBuffer> bindable);
+	void Bind(Bindable* bindable);
+
+private:
+	void Finish(Graphics& graphics);
+
+private:
+	MeshBindableContainer m_bindableContainer;
+	CommandList* m_commandList;
+
+	RootSignature m_rootSignature;
+	GraphicsPipelineState m_pipelineState;
+};
