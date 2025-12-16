@@ -19,8 +19,8 @@ void Pipeline::BeginRender(Graphics& graphics) const
 	m_graphicsCommandList->Open(graphics);	// opening graphics command list and clearning allocator
 
 	// setting correct states
-	//m_graphicsCommandList->SetResourceState(graphics, graphics.GetDepthStencil(), D3D12_RESOURCE_STATE_DEPTH_WRITE);
-	m_graphicsCommandList->SetResourceState(graphics, graphics.GetBackBuffer(), D3D12_RESOURCE_STATE_RENDER_TARGET);
+	m_graphicsCommandList->SetAllResourcesStates(graphics, graphics.GetDepthStencil()->GetResource(graphics), D3D12_RESOURCE_STATE_DEPTH_WRITE);
+	m_graphicsCommandList->SetResourceState(graphics, graphics.GetBackBuffer()->GetTexture(graphics), D3D12_RESOURCE_STATE_RENDER_TARGET);
 
 	// setting render target
 	m_graphicsCommandList->SetRenderTarget(graphics, graphics.GetBackBuffer(), graphics.GetDepthStencil());
