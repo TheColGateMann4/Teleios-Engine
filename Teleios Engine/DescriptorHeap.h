@@ -15,7 +15,7 @@ public:
 	};
 
 public: // At program initialization
-	void RequestMoreSpace();
+	void RequestMoreSpace(unsigned int space = 1);
 
 	void Finish(Graphics& graphics);
 

@@ -4,11 +4,11 @@
 
 #define ADDITIONAL_DESCRIPTOR_HEAP_SIZE 4096
 
-void DescriptorHeap::RequestMoreSpace()
+void DescriptorHeap::RequestMoreSpace(unsigned int space)
 {
 	THROW_OBJECT_STATE_ERROR_IF("Tried to increment DescriptorHeap size after it has been created", m_finished);
 
-	m_requestedSize++;
+	m_requestedSize += space;
 }
 
 void DescriptorHeap::Finish(Graphics& graphics)

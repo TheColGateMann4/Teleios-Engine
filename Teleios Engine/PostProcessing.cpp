@@ -52,7 +52,8 @@ PostProcessing::PostProcessing(Graphics& graphics, Pipeline& pipeline)
 	m_vertexBuffer->BindToCopyPipelineIfNeeded(graphics, pipeline);
 	m_indexBuffer->BindToCopyPipelineIfNeeded(graphics, pipeline);
 
-	m_renderTargetSRVs.resize(graphics.GetBufferCount());
+	// requesting size for RT and DS SRV's. Each one has special SRV for one frame
+	graphics.GetDescriptorHeap().RequestMoreSpace(graphics.GetBufferCount() * 2);
 }
 
 void PostProcessing::Initialize(Graphics& graphics)
@@ -102,7 +103,7 @@ void PostProcessing::Finish(Graphics& graphics, const Pipeline& pipeline)
 		commandList->SetResourceState(graphics, backBuffer, D3D12_RESOURCE_STATE_ALL_SHADER_RESOURCE);
 		commandList->SetResourceState(graphics, depthStencil, D3D12_RESOURCE_STATE_ALL_SHADER_RESOURCE);
 	}
-
+	
 	StaticSampler sampler(graphics);
 	BlendState blendState(graphics);
 	RasterizerState rasterizerState(graphics);
