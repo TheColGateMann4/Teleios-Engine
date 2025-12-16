@@ -7,18 +7,54 @@
 #include "GraphicsTexture.h"
 #include "GraphicsBuffer.h"
 
-ShaderResourceView::ShaderResourceView(Graphics& graphics, GraphicsTexture* texture, unsigned int targetMip, UINT slot)
+ShaderResourceViewBase::ShaderResourceViewBase(unsigned int slot)
 	:
-	RootSignatureBindable(std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::AllShaders, slot}})
+	RootSignatureBindable(std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::AllShaders, slot}}),
+	m_computeRootIndex(0)
+{
+
+}
+
+void ShaderResourceViewBase::BindToCommandList(Graphics& graphics, CommandList* commandList)
+{
+	commandList->SetGraphicsDescriptorTable(graphics, this);
+}
+
+void ShaderResourceViewBase::BindToComputeCommandList(Graphics& graphics, CommandList* commandList)
+{
+	commandList->SetComputeDescriptorTable(graphics, this);
+}
+
+void ShaderResourceViewBase::BindToRootSignature(Graphics& graphics, RootSignature* rootSignature)
+{
+	rootSignature->AddDescriptorTableParameter(graphics, this);
+}
+
+void ShaderResourceViewBase::BindToComputeRootSignature(Graphics& graphics, RootSignature* rootSignature)
+{
+	rootSignature->AddComputeDescriptorTableParameter(graphics, this, GetTargets().front());
+}
+
+void ShaderResourceViewBase::SetComputeRootIndex(unsigned int rootIndex)
+{
+	m_computeRootIndex = rootIndex;
+}
+
+unsigned int ShaderResourceViewBase::GetComputeRootIndex() const
+{
+	return m_computeRootIndex;
+}
+
+void ShaderResourceViewBase::InitializeTextureSRV(Graphics& graphics, unsigned int targetMip, DescriptorHeap::DescriptorInfo& descriptor, const GraphicsTexture* texture)
 {
 	THROW_INTERNAL_ERROR_IF("GraphicsTexture was NULL", texture == nullptr);
 
-	m_descriptor = graphics.GetDescriptorHeap().GetNextHandle();
+	descriptor = graphics.GetDescriptorHeap().GetNextHandle();
 
 	// creating UAV
 	{
 		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-		srvDesc.Format = Texture::GetLinearFormat(texture->GetFormat());
+		srvDesc.Format = Texture::GetLinearFormat(Texture::GetCorrectedFormat(texture->GetFormat()));
 		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 		srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 		srvDesc.Texture2D = {};
@@ -30,20 +66,18 @@ ShaderResourceView::ShaderResourceView(Graphics& graphics, GraphicsTexture* text
 		THROW_INFO_ERROR(graphics.GetDevice()->CreateShaderResourceView(
 			texture->GetResource(),
 			&srvDesc,
-			m_descriptor.descriptorCpuHandle
+			descriptor.descriptorCpuHandle
 		));
 	}
 }
 
-ShaderResourceView::ShaderResourceView(Graphics& graphics, GraphicsBuffer* buffer, UINT slot)
-	:
-	RootSignatureBindable(std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::AllShaders, slot}})
+void ShaderResourceViewBase::InitializeBufferSRV(Graphics& graphics, DescriptorHeap::DescriptorInfo& descriptor, GraphicsBuffer* buffer)
 {
 	THROW_INTERNAL_ERROR_IF("GraphicsBuffer was NULL", buffer == nullptr);
 
-	m_descriptor = graphics.GetDescriptorHeap().GetNextHandle();
+	descriptor = graphics.GetDescriptorHeap().GetNextHandle();
 
-	// creating SRV
+	// creating UAV
 	{
 		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 		srvDesc.Format = DXGI_FORMAT_UNKNOWN;
@@ -58,29 +92,23 @@ ShaderResourceView::ShaderResourceView(Graphics& graphics, GraphicsBuffer* buffe
 		THROW_INFO_ERROR(graphics.GetDevice()->CreateShaderResourceView(
 			buffer->GetResource(),
 			&srvDesc,
-			m_descriptor.descriptorCpuHandle
+			descriptor.descriptorCpuHandle
 		));
 	}
 }
 
-void ShaderResourceView::BindToCommandList(Graphics& graphics, CommandList* commandList)
+ShaderResourceView::ShaderResourceView(Graphics& graphics, GraphicsTexture* texture, unsigned int targetMip, UINT slot)
+	:
+	ShaderResourceViewBase(slot)
 {
-	commandList->SetGraphicsDescriptorTable(graphics, this);
+	InitializeTextureSRV(graphics, targetMip, m_descriptor, texture);
 }
 
-void ShaderResourceView::BindToComputeCommandList(Graphics& graphics, CommandList* commandList)
+ShaderResourceView::ShaderResourceView(Graphics& graphics, GraphicsBuffer* buffer, UINT slot)
+	:
+	ShaderResourceViewBase(slot)
 {
-	commandList->SetComputeDescriptorTable(graphics, this);
-}
-
-void ShaderResourceView::BindToRootSignature(Graphics& graphics, RootSignature* rootSignature)
-{
-	rootSignature->AddDescriptorTableParameter(this);
-}
-
-void ShaderResourceView::BindToComputeRootSignature(Graphics& graphics, RootSignature* rootSignature)
-{
-	rootSignature->AddComputeDescriptorTableParameter(this, GetTargets().front());
+	InitializeBufferSRV(graphics, m_descriptor, buffer);
 }
 
 D3D12_GPU_DESCRIPTOR_HANDLE ShaderResourceView::GetDescriptorHeapGPUHandle(Graphics& graphics) const
@@ -88,17 +116,47 @@ D3D12_GPU_DESCRIPTOR_HANDLE ShaderResourceView::GetDescriptorHeapGPUHandle(Graph
 	return m_descriptor.descriptorHeapGpuHandle;
 }
 
-void ShaderResourceView::SetComputeRootIndex(unsigned int rootIndex)
-{
-	m_computeRootIndex = rootIndex;
-}
-
-unsigned int ShaderResourceView::GetComputeRootIndex() const
-{
-	return m_computeRootIndex;
-}
-
-UINT ShaderResourceView::GetOffsetInDescriptor() const
+UINT ShaderResourceView::GetOffsetInDescriptor(Graphics& graphics) const
 {
 	return m_descriptor.offsetInDescriptorFromStart;
+}
+
+ShaderResourceViewMultiResource::ShaderResourceViewMultiResource(Graphics& graphics, BackBufferRenderTarget* renderTarget, UINT slot)
+	:
+	ShaderResourceViewBase(slot)
+{
+	unsigned int numBuffers = graphics.GetBufferCount();
+	DXGI_FORMAT format = renderTarget->GetTexture(graphics)->GetFormat();
+
+	m_descriptors.resize(numBuffers);
+
+	for (int i = 0; i < numBuffers; i++)
+	{
+		InitializeTextureSRV(graphics, 0, m_descriptors.at(i), renderTarget->GetTexture(i));
+	}
+}
+
+ShaderResourceViewMultiResource::ShaderResourceViewMultiResource(Graphics& graphics, DepthStencilViewMultiResource* depthStencil, UINT slot)
+	:
+	ShaderResourceViewBase(slot)
+{
+	unsigned int numBuffers = graphics.GetBufferCount();
+	DXGI_FORMAT format = depthStencil->GetResource(graphics)->GetFormat();
+
+	m_descriptors.resize(numBuffers);
+
+	for (int i = 0; i < numBuffers; i++)
+	{
+		InitializeTextureSRV(graphics, 0, m_descriptors.at(i), depthStencil->GetResource(i));
+	}
+}
+
+D3D12_GPU_DESCRIPTOR_HANDLE ShaderResourceViewMultiResource::GetDescriptorHeapGPUHandle(Graphics& graphics) const
+{
+	return m_descriptors.at(graphics.GetCurrentBufferIndex()).descriptorHeapGpuHandle;
+}
+
+unsigned int ShaderResourceViewMultiResource::GetOffsetInDescriptor(Graphics& graphics) const
+{
+	return m_descriptors.at(graphics.GetCurrentBufferIndex()).offsetInDescriptorFromStart;
 }
