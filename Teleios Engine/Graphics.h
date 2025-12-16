@@ -50,7 +50,7 @@ public:
 
 	SwapChainRenderTarget* GetSwapChainBuffer();
 	BackBufferRenderTarget* GetBackBuffer();
-	DepthStencilView* GetDepthStencil();
+	DepthStencilViewMultiResource* GetDepthStencil();
 
 #ifdef _DEBUG
 	InfoQueue* GetInfoQueue();
@@ -83,7 +83,7 @@ private:
 
 	std::shared_ptr<SwapChainRenderTarget> m_swapChainBuffer;
 	std::shared_ptr<BackBufferRenderTarget> m_backBuffer;
-	std::shared_ptr<DepthStencilView> m_depthStencilView;
+	std::shared_ptr<DepthStencilViewMultiResource> m_depthStencilView;
 
 private:
 	unsigned int m_width = 0;

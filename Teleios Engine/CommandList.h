@@ -7,7 +7,7 @@ class Graphics;
 class PipelineState;
 
 class RenderTarget;
-class DepthStencilView;
+class DepthStencilViewBase;
 class IndexBuffer;
 class VertexBuffer;
 class RootSignature;
@@ -82,7 +82,7 @@ public:
 
 	void SetDescriptorHeap(Graphics& graphics, DescriptorHeap* descriptorHeap);
 
-	void SetRenderTarget(Graphics& graphics, RenderTarget* renderTarget, DepthStencilView* depthStencilView = nullptr);
+	void SetRenderTarget(Graphics& graphics, RenderTarget* renderTarget, DepthStencilViewBase* depthStencilView = nullptr);
 
 	void SetPipelineState(Graphics& graphics, PipelineState* pPipelineState);
 
@@ -98,7 +98,7 @@ public:
 
 	void ClearRenderTargetView(Graphics& graphics, RenderTarget* renderTarget);
 
-	void ClearDepthStencilView(Graphics& graphics, DepthStencilView* depthStencilView);
+	void ClearDepthStencilView(Graphics& graphics, DepthStencilViewBase* depthStencilView);
 
 	void ExecuteBundle(Graphics& graphics, CommandList* commandList);
 

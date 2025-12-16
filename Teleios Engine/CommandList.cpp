@@ -300,7 +300,7 @@ void CommandList::ClearRenderTargetView(Graphics& graphics, RenderTarget* render
 	));
 };
 
-void CommandList::ClearDepthStencilView(Graphics& graphics, DepthStencilView* depthStencilView)
+void CommandList::ClearDepthStencilView(Graphics& graphics, DepthStencilViewBase* depthStencilView)
 {
 	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
 	THROW_OBJECT_STATE_ERROR_IF("Non-direct command list object", m_type != D3D12_COMMAND_LIST_TYPE_DIRECT);

@@ -102,7 +102,7 @@ void Graphics::Initialize(HWND hWnd, DXGI_FORMAT renderTargetFormat)
 
 
 		// initializing depth stencil view
-		m_depthStencilView = std::make_shared<DepthStencilView>(*this);
+		m_depthStencilView = std::make_shared<DepthStencilViewMultiResource>(*this);
 
 		// initializing graphic fence for each frame buffer
 		for (unsigned int bufferIndex = 0; bufferIndex < swapChainBufferCount; bufferIndex++)
@@ -216,7 +216,7 @@ BackBufferRenderTarget* Graphics::GetBackBuffer()
 	return m_backBuffer.get();
 }
 
-DepthStencilView* Graphics::GetDepthStencil()
+DepthStencilViewMultiResource* Graphics::GetDepthStencil()
 {
 	return m_depthStencilView.get();
 }

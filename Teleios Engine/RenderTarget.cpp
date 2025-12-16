@@ -15,14 +15,14 @@ RenderTarget::RenderTarget(DXGI_FORMAT format)
 
 }
 
-DXGI_FORMAT RenderTarget::GetFormat() const
-{
-	return m_format;
-}
-
 void RenderTarget::BindToCommandList(Graphics& graphics, CommandList* commandList)
 {
 	commandList->SetRenderTarget(graphics, this, nullptr); // if we pass nullptr as DS then none is bound; valid
+}
+
+DXGI_FORMAT RenderTarget::GetFormat() const
+{
+	return m_format;
 }
 
 /*
@@ -227,7 +227,12 @@ ID3D12Resource* BackBufferRenderTarget::GetResource(Graphics& graphics) const
 
 GraphicsTexture* BackBufferRenderTarget::GetTexture(Graphics& graphics) const
 {
-	return m_ownedRenderTargets.at(graphics.GetCurrentBufferIndex()).texture.get();
+	return GetTexture(graphics.GetCurrentBufferIndex());
+}
+
+GraphicsTexture* BackBufferRenderTarget::GetTexture(unsigned int i) const
+{
+	return m_ownedRenderTargets.at(i).texture.get();
 }
 
 D3D12_RESOURCE_STATES BackBufferRenderTarget::GetResourceState(Graphics& graphics) const

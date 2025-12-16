@@ -88,6 +88,7 @@ public:
 	virtual const D3D12_CPU_DESCRIPTOR_HANDLE& GetDescriptor(Graphics& graphics) const override;
 	virtual ID3D12Resource* GetResource(Graphics& graphics) const override;
 	GraphicsTexture* GetTexture(Graphics& graphics) const;
+	GraphicsTexture* GetTexture(unsigned int i) const;
 
 	virtual D3D12_RESOURCE_STATES GetResourceState(Graphics& graphics) const override;
 	virtual void SetResourceState(Graphics& graphics, D3D12_RESOURCE_STATES newState) override;

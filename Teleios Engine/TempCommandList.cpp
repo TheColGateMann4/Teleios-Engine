@@ -170,7 +170,7 @@ void TempGraphicsCommandList::Finish(Graphics& graphics)
 					   
 		m_pipelineState.SetRenderTargetFormat(0, graphics.GetBackBuffer()->GetFormat());
 					   
-		m_pipelineState.SetDepthStencilFormat(graphics.GetDepthStencil()->GetFormat());
+		m_pipelineState.SetDepthStencilFormat(graphics.GetDepthStencil()->GetResource(graphics)->GetFormat());
 
 		m_pipelineState.Finish(graphics);
 	}
