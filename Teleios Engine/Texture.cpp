@@ -193,6 +193,8 @@ DXGI_FORMAT Texture::GetCorrectedFormat(DXGI_FORMAT format)
 	{
 		case DXGI_FORMAT_B8G8R8X8_UNORM:
 			return DXGI_FORMAT_B8G8R8A8_UNORM;
+		case DXGI_FORMAT_D24_UNORM_S8_UINT:
+			return DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
 
 		default:
 			return format;
@@ -255,6 +257,8 @@ void Texture::UploadData(Graphics& graphics, Pipeline& pipeline)
 
 void Texture::GenerateMipMaps(Graphics& graphics, Pipeline& pipeline)
 {
+	D3D12_RESOURCE_STATES entryResourceTargetState = m_gpuTexture->GetResourceTargetState();
+
 	// when we don't want to generate mip maps, we still want our resource to be copied
 	if (!m_generateMipMaps)
 	{
@@ -309,18 +313,17 @@ void Texture::GenerateMipMaps(Graphics& graphics, Pipeline& pipeline)
 	// setting target resource state after execution
 	{
 		CommandList* commandList = pipeline.GetGraphicCommandList();
-		D3D12_RESOURCE_STATES targetResourceState = m_gpuTexture->GetResourceTargetState();
 
-		if (targetResourceState != D3D12_RESOURCE_STATE_ALL_SHADER_RESOURCE)
+		if (entryResourceTargetState != D3D12_RESOURCE_STATE_ALL_SHADER_RESOURCE)
 		{
 			// if state we want is only pixel_shared_resource then we have to change all mip levels states
 			for (unsigned int targetMipLevel = 0; targetMipLevel < m_mipmapLevels; targetMipLevel++)
-				commandList->SetResourceState(graphics, m_gpuTexture.get(), targetResourceState, targetMipLevel);
+				commandList->SetResourceState(graphics, m_gpuTexture.get(), entryResourceTargetState, targetMipLevel);
 		}
 		else
 		{
 			// if state we want is all_shader_resource then out compute pipeline already set most of them correctly, only last one to set
-			commandList->SetResourceState(graphics, m_gpuTexture.get(), targetResourceState, m_mipmapLevels - 1);
+			commandList->SetResourceState(graphics, m_gpuTexture.get(), entryResourceTargetState, m_mipmapLevels - 1);
 		}
 	}
 }
