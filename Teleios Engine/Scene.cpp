@@ -45,10 +45,7 @@ void Scene::BeginInitialization(Graphics& graphics)
 
 void Scene::FinishInitialization(Graphics& graphics)
 {
-	// for now we will use graphic command list for simplicity
-	m_pipeline.GetGraphicCommandList()->Close(graphics);
-	
-	m_pipeline.Execute(graphics);
+	m_pipeline.FinishInitialization(graphics);
 	
 	graphics.WaitForGPU();
 }

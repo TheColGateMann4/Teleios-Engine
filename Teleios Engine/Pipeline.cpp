@@ -45,6 +45,15 @@ void Pipeline::FinishRender(Graphics& graphics)
 	m_graphicsCommandList->Close(graphics); // closing graphics command list
 }
 
+void Pipeline::FinishInitialization(Graphics& graphics)
+{
+	m_postProcessing.Initialize(graphics);
+
+	GetGraphicCommandList()->Close(graphics);
+
+	Execute(graphics);
+}
+
 CommandList* Pipeline::GetGraphicCommandList() const
 {
 	return m_graphicsCommandList.get();

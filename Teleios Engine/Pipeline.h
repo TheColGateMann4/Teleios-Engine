@@ -15,6 +15,8 @@ public:
 	void BeginRender(Graphics& graphics) const;
 	void FinishRender(Graphics& graphics);
 
+	void FinishInitialization(Graphics& graphics);
+
 	CommandList* GetGraphicCommandList() const;
 
 	Bindable* GetStaticResource(const char* resourceName) const;

@@ -266,7 +266,7 @@ void CommandList::SetGraphicsDescriptorTable(Graphics& graphics, Texture* textur
 		THROW_INFO_ERROR(pCommandList->SetGraphicsRootDescriptorTable(targetShader.rootIndex, texture->GetDescriptorHeapGPUHandle(graphics)));
 }
 
-void CommandList::SetGraphicsDescriptorTable(Graphics& graphics, ShaderResourceView* srv)
+void CommandList::SetGraphicsDescriptorTable(Graphics& graphics, ShaderResourceViewBase* srv)
 {
 	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
 	THROW_OBJECT_STATE_ERROR_IF("Only Direct and Bundle command lists can set graphics constant buffers", m_type != D3D12_COMMAND_LIST_TYPE_DIRECT && m_type != D3D12_COMMAND_LIST_TYPE_BUNDLE);
@@ -349,7 +349,7 @@ void CommandList::SetComputeDescriptorTable(Graphics& graphics, Texture* texture
 	THROW_INFO_ERROR(pCommandList->SetComputeRootDescriptorTable(texture->GetComputeRootIndex(), texture->GetDescriptorHeapGPUHandle(graphics)));
 }
 
-void CommandList::SetComputeDescriptorTable(Graphics& graphics, ShaderResourceView* srv)
+void CommandList::SetComputeDescriptorTable(Graphics& graphics, ShaderResourceViewBase* srv)
 {
 	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
 	THROW_OBJECT_STATE_ERROR_IF("Only Compute and Direct command lists can set compute descriptor table", m_type != D3D12_COMMAND_LIST_TYPE_COMPUTE && m_type != D3D12_COMMAND_LIST_TYPE_DIRECT);

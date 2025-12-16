@@ -45,9 +45,9 @@ void Mesh::Initialize(Graphics& graphics, Pipeline& pipeline)
 
 			m_pipelineState->SetNumRenderTargets(1);
 
-			m_pipelineState->SetRenderTargetFormat(0, graphics.GetBackBuffer()->GetFormat());
+			m_pipelineState->SetRenderTargetFormat(0, graphics.GetBackBuffer()->GetFormat()); 
 
-			m_pipelineState->SetDepthStencilFormat(graphics.GetDepthStencil()->GetFormat());
+			m_pipelineState->SetDepthStencilFormat(graphics.GetDepthStencil()->GetResource(graphics)->GetFormat());
 		}
 
 		m_pipelineState->Finish(graphics); // Finish() call gets object from desc it made up

@@ -13,6 +13,8 @@ class PostProcessing
 public:
 	PostProcessing(Graphics& graphics, Pipeline& pipeline);
 
+	void Initialize(Graphics& graphics);
+public:
 	void ApplyTonemapping(Graphics& graphics, Pipeline& pipeline);
 	void Finish(Graphics& graphics, const Pipeline& pipeline);
 
@@ -23,5 +25,6 @@ private:
 
 	std::shared_ptr<Shader> m_finalPixelShader;
 	std::shared_ptr<Shader> m_finalVertexShader;
-	std::vector<std::shared_ptr<ShaderResourceView>> m_renderTargetSRVs;
+	std::shared_ptr<ShaderResourceViewMultiResource> m_renderTargetSRV;
+	std::shared_ptr<ShaderResourceViewMultiResource> m_depthStencilSRV;
 };

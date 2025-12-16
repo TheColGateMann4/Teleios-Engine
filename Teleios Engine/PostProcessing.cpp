@@ -55,6 +55,12 @@ PostProcessing::PostProcessing(Graphics& graphics, Pipeline& pipeline)
 	m_renderTargetSRVs.resize(graphics.GetBufferCount());
 }
 
+void PostProcessing::Initialize(Graphics& graphics)
+{
+	m_renderTargetSRV = std::make_shared<ShaderResourceViewMultiResource>(graphics, graphics.GetBackBuffer(), 0);
+	m_depthStencilSRV = std::make_shared<ShaderResourceViewMultiResource>(graphics, graphics.GetDepthStencil(), 1);
+}
+
 void PostProcessing::ApplyTonemapping(Graphics& graphics, Pipeline& pipeline)
 {
 	RenderTarget* backBuffer = graphics.GetBackBuffer();
@@ -88,18 +94,15 @@ void PostProcessing::ApplyTonemapping(Graphics& graphics, Pipeline& pipeline)
 void PostProcessing::Finish(Graphics& graphics, const Pipeline& pipeline)
 {
 	GraphicsTexture* backBuffer = graphics.GetBackBuffer()->GetTexture(graphics);
+	GraphicsTexture* depthStencil = graphics.GetDepthStencil()->GetResource(graphics);
 
 	// changing current backbuffer state to pixel shader resource so we can bind it with SRV
 	{
 		CommandList* commandList = pipeline.GetGraphicCommandList();
 		commandList->SetResourceState(graphics, backBuffer, D3D12_RESOURCE_STATE_ALL_SHADER_RESOURCE);
+		commandList->SetResourceState(graphics, depthStencil, D3D12_RESOURCE_STATE_ALL_SHADER_RESOURCE);
 	}
 
-	std::shared_ptr<ShaderResourceView>& srv = m_renderTargetSRVs.at(graphics.GetCurrentBufferIndex());
-
-	if (!srv)
-		srv = std::make_shared<ShaderResourceView>(graphics, backBuffer, 0, 0);
-	
 	StaticSampler sampler(graphics);
 	BlendState blendState(graphics);
 	RasterizerState rasterizerState(graphics);
@@ -110,7 +113,8 @@ void PostProcessing::Finish(Graphics& graphics, const Pipeline& pipeline)
 	TempGraphicsCommandList tempGraphicsCommandList(graphics, pipeline.GetGraphicCommandList());
 
 	{
-		tempGraphicsCommandList.Bind(srv); // t0
+		tempGraphicsCommandList.Bind(m_renderTargetSRV); // t0
+		tempGraphicsCommandList.Bind(m_depthStencilSRV); // t1
 		tempGraphicsCommandList.BindIndexBuffer(m_indexBuffer); // ib
 		tempGraphicsCommandList.BindVertexBuffer(m_vertexBuffer); // vb
 		tempGraphicsCommandList.Bind(m_finalPixelShader); // ps
@@ -132,5 +136,6 @@ void PostProcessing::Finish(Graphics& graphics, const Pipeline& pipeline)
 	{
 		CommandList* commandList = pipeline.GetGraphicCommandList();
 		commandList->SetResourceState(graphics, backBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET);
+		commandList->SetResourceState(graphics, depthStencil, D3D12_RESOURCE_STATE_DEPTH_WRITE);
 	}
 }

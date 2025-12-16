@@ -13,7 +13,7 @@ class VertexBuffer;
 class RootSignature;
 class ConstantBuffer;
 class Texture;
-class ShaderResourceView;
+class ShaderResourceViewBase;
 class DescriptorHeap;
 class UnorderedAccessView;
 class GraphicsResource;
@@ -94,7 +94,7 @@ public:
 	void SetGraphicsConstBufferView(Graphics& graphics, ConstantBuffer* constBuffer);
 
 	void SetGraphicsDescriptorTable(Graphics& graphics, Texture* texture);
-	void SetGraphicsDescriptorTable(Graphics& graphics, ShaderResourceView* srv);
+	void SetGraphicsDescriptorTable(Graphics& graphics, ShaderResourceViewBase* srv);
 
 	void ClearRenderTargetView(Graphics& graphics, RenderTarget* renderTarget);
 
@@ -108,7 +108,7 @@ public:
 	void SetComputeConstBufferView(Graphics& graphics, ConstantBuffer* constBuffer);
 
 	void SetComputeDescriptorTable(Graphics& graphics, Texture* texture);
-	void SetComputeDescriptorTable(Graphics& graphics, ShaderResourceView* srv);
+	void SetComputeDescriptorTable(Graphics& graphics, ShaderResourceViewBase* srv);
 	void SetComputeDescriptorTable(Graphics& graphics, UnorderedAccessView* uav);
 
 	void SetComputeRootShaderResourceView(Graphics& graphics, ConstantBuffer* constBuffer);
