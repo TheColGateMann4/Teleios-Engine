@@ -10,7 +10,7 @@ GraphicsTexture::GraphicsTexture(Graphics& graphics, unsigned int width, unsigne
 	m_width(width),
 	m_height(height),
 	m_mipLevels(mipLevels),
-	m_mipStates(m_mipLevels, state)
+	m_states(m_mipLevels, { D3D12_RESOURCE_STATE_COMMON, state })
 {
 	Initialize(graphics, flags, nullptr);
 }
@@ -21,7 +21,7 @@ GraphicsTexture::GraphicsTexture(Graphics& graphics, unsigned int width, unsigne
 	m_width(width),
 	m_height(height),
 	m_mipLevels(mipLevels),
-	m_mipStates(m_mipLevels, state)
+	m_states(m_mipLevels, { D3D12_RESOURCE_STATE_COMMON, state })
 {
 	D3D12_CLEAR_VALUE clearValue = {};
 	clearValue.Format = format;
@@ -39,7 +39,7 @@ GraphicsTexture::GraphicsTexture(Graphics& graphics, unsigned int width, unsigne
 	m_width(width),
 	m_height(height),
 	m_mipLevels(mipLevels),
-	m_mipStates(m_mipLevels, state)
+	m_states(m_mipLevels, { D3D12_RESOURCE_STATE_COMMON, state })
 {
 	D3D12_CLEAR_VALUE clearValue = {};
 	clearValue.Format = format;
@@ -87,21 +87,47 @@ void GraphicsTexture::Initialize(Graphics& graphics, D3D12_RESOURCE_FLAGS flags,
 	}
 }
 
-void GraphicsTexture::CopyResourcesMipTo(Graphics& graphics, CommandList* copyCommandList, GraphicsResource* dst, unsigned int targetMip)
+void GraphicsTexture::CopyResourcesMipTo(Graphics& graphics, CommandList* copyCommandList, GraphicsTexture* dst, unsigned int targetMip)
 {
 	THROW_INTERNAL_ERROR_IF("Dest resource was NULL", dst == nullptr);
 
 	BEGIN_COMMAND_LIST_EVENT(copyCommandList, std::string("Copying GraphicsTexture Mip " + std::to_string(targetMip)));
 
-	copyCommandList->SetResourceState(graphics, this, D3D12_RESOURCE_STATE_COPY_SOURCE);
-	copyCommandList->SetResourceState(graphics, dst, D3D12_RESOURCE_STATE_COPY_DEST);
+	copyCommandList->SetResourceState(graphics, this, D3D12_RESOURCE_STATE_COPY_SOURCE, targetMip);
+	copyCommandList->SetResourceState(graphics, dst, D3D12_RESOURCE_STATE_COPY_DEST, targetMip);
 
 	copyCommandList->CopyTextureRegion(graphics, dst->GetResource(), this->GetResource(), targetMip);
 
-	copyCommandList->SetResourceState(graphics, dst, dst->GetResourceTargetState());
-	copyCommandList->SetResourceState(graphics, this, this->GetResourceTargetState());
+	copyCommandList->SetResourceState(graphics, dst, dst->GetResourceTargetState(targetMip), targetMip);
+	copyCommandList->SetResourceState(graphics, this, this->GetResourceTargetState(targetMip), targetMip);
 
 	END_COMMAND_LIST_EVENT(copyCommandList);
+}
+
+D3D12_RESOURCE_STATES GraphicsTexture::GetResourceState(unsigned int targetSubresource) const
+{
+	return m_states.at(targetSubresource).currentState;
+}
+
+D3D12_RESOURCE_STATES GraphicsTexture::GetResourceTargetState(unsigned int targetSubresource)
+{
+	return m_states.at(targetSubresource).targetState;
+}
+
+void GraphicsTexture::SetAllResourceStates(D3D12_RESOURCE_STATES newState)
+{
+	for (auto& mipState : m_states)
+		mipState.currentState = newState;
+}
+
+void GraphicsTexture::SetResourceState(D3D12_RESOURCE_STATES newState, unsigned int targetSubresource)
+{
+	m_states.at(targetSubresource).currentState = newState;
+}
+
+void GraphicsTexture::SetTargetResourceState(D3D12_RESOURCE_STATES newState, unsigned int targetSubresource)
+{
+	m_states.at(targetSubresource).targetState = newState;
 }
 
 void GraphicsTexture::Update(Graphics& graphics, const void* data, unsigned int width, unsigned int height, DXGI_FORMAT format)
@@ -136,20 +162,6 @@ unsigned int GraphicsTexture::GetWidth() const
 unsigned int GraphicsTexture::GetHeight() const
 {
 	return m_height;
-}
-
-D3D12_RESOURCE_STATES GraphicsTexture::GetResourceMipState(unsigned int mip) const
-{
-	THROW_INTERNAL_ERROR_IF("Invalid mip level was accessed", mip >= m_mipLevels);
-
-	return m_mipStates.at(mip);
-}
-
-void GraphicsTexture::SetResourceMipState(D3D12_RESOURCE_STATES newState, unsigned int mip)
-{
-	THROW_INTERNAL_ERROR_IF("Invalid mip level was accessed", mip >= m_mipLevels);
-
-	m_mipStates.at(mip) = newState;
 }
 
 void GraphicsTexture::UpdateUsingTempResource(Graphics& graphics, Pipeline& pipeline, const void* data, unsigned int width, unsigned int height, DXGI_FORMAT format)

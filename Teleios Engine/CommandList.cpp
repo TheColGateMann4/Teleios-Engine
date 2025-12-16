@@ -128,32 +128,38 @@ void CommandList::EndEvent()
 //
 //}
 
-void CommandList::SetResourceState(Graphics& graphics, GraphicsTexture* texture, D3D12_RESOURCE_STATES newState, unsigned int targetMip) const
-{
-	SetResourceState(graphics, texture->GetResource(), texture->GetResourceMipState(targetMip), newState, targetMip);
 
-	texture->SetResourceMipState(newState, targetMip);
+void CommandList::SetResourceToTargetState(Graphics& graphics, GraphicsResource* resource, unsigned int targetSubresource) const
+{
+	D3D12_RESOURCE_STATES newState = resource->GetResourceTargetState(targetSubresource);
+
+	SetResourceState(graphics, resource, newState);
 }
 
-void CommandList::SetResourceState(Graphics& graphics, GraphicsResource* resource) const
+void CommandList::SetResourcesToTargetStates(Graphics& graphics, GraphicsResource* resource) const
 {
-	D3D12_RESOURCE_STATES newState = resource->GetResourceTargetState();
+	D3D12_RESOURCE_STATES newState = resource->GetResourceTargetState(0);
 
-	SetResourceState(graphics, resource->GetResource(), resource->GetResourceState(), newState);
-
-	resource->SetResourceState(newState);
+	SetResourceState(graphics, resource, newState);
 }
 
-void CommandList::SetResourceState(Graphics& graphics, GraphicsResource* resource, D3D12_RESOURCE_STATES newState) const
+void CommandList::SetResourceState(Graphics& graphics, GraphicsResource* resource, D3D12_RESOURCE_STATES newState, unsigned int targetSubresource) const
 {
-	SetResourceState(graphics, resource->GetResource(), resource->GetResourceState(), newState);
+	SetResourceState(graphics, resource->GetResource(), resource->GetResourceState(targetSubresource), newState, targetSubresource);
 
-	resource->SetResourceState(newState);
+	resource->SetResourceState(newState, targetSubresource);
+}
+
+void CommandList::SetAllResourcesStates(Graphics& graphics, GraphicsResource* resource, D3D12_RESOURCE_STATES newState) const
+{
+	SetResourceState(graphics, resource->GetResource(), resource->GetResourceState(0), newState, D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES);
+
+	resource->SetAllResourceStates(newState);
 }
 
 void CommandList::SetResourceState(Graphics& graphics, RenderTarget* renderTarget, D3D12_RESOURCE_STATES newState) const
 {
-	SetResourceState(graphics, renderTarget->GetResource(graphics), renderTarget->GetResourceState(graphics), newState);
+	SetResourceState(graphics, renderTarget->GetResource(graphics), renderTarget->GetResourceState(graphics), newState, 0);
 
 	renderTarget->SetResourceState(graphics, newState);
 }
@@ -177,7 +183,7 @@ void CommandList::SetResourceState(Graphics& graphics, ID3D12Resource* resource,
 	THROW_INFO_ERROR(pCommandList->ResourceBarrier(1, &resourceBarrier));
 }
 
-void CommandList::SetRenderTarget(Graphics& graphics, RenderTarget* renderTarget, DepthStencilView* depthStencilView)
+void CommandList::SetRenderTarget(Graphics& graphics, RenderTarget* renderTarget, DepthStencilViewBase* depthStencilView)
 {
 	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
 	THROW_OBJECT_STATE_ERROR_IF("Non-direct command list object", m_type != D3D12_COMMAND_LIST_TYPE_DIRECT);
@@ -187,7 +193,7 @@ void CommandList::SetRenderTarget(Graphics& graphics, RenderTarget* renderTarget
 		// here we can set to bind arrays of rtv and dsv descriptors, for now we will just pass ptr to single descriptor
 		const D3D12_CPU_DESCRIPTOR_HANDLE* pRenderTargetViewDescriptor = &renderTarget->GetDescriptor(graphics);
 
-		const D3D12_CPU_DESCRIPTOR_HANDLE* pDepthStencilViewDescriptor = depthStencilView != nullptr ? &depthStencilView->GetDescriptor() : nullptr;
+		const D3D12_CPU_DESCRIPTOR_HANDLE* pDepthStencilViewDescriptor = depthStencilView != nullptr ? &depthStencilView->GetDescriptor(graphics) : nullptr;
 
 		THROW_INFO_ERROR(pCommandList->OMSetRenderTargets(1, pRenderTargetViewDescriptor, false, pDepthStencilViewDescriptor));
 	}
@@ -293,7 +299,7 @@ void CommandList::ClearRenderTargetView(Graphics& graphics, RenderTarget* render
 	FLOAT clearColor[] = { 0.01f, 0.02f, 0.03f, 1.0f };
 
 	THROW_INFO_ERROR(pCommandList->ClearRenderTargetView(
-		graphics.GetBackBuffer()->GetDescriptor(graphics),
+		renderTarget->GetDescriptor(graphics),
 		clearColor,
 		0,
 		nullptr
@@ -306,7 +312,7 @@ void CommandList::ClearDepthStencilView(Graphics& graphics, DepthStencilViewBase
 	THROW_OBJECT_STATE_ERROR_IF("Non-direct command list object", m_type != D3D12_COMMAND_LIST_TYPE_DIRECT);
 
 	THROW_INFO_ERROR(pCommandList->ClearDepthStencilView(
-		graphics.GetDepthStencil()->GetDescriptor(),
+		depthStencilView->GetDescriptor(graphics),
 		D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL,
 		1.0f,
 		0.0f,

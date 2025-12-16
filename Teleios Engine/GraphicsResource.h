@@ -18,6 +18,13 @@ public:
 	};
 
 protected:
+	struct ResourceStates
+	{
+		D3D12_RESOURCE_STATES currentState = D3D12_RESOURCE_STATE_COMMON;
+		D3D12_RESOURCE_STATES targetState = D3D12_RESOURCE_STATE_COMMON;
+	};
+
+protected:
 	GraphicsResource(DXGI_FORMAT format, CPUAccess cpuAccess, D3D12_RESOURCE_STATES targetState);
 
 public:
@@ -32,10 +39,11 @@ public:
 public:
 	DXGI_FORMAT GetFormat() const;
 
-	D3D12_RESOURCE_STATES GetResourceState() const;
-	D3D12_RESOURCE_STATES GetResourceTargetState();
-	void SetResourceState(D3D12_RESOURCE_STATES newState);
-	void SetTargetResourceState(D3D12_RESOURCE_STATES newState);
+	virtual D3D12_RESOURCE_STATES GetResourceState(unsigned int targetSubresource = 0) const;
+	virtual D3D12_RESOURCE_STATES GetResourceTargetState(unsigned int targetSubresource = 0);
+	virtual void SetAllResourceStates(D3D12_RESOURCE_STATES newState);
+	virtual void SetResourceState(D3D12_RESOURCE_STATES newState, unsigned int targetSubresource = 0);
+	virtual void SetTargetResourceState(D3D12_RESOURCE_STATES newState, unsigned int targetSubresource = 0);
 
 	CPUAccess GetCPUAccess() const;
 
@@ -48,6 +56,5 @@ protected:
 	Microsoft::WRL::ComPtr<ID3D12Resource> m_pResource;
 	DXGI_FORMAT m_format;
 	CPUAccess m_cpuAccess;
-	D3D12_RESOURCE_STATES m_state;
-	D3D12_RESOURCE_STATES m_targetState;
+	ResourceStates m_state;
 };

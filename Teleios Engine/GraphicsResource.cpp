@@ -7,8 +7,7 @@ GraphicsResource::GraphicsResource(DXGI_FORMAT format, CPUAccess cpuAccess, D3D1
 	:
 	m_format(format),
 	m_cpuAccess(cpuAccess),
-	m_state(D3D12_RESOURCE_STATE_COMMON),
-	m_targetState(targetState)
+	m_state({ D3D12_RESOURCE_STATE_COMMON, targetState })
 {
 
 }
@@ -40,24 +39,33 @@ DXGI_FORMAT GraphicsResource::GetFormat() const
 	return m_format;
 }
 
-D3D12_RESOURCE_STATES GraphicsResource::GetResourceState() const
+D3D12_RESOURCE_STATES GraphicsResource::GetResourceState(unsigned int targetSubresource) const
 {
-	return m_state;
+	return m_state.currentState;
 }
 
-D3D12_RESOURCE_STATES GraphicsResource::GetResourceTargetState()
+D3D12_RESOURCE_STATES GraphicsResource::GetResourceTargetState(unsigned int targetSubresource)
 {
-	return m_targetState;
+	return m_state.targetState;
 }
 
-void GraphicsResource::SetResourceState(D3D12_RESOURCE_STATES newState)
+void GraphicsResource::SetAllResourceStates(D3D12_RESOURCE_STATES newState)
 {
-	m_state = newState;
+	m_state.currentState = newState;
 }
 
-void GraphicsResource::SetTargetResourceState(D3D12_RESOURCE_STATES newState)
+void GraphicsResource::SetResourceState(D3D12_RESOURCE_STATES newState, unsigned int targetSubresource)
 {
-	m_targetState = newState;
+	THROW_INTERNAL_ERROR_IF("Tried to write to unkown a subresource", targetSubresource > 0);
+
+	m_state.currentState = newState;
+}
+
+void GraphicsResource::SetTargetResourceState(D3D12_RESOURCE_STATES newState, unsigned int targetSubresource)
+{
+	THROW_INTERNAL_ERROR_IF("Tried to write to unkown a subresource", targetSubresource > 0);
+
+	m_state.targetState = newState;
 }
 
 GraphicsResource::CPUAccess GraphicsResource::GetCPUAccess() const

@@ -24,7 +24,13 @@ private:
 	void Initialize(Graphics& graphics, D3D12_RESOURCE_FLAGS flags, D3D12_CLEAR_VALUE* clearValue);
 
 public:
-	void CopyResourcesMipTo(Graphics& graphics, CommandList* copyCommandList, GraphicsResource* dst, unsigned int targetMip = 0);
+	void CopyResourcesMipTo(Graphics& graphics, CommandList* copyCommandList, GraphicsTexture* dst, unsigned int targetMip = 0);
+
+	virtual D3D12_RESOURCE_STATES GetResourceState(unsigned int targetSubresource = 0) const override;
+	virtual D3D12_RESOURCE_STATES GetResourceTargetState(unsigned int targetSubresource = 0) override;
+	virtual void SetAllResourceStates(D3D12_RESOURCE_STATES newState) override;
+	virtual void SetResourceState(D3D12_RESOURCE_STATES newState, unsigned int targetSubresource = 0) override;
+	virtual void SetTargetResourceState(D3D12_RESOURCE_STATES newState, unsigned int targetSubresource = 0) override;
 
 public:
 	void Update(Graphics& graphics, const void* data, unsigned int width, unsigned int height, DXGI_FORMAT format);
@@ -33,9 +39,6 @@ public:
 public:
 	unsigned int GetWidth() const;
 	unsigned int GetHeight() const;
-
-	D3D12_RESOURCE_STATES GetResourceMipState(unsigned int mip) const;
-	void SetResourceMipState(D3D12_RESOURCE_STATES newState, unsigned int mip);
 
 private:
 	void UpdateUsingTempResource(Graphics& graphics, Pipeline& pipeline, const void* data, unsigned int width, unsigned int height, DXGI_FORMAT format);
@@ -47,5 +50,5 @@ private:
 	unsigned int m_width;
 	unsigned int m_height;
 	unsigned int m_mipLevels;
-	std::vector<D3D12_RESOURCE_STATES> m_mipStates;
+	std::vector<ResourceStates> m_states;
 };

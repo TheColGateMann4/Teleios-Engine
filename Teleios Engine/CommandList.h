@@ -64,15 +64,16 @@ public:
 	//void EndRenderPass();
 
 public:
-	void SetResourceState(Graphics& graphics, GraphicsTexture* resource, D3D12_RESOURCE_STATES newState, unsigned int targetMip = 0) const;
+	// sets resource's previously set target state
+	void SetResourceToTargetState(Graphics& graphics, GraphicsResource* resource, unsigned int targetSubresource = 0) const;
+	void SetResourcesToTargetStates(Graphics& graphics, GraphicsResource* resource) const;
 
-	void SetResourceState(Graphics& graphics, GraphicsResource* resource) const;
-
-	void SetResourceState(Graphics& graphics, GraphicsResource* resource, D3D12_RESOURCE_STATES newState) const;
+	void SetResourceState(Graphics& graphics, GraphicsResource* resource, D3D12_RESOURCE_STATES newState, unsigned int targetSubresource = 0) const;
+	void SetAllResourcesStates(Graphics& graphics, GraphicsResource* resource, D3D12_RESOURCE_STATES newState) const;
 
 	void SetResourceState(Graphics& graphics, RenderTarget* renderTarget, D3D12_RESOURCE_STATES newState) const;
 
-	void SetResourceState(Graphics& graphics, ID3D12Resource* resource, D3D12_RESOURCE_STATES prevState, D3D12_RESOURCE_STATES newState, unsigned int targetSubresource = 0) const;
+	void SetResourceState(Graphics& graphics, ID3D12Resource* resource, D3D12_RESOURCE_STATES prevState, D3D12_RESOURCE_STATES newState, unsigned int targetSubresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES) const;
 
 	void SetVertexBuffer(Graphics& graphics, VertexBuffer* vertexBuffer);
 
