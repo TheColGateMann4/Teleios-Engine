@@ -47,11 +47,16 @@ void Pipeline::FinishRender(Graphics& graphics)
 
 void Pipeline::FinishInitialization(Graphics& graphics)
 {
-	m_postProcessing.Initialize(graphics);
+	m_postProcessing.Initialize(graphics, *this);
 
 	GetGraphicCommandList()->Close(graphics);
 
 	Execute(graphics);
+}
+
+void Pipeline::DrawEffectsImguiWindow(Graphics& graphics)
+{
+	m_postProcessing.Update(graphics, *this);
 }
 
 CommandList* Pipeline::GetGraphicCommandList() const

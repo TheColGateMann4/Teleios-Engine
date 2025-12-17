@@ -115,6 +115,8 @@ void Scene::RenderImguiLayer(Window& window, Graphics& graphics)
 	{
 		window.input.DrawImguiWindow(m_imguiLayer.IsVisible());
 
+		m_pipeline.DrawEffectsImguiWindow(graphics);
+
 		m_imguiLayer.DrawDemoWindow();
 	}
 

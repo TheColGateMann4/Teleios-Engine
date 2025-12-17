@@ -17,6 +17,8 @@ public:
 
 	void FinishInitialization(Graphics& graphics);
 
+	void DrawEffectsImguiWindow(Graphics& graphics);
+
 	CommandList* GetGraphicCommandList() const;
 
 	Bindable* GetStaticResource(const char* resourceName) const;

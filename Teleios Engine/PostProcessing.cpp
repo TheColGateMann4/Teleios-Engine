@@ -12,12 +12,17 @@
 #include "InputLayout.h"
 #include "Sampler.h"
 #include "ShaderResourceView.h"
+#include "UnorderedAccessView.h"
 #include "BlendState.h"
 #include "PrimitiveTechnology.h"
 #include "RasterizerState.h"
 #include "ViewPort.h"
 
-#include "UnorderedAccessView.h"
+#include "ConstantBuffer.h"
+#include "Camera.h"
+
+#include <imgui.h>
+
 
 #include "TempCommandList.h"
 
@@ -45,7 +50,7 @@ PostProcessing::PostProcessing(Graphics& graphics, Pipeline& pipeline)
 	m_vertexBuffer = std::make_shared<VertexBuffer>(graphics, vertices.data(), vertices.size(), sizeof(vertices.at(0)));
 	m_inputLayout = std::make_shared<InputLayout>(graphics, layout);
 
-	m_finalPixelShader = std::make_shared<Shader>(graphics, L"PS_Fullscreen", ShaderType::PixelShader);
+	m_finalPixelShader = std::make_shared<Shader>(graphics, L"PS_Fog", ShaderType::PixelShader);
 	m_finalVertexShader = std::make_shared<Shader>(graphics, L"VS_Fullscreen", ShaderType::VertexShader);
 
 
@@ -54,12 +59,86 @@ PostProcessing::PostProcessing(Graphics& graphics, Pipeline& pipeline)
 
 	// requesting size for RT and DS SRV's. Each one has special SRV for one frame
 	graphics.GetDescriptorHeap().RequestMoreSpace(graphics.GetBufferCount() * 2);
+
+	// initializing our buffer data here since Camera is not present while pipeline is initialized
+	{
+		const Camera::Settings defaultCameraSettings = Camera::Settings{};
+
+		// camera data
+		{
+
+			DynamicConstantBuffer::ConstantBufferLayout layout;
+			layout.AddElement<DynamicConstantBuffer::ElementType::Float>("nearPlane");
+			layout.AddElement<DynamicConstantBuffer::ElementType::Float>("farPlane");
+
+			DynamicConstantBuffer::ConstantBufferData bufferData(layout);
+			*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("nearPlane") = defaultCameraSettings.NearZ;
+			*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("farPlane") = defaultCameraSettings.FarZ;
+
+			m_cameraData = std::make_shared<CachedConstantBuffer>(graphics, bufferData, std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::PixelShader, 0}});
+		}
+
+		// fog data
+		{
+			DynamicConstantBuffer::ConstantBufferLayout layout;
+			layout.AddElement<DynamicConstantBuffer::ElementType::Float3>("fogColor", DynamicConstantBuffer::ImguiColorData{true});
+			layout.AddElement<DynamicConstantBuffer::ElementType::Float>("fogStart", DynamicConstantBuffer::ImguiFloatData{ true, defaultCameraSettings.NearZ, defaultCameraSettings.FarZ, "%.1f" });
+			layout.AddElement<DynamicConstantBuffer::ElementType::Float>("fogEnd", DynamicConstantBuffer::ImguiFloatData{ true, defaultCameraSettings.NearZ, defaultCameraSettings.FarZ, "%.1f" });
+			layout.AddElement<DynamicConstantBuffer::ElementType::Float>("fogDensity", DynamicConstantBuffer::ImguiFloatData{ true, 0.001f, 1.0f, "%.3f" });
+
+			DynamicConstantBuffer::ConstantBufferData bufferData(layout);
+			*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float3>("fogColor") = { 0.45f, 0.55f, 0.65f };
+			*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("fogStart") = 30.0f;
+			*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("fogEnd") = 250.0f;
+			*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("fogDensity") = 0.015f;
+
+			m_fogData = std::make_shared<CachedConstantBuffer>(graphics, bufferData, std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::PixelShader, 1}});
+		}
+	}
 }
 
-void PostProcessing::Initialize(Graphics& graphics)
+void PostProcessing::Initialize(Graphics& graphics, Pipeline& pipeline)
 {
 	m_renderTargetSRV = std::make_shared<ShaderResourceViewMultiResource>(graphics, graphics.GetBackBuffer(), 0);
 	m_depthStencilSRV = std::make_shared<ShaderResourceViewMultiResource>(graphics, graphics.GetDepthStencil(), 1);
+
+	// Updating camera data
+	{
+		Camera* currentCamera = pipeline.GetCurrentCamera();
+		const Camera::Settings* currentCameraSettings = currentCamera->GetSettings();
+
+		DynamicConstantBuffer::ConstantBufferData& cameraData = m_cameraData->GetData();
+		*cameraData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("nearPlane") = currentCameraSettings->NearZ;
+		*cameraData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("farPlane") = currentCameraSettings->FarZ;
+
+		m_cameraData->Update(graphics);
+	}
+}
+
+void PostProcessing::Update(Graphics& graphics, Pipeline& pipeline)
+{
+	if (ImGui::Begin("Fog"))
+	{
+		m_fogData->DrawImguiProperties(graphics);
+	}
+
+	ImGui::End();
+
+	// if camera viewmatrix updated then update cameraData cbuffer
+	{
+		Camera* currentCamera = pipeline.GetCurrentCamera();
+
+		if (currentCamera->ViewChanged())
+		{
+			const Camera::Settings* currentCameraSettings = currentCamera->GetSettings();
+
+			DynamicConstantBuffer::ConstantBufferData& cameraData = m_cameraData->GetData();
+			*cameraData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("nearPlane") = currentCameraSettings->NearZ;
+			*cameraData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("farPlane") = currentCameraSettings->FarZ;
+
+			m_cameraData->Update(graphics);
+		}
+	}
 }
 
 void PostProcessing::ApplyTonemapping(Graphics& graphics, Pipeline& pipeline)
@@ -116,6 +195,8 @@ void PostProcessing::Finish(Graphics& graphics, const Pipeline& pipeline)
 	{
 		tempGraphicsCommandList.Bind(m_renderTargetSRV); // t0
 		tempGraphicsCommandList.Bind(m_depthStencilSRV); // t1
+		tempGraphicsCommandList.Bind(m_cameraData); // b0
+		tempGraphicsCommandList.Bind(m_fogData); // b1
 		tempGraphicsCommandList.BindIndexBuffer(m_indexBuffer); // ib
 		tempGraphicsCommandList.BindVertexBuffer(m_vertexBuffer); // vb
 		tempGraphicsCommandList.Bind(m_finalPixelShader); // ps
