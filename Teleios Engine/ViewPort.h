@@ -15,6 +15,11 @@ public:
 
 	virtual void BindToCommandList(Graphics& graphics, CommandList* commandList) override;
 
+public:
+	static std::shared_ptr<ViewPort> GetBindableResource(Graphics& graphics);
+
+	static std::string GetIdentifier();
+
 private:
 	D3D12_VIEWPORT m_viewport = {};
 	D3D12_RECT m_viewportRect = {};

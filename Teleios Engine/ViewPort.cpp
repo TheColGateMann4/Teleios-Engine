@@ -4,6 +4,8 @@
 #include "Pipeline.h"
 #include "CommandList.h"
 
+#include "BindableResourceList.h"
+
 ViewPort::ViewPort(Graphics& graphics)
 {
 	m_viewport.TopLeftX = 0;
@@ -31,4 +33,16 @@ const D3D12_RECT& ViewPort::GetViewportRect() const
 void ViewPort::BindToCommandList(Graphics& graphics, CommandList* commandList)
 {
 	commandList->SetViewPort(graphics, this);
+}
+
+std::shared_ptr<ViewPort> ViewPort::GetBindableResource(Graphics& graphics)
+{
+	return BindableResourceList::GetBindableResource<ViewPort>(graphics);
+}
+
+std::string ViewPort::GetIdentifier()
+{
+	std::string resultString = "ViewPort#";
+
+	return resultString;
 }
