@@ -16,7 +16,7 @@ Application::Application(unsigned int width, unsigned int height, const char* na
 
 Application::~Application()
 {
-	//window.graphics.WaitForGPU();
+
 }
 
 int Application::Run()
@@ -90,8 +90,4 @@ void Application::Update()
 	
 
 	window.graphics.FinishFrame();
-
-	window.graphics.WaitForGPUIfNeeded();
-
-	window.graphics.CleanupResources();
 }

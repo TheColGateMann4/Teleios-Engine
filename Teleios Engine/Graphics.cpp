@@ -6,6 +6,11 @@ extern "C" { __declspec(dllexport) extern const UINT D3D12SDKVersion = 715; } //
 
 extern "C" { __declspec(dllexport) extern const char* D3D12SDKPath = "D3D12/"; } // path of agility dll's
 
+Graphics::~Graphics()
+{
+	WaitForGPU();
+}
+
 void Graphics::Initialize(HWND hWnd, DXGI_FORMAT renderTargetFormat)
 {
 	THROW_OBJECT_STATE_ERROR_IF("Given format is not valid swap chain buffer", !CheckValidRenderTargetFormat(renderTargetFormat));
@@ -142,10 +147,19 @@ void Graphics::BeginFrame()
 
 void Graphics::FinishFrame()
 {
+	PresentFrame();
+
+	WaitForGPUIfNeeded();
+
+	CleanupResources();
+}
+
+void Graphics::PresentFrame()
+{
 	HRESULT hr;
 
 	Fence* pPreviousFrameFence = &m_graphicFences.at(GetPreviousBufferIndex());
-		
+
 	// forcing this frame on GPU side to wait till previous frame is presented
 	pCommandQueue->Wait(pPreviousFrameFence->Get(), pPreviousFrameFence->GetValue());
 

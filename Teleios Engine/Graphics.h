@@ -21,6 +21,8 @@ public:
 	Graphics() = default;
 
 	Graphics(const Graphics&) = delete;
+	
+	~Graphics();
 
 public:
 	void Initialize(HWND hWnd, DXGI_FORMAT renderTargetFormat);
@@ -33,6 +35,8 @@ public:
 
 	void BeginFrame();
 	void FinishFrame();
+
+	void PresentFrame();
 
 	void WaitForGPU();
 
