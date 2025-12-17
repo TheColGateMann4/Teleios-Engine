@@ -50,9 +50,17 @@ PostProcessing::PostProcessing(Graphics& graphics, Pipeline& pipeline)
 	m_vertexBuffer = std::make_shared<VertexBuffer>(graphics, vertices.data(), vertices.size(), sizeof(vertices.at(0)));
 	m_inputLayout = std::make_shared<InputLayout>(graphics, layout);
 
-	m_finalPixelShader = std::make_shared<Shader>(graphics, L"PS_Fog", ShaderType::PixelShader);
-	m_finalVertexShader = std::make_shared<Shader>(graphics, L"VS_Fullscreen", ShaderType::VertexShader);
+	m_sampler = std::make_shared<StaticSampler>(graphics);
+	m_blendState = std::make_shared<BlendState>(graphics);
+	m_rasterizerState = std::make_shared<RasterizerState>(graphics);
+	m_viewPort = std::make_shared<ViewPort>(graphics);
+	m_topology = std::make_shared<PrimitiveTechnology>(graphics, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE);
 
+
+	m_fogPS = std::make_shared<Shader>(graphics, L"PS_Fog", ShaderType::PixelShader);
+	m_depthOfFieldPS = std::make_shared<Shader>(graphics, L"PS_DepthOfField", ShaderType::PixelShader);
+	m_fullscreenPS = std::make_shared<Shader>(graphics, L"PS_Fullscreen", ShaderType::PixelShader);
+	m_fullscreenVS = std::make_shared<Shader>(graphics, L"VS_Fullscreen", ShaderType::VertexShader);
 
 	m_vertexBuffer->BindToCopyPipelineIfNeeded(graphics, pipeline);
 	m_indexBuffer->BindToCopyPipelineIfNeeded(graphics, pipeline);
@@ -84,7 +92,7 @@ PostProcessing::PostProcessing(Graphics& graphics, Pipeline& pipeline)
 			layout.AddElement<DynamicConstantBuffer::ElementType::Float3>("fogColor", DynamicConstantBuffer::ImguiColorData{true});
 			layout.AddElement<DynamicConstantBuffer::ElementType::Float>("fogStart", DynamicConstantBuffer::ImguiFloatData{ true, defaultCameraSettings.NearZ, defaultCameraSettings.FarZ, "%.1f" });
 			layout.AddElement<DynamicConstantBuffer::ElementType::Float>("fogEnd", DynamicConstantBuffer::ImguiFloatData{ true, defaultCameraSettings.NearZ, defaultCameraSettings.FarZ, "%.1f" });
-			layout.AddElement<DynamicConstantBuffer::ElementType::Float>("fogDensity", DynamicConstantBuffer::ImguiFloatData{ true, 0.001f, 1.0f, "%.3f" });
+			layout.AddElement<DynamicConstantBuffer::ElementType::Float>("fogDensity", DynamicConstantBuffer::ImguiFloatData{ true, 0.0001f, 1.0f, "%.4f" });
 
 			DynamicConstantBuffer::ConstantBufferData bufferData(layout);
 			*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float3>("fogColor") = { 0.45f, 0.55f, 0.65f };
@@ -93,6 +101,21 @@ PostProcessing::PostProcessing(Graphics& graphics, Pipeline& pipeline)
 			*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("fogDensity") = 0.015f;
 
 			m_fogData = std::make_shared<CachedConstantBuffer>(graphics, bufferData, std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::PixelShader, 1}});
+		}
+
+		// depth of field data
+		{
+			DynamicConstantBuffer::ConstantBufferLayout layout;
+			layout.AddElement<DynamicConstantBuffer::ElementType::Float>("focusDistance", DynamicConstantBuffer::ImguiFloatData{ true, defaultCameraSettings.NearZ, defaultCameraSettings.FarZ, "%.1f" });
+			layout.AddElement<DynamicConstantBuffer::ElementType::Float>("focusRange", DynamicConstantBuffer::ImguiFloatData{ true, 0.1f, defaultCameraSettings.FarZ, "%.1f" });
+			layout.AddElement<DynamicConstantBuffer::ElementType::Float>("maxBlur", DynamicConstantBuffer::ImguiFloatData{ true, 0.0f, 50.0f, "%.1f" });
+
+			DynamicConstantBuffer::ConstantBufferData bufferData(layout);
+			*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("focusDistance") = 10.0f;
+			*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("focusRange") = 0.5f;
+			*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("maxBlur") = 8.0f;
+
+			m_depthOfFieldData = std::make_shared<CachedConstantBuffer>(graphics, bufferData, std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::PixelShader, 1}});
 		}
 	}
 }
@@ -115,16 +138,12 @@ void PostProcessing::Initialize(Graphics& graphics, Pipeline& pipeline)
 	}
 
 	m_fogData->InternalInitialize(graphics);
+	m_depthOfFieldData->InternalInitialize(graphics);
 }
 
 void PostProcessing::Update(Graphics& graphics, Pipeline& pipeline)
 {
-	if (ImGui::Begin("Fog"))
-	{
-		m_fogData->DrawImguiProperties(graphics);
-	}
-
-	ImGui::End();
+	DrawImguiPropeties(graphics, pipeline);
 
 	// if camera viewmatrix updated then update cameraData cbuffer
 	{
@@ -143,37 +162,7 @@ void PostProcessing::Update(Graphics& graphics, Pipeline& pipeline)
 	}
 }
 
-void PostProcessing::ApplyTonemapping(Graphics& graphics, Pipeline& pipeline)
-{
-	RenderTarget* backBuffer = graphics.GetBackBuffer();
-
-	std::shared_ptr<Shader> computeShader = Shader::GetBindableResource(graphics, L"CS_PostProcess", ShaderType::ComputeShader);
-
-	std::shared_ptr<StaticSampler> sampler = StaticSampler::GetBindableResource(graphics, D3D12_FILTER_MIN_MAG_MIP_LINEAR, D3D12_TEXTURE_ADDRESS_MODE_WRAP, { {ShaderVisibilityGraphic::AllShaders, 0} });
-
-	TempComputeCommandList computeCommandList(graphics, pipeline.GetGraphicCommandList());
-
-	{
-		// setting entry states
-		//{
-		//	CommandList* commandList = pipeline.GetGraphicCommandList();
-		//
-		//	commandList->SetResourceState(graphics, backBuffer, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_ALL_SHADER_RESOURCE);
-		//}
-
-		//UnorderedAccessView uav(graphics, backBuffer);
-		//
-		//computeCommandList.Bind(computeShader);
-		//computeCommandList.Bind(sampler); // s0
-		//computeCommandList.Bind(std::move(uav)); // u0
-		//
-		//computeCommandList.Dispatch(graphics, graphics.GetWidth(), graphics.GetHeight());
-	}
-
-	graphics.GetFrameResourceDeleter()->DeleteResource(graphics, std::move(computeCommandList));
-}
-
-void PostProcessing::Finish(Graphics& graphics, const Pipeline& pipeline)
+void PostProcessing::ApplyFog(Graphics& graphics, Pipeline& pipeline)
 {
 	GraphicsTexture* backBuffer = graphics.GetBackBuffer()->GetTexture(graphics);
 	GraphicsTexture* depthStencil = graphics.GetDepthStencil()->GetResource(graphics);
@@ -184,13 +173,8 @@ void PostProcessing::Finish(Graphics& graphics, const Pipeline& pipeline)
 		commandList->SetResourceState(graphics, backBuffer, D3D12_RESOURCE_STATE_ALL_SHADER_RESOURCE);
 		commandList->SetResourceState(graphics, depthStencil, D3D12_RESOURCE_STATE_ALL_SHADER_RESOURCE);
 	}
-	
-	StaticSampler sampler(graphics);
-	BlendState blendState(graphics);
-	RasterizerState rasterizerState(graphics);
-	PrimitiveTechnology topology(graphics, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE);
+
 	RenderTarget* renderTarget = graphics.GetSwapChainBuffer();
-	ViewPort viewPort(graphics);
 
 	TempGraphicsCommandList tempGraphicsCommandList(graphics, pipeline.GetGraphicCommandList());
 
@@ -201,14 +185,14 @@ void PostProcessing::Finish(Graphics& graphics, const Pipeline& pipeline)
 		tempGraphicsCommandList.Bind(m_fogData); // b1
 		tempGraphicsCommandList.BindIndexBuffer(m_indexBuffer); // ib
 		tempGraphicsCommandList.BindVertexBuffer(m_vertexBuffer); // vb
-		tempGraphicsCommandList.Bind(m_finalPixelShader); // ps
-		tempGraphicsCommandList.Bind(m_finalVertexShader); // vs
-		tempGraphicsCommandList.Bind(std::move(sampler)); // s0
+		tempGraphicsCommandList.Bind(m_fogPS); // ps
+		tempGraphicsCommandList.Bind(m_fullscreenVS); // vs
+		tempGraphicsCommandList.Bind(m_sampler); // s0
 		tempGraphicsCommandList.Bind(m_inputLayout); // il
-		tempGraphicsCommandList.Bind(std::move(blendState)); // bs
-		tempGraphicsCommandList.Bind(std::move(rasterizerState)); // rs
-		tempGraphicsCommandList.Bind(std::move(topology)); // topology
-		tempGraphicsCommandList.Bind(std::move(viewPort)); // vp
+		tempGraphicsCommandList.Bind(m_blendState); // bs
+		tempGraphicsCommandList.Bind(m_rasterizerState); // rs
+		tempGraphicsCommandList.Bind(m_topology); // topology
+		tempGraphicsCommandList.Bind(m_viewPort); // vp
 		tempGraphicsCommandList.Bind(renderTarget); // rt
 
 		tempGraphicsCommandList.DrawIndexed(graphics);
@@ -222,4 +206,181 @@ void PostProcessing::Finish(Graphics& graphics, const Pipeline& pipeline)
 		commandList->SetResourceState(graphics, backBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET);
 		commandList->SetResourceState(graphics, depthStencil, D3D12_RESOURCE_STATE_DEPTH_WRITE);
 	}
+}
+
+void PostProcessing::ApplyDepthOfField(Graphics& graphics, Pipeline& pipeline)
+{
+	GraphicsTexture* backBuffer = graphics.GetBackBuffer()->GetTexture(graphics);
+	GraphicsTexture* depthStencil = graphics.GetDepthStencil()->GetResource(graphics);
+
+	// changing current backbuffer state to pixel shader resource so we can bind it with SRV
+	{
+		CommandList* commandList = pipeline.GetGraphicCommandList();
+		commandList->SetResourceState(graphics, backBuffer, D3D12_RESOURCE_STATE_ALL_SHADER_RESOURCE);
+		commandList->SetResourceState(graphics, depthStencil, D3D12_RESOURCE_STATE_ALL_SHADER_RESOURCE);
+	}
+
+	RenderTarget* renderTarget = graphics.GetSwapChainBuffer();
+
+	TempGraphicsCommandList tempGraphicsCommandList(graphics, pipeline.GetGraphicCommandList());
+
+	{
+		tempGraphicsCommandList.Bind(m_renderTargetSRV); // t0
+		tempGraphicsCommandList.Bind(m_depthStencilSRV); // t1
+		tempGraphicsCommandList.Bind(m_cameraData); // b0
+		tempGraphicsCommandList.Bind(m_depthOfFieldData); // b1
+		tempGraphicsCommandList.BindIndexBuffer(m_indexBuffer); // ib
+		tempGraphicsCommandList.BindVertexBuffer(m_vertexBuffer); // vb
+		tempGraphicsCommandList.Bind(m_depthOfFieldPS); // ps
+		tempGraphicsCommandList.Bind(m_fullscreenVS); // vs
+		tempGraphicsCommandList.Bind(m_sampler); // s0
+		tempGraphicsCommandList.Bind(m_inputLayout); // il
+		tempGraphicsCommandList.Bind(m_blendState); // bs
+		tempGraphicsCommandList.Bind(m_rasterizerState); // rs
+		tempGraphicsCommandList.Bind(m_topology); // topology
+		tempGraphicsCommandList.Bind(m_viewPort); // vp
+		tempGraphicsCommandList.Bind(renderTarget); // rt
+
+		tempGraphicsCommandList.DrawIndexed(graphics);
+	}
+
+	graphics.GetFrameResourceDeleter()->DeleteResource(graphics, std::move(tempGraphicsCommandList));
+
+	// changing state of current backbuffer back to render target state
+	{
+		CommandList* commandList = pipeline.GetGraphicCommandList();
+		commandList->SetResourceState(graphics, backBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET);
+		commandList->SetResourceState(graphics, depthStencil, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+	}
+}
+
+void PostProcessing::ApplyNothing(Graphics& graphics, Pipeline& pipeline)
+{
+	GraphicsTexture* backBuffer = graphics.GetBackBuffer()->GetTexture(graphics);
+
+	// changing current backbuffer state to pixel shader resource so we can bind it with SRV
+	{
+		CommandList* commandList = pipeline.GetGraphicCommandList();
+		commandList->SetResourceState(graphics, backBuffer, D3D12_RESOURCE_STATE_ALL_SHADER_RESOURCE);
+	}
+
+	RenderTarget* renderTarget = graphics.GetSwapChainBuffer();
+
+	TempGraphicsCommandList tempGraphicsCommandList(graphics, pipeline.GetGraphicCommandList());
+
+	{
+		tempGraphicsCommandList.Bind(m_renderTargetSRV); // t0
+		tempGraphicsCommandList.BindIndexBuffer(m_indexBuffer); // ib
+		tempGraphicsCommandList.BindVertexBuffer(m_vertexBuffer); // vb
+		tempGraphicsCommandList.Bind(m_fullscreenPS); // ps
+		tempGraphicsCommandList.Bind(m_fullscreenVS); // vs
+		tempGraphicsCommandList.Bind(m_sampler); // s0
+		tempGraphicsCommandList.Bind(m_inputLayout); // il
+		tempGraphicsCommandList.Bind(m_blendState); // bs
+		tempGraphicsCommandList.Bind(m_rasterizerState); // rs
+		tempGraphicsCommandList.Bind(m_topology); // topology
+		tempGraphicsCommandList.Bind(m_viewPort); // vp
+		tempGraphicsCommandList.Bind(renderTarget); // rt
+
+		tempGraphicsCommandList.DrawIndexed(graphics);
+	}
+
+	graphics.GetFrameResourceDeleter()->DeleteResource(graphics, std::move(tempGraphicsCommandList));
+
+	// changing state of current backbuffer back to render target state
+	{
+		CommandList* commandList = pipeline.GetGraphicCommandList();
+		commandList->SetResourceState(graphics, backBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET);
+	}
+}
+
+void PostProcessing::Finish(Graphics& graphics, Pipeline& pipeline)
+{
+	switch (m_currentEffect)
+	{
+		case Effect::None:
+		{
+			ApplyNothing(graphics, pipeline);
+			break;
+		}
+		case Effect::Fog:
+		{
+			ApplyFog(graphics, pipeline);
+			break;
+		}
+		case Effect::DepthOfField:
+		{
+			ApplyDepthOfField(graphics, pipeline);
+			break;
+		}
+
+		default:
+			break;
+	}
+}
+
+void PostProcessing::DrawImguiPropeties(Graphics& graphics, Pipeline& pipeline)
+{
+	if (ImGui::Begin("Post Processing"))
+	{
+		PostProcessing::DrawEffectPicker("Current Effect", m_currentEffect);
+		ImGui::Separator();
+		ImGui::Text("Settings:");
+
+		switch (m_currentEffect)
+		{
+			case Effect::Fog:
+			{
+				m_fogData->DrawImguiProperties(graphics);
+				break;
+			}
+			case Effect::DepthOfField:
+			{
+				m_depthOfFieldData->DrawImguiProperties(graphics);
+				break;
+			}
+
+			default:
+				break;
+		}
+	}
+
+	ImGui::End();
+}
+
+const char* PostProcessing::EffectToString(Effect effect)
+{
+	switch (effect)
+	{
+		case Effect::None:           return "None";
+		case Effect::Fog:            return "Fog";
+		case Effect::DepthOfField:   return "Depth Of Field";
+		default:                     return "Unknown";
+	}
+}
+
+bool PostProcessing::DrawEffectPicker(const char* label, Effect& currentEffect)
+{
+	bool changed = false;
+
+	if (ImGui::BeginCombo(label, PostProcessing::EffectToString(currentEffect)))
+	{
+		for (int i = 0; i < static_cast<int>(Effect::numEffects); i++)
+		{
+			Effect effect = static_cast<Effect>(i);
+			bool isSelected = (currentEffect == effect);
+
+			if (ImGui::Selectable(PostProcessing::EffectToString(effect), isSelected))
+			{
+				currentEffect = effect;
+				changed = true;
+			}
+
+			if (isSelected)
+				ImGui::SetItemDefaultFocus();
+		}
+		ImGui::EndCombo();
+	}
+
+	return changed;
 }
