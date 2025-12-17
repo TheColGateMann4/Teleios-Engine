@@ -25,11 +25,11 @@ public:
 	void Update(Graphics& graphics, Pipeline& pipeline);
 
 	virtual void Draw(Graphics& graphics, Pipeline& pipeline);
+	virtual void DrawImguiPropeties(Graphics& graphics, Pipeline& pipeline);
 
-public:
+private:
 	virtual void InternalInitialize(Graphics& graphics, Pipeline& pipeline);
 	virtual void InternalUpdate(Graphics& graphics, Pipeline& pipeline);
-	virtual void DrawImguiPropeties(Graphics& graphics, Pipeline& pipeline);
 
 protected:
 	std::shared_ptr<IndexBuffer> m_indexBuffer;

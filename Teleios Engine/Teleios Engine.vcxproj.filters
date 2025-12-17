@@ -31,6 +31,12 @@
     <Filter Include="Dependencies">
       <UniqueIdentifier>{32ea1445-d72d-4b56-ba35-a396d9d534e2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\FullscreenPasses">
+      <UniqueIdentifier>{258f514f-c097-41f4-8077-d0c32d1d4b64}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\FullscreenPasses">
+      <UniqueIdentifier>{147e0744-7369-4ffb-89a8-38ed068c9a1c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="EntryPoint.cpp">
@@ -200,6 +206,15 @@
     </ClCompile>
     <ClCompile Include="ViewPort.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FullscreenPasses\FogFullscreenPass.cpp">
+      <Filter>Source Files\FullscreenPasses</Filter>
+    </ClCompile>
+    <ClCompile Include="FullscreenPasses\FullscreenPass.cpp">
+      <Filter>Source Files\FullscreenPasses</Filter>
+    </ClCompile>
+    <ClCompile Include="FullscreenPasses\DepthOfFieldFullscreenPass.cpp">
+      <Filter>Source Files\FullscreenPasses</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -373,6 +388,18 @@
     </ClInclude>
     <ClInclude Include="ViewPort.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FullscreenPass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FullscreenPasses\FogFullscreenPass.h">
+      <Filter>Header Files\FullscreenPasses</Filter>
+    </ClInclude>
+    <ClInclude Include="FullscreenPasses\FullscreenPass.h">
+      <Filter>Header Files\FullscreenPasses</Filter>
+    </ClInclude>
+    <ClInclude Include="FullscreenPasses\DepthOfFieldFullscreenPass.h">
+      <Filter>Header Files\FullscreenPasses</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

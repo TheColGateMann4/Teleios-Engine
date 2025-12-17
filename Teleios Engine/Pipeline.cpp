@@ -9,7 +9,7 @@
 
 Pipeline::Pipeline(Graphics& graphics)
 	:
-	m_postProcessing(graphics, *this)
+	m_postProcessing(graphics)
 {
 	m_graphicsCommandList = std::make_shared<CommandList>(graphics, D3D12_COMMAND_LIST_TYPE_DIRECT);
 }
@@ -38,7 +38,7 @@ void Pipeline::FinishRender(Graphics& graphics)
 	m_graphicsCommandList->SetResourceState(graphics, graphics.GetSwapChainBuffer(), D3D12_RESOURCE_STATE_RENDER_TARGET);
 
 	// drawing backbuffer on top of swapchain
-	m_postProcessing.Finish(graphics, *this);
+	m_postProcessing.ApplyEffect(graphics, *this);
 
 	m_graphicsCommandList->SetResourceState(graphics, graphics.GetSwapChainBuffer(), D3D12_RESOURCE_STATE_PRESENT);
 

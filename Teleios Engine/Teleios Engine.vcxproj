@@ -73,14 +73,14 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ExternalIncludePath>$(ExternalIncludePath);C:\Libraries\DirectXTK12\Inc;C:\Libraries\DirectXTK12\Src;C:\Libraries\DirectXTex;C:\Libraries\imgui;C:\Libraries\assimp-5.4.3\include;C:\Libraries\DirectXCompiler2024_07_31\inc;C:\Libraries\DirectX12SDKAgility;C:\Libraries\PIX3\Include\WinPixEventRuntime</ExternalIncludePath>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <IncludePath>$(ProjectDir);$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
     <SourcePath>$(VC_SourcePath)</SourcePath>
     <OutDir>$(RemoteDebuggerWorkingDirectory)$(Platform)\$(Configuration)\</OutDir>
     <LibraryPath>C:\Libraries\DirectXTK12\Bin\Windows10_2022\$(Platform)\$(Configuration);C:\Libraries\DirectXTex\DirectXTex\Bin\Desktop_2022_Win10\$(Platform)\$(Configuration);C:\Libraries\freetype\objs\$(Platform)\$(Configuration) Static;C:\Projects\imguilib\$(Platform)\$(Configuration);C:\Libraries\PIX3\bin\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ExternalIncludePath>$(ExternalIncludePath);C:\Libraries\DirectXTK12\Inc;C:\Libraries\DirectXTK12\Src;C:\Libraries\DirectXTex;C:\Libraries\imgui;C:\Libraries\assimp\include;C:\Libraries\DirectX12SDKAgility;C:\Libraries\DirectXCompiler2024_07_31\inc</ExternalIncludePath>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <IncludePath>$(ProjectDir);$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
     <SourcePath>$(VC_SourcePath)</SourcePath>
     <OutDir>$(RemoteDebuggerWorkingDirectory)$(Platform)\$(Configuration)\</OutDir>
     <LibraryPath>C:\Libraries\DirectXTK12\Bin\Windows10_2022\$(Platform)\$(Configuration);C:\Libraries\DirectXTex\DirectXTex\Bin\Desktop_2022_Win10\$(Platform)\$(Configuration);C:\Libraries\freetype\objs\$(Platform)\$(Configuration) Static;C:\Projects\imguilib\$(Platform)\$(Configuration);$(LibraryPath)</LibraryPath>
@@ -168,6 +168,9 @@
     <ClCompile Include="Bindable.cpp" />
     <ClCompile Include="BindableContainer.cpp" />
     <ClCompile Include="BlendState.cpp" />
+    <ClCompile Include="FullscreenPasses\DepthOfFieldFullscreenPass.cpp" />
+    <ClCompile Include="FullscreenPasses\FogFullscreenPass.cpp" />
+    <ClCompile Include="FullscreenPasses\FullscreenPass.cpp" />
     <ClCompile Include="GraphicsBuffer.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="CommandList.cpp" />
@@ -227,6 +230,10 @@
     <ClInclude Include="BindableContainer.h" />
     <ClInclude Include="BindableResourceList.h" />
     <ClInclude Include="BlendState.h" />
+    <ClInclude Include="FullscreenPass.h" />
+    <ClInclude Include="FullscreenPasses\DepthOfFieldFullscreenPass.h" />
+    <ClInclude Include="FullscreenPasses\FogFullscreenPass.h" />
+    <ClInclude Include="FullscreenPasses\FullscreenPass.h" />
     <ClInclude Include="GraphicsBuffer.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="CommandList.h" />

@@ -10,10 +10,11 @@ public:
 
 	virtual void Draw(Graphics& graphics, Pipeline& pipeline) override;
 
-public:
+	virtual void DrawImguiPropeties(Graphics& graphics, Pipeline& pipeline) override;
+
+private:
 	virtual void InternalInitialize(Graphics& graphics, Pipeline& pipeline) override;
 	virtual void InternalUpdate(Graphics& graphics, Pipeline& pipeline) override;
-	virtual void DrawImguiPropeties(Graphics& graphics, Pipeline& pipeline) override;
 
 private:
 	std::shared_ptr<Shader> m_depthOfFieldPS;

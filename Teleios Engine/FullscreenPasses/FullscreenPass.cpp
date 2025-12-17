@@ -78,8 +78,6 @@ void FullscreenPass::Initialize(Graphics& graphics, Pipeline& pipeline)
 
 void FullscreenPass::Update(Graphics& graphics, Pipeline& pipeline)
 {
-	DrawImguiPropeties(graphics, pipeline);
-
 	// if camera viewmatrix updated then update cameraData cbuffer
 	{
 		Camera* currentCamera = pipeline.GetCurrentCamera();

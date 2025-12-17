@@ -10,6 +10,8 @@ DepthOfFieldFullscreenPass::DepthOfFieldFullscreenPass(Graphics& graphics)
 {
 	m_depthOfFieldPS = std::make_shared<Shader>(graphics, L"PS_DepthOfField", ShaderType::PixelShader);
 
+	const Camera::Settings defaultCameraSettings = Camera::Settings{};
+
 	// depth of field data
 	{
 		DynamicConstantBuffer::ConstantBufferLayout layout;
