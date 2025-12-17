@@ -160,9 +160,16 @@ bool Camera::ViewChanged() const
 	return m_viewChanged;
 }
 
+const Camera::Settings* Camera::GetSettings() const
+{
+	return &m_settings;
+}
+
 void Camera::UpdatePerspectiveMatrix()
 {
 	m_perspective = DirectX::XMMatrixPerspectiveFovLH(m_settings.FovAngleY, m_settings.AspectRatio, m_settings.NearZ, m_settings.FarZ);
+
+	m_viewChanged = true;
 }
 
 constexpr float Camera::GetSlicedValue(float angle, float sliceValue)

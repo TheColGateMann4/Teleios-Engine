@@ -41,6 +41,8 @@ public:
 
 	bool ViewChanged() const;
 
+	const Settings* GetSettings() const;
+
 private:
 	void UpdatePerspectiveMatrix();
 
