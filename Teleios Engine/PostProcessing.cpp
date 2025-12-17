@@ -113,6 +113,8 @@ void PostProcessing::Initialize(Graphics& graphics, Pipeline& pipeline)
 
 		m_cameraData->Update(graphics);
 	}
+
+	m_fogData->InternalInitialize(graphics);
 }
 
 void PostProcessing::Update(Graphics& graphics, Pipeline& pipeline)
