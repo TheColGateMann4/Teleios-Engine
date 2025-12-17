@@ -14,7 +14,7 @@ cbuffer FogData : register(b1)
     float b_fogStart;
     float b_fogEnd;
     float b_fogDensity;
-}
+};
 
 float GeViewSpaceDepth(float depth)
 {
@@ -28,7 +28,9 @@ float4 PSMain(float2 textureCoords : TEXCOORDS) : SV_TARGET
 
     float viewDepth = GeViewSpaceDepth(depth);
     
-    float fogFactor = 1.0f - exp(-viewDepth * b_fogDensity);
-
+    float linearFog = saturate((viewDepth - b_fogStart) / (b_fogEnd - b_fogStart));
+    float expFog = 1.0f - exp(-viewDepth * b_fogDensity);
+    float fogFactor = saturate(max(linearFog, expFog));
+    
     return float4(lerp(renderTargetSample.rgb, b_fogColor, fogFactor), renderTargetSample.a);
 }
