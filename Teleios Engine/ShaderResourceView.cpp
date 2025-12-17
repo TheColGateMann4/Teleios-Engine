@@ -7,6 +7,8 @@
 #include "GraphicsTexture.h"
 #include "GraphicsBuffer.h"
 
+#include "BindableResourceList.h"
+
 ShaderResourceViewBase::ShaderResourceViewBase(unsigned int slot)
 	:
 	RootSignatureBindable(std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::AllShaders, slot}}),
@@ -159,4 +161,23 @@ D3D12_GPU_DESCRIPTOR_HANDLE ShaderResourceViewMultiResource::GetDescriptorHeapGP
 unsigned int ShaderResourceViewMultiResource::GetOffsetInDescriptor(Graphics& graphics) const
 {
 	return m_descriptors.at(graphics.GetCurrentBufferIndex()).offsetInDescriptorFromStart;
+}
+
+std::shared_ptr<ShaderResourceViewMultiResource> ShaderResourceViewMultiResource::GetBindableResource(Graphics& graphics, std::string identifier, BackBufferRenderTarget* renderTarget, UINT slot)
+{
+	return BindableResourceList::GetBindableResourceByID<ShaderResourceViewMultiResource>(graphics, identifier, renderTarget, slot);
+}
+
+std::shared_ptr<ShaderResourceViewMultiResource> ShaderResourceViewMultiResource::GetBindableResource(Graphics& graphics, std::string identifier, DepthStencilViewMultiResource* depthStencil, UINT slot)
+{
+	return BindableResourceList::GetBindableResourceByID<ShaderResourceViewMultiResource>(graphics, identifier, depthStencil, slot);
+}
+
+std::string ShaderResourceViewMultiResource::GetIdentifier(std::string identifier)
+{
+	std::string resultString = "ShaderResourceViewMultiResource#";
+
+	resultString += identifier;
+
+	return resultString;
 }

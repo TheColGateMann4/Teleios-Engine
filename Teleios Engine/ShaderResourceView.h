@@ -68,6 +68,12 @@ public:
 
 	virtual unsigned int GetOffsetInDescriptor(Graphics& graphics) const override;
 
+public:
+	static std::shared_ptr<ShaderResourceViewMultiResource> GetBindableResource(Graphics& graphics, std::string identifier, BackBufferRenderTarget* renderTarget, UINT slot = 0);
+	static std::shared_ptr<ShaderResourceViewMultiResource> GetBindableResource(Graphics& graphics, std::string identifier, DepthStencilViewMultiResource* depthStencil, UINT slot = 0);
+
+	static std::string GetIdentifier(std::string identifier);
+
 private:
 	std::vector<DescriptorHeap::DescriptorInfo> m_descriptors = {};
 };
