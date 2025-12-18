@@ -1,6 +1,7 @@
 SamplerState s_sampler : register(s0);
 Texture2D t_renderTarget : register(t0);
 Texture2D t_depthStencil : register(t1);
+StructuredBuffer<float> t_depthBuffer : register(t2);
 
 cbuffer CameraData : register(b0)
 {
@@ -32,9 +33,9 @@ float GeViewSpaceDepth(float depth)
     return (b_nearPlane * b_farPlane) / (b_farPlane - depth * (b_farPlane - b_nearPlane));
 }
 
-float ComputeCoC(float linearDepth)
+float ComputeCoC(float linearFocusedDepth, float linearDepth)
 {
-    float coc = abs(linearDepth - b_focusDistance) / b_focusRange;
+    float coc = abs(linearDepth - linearFocusedDepth) / b_focusRange;
     return saturate(coc);
 }
 
@@ -42,8 +43,9 @@ float4 PSMain(float2 textureCoords : TEXCOORDS) : SV_TARGET
 {
     float depth = t_depthStencil.Sample(s_sampler, textureCoords).r;
     float viewDepth = GeViewSpaceDepth(depth);
+    float focusedViewDepth = GeViewSpaceDepth(t_depthBuffer[0]);
 
-    float coc = ComputeCoC(viewDepth);
+    float coc = ComputeCoC(focusedViewDepth, viewDepth);
     float blurRadius = coc * b_maxBlur;
     
     uint displaySizeX, displaySizeY;

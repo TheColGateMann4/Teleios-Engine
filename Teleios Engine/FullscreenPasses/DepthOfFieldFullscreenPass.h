@@ -1,6 +1,8 @@
 #pragma once
 #include "FullscreenPass.h"
 
+#include "UnorderedAccessView.h"
+
 class Graphics;
 
 class DepthOfFieldFullscreenPass : public FullscreenPass
@@ -18,5 +20,9 @@ private:
 
 private:
 	std::shared_ptr<Shader> m_depthOfFieldPS;
+	std::shared_ptr<Shader> m_depthFromScreenCS;
 	std::shared_ptr<CachedConstantBuffer> m_depthOfFieldData;
+	std::shared_ptr<UnorderedAccessView> m_DepthBufferUAV;
+	std::shared_ptr<ShaderResourceView> m_DepthBufferSRV;
+	std::shared_ptr<GraphicsBuffer> m_DepthBuffer;
 };
