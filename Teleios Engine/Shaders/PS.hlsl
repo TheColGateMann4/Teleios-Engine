@@ -80,23 +80,22 @@ float NormalDistribution(const float alpha, const float NdotH)
     return alpha2 / (3.14159265 * denominator * denominator);
 }
 
-float GeometryShadowingFunction(const float alpha, const float NdotX)
+float GeometrySchlickGGX(float NdotX, float roughness)
 {
-    const float k = alpha / 2.0f;
-    const float numerator = NdotX;
-    const float denominator = max(NdotX * (1.0f - k) + k, 0.000001f);
-
-    return numerator / denominator;
+    float r = roughness + 1.0f;
+    float k = (r * r) / 8.0f;
+    return NdotX / (NdotX * (1.0f - k) + k);
 }
 
-float GeometricShadowing(const float alpha, const float NdotV, const float NdotL)
+float GeometrySmith(float NdotV, float NdotL, float roughness)
 {
-    return GeometryShadowingFunction(alpha, NdotV) * GeometryShadowingFunction(alpha, NdotL);
+    return GeometrySchlickGGX(NdotV, roughness) *
+           GeometrySchlickGGX(NdotL, roughness);
 }
 
-float3 FrenselSchlick(const float3 F0, const float NdotL)
+float3 FrenselSchlick(const float3 F0, const float VdotH)
 {
-    return F0 + (1.0f - F0) * pow(1.0f - NdotL, 5.0f);
+    return F0 + (1.0f - F0) * pow(1.0f - VdotH, 5.0f);
 }
 
 float GetAttenuation(const float distanceToLight)
@@ -167,8 +166,9 @@ float4 PSMain(
     #else
         float metalness = b_metalness;
     #endif
-#endif    
-    
+#endif
+    metalness = saturate(metalness);
+    metalness = (metalness < 0.05f) ? 0.0f : metalness;
     
 #ifdef METALNESS_ROUGHNESS_ONE_TEXTURE
     float roughness = t_metalnessRoughness.Sample(s_sampler, textureCoords).g;
@@ -179,6 +179,7 @@ float4 PSMain(
         float roughness = b_roughness;
     #endif
 #endif
+    roughness = clamp(roughness, 0.04f, 1.0f);
 
 
     
@@ -211,7 +212,6 @@ float4 PSMain(
     const float3 L = normalize(b_lightPositionInCameraSpace - positionInCameraSpace); // light
     const float3 H = normalize(V + L); // halfway vector
     
-    
     const float NdotL = max(dot(N, L), 0.0f);
     const float NdotV = max(dot(N, V), 0.0f);
     const float NdotH = max(dot(N, H), 0.0f);
@@ -225,21 +225,20 @@ float4 PSMain(
     const float3 Kd = (1.0f - Ks) * (1.0f - metalness);
     
 
-
     const float3 lambert = diffuse / _pi;
     
-    const float3 cookTorranceNumerator = NormalDistribution(alpha, NdotH) * GeometricShadowing(alpha, NdotV, NdotL) * Ks;
+    const float3 cookTorranceNumerator = NormalDistribution(alpha, NdotH) * GeometrySmith(NdotV, NdotL, roughness) * Ks;
     const float cookTorranceDenominator = max(4.0f * VdotN * LdotN, 0.000001f);
     const float3 cookTorrance = cookTorranceNumerator / cookTorranceDenominator;
     
-    const float3 DiffuseBRDF = Kd * lambert * opacity;
+    const float3 DiffuseBRDF = Kd * lambert;
     const float3 SpecularBRDF = cookTorrance;
     
     const float lengthOfDistanceToLight = length(b_lightPositionInCameraSpace - positionInCameraSpace);
     const float attenuation = GetAttenuation(lengthOfDistanceToLight);
     const float3 lightIntensity = b_lightDiffuseColor;
     
-    float3 outgoingLight = (DiffuseBRDF + SpecularBRDF) * LdotN * attenuation * lightIntensity + ambient;
+    float3 outgoingLight = (DiffuseBRDF + SpecularBRDF) * LdotN * attenuation * lightIntensity + ambient * diffuse;
 
 #ifdef TEXTURE_ENVIRONMENT_MAP
     float3 skyboxSampleVector = normalize(reflect(-worldPosition, worldNormal));
@@ -248,5 +247,5 @@ float4 PSMain(
 
 #endif
 
-    return float4(saturate(outgoingLight), textureOpacity);
+    return float4(outgoingLight, textureOpacity);
 }
