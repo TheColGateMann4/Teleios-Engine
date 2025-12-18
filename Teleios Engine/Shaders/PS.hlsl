@@ -124,6 +124,8 @@ float4 PSMain(
 #ifdef INPUT_BITANGENT  
     , float3 bitangent : BITANGENT
 #endif
+    , bool isBackFace : SV_IsFrontFace
+
 ) : SV_TARGET
 {
     
@@ -200,6 +202,9 @@ float4 PSMain(
 #else
     float opacity = b_opacity;
 #endif
+    
+    if (!isBackFace)
+        normal = -normal;
     
     const float3 N = normalize(normal); // normal
     const float3 V = normalize(-positionInCameraSpace); // view
