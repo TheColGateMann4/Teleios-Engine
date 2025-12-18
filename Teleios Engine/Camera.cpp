@@ -63,8 +63,9 @@ void Camera::UpdateCamera(const Input& input, bool cursorLocked)
 
 void Camera::DrawTransformPropeties()
 {
-	// we are reseting viewChanged value here since its the first function where it can be changed
+	// we are reseting viewChanged and m_perspectiveChanged values here since its the first function where it can be changed
 	m_viewChanged = false;
+	m_perspectiveChanged = false;
 
 	auto checkChanged = [](bool& checkValue, bool expressionReturn) mutable
 		{
@@ -160,6 +161,11 @@ bool Camera::ViewChanged() const
 	return m_viewChanged;
 }
 
+bool Camera::PerspectiveChanged() const
+{
+	return m_viewChanged || m_perspectiveChanged;
+}
+
 const Camera::Settings* Camera::GetSettings() const
 {
 	return &m_settings;
@@ -169,7 +175,7 @@ void Camera::UpdatePerspectiveMatrix()
 {
 	m_perspective = DirectX::XMMatrixPerspectiveFovLH(m_settings.FovAngleY, m_settings.AspectRatio, m_settings.NearZ, m_settings.FarZ);
 
-	m_viewChanged = true;
+	m_perspectiveChanged = true;
 }
 
 constexpr float Camera::GetSlicedValue(float angle, float sliceValue)

@@ -82,7 +82,7 @@ void FullscreenPass::Update(Graphics& graphics, Pipeline& pipeline)
 	{
 		Camera* currentCamera = pipeline.GetCurrentCamera();
 
-		if (currentCamera->ViewChanged())
+		if (currentCamera->PerspectiveChanged())
 		{
 			const Camera::Settings* currentCameraSettings = currentCamera->GetSettings();
 

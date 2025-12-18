@@ -40,6 +40,7 @@ public:
 	void Move(DirectX::XMFLOAT3 direction, bool isFast = false);
 
 	bool ViewChanged() const;
+	bool PerspectiveChanged() const;
 
 	const Settings* GetSettings() const;
 
@@ -60,4 +61,5 @@ private:
 	float m_fastSpeed = 0.12f;
 
 	bool m_viewChanged;
+	bool m_perspectiveChanged;
 };
