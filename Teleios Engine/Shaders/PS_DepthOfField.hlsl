@@ -11,7 +11,6 @@ cbuffer CameraData : register(b0)
 
 cbuffer DepthOfFieldData : register(b1)
 {
-    float b_focusDistance;
     float b_focusRange;
     float b_maxBlur;
 };

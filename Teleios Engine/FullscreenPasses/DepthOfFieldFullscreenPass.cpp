@@ -18,14 +18,12 @@ DepthOfFieldFullscreenPass::DepthOfFieldFullscreenPass(Graphics& graphics)
 	// depth of field data
 	{
 		DynamicConstantBuffer::ConstantBufferLayout layout;
-		layout.AddElement<DynamicConstantBuffer::ElementType::Float>("focusDistance", DynamicConstantBuffer::ImguiFloatData{ true, defaultCameraSettings.NearZ, defaultCameraSettings.FarZ, "%.1f" });
 		layout.AddElement<DynamicConstantBuffer::ElementType::Float>("focusRange", DynamicConstantBuffer::ImguiFloatData{ true, 0.1f, defaultCameraSettings.FarZ, "%.1f" });
 		layout.AddElement<DynamicConstantBuffer::ElementType::Float>("maxBlur", DynamicConstantBuffer::ImguiFloatData{ true, 0.0f, 50.0f, "%.1f" });
 
 		DynamicConstantBuffer::ConstantBufferData bufferData(layout);
-		*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("focusDistance") = 10.0f;
-		*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("focusRange") = 0.5f;
-		*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("maxBlur") = 8.0f;
+		*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("focusRange") = 20.0f;
+		*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("maxBlur") = 6.0f;
 
 		m_depthOfFieldData = std::make_shared<CachedConstantBuffer>(graphics, bufferData, std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::PixelShader, 1}});
 	}
