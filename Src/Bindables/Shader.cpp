@@ -60,7 +60,11 @@ Shader::Shader(Graphics& graphics, const wchar_t* name, ShaderType type, std::ve
 	:
 	m_type(type),
 	m_name(std::wstring(name) + L".hlsl"),
-	m_path(L"../../Shaders/" + m_name),
+#ifdef _DEBUG
+	m_path(L"../../Src/Shaders/" + m_name),
+#else
+	m_path(L"Shaders/" + m_name),
+#endif
 	m_entryPoint(GetDefaultEntryPointName(m_type)),
 	m_uniqueName(GetIdentifier(name, type, shaderMacros))
 {
@@ -347,7 +351,17 @@ void Shader::ThrowErrorMessagesResult(Graphics& graphics, IDxcResult* pResult)
 
 void Shader::DebugBlobToFile(const char* extension, ID3DBlob* blob)
 {
-	std::string filePath = "Shaders/" +  m_uniqueName + extension;
+	const char* targetFolder = "Shaders/";
+
+	if (!CreateDirectoryA(targetFolder, nullptr))
+	{
+		DWORD lastError = GetLastError();
+
+		THROW_INTERNAL_ERROR_IF((std::string("Failed to create folder") + targetFolder).c_str(), lastError != ERROR_ALREADY_EXISTS);
+	}
+
+
+	std::string filePath = targetFolder + m_uniqueName + extension;
 
 	HANDLE hFile = CreateFileA(
 		filePath.c_str(),
