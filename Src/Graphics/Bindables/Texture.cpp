@@ -24,7 +24,12 @@
 Texture::Texture(Graphics& graphics, const char* path, bool srgb, bool generateMips, std::vector<TargetSlotAndShader> targets)
 	:
 	RootSignatureBindable(targets),
+
+#ifdef _DEBUG
 	m_path(std::string("../../") + path),
+#else
+	m_path(path),
+#endif
 	m_srgb(srgb),
 	m_generateMipMaps(generateMips)
 {

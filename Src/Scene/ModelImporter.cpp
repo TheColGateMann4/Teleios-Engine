@@ -40,7 +40,11 @@ void ModelImporter::AddSceneObjectFromFile(Graphics& graphics, const char* path,
 		filePath = std::string(filePath.begin(), filePath.begin() + lastSlashPosition);
 	}
 
+#ifdef _DEBUG
 	std::string targetFile = "../../" + filePath + fileName;
+#else
+	std::string targetFile = filePath + fileName;
+#endif
 
 	if(strcmp(fileExtension.c_str(), ".obj") == 0 || strcmp(fileExtension.c_str(), ".gltf") == 0)
 	{
