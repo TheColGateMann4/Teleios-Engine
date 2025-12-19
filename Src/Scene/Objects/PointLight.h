@@ -1,8 +1,8 @@
 #pragma once
 #include "Scene/SceneObject.h"
 
-#include "includes/CppIncludes.h"
-#include "Bindables/ConstantBuffer.h"
+#include "Includes/CppIncludes.h"
+#include "Graphics/Bindables/ConstantBuffer.h"
 #include "Sphere.h"
 
 class Graphics;

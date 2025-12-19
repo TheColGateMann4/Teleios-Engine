@@ -1,12 +1,12 @@
 #include "Cube.h"
-#include "Graphics.h"
-#include "Pipeline.h"
+#include "Graphics/Core/Graphics.h"
+#include "Graphics/Core/Pipeline.h"
 #include "Macros/ErrorMacros.h"
 
-#include "includes/BindablesInclude.h"
+#include "Includes/BindablesInclude.h"
 
-#include "DynamicConstantBuffer.h"
-#include "DynamicVertex.h"
+#include "Graphics/Data/DynamicConstantBuffer.h"
+#include "Graphics/Data/DynamicVertex.h"
 
 #include <imgui.h>
 

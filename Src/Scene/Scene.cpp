@@ -1,5 +1,5 @@
 #include "Scene.h"
-#include "Graphics.h"
+#include "Graphics/Core/Graphics.h"
 #include "System/Window.h"
 #include "SceneObject.h"
 #include "Objects/Camera.h"

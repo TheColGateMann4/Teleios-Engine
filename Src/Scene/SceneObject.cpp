@@ -1,6 +1,6 @@
 #include "SceneObject.h"
-#include "Graphics.h"
-#include "Pipeline.h"
+#include "Graphics/Core/Graphics.h"
+#include "Graphics/Core/Pipeline.h"
 
 #include "Mesh.h"
 

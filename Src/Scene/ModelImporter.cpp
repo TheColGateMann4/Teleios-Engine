@@ -1,7 +1,7 @@
 #include "ModelImporter.h"
 
-#include "includes/CppIncludes.h"
-#include "includes/DirectXIncludes.h"
+#include "Includes/CppIncludes.h"
+#include "Includes/DirectXIncludes.h"
 
 #include "Macros/ErrorMacros.h"
 

@@ -1,7 +1,7 @@
 #pragma once
-#include "includes/CppIncludes.h"
-#include "includes/DirectXIncludes.h"
-#include "Bindables/TransformConstantBuffer.h"
+#include "Includes/CppIncludes.h"
+#include "Includes/DirectXIncludes.h"
+#include "Graphics/Bindables/TransformConstantBuffer.h"
 
 class Graphics;
 class Camera;

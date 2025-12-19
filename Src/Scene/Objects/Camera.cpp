@@ -1,7 +1,7 @@
 #include "Camera.h"
 #include "Macros/ErrorMacros.h"
-#include "Graphics.h"
-#include "Pipeline.h"
+#include "Graphics/Core/Graphics.h"
+#include "Graphics/Core/Pipeline.h"
 #include "System/Input.h"
 
 #include <imgui.h>

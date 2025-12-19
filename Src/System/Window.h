@@ -1,7 +1,7 @@
 #pragma once
 #include "Includes/CppIncludes.h"
 #include "Error/ErrorHandler.h"
-#include "Graphics.h"
+#include "Graphics/Core/Graphics.h"
 #include "Input.h"
 
 class Window

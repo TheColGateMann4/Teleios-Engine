@@ -1,15 +1,15 @@
 #include "Model.h"
 
-#include "includes/BindablesInclude.h"
+#include "Includes/BindablesInclude.h"
 
-#include "GraphicsResources/GraphicsTexture.h"
+#include "Graphics/Resources/GraphicsTexture.h"
 
-#include "DynamicVertex.h"
-#include "DynamicConstantBuffer.h"
+#include "Graphics/Data/DynamicVertex.h"
+#include "Graphics/Data/DynamicConstantBuffer.h"
 
 #include "Macros/ErrorMacros.h"
 
-#include "Mesh.h"
+#include "Scene/Mesh.h"
 
 #include <assimp/Importer.hpp>      // C++ importer interface
 #include <assimp/scene.h>           // Output data structure

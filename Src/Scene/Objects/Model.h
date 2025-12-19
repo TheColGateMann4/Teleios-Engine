@@ -1,5 +1,5 @@
 #pragma once
-#include "includes/CppIncludes.h"
+#include "Includes/CppIncludes.h"
 #include "Scene/SceneObject.h"
 
 class aiNode;

@@ -1,6 +1,6 @@
 #pragma once
 #include "Scene/SceneObject.h"
-#include "Mesh.h"
+#include "Scene/Mesh.h"
 
 class Graphics;
 class Pipeline;

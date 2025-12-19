@@ -1,5 +1,5 @@
 #include "InfoQueue.h"
-#include "Graphics.h"
+#include "Graphics/Core/Graphics.h"
 #include "MessageMap.h"
 #include "Macros/ErrorMacros.h"
 

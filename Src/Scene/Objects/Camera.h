@@ -1,6 +1,6 @@
 #pragma once
-#include "includes/DirectXIncludes.h"
-#include "includes/WRLNoWarnings.h"
+#include "Includes/DirectXIncludes.h"
+#include "Includes/WRLNoWarnings.h"
 
 #include "Scene/SceneObject.h"
 

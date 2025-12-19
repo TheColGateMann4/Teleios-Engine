@@ -1,7 +1,7 @@
 #pragma once
-#include "includes/CppIncludes.h"
-#include "Pipeline.h"
-#include "ImguiLayer.h"
+#include "Includes/CppIncludes.h"
+#include "Graphics/Core/Pipeline.h"
+#include "Graphics/Imgui/ImguiLayer.h"
 
 class Window;
 class Graphics;

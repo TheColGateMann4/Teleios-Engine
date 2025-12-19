@@ -1,12 +1,12 @@
 #include "PointLight.h"
-#include "Pipeline.h"
+#include "Graphics/Core/Pipeline.h"
 #include "Camera.h"
 #include "Sphere.h"
 #include "Scene/Scene.h"
 
 #include <imgui.h>
 
-#include "DynamicConstantBuffer.h"
+#include "Graphics/Data/DynamicConstantBuffer.h"
 
 PointLight::PointLight(Graphics& graphics, Scene& scene, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 color)
 	:

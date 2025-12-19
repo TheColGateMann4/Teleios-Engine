@@ -1,10 +1,10 @@
 #include "Sphere.h"
-#include "includes/CppIncludes.h"
+#include "Includes/CppIncludes.h"
 #include <Geometry.h>
 
-#include "includes/BindablesInclude.h"
+#include "Includes/BindablesInclude.h"
 
-#include "DynamicVertex.h"
+#include "Graphics/Data/DynamicVertex.h"
 
 #include <imgui.h>
 
