@@ -2,7 +2,7 @@
 #include "includes/DirectXIncludes.h"
 #include "includes/WRLNoWarnings.h"
 #include "TargetShaders.h"
-#include "Bindable.h"
+#include "Bindables/Bindable.h"
 
 class Graphics;
 class ConstantBuffer;

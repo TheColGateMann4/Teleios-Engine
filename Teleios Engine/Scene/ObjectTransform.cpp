@@ -1,5 +1,5 @@
 #include "ObjectTransform.h"
-#include "Camera.h"
+#include "Scene/Objects/Camera.h"
 
 void ObjectTransform::SetPosition(DirectX::XMFLOAT3 position)
 {

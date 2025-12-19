@@ -1,6 +1,6 @@
 #include "FullscreenPass.h"
 
-#include "Camera.h"
+#include "Scene/Objects/Camera.h"
 #include "Pipeline.h"
 #include "TempCommandList.h"
 

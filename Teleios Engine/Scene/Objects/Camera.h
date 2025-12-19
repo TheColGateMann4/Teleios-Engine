@@ -2,7 +2,7 @@
 #include "includes/DirectXIncludes.h"
 #include "includes/WRLNoWarnings.h"
 
-#include "SceneObject.h"
+#include "Scene/SceneObject.h"
 
 class Graphics;
 class Pipeline;

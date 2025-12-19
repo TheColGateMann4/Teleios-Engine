@@ -1,10 +1,10 @@
 #include "DepthOfFieldFullscreenPass.h"
 
-#include "Camera.h"
+#include "Scene/Objects/Camera.h"
 #include "Pipeline.h"
 #include "TempCommandList.h"
 
-#include "GraphicsBuffer.h"
+#include "GraphicsResources/GraphicsBuffer.h"
 
 DepthOfFieldFullscreenPass::DepthOfFieldFullscreenPass(Graphics& graphics)
 	:

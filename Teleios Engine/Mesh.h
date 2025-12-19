@@ -6,13 +6,7 @@
 #include "RootSignature.h"
 #include "BindableContainer.h"
 
-#include "VertexBuffer.h"
-#include "IndexBuffer.h"
-#include "Texture.h"
-#include "ConstantBuffer.h"
-#include "TransformConstantBuffer.h"
-
-#include "Bindable.h"
+#include "includes/BindablesInclude.h"
 
 class Graphics;
 class Pipeline;

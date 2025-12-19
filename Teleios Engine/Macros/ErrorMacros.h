@@ -1,5 +1,5 @@
 #pragma once
-#include "../ErrorHandler.h"
+#include "Error/ErrorHandler.h"
 
 #define THROW_ERROR_NO_MSGS(statement) if((hr = statement) != S_OK)	throw ErrorHandler::StandardException{ __LINE__, __FILE__, __FUNCTION__, hr }; 
 

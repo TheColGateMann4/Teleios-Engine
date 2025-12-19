@@ -1,9 +1,9 @@
 #include "TransformConstantBuffer.h"
 #include "Graphics.h"
 #include "TargetShaders.h"
-#include "Camera.h"
+#include "Scene/Objects/Camera.h"
 #include "DynamicConstantBuffer.h"
-#include "ObjectTransform.h"
+#include "Scene/ObjectTransform.h"
 
 TransformConstantBuffer::TransformConstantBuffer(Graphics& graphics, std::vector<TargetSlotAndShader> targets)
 	:

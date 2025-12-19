@@ -2,7 +2,7 @@
 #include "Pipeline.h"
 #include "Camera.h"
 #include "Sphere.h"
-#include "Scene.h"
+#include "Scene/Scene.h"
 
 #include <imgui.h>
 

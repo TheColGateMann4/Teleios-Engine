@@ -73,14 +73,14 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ExternalIncludePath>$(ExternalIncludePath);C:\Libraries\DirectXTK12\Inc;C:\Libraries\DirectXTK12\Src;C:\Libraries\DirectXTex;C:\Libraries\imgui;C:\Libraries\assimp-5.4.3\include;C:\Libraries\DirectXCompiler2024_07_31\inc;C:\Libraries\DirectX12SDKAgility;C:\Libraries\PIX3\Include\WinPixEventRuntime</ExternalIncludePath>
-    <IncludePath>$(ProjectDir);$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)</IncludePath>
     <SourcePath>$(VC_SourcePath)</SourcePath>
     <OutDir>$(RemoteDebuggerWorkingDirectory)$(Platform)\$(Configuration)\</OutDir>
     <LibraryPath>C:\Libraries\DirectXTK12\Bin\Windows10_2022\$(Platform)\$(Configuration);C:\Libraries\DirectXTex\DirectXTex\Bin\Desktop_2022_Win10\$(Platform)\$(Configuration);C:\Libraries\freetype\objs\$(Platform)\$(Configuration) Static;C:\Projects\imguilib\$(Platform)\$(Configuration);C:\Libraries\PIX3\bin\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ExternalIncludePath>$(ExternalIncludePath);C:\Libraries\DirectXTK12\Inc;C:\Libraries\DirectXTK12\Src;C:\Libraries\DirectXTex;C:\Libraries\imgui;C:\Libraries\assimp\include;C:\Libraries\DirectX12SDKAgility;C:\Libraries\DirectXCompiler2024_07_31\inc</ExternalIncludePath>
-    <IncludePath>$(ProjectDir);$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)</IncludePath>
     <SourcePath>$(VC_SourcePath)</SourcePath>
     <OutDir>$(RemoteDebuggerWorkingDirectory)$(Platform)\$(Configuration)\</OutDir>
     <LibraryPath>C:\Libraries\DirectXTK12\Bin\Windows10_2022\$(Platform)\$(Configuration);C:\Libraries\DirectXTex\DirectXTex\Bin\Desktop_2022_Win10\$(Platform)\$(Configuration);C:\Libraries\freetype\objs\$(Platform)\$(Configuration) Static;C:\Projects\imguilib\$(Platform)\$(Configuration);$(LibraryPath)</LibraryPath>
@@ -123,9 +123,12 @@
       </AdditionalIncludeDirectories>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <LanguageStandard_C>stdclatest</LanguageStandard_C>
-      <AdditionalOptions>/external:W0 /Fd999 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/external:W0 /Fd999 /experimental:external
+ %(AdditionalOptions)</AdditionalOptions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <TreatAngleIncludeAsExternal>true</TreatAngleIncludeAsExternal>
+      <DisableAnalyzeExternal>true</DisableAnalyzeExternal>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -165,26 +168,26 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
-    <ClCompile Include="Bindable.cpp" />
+    <ClCompile Include="Bindables\Bindable.cpp" />
     <ClCompile Include="BindableContainer.cpp" />
-    <ClCompile Include="BlendState.cpp" />
+    <ClCompile Include="Bindables\BlendState.cpp" />
     <ClCompile Include="FullscreenPasses\DepthOfFieldFullscreenPass.cpp" />
     <ClCompile Include="FullscreenPasses\FogFullscreenPass.cpp" />
     <ClCompile Include="FullscreenPasses\FullscreenPass.cpp" />
-    <ClCompile Include="GraphicsBuffer.cpp" />
-    <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="GraphicsResources\GraphicsBuffer.cpp" />
+    <ClCompile Include="Scene\Objects\Camera.cpp" />
     <ClCompile Include="CommandList.cpp" />
-    <ClCompile Include="ConstantBuffer.cpp" />
+    <ClCompile Include="Bindables\ConstantBuffer.cpp" />
     <ClCompile Include="ConstantBufferHeap.cpp" />
-    <ClCompile Include="DepthStencilState.cpp" />
-    <ClCompile Include="DepthStencilView.cpp" />
+    <ClCompile Include="Bindables\DepthStencilState.cpp" />
+    <ClCompile Include="Bindables\DepthStencilView.cpp" />
     <ClCompile Include="DescriptorHeap.cpp" />
-    <ClCompile Include="GraphicsResource.cpp" />
-    <ClCompile Include="GraphicsTexture.cpp" />
+    <ClCompile Include="GraphicsResources\GraphicsResource.cpp" />
+    <ClCompile Include="GraphicsResources\GraphicsTexture.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="DynamicConstantBuffer.cpp" />
     <ClCompile Include="DynamicVertex.cpp" />
-    <ClCompile Include="ErrorHandler.cpp" />
+    <ClCompile Include="Error\ErrorHandler.cpp" />
     <ClCompile Include="Fence.cpp" />
     <ClCompile Include="FrameResourceDeleter.cpp" />
     <ClCompile Include="Graphics.cpp" />
@@ -192,99 +195,99 @@
     <ClCompile Include="ImguiManager.cpp" />
     <ClCompile Include="includes\DirectXIncludes.h" />
     <ClCompile Include="EntryPoint.cpp" />
-    <ClCompile Include="IndexBuffer.cpp" />
-    <ClCompile Include="InfoQueue.cpp" />
-    <ClCompile Include="Input.cpp" />
-    <ClCompile Include="InputLayout.cpp" />
+    <ClCompile Include="Bindables\IndexBuffer.cpp" />
+    <ClCompile Include="Error\InfoQueue.cpp" />
+    <ClCompile Include="System\Input.cpp" />
+    <ClCompile Include="Bindables\InputLayout.cpp" />
     <ClCompile Include="Macros\KeyMacros.h" />
     <ClCompile Include="Macros\ErrorMacros.h" />
-    <ClCompile Include="Model.cpp" />
-    <ClCompile Include="ModelImporter.cpp" />
-    <ClCompile Include="ObjectTransform.cpp" />
+    <ClCompile Include="Scene\Objects\Model.cpp" />
+    <ClCompile Include="Scene\ModelImporter.cpp" />
+    <ClCompile Include="Scene\ObjectTransform.cpp" />
     <ClCompile Include="Pipeline.cpp" />
     <ClCompile Include="PipelineState.cpp" />
-    <ClCompile Include="PointLight.cpp" />
+    <ClCompile Include="Scene\Objects\PointLight.cpp" />
     <ClCompile Include="PostProcessing.cpp" />
-    <ClCompile Include="PrimitiveTechnology.cpp" />
-    <ClCompile Include="RasterizerState.cpp" />
-    <ClCompile Include="RenderTarget.cpp" />
+    <ClCompile Include="Bindables\PrimitiveTechnology.cpp" />
+    <ClCompile Include="Bindables\RasterizerState.cpp" />
+    <ClCompile Include="Bindables\RenderTarget.cpp" />
     <ClCompile Include="RootSignature.cpp" />
-    <ClCompile Include="Sampler.cpp" />
-    <ClCompile Include="Scene.cpp" />
-    <ClCompile Include="SceneObject.cpp" />
-    <ClCompile Include="Shader.cpp" />
-    <ClCompile Include="Sphere.cpp" />
-    <ClCompile Include="ShaderResourceView.cpp" />
+    <ClCompile Include="Bindables\Sampler.cpp" />
+    <ClCompile Include="Scene\Scene.cpp" />
+    <ClCompile Include="Scene\SceneObject.cpp" />
+    <ClCompile Include="Bindables\Shader.cpp" />
+    <ClCompile Include="Scene\Objects\Sphere.cpp" />
+    <ClCompile Include="Bindables\ShaderResourceView.cpp" />
     <ClCompile Include="TempCommandList.cpp" />
-    <ClCompile Include="Texture.cpp" />
-    <ClCompile Include="TransformConstantBuffer.cpp" />
-    <ClCompile Include="Cube.cpp" />
-    <ClCompile Include="UnorderedAccessView.cpp" />
-    <ClCompile Include="VertexBuffer.cpp" />
-    <ClCompile Include="ViewPort.cpp" />
-    <ClCompile Include="Window.cpp" />
+    <ClCompile Include="Bindables\Texture.cpp" />
+    <ClCompile Include="Bindables\TransformConstantBuffer.cpp" />
+    <ClCompile Include="Scene\Objects\Cube.cpp" />
+    <ClCompile Include="Bindables\UnorderedAccessView.cpp" />
+    <ClCompile Include="Bindables\VertexBuffer.cpp" />
+    <ClCompile Include="Bindables\ViewPort.cpp" />
+    <ClCompile Include="System\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
-    <ClInclude Include="Bindable.h" />
+    <ClInclude Include="Bindables\Bindable.h" />
     <ClInclude Include="BindableContainer.h" />
     <ClInclude Include="BindableResourceList.h" />
-    <ClInclude Include="BlendState.h" />
-    <ClInclude Include="FullscreenPass.h" />
+    <ClInclude Include="Bindables\BlendState.h" />
     <ClInclude Include="FullscreenPasses\DepthOfFieldFullscreenPass.h" />
     <ClInclude Include="FullscreenPasses\FogFullscreenPass.h" />
     <ClInclude Include="FullscreenPasses\FullscreenPass.h" />
-    <ClInclude Include="GraphicsBuffer.h" />
-    <ClInclude Include="Camera.h" />
+    <ClInclude Include="GraphicsResources\GraphicsBuffer.h" />
+    <ClInclude Include="Scene\Objects\Camera.h" />
     <ClInclude Include="CommandList.h" />
-    <ClInclude Include="ConstantBuffer.h" />
+    <ClInclude Include="Bindables\ConstantBuffer.h" />
     <ClInclude Include="ConstantBufferHeap.h" />
-    <ClInclude Include="DepthStencilState.h" />
-    <ClInclude Include="DepthStencilView.h" />
+    <ClInclude Include="Bindables\DepthStencilState.h" />
+    <ClInclude Include="Bindables\DepthStencilView.h" />
     <ClInclude Include="DescriptorHeap.h" />
-    <ClInclude Include="GraphicsResource.h" />
-    <ClInclude Include="GraphicsTexture.h" />
+    <ClInclude Include="GraphicsResources\GraphicsResource.h" />
+    <ClInclude Include="GraphicsResources\GraphicsTexture.h" />
+    <ClInclude Include="includes\BindablesInclude.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="DynamicConstantBuffer.h" />
     <ClInclude Include="DynamicVertex.h" />
-    <ClInclude Include="ErrorHandler.h" />
+    <ClInclude Include="Error\ErrorHandler.h" />
     <ClInclude Include="Fence.h" />
     <ClInclude Include="FrameResourceDeleter.h" />
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="ImguiLayer.h" />
     <ClInclude Include="ImguiManager.h" />
     <ClInclude Include="includes\CppIncludes.h" />
-    <ClInclude Include="IndexBuffer.h" />
-    <ClInclude Include="InfoQueue.h" />
-    <ClInclude Include="Input.h" />
-    <ClInclude Include="InputLayout.h" />
-    <ClInclude Include="MessageMap.h" />
-    <ClInclude Include="Model.h" />
-    <ClInclude Include="ModelImporter.h" />
-    <ClInclude Include="ObjectTransform.h" />
+    <ClInclude Include="Bindables\IndexBuffer.h" />
+    <ClInclude Include="Error\InfoQueue.h" />
+    <ClInclude Include="System\Input.h" />
+    <ClInclude Include="Bindables\InputLayout.h" />
+    <ClInclude Include="Error\MessageMap.h" />
+    <ClInclude Include="Scene\Objects\Model.h" />
+    <ClInclude Include="Scene\ModelImporter.h" />
+    <ClInclude Include="Scene\ObjectTransform.h" />
     <ClInclude Include="Pipeline.h" />
     <ClInclude Include="PipelineState.h" />
-    <ClInclude Include="PointLight.h" />
+    <ClInclude Include="Scene\Objects\PointLight.h" />
     <ClInclude Include="PostProcessing.h" />
-    <ClInclude Include="PrimitiveTechnology.h" />
-    <ClInclude Include="RasterizerState.h" />
-    <ClInclude Include="RenderTarget.h" />
+    <ClInclude Include="Bindables\PrimitiveTechnology.h" />
+    <ClInclude Include="Bindables\RasterizerState.h" />
+    <ClInclude Include="Bindables\RenderTarget.h" />
     <ClInclude Include="RootSignature.h" />
-    <ClInclude Include="Sampler.h" />
-    <ClInclude Include="Scene.h" />
-    <ClInclude Include="SceneObject.h" />
-    <ClInclude Include="Shader.h" />
-    <ClInclude Include="Sphere.h" />
-    <ClInclude Include="ShaderResourceView.h" />
+    <ClInclude Include="Bindables\Sampler.h" />
+    <ClInclude Include="Scene\Scene.h" />
+    <ClInclude Include="Scene\SceneObject.h" />
+    <ClInclude Include="Bindables\Shader.h" />
+    <ClInclude Include="Scene\Objects\Sphere.h" />
+    <ClInclude Include="Bindables\ShaderResourceView.h" />
     <ClInclude Include="TargetShaders.h" />
     <ClInclude Include="TempCommandList.h" />
-    <ClInclude Include="Texture.h" />
-    <ClInclude Include="TransformConstantBuffer.h" />
-    <ClInclude Include="Cube.h" />
-    <ClInclude Include="UnorderedAccessView.h" />
-    <ClInclude Include="VertexBuffer.h" />
-    <ClInclude Include="ViewPort.h" />
-    <ClInclude Include="Window.h" />
+    <ClInclude Include="Bindables\Texture.h" />
+    <ClInclude Include="Bindables\TransformConstantBuffer.h" />
+    <ClInclude Include="Scene\Objects\Cube.h" />
+    <ClInclude Include="Bindables\UnorderedAccessView.h" />
+    <ClInclude Include="Bindables\VertexBuffer.h" />
+    <ClInclude Include="Bindables\ViewPort.h" />
+    <ClInclude Include="System\Window.h" />
     <ClInclude Include="includes\WRLNoWarnings.h" />
   </ItemGroup>
   <ItemGroup>

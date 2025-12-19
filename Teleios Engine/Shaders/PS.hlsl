@@ -158,12 +158,14 @@ float4 PSMain(
     float textureOpacity = b_opacity;
 #endif
     
+    //clip(textureOpacity - 0.05f); // argument < 0 -> discard pixel
+    
 #ifdef METALNESS_ROUGHNESS_ONE_TEXTURE
     float metalness = t_metalnessRoughness.Sample(s_sampler, textureCoords).b; // r
 #else
-    #ifdef TEXTURE_METALNESS
+#ifdef TEXTURE_METALNESS
         float metalness = t_metalness.Sample(s_sampler, textureCoords).r;
-    #else
+#else
         float metalness = b_metalness;
     #endif
 #endif

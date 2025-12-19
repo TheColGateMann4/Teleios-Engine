@@ -1,19 +1,5 @@
 #pragma once
-#include "IndexBuffer.h"
-#include "VertexBuffer.h"
-#include "InputLayout.h"
-
-#include "Sampler.h"
-#include "BlendState.h"
-#include "RasterizerState.h"
-#include "ViewPort.h"
-#include "PrimitiveTechnology.h"
-
-#include "Shader.h"
-
-#include "ShaderResourceView.h"
-
-#include "ConstantBuffer.h"
+#include "includes/BindablesInclude.h"
 
 class FullscreenPass
 {

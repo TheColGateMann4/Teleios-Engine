@@ -4,10 +4,10 @@
 #include "includes/WRLNoWarnings.h"
 
 #include "Fence.h"
-#include "InfoQueue.h"
+#include "Error/InfoQueue.h"
 #include "RootSignature.h"
-#include "RenderTarget.h"
-#include "DepthStencilView.h"
+#include "Bindables/RenderTarget.h"
+#include "Bindables/DepthStencilView.h"
 #include "ImguiManager.h"
 #include "FrameResourceDeleter.h"
 #include "DescriptorHeap.h"

@@ -2,7 +2,7 @@
 #include "includes/DirectXIncludes.h"
 #include "includes/WRLNoWarnings.h"
 #include "Bindable.h"
-#include "GraphicsBuffer.h"
+#include "GraphicsResources/GraphicsBuffer.h"
 #include "DynamicVertex.h"
 
 class Pipeline;

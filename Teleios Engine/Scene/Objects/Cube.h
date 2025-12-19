@@ -1,5 +1,5 @@
 #pragma once
-#include "SceneObject.h"
+#include "Scene/SceneObject.h"
 #include "Mesh.h"
 
 class Graphics;

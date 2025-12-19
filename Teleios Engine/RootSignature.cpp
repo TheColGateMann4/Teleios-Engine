@@ -2,11 +2,7 @@
 #include "Macros/ErrorMacros.h"
 #include "Graphics.h"
 
-#include "ConstantBuffer.h"
-#include "Texture.h"
-#include "ShaderResourceView.h"
-#include "UnorderedAccessView.h"
-#include "Sampler.h"
+#include "includes/BindablesInclude.h"
 
 RootSignature::RootSignature()
 	:

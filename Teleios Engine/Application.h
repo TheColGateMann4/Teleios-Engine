@@ -1,9 +1,9 @@
 #pragma once
 #include "Includes/CppIncludes.h"
-#include "Window.h"
-#include "SceneObject.h"
-#include "Camera.h"
-#include "Scene.h"
+#include "System/Window.h"
+#include "Scene/SceneObject.h"
+#include "Scene/Objects/Camera.h"
+#include "Scene/Scene.h"
 
 class Application
 {

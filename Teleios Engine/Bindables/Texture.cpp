@@ -19,7 +19,7 @@
 
 #include "Pipeline.h"
 
-#include "GraphicsTexture.h"
+#include "GraphicsResources/GraphicsTexture.h"
 
 Texture::Texture(Graphics& graphics, const char* path, bool srgb, bool generateMips, std::vector<TargetSlotAndShader> targets)
 	:

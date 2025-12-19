@@ -2,12 +2,7 @@
 #include "includes/CppIncludes.h"
 #include <Geometry.h>
 
-#include "Shader.h"
-#include "BlendState.h"
-#include "RasterizerState.h"
-#include "DepthStencilState.h"
-#include "InputLayout.h"
-#include "PrimitiveTechnology.h"
+#include "includes/BindablesInclude.h"
 
 #include "DynamicVertex.h"
 

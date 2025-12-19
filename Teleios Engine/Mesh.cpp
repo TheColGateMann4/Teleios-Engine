@@ -1,7 +1,7 @@
 #include "Mesh.h"
 #include "Graphics.h"
 #include "Pipeline.h"
-#include "Camera.h"
+#include "Scene/Objects/Camera.h"
 
 void Mesh::Initialize(Graphics& graphics, Pipeline& pipeline)
 {

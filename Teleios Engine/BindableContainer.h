@@ -1,6 +1,6 @@
 #pragma once
 #include "includes/CppIncludes.h"
-#include "Bindable.h"
+#include "Bindables/Bindable.h"
 
 class Pipeline;
 
@@ -21,9 +21,7 @@ public:
 	template<class T, std::enable_if_t<std::is_base_of_v<Bindable, T>, int> = 0>
 	void AddBindable(T&& bindable)
 	{
-		m_bindables.push_back(std::make_shared<T>(std::move(bindable)));
-
-		SegregateBindable(m_bindables.back().get());
+		AddBindable(std::make_shared<T>(std::move(bindable)));
 	}
 
 	void SetVertexBuffer(std::shared_ptr<VertexBuffer> vertexBuffer);

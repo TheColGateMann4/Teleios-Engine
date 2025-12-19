@@ -5,8 +5,7 @@
 
 #include "Macros/ErrorMacros.h"
 
-#include "Shader.h"
-#include "IndexBuffer.h"
+#include "includes/BindablesInclude.h"
 
 TempComputeCommandList::TempComputeCommandList(Graphics& graphics, CommandList* commandList)
 	:

@@ -1,6 +1,6 @@
 #pragma once
 #include "Includes/CppIncludes.h"
-#include "ErrorHandler.h"
+#include "Error/ErrorHandler.h"
 #include "Graphics.h"
 #include "Input.h"
 

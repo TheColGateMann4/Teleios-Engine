@@ -2,7 +2,7 @@
 #include "includes/DirectXIncludes.h"
 #include "includes/WRLNoWarnings.h"
 
-#include "GraphicsTexture.h"
+#include "GraphicsResources/GraphicsTexture.h"
 
 class Graphics;
 

@@ -1,6 +1,6 @@
 #include "Includes/CppIncludes.h"
 #include "Application.h"
-#include "ErrorHandler.h"
+#include "Error/ErrorHandler.h"
 
 int WINAPI WinMain
 (

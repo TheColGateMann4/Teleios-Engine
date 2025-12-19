@@ -4,8 +4,8 @@
 #include "Macros/ErrorMacros.h"
 
 #include "Texture.h" // for Texture::GetLinearFormat()
-#include "GraphicsTexture.h"
-#include "GraphicsBuffer.h"
+#include "GraphicsResources/GraphicsTexture.h"
+#include "GraphicsResources/GraphicsBuffer.h"
 
 #include "BindableResourceList.h"
 

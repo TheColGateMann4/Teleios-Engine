@@ -8,8 +8,8 @@
 #include "RootSignature.h"
 #include "CommandList.h"
 
-#include "GraphicsTexture.h"
-#include "GraphicsBuffer.h"
+#include "GraphicsResources/GraphicsTexture.h"
+#include "GraphicsResources/GraphicsBuffer.h"
 
 #include "Macros/ErrorMacros.h"
 

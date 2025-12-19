@@ -48,13 +48,13 @@
     <ClCompile Include="Application.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ErrorHandler.cpp">
+    <ClCompile Include="Error\ErrorHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Macros\ErrorMacros.h">
       <Filter>Header Files\Macros</Filter>
     </ClCompile>
-    <ClCompile Include="Window.cpp">
+    <ClCompile Include="System\Window.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Macros\KeyMacros.h">
@@ -63,43 +63,43 @@
     <ClCompile Include="Graphics.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Cube.cpp">
+    <ClCompile Include="Scene\Objects\Cube.cpp">
       <Filter>Source Files\DrawableObjects</Filter>
     </ClCompile>
-    <ClCompile Include="RenderTarget.cpp">
+    <ClCompile Include="Bindables\RenderTarget.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="PipelineState.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Shader.cpp">
+    <ClCompile Include="Bindables\Shader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="InfoQueue.cpp">
+    <ClCompile Include="Error\InfoQueue.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="VertexBuffer.cpp">
+    <ClCompile Include="Bindables\VertexBuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="IndexBuffer.cpp">
+    <ClCompile Include="Bindables\IndexBuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="RootSignature.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="BlendState.cpp">
+    <ClCompile Include="Bindables\BlendState.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="RasterizerState.cpp">
+    <ClCompile Include="Bindables\RasterizerState.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="DepthStencilState.cpp">
+    <ClCompile Include="Bindables\DepthStencilState.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="InputLayout.cpp">
+    <ClCompile Include="Bindables\InputLayout.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="DepthStencilView.cpp">
+    <ClCompile Include="Bindables\DepthStencilView.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CommandList.cpp">
@@ -108,28 +108,28 @@
     <ClCompile Include="Fence.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ConstantBuffer.cpp">
+    <ClCompile Include="Bindables\ConstantBuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ImguiManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Texture.cpp">
+    <ClCompile Include="Bindables\Texture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="DynamicConstantBuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Camera.cpp">
+    <ClCompile Include="Scene\Objects\Camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="TransformConstantBuffer.cpp">
+    <ClCompile Include="Bindables\TransformConstantBuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Input.cpp">
+    <ClCompile Include="System\Input.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="PointLight.cpp">
+    <ClCompile Include="Scene\Objects\PointLight.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Pipeline.cpp">
@@ -138,28 +138,28 @@
     <ClCompile Include="ImguiLayer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Sphere.cpp">
+    <ClCompile Include="Scene\Objects\Sphere.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SceneObject.cpp">
+    <ClCompile Include="Scene\SceneObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Sampler.cpp">
+    <ClCompile Include="Bindables\Sampler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="PrimitiveTechnology.cpp">
+    <ClCompile Include="Bindables\PrimitiveTechnology.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Mesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Model.cpp">
+    <ClCompile Include="Scene\Objects\Model.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="DynamicVertex.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Bindable.cpp">
+    <ClCompile Include="Bindables\Bindable.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="FrameResourceDeleter.cpp">
@@ -168,19 +168,19 @@
     <ClCompile Include="DescriptorHeap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Scene.cpp">
+    <ClCompile Include="Scene\Scene.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="UnorderedAccessView.cpp">
+    <ClCompile Include="Bindables\UnorderedAccessView.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GraphicsBuffer.cpp">
+    <ClCompile Include="GraphicsResources\GraphicsBuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ConstantBufferHeap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ModelImporter.cpp">
+    <ClCompile Include="Scene\ModelImporter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="BindableContainer.cpp">
@@ -189,22 +189,22 @@
     <ClCompile Include="TempCommandList.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ObjectTransform.cpp">
+    <ClCompile Include="Scene\ObjectTransform.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ShaderResourceView.cpp">
+    <ClCompile Include="Bindables\ShaderResourceView.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="PostProcessing.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GraphicsTexture.cpp">
+    <ClCompile Include="GraphicsResources\GraphicsTexture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GraphicsResource.cpp">
+    <ClCompile Include="GraphicsResources\GraphicsResource.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ViewPort.cpp">
+    <ClCompile Include="Bindables\ViewPort.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="FullscreenPasses\FogFullscreenPass.cpp">
@@ -224,10 +224,10 @@
     <ClInclude Include="Application.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ErrorHandler.h">
+    <ClInclude Include="Error\ErrorHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Window.h">
+    <ClInclude Include="System\Window.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Graphics.h">
@@ -236,46 +236,46 @@
     <ClInclude Include="includes\WRLNoWarnings.h">
       <Filter>Header Files\Includes</Filter>
     </ClInclude>
-    <ClInclude Include="Cube.h">
+    <ClInclude Include="Scene\Objects\Cube.h">
       <Filter>Header Files\DrawableObjects</Filter>
     </ClInclude>
-    <ClInclude Include="RenderTarget.h">
+    <ClInclude Include="Bindables\RenderTarget.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="PipelineState.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Shader.h">
+    <ClInclude Include="Bindables\Shader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="InfoQueue.h">
+    <ClInclude Include="Error\InfoQueue.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MessageMap.h">
+    <ClInclude Include="Error\MessageMap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="VertexBuffer.h">
+    <ClInclude Include="Bindables\VertexBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="IndexBuffer.h">
+    <ClInclude Include="Bindables\IndexBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="RootSignature.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="BlendState.h">
+    <ClInclude Include="Bindables\BlendState.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="RasterizerState.h">
+    <ClInclude Include="Bindables\RasterizerState.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DepthStencilState.h">
+    <ClInclude Include="Bindables\DepthStencilState.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="InputLayout.h">
+    <ClInclude Include="Bindables\InputLayout.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DepthStencilView.h">
+    <ClInclude Include="Bindables\DepthStencilView.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CommandList.h">
@@ -284,13 +284,13 @@
     <ClInclude Include="Fence.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ConstantBuffer.h">
+    <ClInclude Include="Bindables\ConstantBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ImguiManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Texture.h">
+    <ClInclude Include="Bindables\Texture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="TargetShaders.h">
@@ -299,16 +299,16 @@
     <ClInclude Include="DynamicConstantBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Camera.h">
+    <ClInclude Include="Scene\Objects\Camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TransformConstantBuffer.h">
+    <ClInclude Include="Bindables\TransformConstantBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Input.h">
+    <ClInclude Include="System\Input.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="PointLight.h">
+    <ClInclude Include="Scene\Objects\PointLight.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Pipeline.h">
@@ -317,25 +317,25 @@
     <ClInclude Include="ImguiLayer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Sphere.h">
+    <ClInclude Include="Scene\Objects\Sphere.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SceneObject.h">
+    <ClInclude Include="Scene\SceneObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Bindable.h">
+    <ClInclude Include="Bindables\Bindable.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Sampler.h">
+    <ClInclude Include="Bindables\Sampler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="PrimitiveTechnology.h">
+    <ClInclude Include="Bindables\PrimitiveTechnology.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Mesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Model.h">
+    <ClInclude Include="Scene\Objects\Model.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="DynamicVertex.h">
@@ -350,19 +350,19 @@
     <ClInclude Include="DescriptorHeap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Scene.h">
+    <ClInclude Include="Scene\Scene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="UnorderedAccessView.h">
+    <ClInclude Include="Bindables\UnorderedAccessView.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GraphicsBuffer.h">
+    <ClInclude Include="GraphicsResources\GraphicsBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ConstantBufferHeap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ModelImporter.h">
+    <ClInclude Include="Scene\ModelImporter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BindableContainer.h">
@@ -371,25 +371,22 @@
     <ClInclude Include="TempCommandList.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ObjectTransform.h">
+    <ClInclude Include="Scene\ObjectTransform.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ShaderResourceView.h">
+    <ClInclude Include="Bindables\ShaderResourceView.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="PostProcessing.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GraphicsTexture.h">
+    <ClInclude Include="GraphicsResources\GraphicsTexture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GraphicsResource.h">
+    <ClInclude Include="GraphicsResources\GraphicsResource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ViewPort.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="FullscreenPass.h">
+    <ClInclude Include="Bindables\ViewPort.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="FullscreenPasses\FogFullscreenPass.h">
@@ -400,6 +397,9 @@
     </ClInclude>
     <ClInclude Include="FullscreenPasses\DepthOfFieldFullscreenPass.h">
       <Filter>Header Files\FullscreenPasses</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\BindablesInclude.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

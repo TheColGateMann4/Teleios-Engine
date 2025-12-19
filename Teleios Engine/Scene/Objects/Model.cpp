@@ -1,15 +1,8 @@
 #include "Model.h"
 
-#include "Shader.h"
-#include "BlendState.h"
-#include "RasterizerState.h"
-#include "DepthStencilState.h"
-#include "InputLayout.h"
-#include "ConstantBuffer.h"
-#include "PrimitiveTechnology.h"
-#include "Sampler.h"
-#include "Texture.h"
-#include "GraphicsTexture.h"
+#include "includes/BindablesInclude.h"
+
+#include "GraphicsResources/GraphicsTexture.h"
 
 #include "DynamicVertex.h"
 #include "DynamicConstantBuffer.h"

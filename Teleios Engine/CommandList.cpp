@@ -3,15 +3,10 @@
 #include "PipelineState.h"
 #include "Macros/ErrorMacros.h"
 
-#include "VertexBuffer.h"
-#include "IndexBuffer.h"
-#include "ConstantBuffer.h"
-#include "Texture.h"
-#include "ShaderResourceView.h"
-#include "UnorderedAccessView.h"
-#include "GraphicsResource.h"
-#include "GraphicsTexture.h"
-#include "ViewPort.h"
+#include "includes/BindablesInclude.h"
+
+#include "GraphicsResources/GraphicsResource.h"
+#include "GraphicsResources/GraphicsTexture.h"
 
 #include "DescriptorHeap.h"
 

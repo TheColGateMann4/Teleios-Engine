@@ -3,9 +3,9 @@
 #include "Macros/ErrorMacros.h"
 #include "PipelineState.h"
 #include "PostProcessing.h"
-#include "ViewPort.h"
 
-#include "IndexBuffer.h"
+#include "Bindables/ViewPort.h"
+#include "Bindables/IndexBuffer.h"
 
 Pipeline::Pipeline(Graphics& graphics)
 	:

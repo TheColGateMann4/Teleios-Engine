@@ -1,6 +1,6 @@
 #pragma once
 #include "includes/CppIncludes.h"
-#include "SceneObject.h"
+#include "Scene/SceneObject.h"
 
 class aiNode;
 class aiMesh;

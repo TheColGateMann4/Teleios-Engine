@@ -4,7 +4,7 @@
 #include "includes/WRLNoWarnings.h"
 
 #include "Bindable.h"
-#include "GraphicsBuffer.h"
+#include "GraphicsResources/GraphicsBuffer.h"
 
 class Pipeline;
 class Graphics;

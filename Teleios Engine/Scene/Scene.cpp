@@ -1,9 +1,9 @@
 #include "Scene.h"
 #include "Graphics.h"
-#include "Window.h"
+#include "System/Window.h"
 #include "SceneObject.h"
-#include "Camera.h"
-#include "Model.h"
+#include "Objects/Camera.h"
+#include "Objects/Model.h"
 
 #include "ModelImporter.h"
 

@@ -1,9 +1,9 @@
 #include "Application.h"
 #include "Macros/ErrorMacros.h"
 
-#include "Cube.h"
-#include "Model.h"
-#include "PointLight.h"
+#include "Scene/Objects/Cube.h"
+#include "Scene/Objects/Model.h"
+#include "Scene/Objects/PointLight.h"
 
 Application::Application(unsigned int width, unsigned int height, const char* name)
 	:
@@ -44,12 +44,14 @@ void Application::InitializeScene()
 	scene.AddSceneObject(std::make_shared<Camera>(window.graphics));
 	//scene.AddSceneObject(std::make_shared<Cube>(window.graphics));
 	//scene.AddSceneObjectFromFile(window.graphics, "Models/nanosuit/nanosuit.obj");
-	//scene.AddSceneObjectFromFile(window.graphics, "Models/sponza/sponza.obj", 1.0f / 40.0f);
+	scene.AddSceneObjectFromFile(window.graphics, "Models/sponza/sponza.obj", 1.0f / 40.0f);
 	//scene.AddSceneObjectFromFile(window.graphics, "Models/intel_sponza/main1_sponza/NewSponza_Main_Yup_003.fbx", 1.0f);
 	//scene.AddSceneObjectFromFile(window.graphics, "Models/intel_sponza/pkg_a_curtains/NewSponza_Curtains_FBX_YUp.fbx", 1.0f);
 
-	scene.AddSceneObjectFromFile(window.graphics, "Models/intel_sponza/main1_sponza/NewSponza_Main_glTF_003.gltf");
-	scene.AddSceneObjectFromFile(window.graphics, "Models/intel_sponza/pkg_a_curtains/NewSponza_Curtains_glTF.gltf");
+	//scene.AddSceneObjectFromFile(window.graphics, "Models/intel_sponza/main1_sponza/NewSponza_Main_glTF_003.gltf");
+	//scene.AddSceneObjectFromFile(window.graphics, "Models/intel_sponza/pkg_a_curtains/NewSponza_Curtains_glTF.gltf");
+	//scene.AddSceneObjectFromFile(window.graphics, "Models/intel_sponza/pkg_b_ivy/NewSponza_IvyGrowth_glTF.gltf");
+	//scene.AddSceneObjectFromFile(window.graphics, "Models/intel_sponza/pkg_c_trees/NewSponza_CypressTree_glTF.gltf");
 
 	scene.AddSceneObject(std::make_shared<PointLight>(window.graphics, scene));
 

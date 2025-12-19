@@ -3,7 +3,7 @@
 #include "includes/WRLNoWarnings.h"
 
 #include "Bindable.h"
-#include "GraphicsTexture.h"
+#include "GraphicsResources/GraphicsTexture.h"
 
 class Graphics;
 

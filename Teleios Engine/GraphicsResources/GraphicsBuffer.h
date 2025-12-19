@@ -5,7 +5,7 @@
 
 #include "GraphicsResource.h"
 
-#include "Bindable.h"
+#include "Bindables/Bindable.h"
 
 class Graphics;
 class Pipeline;

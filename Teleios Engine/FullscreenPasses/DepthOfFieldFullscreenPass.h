@@ -1,8 +1,6 @@
 #pragma once
 #include "FullscreenPass.h"
 
-#include "UnorderedAccessView.h"
-
 class Graphics;
 
 class DepthOfFieldFullscreenPass : public FullscreenPass

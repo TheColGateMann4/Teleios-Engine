@@ -2,12 +2,7 @@
 
 #include "Pipeline.h"
 
-#include "Shader.h"
-#include "VertexBuffer.h"
-#include "IndexBuffer.h"
-#include "TransformConstantBuffer.h"
-#include "ConstantBuffer.h"
-#include "Texture.h"
+#include "includes/BindablesInclude.h"
 
 void MeshBindableContainer::AddStaticBindable(const char* bindableName)
 {
