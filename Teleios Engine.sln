@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34728.123
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Teleios Engine", "Teleios Engine\Teleios Engine.vcxproj", "{B468BB1E-5593-44B3-BB51-C679345AD8C5}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Teleios Engine", "Teleios Engine.vcxproj", "{B468BB1E-5593-44B3-BB51-C679345AD8C5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
