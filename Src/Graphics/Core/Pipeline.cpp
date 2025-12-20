@@ -7,9 +7,7 @@
 #include "Graphics/Bindables/ViewPort.h"
 #include "Graphics/Bindables/IndexBuffer.h"
 
-Pipeline::Pipeline(Graphics& graphics)
-	:
-	m_postProcessing(graphics)
+void Pipeline::Initialize(Graphics& graphics)
 {
 	m_graphicsCommandList = std::make_shared<CommandList>(graphics, D3D12_COMMAND_LIST_TYPE_DIRECT);
 }
@@ -21,6 +19,7 @@ void Pipeline::BeginRender(Graphics& graphics) const
 	// setting correct states
 	m_graphicsCommandList->SetAllResourcesStates(graphics, graphics.GetDepthStencil()->GetResource(graphics), D3D12_RESOURCE_STATE_DEPTH_WRITE);
 	m_graphicsCommandList->SetResourceState(graphics, graphics.GetBackBuffer()->GetTexture(graphics), D3D12_RESOURCE_STATE_RENDER_TARGET);
+	m_graphicsCommandList->SetResourceState(graphics, graphics.GetSwapChainBuffer(), D3D12_RESOURCE_STATE_RENDER_TARGET);
 
 	// setting render target
 	m_graphicsCommandList->SetRenderTarget(graphics, graphics.GetBackBuffer(), graphics.GetDepthStencil());
@@ -35,11 +34,6 @@ void Pipeline::BeginRender(Graphics& graphics) const
 
 void Pipeline::FinishRender(Graphics& graphics)
 {
-	m_graphicsCommandList->SetResourceState(graphics, graphics.GetSwapChainBuffer(), D3D12_RESOURCE_STATE_RENDER_TARGET);
-
-	// drawing backbuffer on top of swapchain
-	m_postProcessing.ApplyEffect(graphics, *this);
-
 	m_graphicsCommandList->SetResourceState(graphics, graphics.GetSwapChainBuffer(), D3D12_RESOURCE_STATE_PRESENT);
 
 	m_graphicsCommandList->Close(graphics); // closing graphics command list
@@ -47,16 +41,9 @@ void Pipeline::FinishRender(Graphics& graphics)
 
 void Pipeline::FinishInitialization(Graphics& graphics)
 {
-	m_postProcessing.Initialize(graphics, *this);
-
 	GetGraphicCommandList()->Close(graphics);
 
 	Execute(graphics);
-}
-
-void Pipeline::DrawEffectsImguiWindow(Graphics& graphics)
-{
-	m_postProcessing.Update(graphics, *this);
 }
 
 CommandList* Pipeline::GetGraphicCommandList() const

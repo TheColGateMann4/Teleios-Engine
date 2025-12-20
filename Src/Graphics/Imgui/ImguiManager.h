@@ -15,7 +15,7 @@ public:
 public:
 	void BeginFrame();
 
-	LRESULT HandleMessages(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+	static LRESULT HandleMessages(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 	ID3D12DescriptorHeap* const* GetAddressOfDescriptorHeap() const;
 

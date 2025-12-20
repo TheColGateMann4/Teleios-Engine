@@ -171,13 +171,15 @@
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Src\Graphics\RenderGraph\RenderGraph.cpp" />
+    <ClCompile Include="Src\Graphics\Core\DeviceResources.cpp" />
     <ClCompile Include="Src\Application.cpp" />
     <ClCompile Include="Src\Graphics\Bindables\Bindable.cpp" />
     <ClCompile Include="Src\Graphics\Core\BindableContainer.cpp" />
     <ClCompile Include="Src\Graphics\Bindables\BlendState.cpp" />
-    <ClCompile Include="Src\Graphics\FullscreenPasses\DepthOfFieldFullscreenPass.cpp" />
-    <ClCompile Include="Src\Graphics\FullscreenPasses\FogFullscreenPass.cpp" />
-    <ClCompile Include="Src\Graphics\FullscreenPasses\FullscreenPass.cpp" />
+    <ClCompile Include="Src\Graphics\RenderGraph\FullscreenPasses\DepthOfFieldFullscreenPass.cpp" />
+    <ClCompile Include="Src\Graphics\RenderGraph\FullscreenPasses\FogFullscreenPass.cpp" />
+    <ClCompile Include="Src\Graphics\RenderGraph\FullscreenPasses\FullscreenPass.cpp" />
     <ClCompile Include="Src\Graphics\Resources\GraphicsBuffer.cpp" />
     <ClCompile Include="Src\Scene\Objects\Camera.cpp" />
     <ClCompile Include="Src\Graphics\Core\CommandList.cpp" />
@@ -232,14 +234,16 @@
     <ClCompile Include="Src\System\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Src\Graphics\RenderGraph\RenderGraph.h" />
+    <ClInclude Include="Src\Graphics\Core\DeviceResources.h" />
     <ClInclude Include="Src\Application.h" />
     <ClInclude Include="Src\Graphics\Bindables\Bindable.h" />
     <ClInclude Include="Src\Graphics\Core\BindableContainer.h" />
     <ClInclude Include="Src\Graphics\Core\BindableResourceList.h" />
     <ClInclude Include="Src\Graphics\Bindables\BlendState.h" />
-    <ClInclude Include="Src\Graphics\FullscreenPasses\DepthOfFieldFullscreenPass.h" />
-    <ClInclude Include="Src\Graphics\FullscreenPasses\FogFullscreenPass.h" />
-    <ClInclude Include="Src\Graphics\FullscreenPasses\FullscreenPass.h" />
+    <ClInclude Include="Src\Graphics\RenderGraph\FullscreenPasses\DepthOfFieldFullscreenPass.h" />
+    <ClInclude Include="Src\Graphics\RenderGraph\FullscreenPasses\FogFullscreenPass.h" />
+    <ClInclude Include="Src\Graphics\RenderGraph\FullscreenPasses\FullscreenPass.h" />
     <ClInclude Include="Src\Graphics\Resources\GraphicsBuffer.h" />
     <ClInclude Include="Src\Scene\Objects\Camera.h" />
     <ClInclude Include="Src\Graphics\Core\CommandList.h" />

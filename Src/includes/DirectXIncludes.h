@@ -1,6 +1,7 @@
 #pragma once
 #include <Agility/include/d3d12.h> // agility sdk
 #include <DirectXMath.h>
+#include <dxgi1_6.h>
 
 #include "CppIncludes.h"
 

@@ -1,6 +1,7 @@
 #include "FogFullscreenPass.h"
 
 #include "Scene/Objects/Camera.h"
+#include "Graphics/Core/Graphics.h"
 #include "Graphics/Core/Pipeline.h"
 #include "Graphics/Core/TempCommandList.h"
 

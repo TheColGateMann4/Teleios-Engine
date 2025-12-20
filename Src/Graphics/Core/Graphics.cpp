@@ -57,6 +57,8 @@ Graphics::Graphics(HWND hWnd, DXGI_FORMAT renderTargetFormat)
 		//initializing imgui
 		m_imguiManager = std::make_unique<ImguiManager>(*this, hWnd);
 	}
+
+	renderGraph.Initialize(*this);
 }
 
 Graphics::~Graphics()
@@ -100,6 +102,11 @@ void Graphics::FinishFrame()
 	CleanupResources();
 }
 
+void Graphics::Render(Scene& scene)
+{
+	renderGraph.Draw(*this, scene);
+}
+
 void Graphics::PresentFrame()
 {
 	HRESULT hr;
@@ -127,6 +134,11 @@ void Graphics::WaitForGPUIfNeeded()
 void Graphics::CleanupResources()
 {
 	resourceDeleter.Update(*this);
+}
+
+RenderGraph& Graphics::GetRenderGraph()
+{
+	return renderGraph;
 }
 
 DeviceResources& Graphics::GetDeviceResources()

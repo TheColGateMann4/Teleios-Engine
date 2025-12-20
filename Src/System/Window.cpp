@@ -8,7 +8,7 @@
 		Window
 */
 
-Window::Window(UINT32 width, UINT32 height, const char* name, DXGI_FORMAT colorSpace)
+Window::Window(UINT32 width, UINT32 height, const char* name)
 	:
 	m_windowClass(name),
 	m_width(width),
@@ -47,8 +47,6 @@ Window::Window(UINT32 width, UINT32 height, const char* name, DXGI_FORMAT colorS
 		ShowWindow(m_hWnd, SW_SHOW);
 	}
 
-	graphics.Initialize(m_hWnd, colorSpace);
-
 	// regitering for raw input notifications
 	{
 		RAWINPUTDEVICE rawInputDevice = {};
@@ -86,6 +84,11 @@ BOOL Window::HandleMessages()
 	}
 
 	return TRUE;
+}
+
+void Window::SetFunctionCallback(WindowMessageCallback callback)
+{
+	optMessageCallback = callback;
 }
 
 UINT32 Window::GetWidth() const
@@ -231,7 +234,7 @@ LRESULT WINAPI Window::MessageHub(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPa
 
 LRESULT Window::HandleMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept
 {
-	if (graphics.GetImguiManager()->HandleMessages(hWnd, msg, wParam, lParam))
+	if (optMessageCallback && (*optMessageCallback)(hWnd, msg, wParam, lParam))
 		return true;
 
 	switch (msg)

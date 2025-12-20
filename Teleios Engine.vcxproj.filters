@@ -5,9 +5,9 @@
     <ClCompile Include="Src\Graphics\Bindables\Bindable.cpp" />
     <ClCompile Include="Src\Graphics\Core\BindableContainer.cpp" />
     <ClCompile Include="Src\Graphics\Bindables\BlendState.cpp" />
-    <ClCompile Include="Src\Graphics\FullscreenPasses\DepthOfFieldFullscreenPass.cpp" />
-    <ClCompile Include="Src\Graphics\FullscreenPasses\FogFullscreenPass.cpp" />
-    <ClCompile Include="Src\Graphics\FullscreenPasses\FullscreenPass.cpp" />
+    <ClCompile Include="Src\Graphics\RenderGraph\FullscreenPasses\DepthOfFieldFullscreenPass.cpp" />
+    <ClCompile Include="Src\Graphics\RenderGraph\FullscreenPasses\FogFullscreenPass.cpp" />
+    <ClCompile Include="Src\Graphics\RenderGraph\FullscreenPasses\FullscreenPass.cpp" />
     <ClCompile Include="Src\Graphics\Resources\GraphicsBuffer.cpp" />
     <ClCompile Include="Src\Scene\Objects\Camera.cpp" />
     <ClCompile Include="Src\Graphics\Core\CommandList.cpp" />
@@ -60,6 +60,8 @@
     <ClCompile Include="Src\Graphics\Bindables\VertexBuffer.cpp" />
     <ClCompile Include="Src\Graphics\Bindables\ViewPort.cpp" />
     <ClCompile Include="Src\System\Window.cpp" />
+    <ClCompile Include="Src\Graphics\Core\DeviceResources.cpp" />
+    <ClCompile Include="Src\Graphics\RenderGraph\RenderGraph.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Src\Application.h" />
@@ -67,9 +69,9 @@
     <ClInclude Include="Src\Graphics\Core\BindableContainer.h" />
     <ClInclude Include="Src\Graphics\Core\BindableResourceList.h" />
     <ClInclude Include="Src\Graphics\Bindables\BlendState.h" />
-    <ClInclude Include="Src\Graphics\FullscreenPasses\DepthOfFieldFullscreenPass.h" />
-    <ClInclude Include="Src\Graphics\FullscreenPasses\FogFullscreenPass.h" />
-    <ClInclude Include="Src\Graphics\FullscreenPasses\FullscreenPass.h" />
+    <ClInclude Include="Src\Graphics\RenderGraph\FullscreenPasses\DepthOfFieldFullscreenPass.h" />
+    <ClInclude Include="Src\Graphics\RenderGraph\FullscreenPasses\FogFullscreenPass.h" />
+    <ClInclude Include="Src\Graphics\RenderGraph\FullscreenPasses\FullscreenPass.h" />
     <ClInclude Include="Src\Graphics\Resources\GraphicsBuffer.h" />
     <ClInclude Include="Src\Scene\Objects\Camera.h" />
     <ClInclude Include="Src\Graphics\Core\CommandList.h" />
@@ -123,6 +125,8 @@
     <ClInclude Include="Src\Graphics\Bindables\ViewPort.h" />
     <ClInclude Include="Src\System\Window.h" />
     <ClInclude Include="Src\Includes\WRLNoWarnings.h" />
+    <ClInclude Include="Src\Graphics\Core\DeviceResources.h" />
+    <ClInclude Include="Src\Graphics\RenderGraph\RenderGraph.h" />
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="Dependencies\zlib1.dll" />

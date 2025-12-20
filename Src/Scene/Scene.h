@@ -3,7 +3,7 @@
 #include "Graphics/Core/Pipeline.h"
 #include "Graphics/Imgui/ImguiLayer.h"
 
-class Window;
+class Input;
 class Graphics;
 class SceneObject;
 class Camera;
@@ -11,9 +11,6 @@ class Model;
 
 class Scene
 {
-public:
-	Scene(Graphics& graphics);
-
 public:
 	void AddSceneObjectFromFile(Graphics& graphics, const char* path, float scale = 1.0f);
 
@@ -35,24 +32,16 @@ public:
 
 	void DrawObjectInspector(Graphics& graphics);
 
-	void RenderImguiLayer(Window& window, Graphics& graphics);
+	void Update(Graphics& graphics, const Input& input, bool isCursorLocked);
 
-	void UpdateSceneObjects(Window& window, Graphics& graphics);
-
-	void DrawSceneObjects(Graphics& graphics);
+	std::vector<std::shared_ptr<SceneObject>>& GetObjects();
 
 private:
 	std::string GetOriginalName(std::string name);
 
 	void UpdateObjectMatrices(Graphics& graphics);
 
-public:
-	ImguiLayer& GetImguiLayer();
-
 private:
-	Pipeline m_pipeline;
-	ImguiLayer m_imguiLayer;
-
 	std::vector<std::shared_ptr<SceneObject>> m_sceneObjects = {};
 	Camera* m_camera = nullptr;
 	SceneObject* m_objectSelectedInHierarchy = nullptr;

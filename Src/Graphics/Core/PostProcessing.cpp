@@ -9,11 +9,10 @@
 
 #include "TempCommandList.h"
 
-#include "Graphics/FullscreenPasses/FogFullscreenPass.h"
-#include "Graphics/FullscreenPasses/DepthOfFieldFullscreenPass.h"
+#include "Graphics/RenderGraph/FullscreenPasses/FogFullscreenPass.h"
+#include "Graphics/RenderGraph/FullscreenPasses/DepthOfFieldFullscreenPass.h"
 
-
-PostProcessing::PostProcessing(Graphics& graphics)
+void PostProcessing::Initialize(Graphics& graphics)
 {
 	// requesting size for RT and DS SRV's. Each one has special SRV for one frame
 	graphics.GetDescriptorHeap().RequestMoreSpace(graphics.GetBufferCount() * 2);
@@ -25,7 +24,7 @@ PostProcessing::PostProcessing(Graphics& graphics)
 	THROW_INTERNAL_ERROR_IF("FullscreenPass vector didn't match enum", m_effects.size() != Effect::numEffects);
 }
 
-void PostProcessing::Initialize(Graphics& graphics, Pipeline& pipeline)
+void PostProcessing::InitializeResources(Graphics& graphics, Pipeline& pipeline)
 {
 	for (auto& effect : m_effects)
 		effect->Initialize(graphics, pipeline);

@@ -1,5 +1,5 @@
 #pragma once
-#include "Graphics/FullscreenPasses/FullscreenPass.h"
+#include "Graphics/RenderGraph/FullscreenPasses/FullscreenPass.h"
 
 class Graphics;
 class Pipeline;
@@ -17,9 +17,8 @@ private:
 	};
 
 public:
-	PostProcessing(Graphics& graphics);
-
-	void Initialize(Graphics& graphics, Pipeline& pipeline);
+	void Initialize(Graphics& graphics);
+	void InitializeResources(Graphics& graphics, Pipeline& pipeline);
 
 	void Update(Graphics& graphics, Pipeline& pipeline);
 

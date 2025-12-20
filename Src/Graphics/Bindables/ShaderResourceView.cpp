@@ -1,4 +1,5 @@
 #include "ShaderResourceView.h"
+#include "Graphics/Core/Graphics.h"
 #include "Graphics/Core/RootSignature.h"
 #include "Graphics/Core/CommandList.h"
 #include "Macros/ErrorMacros.h"

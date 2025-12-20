@@ -10,9 +10,8 @@ class ImguiManager;
 class ImguiLayer
 {
 public:
-	ImguiLayer(Graphics& graphics);
+	void Initialize(Graphics& graphics);
 
-public:
 	void Render();
 
 	void Draw(Graphics& graphics, Pipeline& pipeline);
@@ -33,7 +32,7 @@ private:
 	void GetImguiCommands(Graphics& graphics, ID3D12GraphicsCommandList* pDirectCommandList);
 
 private:
-	ImguiManager* m_imguiManager;
+	ImguiManager* m_imguiManager = nullptr;
 	bool m_isVisible = true;
 	bool m_isDemoVisible = false;
 };

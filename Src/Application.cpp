@@ -8,10 +8,11 @@
 Application::Application(unsigned int width, unsigned int height, const char* name)
 	:
 	m_name(name),
-	window(width, height, m_name, DXGI_FORMAT_R16G16B16A16_FLOAT),
-	scene(window.graphics)
+	window(width, height, m_name),
+	graphics(window.GetHWnd(), DXGI_FORMAT_R16G16B16A16_FLOAT),
+	scene()
 {
-
+	window.SetFunctionCallback(graphics.GetImguiManager()->HandleMessages);
 };
 
 Application::~Application()
@@ -38,13 +39,13 @@ int Application::Run()
 
 void Application::InitializeScene()
 {
-	scene.BeginInitialization(window.graphics);
+	scene.BeginInitialization(graphics);
 
 
-	scene.AddSceneObject(std::make_shared<Camera>(window.graphics));
+	scene.AddSceneObject(std::make_shared<Camera>(graphics));
 	//scene.AddSceneObject(std::make_shared<Cube>(window.graphics));
 	//scene.AddSceneObjectFromFile(window.graphics, "Models/nanosuit/nanosuit.obj");
-	scene.AddSceneObjectFromFile(window.graphics, "Models/sponza/sponza.obj", 1.0f / 40.0f);
+	scene.AddSceneObjectFromFile(graphics, "Models/sponza/sponza.obj", 1.0f / 40.0f);
 	//scene.AddSceneObjectFromFile(window.graphics, "Models/intel_sponza/main1_sponza/NewSponza_Main_Yup_003.fbx", 1.0f);
 	//scene.AddSceneObjectFromFile(window.graphics, "Models/intel_sponza/pkg_a_curtains/NewSponza_Curtains_FBX_YUp.fbx", 1.0f);
 
@@ -53,19 +54,16 @@ void Application::InitializeScene()
 	//scene.AddSceneObjectFromFile(window.graphics, "Models/intel_sponza/pkg_b_ivy/NewSponza_IvyGrowth_glTF.gltf");
 	//scene.AddSceneObjectFromFile(window.graphics, "Models/intel_sponza/pkg_c_trees/NewSponza_CypressTree_glTF.gltf");
 
-	scene.AddSceneObject(std::make_shared<PointLight>(window.graphics, scene));
+	scene.AddSceneObject(std::make_shared<PointLight>(graphics, scene));
 
-	scene.InitializeSceneObjects(window.graphics);
-
-
-	scene.FinishInitialization(window.graphics);
+	scene.FinishInitialization(graphics);
 }
 
 void Application::Update()
 {
-	window.graphics.BeginFrame();
+	graphics.BeginFrame();
 
-	ImguiLayer& imguiLayer = scene.GetImguiLayer();
+	ImguiLayer& imguiLayer = graphics.GetRenderGraph().GetImguiLayer();
 
 
 	if (imguiLayer.IsVisible())
@@ -82,14 +80,15 @@ void Application::Update()
 		imguiLayer.ToggleCaptureInput(!window.GetCursorLocked()); // cursorLocked got negated inside lockCursorFunction
 	}
 
-	scene.DrawObjectInspector(window.graphics);
+	scene.DrawObjectInspector(graphics);
 
-	scene.RenderImguiLayer(window, window.graphics);
+	window.input.DrawImguiWindow(imguiLayer.IsVisible());
+	graphics.GetRenderGraph().DrawImguiWindow(graphics);
+	imguiLayer.DrawDemoWindow();
 
-	scene.UpdateSceneObjects(window, window.graphics);
+	scene.Update(graphics, window.input, window.GetCursorLocked());
 
-	scene.DrawSceneObjects(window.graphics);
-	
+	graphics.Render(scene);
 
-	window.graphics.FinishFrame();
+	graphics.FinishFrame();
 }

@@ -4,6 +4,7 @@
 #include "Scene/SceneObject.h"
 #include "Scene/Objects/Camera.h"
 #include "Scene/Scene.h"
+#include "Graphics/Core/Pipeline.h"
 
 class Application
 {
@@ -26,8 +27,6 @@ private:
 
 private:
 	Window window;
+	Graphics graphics;
 	Scene scene;
-
-	std::vector<std::shared_ptr<SceneObject>> sceneObjects;
-	std::shared_ptr<Camera> camera;
 };

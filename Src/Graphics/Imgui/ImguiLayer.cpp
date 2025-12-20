@@ -11,11 +11,9 @@
 
 #include <bitset>
 
-ImguiLayer::ImguiLayer(Graphics& graphics)
-	:
-	m_imguiManager(graphics.GetImguiManager())
+void ImguiLayer::Initialize(Graphics& graphics)
 {
-
+	m_imguiManager = graphics.GetImguiManager();
 }
 
 void ImguiLayer::Render()

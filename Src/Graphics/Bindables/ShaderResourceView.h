@@ -1,7 +1,8 @@
 #pragma once
 #include "Bindable.h"
-#include "Graphics/Core/Graphics.h"
+#include "Graphics/Core/DescriptorHeap.h"
 
+class Graphics;
 class GraphicsTexture;
 class GraphicsBuffer;
 class RootSignature;

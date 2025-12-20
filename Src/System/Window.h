@@ -6,8 +6,10 @@
 
 class Window
 {
+	using WindowMessageCallback = std::function<bool(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)>;
+
 public:
-	Window(UINT32 width, UINT32 height, const char* name, DXGI_FORMAT colorSpace);
+	Window(UINT32 width, UINT32 height, const char* name);
 	~Window();
 	Window(const Window&) = delete;
 	Window& operator= (const Window&) = delete;
@@ -15,6 +17,8 @@ public:
 public:
 	HWND GetHWnd() const noexcept;
 	BOOL HandleMessages();
+
+	void SetFunctionCallback(WindowMessageCallback callback);
 
 public:
 	unsigned int GetWidth() const;
@@ -27,7 +31,7 @@ public:
 	bool GetCursorVisibility() const;
 	bool GetCursorLocked() const;
 
-public:
+private:
 	void OnFocusGain();
 	void OnLFocusLose();
 
@@ -64,8 +68,8 @@ private:
 
 	bool m_lockCursor = false;
 	bool m_showCursor = true;
+	std::optional<WindowMessageCallback> optMessageCallback = {};
 
 public:
-	Graphics graphics;
 	Input input;
 };

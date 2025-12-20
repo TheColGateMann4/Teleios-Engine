@@ -13,6 +13,7 @@
 #include "Graphics/Core/DescriptorHeap.h"
 #include "ConstantBufferHeap.h"
 #include "Graphics/Core/DeviceResources.h"
+#include "Graphics/RenderGraph/RenderGraph.h"
 
 class Graphics
 {
@@ -31,6 +32,7 @@ public:
 
 	void BeginFrame();
 	void FinishFrame();
+	void Render(Scene& scene);
 
 	void WaitForGPU();
 	void WaitForGPUIfNeeded(); // sets fence value for frame pushed to gpu, and waits for next buffer to be free to start drawing
@@ -40,6 +42,7 @@ private:
 	void CleanupResources();
 
 public:
+	RenderGraph& GetRenderGraph();
 	DeviceResources& GetDeviceResources();
 	ConstantBufferHeap& GetConstantBufferHeap();
 	DescriptorHeap& GetDescriptorHeap();
@@ -65,6 +68,7 @@ private:
 	ConstantBufferHeap constantBufferHeap;
 	DescriptorHeap descriptorHeap;
 	FrameResourceDeleter resourceDeleter;
+	RenderGraph renderGraph;
 
 private:
 #ifdef _DEBUG
