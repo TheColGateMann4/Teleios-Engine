@@ -35,6 +35,9 @@ void RenderGraph::Draw(Graphics& graphics, Scene& scene)
 				sceneObject->InternalDraw(graphics, m_pipeline);
 		}
 
+		// apply post processing
+		m_postProcessing.ApplyEffect(graphics, m_pipeline);
+
 		// drawing imgui layer
 		{
 			m_imguiLayer.Render();
@@ -42,10 +45,6 @@ void RenderGraph::Draw(Graphics& graphics, Scene& scene)
 			if (m_imguiLayer.IsVisible())
 				m_imguiLayer.Draw(graphics, m_pipeline);
 		}
-
-
-		// apply post processing
-		m_postProcessing.ApplyEffect(graphics, m_pipeline);
 
 		m_pipeline.FinishRender(graphics);
 	}
