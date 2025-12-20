@@ -32,7 +32,7 @@ UnorderedAccessView::UnorderedAccessView(Graphics& graphics, GraphicsTexture* te
 		uavDesc.Texture2D.MipSlice = targetMip;
 		uavDesc.Texture2D.PlaneSlice = 0;
 
-		THROW_INFO_ERROR(graphics.GetDevice()->CreateUnorderedAccessView(
+		THROW_INFO_ERROR(graphics.GetDeviceResources().GetDevice()->CreateUnorderedAccessView(
 			texture->GetResource(),
 			nullptr,
 			&uavDesc,
@@ -63,7 +63,7 @@ UnorderedAccessView::UnorderedAccessView(Graphics& graphics, GraphicsBuffer* buf
 		uavDesc.Buffer.CounterOffsetInBytes = 0;
 		uavDesc.Buffer.Flags = D3D12_BUFFER_UAV_FLAG_NONE;
 
-		THROW_INFO_ERROR(graphics.GetDevice()->CreateUnorderedAccessView(
+		THROW_INFO_ERROR(graphics.GetDeviceResources().GetDevice()->CreateUnorderedAccessView(
 			buffer->GetResource(),
 			nullptr,
 			&uavDesc,

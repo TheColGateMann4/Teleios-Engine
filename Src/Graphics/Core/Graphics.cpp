@@ -6,12 +6,7 @@ extern "C" { __declspec(dllexport) extern const UINT D3D12SDKVersion = 715; } //
 
 extern "C" { __declspec(dllexport) extern const char* D3D12SDKPath = "D3D12/"; } // path of agility dll's
 
-Graphics::~Graphics()
-{
-	WaitForGPU();
-}
-
-void Graphics::Initialize(HWND hWnd, DXGI_FORMAT renderTargetFormat)
+Graphics::Graphics(HWND hWnd, DXGI_FORMAT renderTargetFormat)
 {
 	THROW_OBJECT_STATE_ERROR_IF("Given format is not valid swap chain buffer", !CheckValidRenderTargetFormat(renderTargetFormat));
 
@@ -19,30 +14,7 @@ void Graphics::Initialize(HWND hWnd, DXGI_FORMAT renderTargetFormat)
 	{
 		HRESULT hr;
 
-#ifdef _DEBUG
-		// Enabling debug layer
-		{
-			THROW_ERROR_NO_MSGS(D3D12GetDebugInterface(IID_PPV_ARGS(&pDebugController)));
-
-			pDebugController->EnableDebugLayer();
-		}
-#endif
-
-		// Creating dxgi factory
-		{
-			UINT dxgiFactoryFlags = 0;
-
-#ifdef _DEBUG
-			dxgiFactoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
-#endif
-
-			THROW_ERROR_NO_MSGS(CreateDXGIFactory2(dxgiFactoryFlags, IID_PPV_ARGS(&pFactory)));
-		}
-
-		// Creating device
-		{
-			THROW_ERROR_NO_MSGS(D3D12CreateDevice(NULL, D3D_FEATURE_LEVEL_12_0, IID_PPV_ARGS(&pDevice)));
-		}
+		deviceResources.InitializeEntryResources();
 
 #ifdef _DEBUG
 		// creating info queue
@@ -51,45 +23,14 @@ void Graphics::Initialize(HWND hWnd, DXGI_FORMAT renderTargetFormat)
 		}
 #endif
 
-		// Creating command queue
-		{
-			D3D12_COMMAND_QUEUE_DESC commandQueueDesc = {};
-			commandQueueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
-			commandQueueDesc.Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL;
-			commandQueueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
-			commandQueueDesc.NodeMask = 0;
-
-			THROW_ERROR_AT_GFX_INIT(pDevice->CreateCommandQueue(&commandQueueDesc, IID_PPV_ARGS(&pCommandQueue)));
-		}
-
-		// Creating swap chain
-		{
-			DXGI_SWAP_CHAIN_DESC swapChainDesc = {};
-			swapChainDesc.BufferDesc.Width = 0;
-			swapChainDesc.BufferDesc.Height = 0;
-			swapChainDesc.BufferDesc.Format = renderTargetFormat;
-			swapChainDesc.BufferDesc.RefreshRate.Numerator = 1;
-			swapChainDesc.BufferDesc.RefreshRate.Denominator = 144;
-			swapChainDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
-			swapChainDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
-			swapChainDesc.SampleDesc.Count = 1;
-			swapChainDesc.SampleDesc.Quality = 0;
-			swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-			swapChainDesc.BufferCount = swapChainBufferCount;
-			swapChainDesc.OutputWindow = hWnd;
-			swapChainDesc.Windowed = TRUE;
-			swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
-			swapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING; // DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH
-
-			THROW_ERROR_AT_GFX_INIT(pFactory->CreateSwapChain(pCommandQueue.Get(), &swapChainDesc, &pSwapChain));
-		}
+		deviceResources.InitializeGraphicsResources(*this, hWnd, renderTargetFormat, swapChainBufferCount);
 
 		// Initializing swapchain holding RenderTarget class
 		{
 			std::vector<Microsoft::WRL::ComPtr<ID3D12Resource>> bufferList(swapChainBufferCount);
 
-			for(unsigned int bufferIndex = 0; bufferIndex < swapChainBufferCount; bufferIndex++)
-				THROW_ERROR_AT_GFX_INIT(pSwapChain->GetBuffer(bufferIndex, IID_PPV_ARGS(&bufferList.at(bufferIndex))));
+			for (unsigned int bufferIndex = 0; bufferIndex < swapChainBufferCount; bufferIndex++)
+				THROW_ERROR_AT_GFX_INIT(deviceResources.GetSwapChain()->GetBuffer(bufferIndex, IID_PPV_ARGS(&bufferList.at(bufferIndex))));
 
 			// getting width and height out of gotten resource
 			{
@@ -116,6 +57,11 @@ void Graphics::Initialize(HWND hWnd, DXGI_FORMAT renderTargetFormat)
 		//initializing imgui
 		m_imguiManager = std::make_unique<ImguiManager>(*this, hWnd);
 	}
+}
+
+Graphics::~Graphics()
+{
+	WaitForGPU();
 }
 
 unsigned int Graphics::GetCurrentBufferIndex() const
@@ -161,9 +107,9 @@ void Graphics::PresentFrame()
 	Fence* pPreviousFrameFence = &m_graphicFences.at(GetPreviousBufferIndex());
 
 	// forcing this frame on GPU side to wait till previous frame is presented
-	pCommandQueue->Wait(pPreviousFrameFence->Get(), pPreviousFrameFence->GetValue());
+	GetDeviceResources().GetCommandQueue()->Wait(pPreviousFrameFence->Get(), pPreviousFrameFence->GetValue());
 
-	THROW_ERROR_AT_GFX_INIT(pSwapChain->Present(1, NULL));
+	THROW_ERROR_AT_GFX_INIT(GetDeviceResources().GetSwapChain()->Present(1, NULL));
 }
 
 void Graphics::WaitForGPU()
@@ -181,6 +127,11 @@ void Graphics::WaitForGPUIfNeeded()
 void Graphics::CleanupResources()
 {
 	resourceDeleter.Update(*this);
+}
+
+DeviceResources& Graphics::GetDeviceResources()
+{
+	return deviceResources;
 }
 
 ConstantBufferHeap& Graphics::GetConstantBufferHeap()
@@ -201,16 +152,6 @@ FrameResourceDeleter* Graphics::GetFrameResourceDeleter()
 ImguiManager* Graphics::GetImguiManager()
 {
 	return m_imguiManager.get();
-}
-
-ID3D12Device* Graphics::GetDevice()
-{
-	return pDevice.Get();
-}
-
-ID3D12CommandQueue* Graphics::GetCommandQueue()
-{
-	return pCommandQueue.Get();
 }
 
 #ifdef _DEBUG
@@ -276,7 +217,7 @@ unsigned int Graphics::GetCurrentBufferIndexFromSwapchain()
 {
 	Microsoft::WRL::ComPtr<IDXGISwapChain3> swapChain3;
 
-	pSwapChain->QueryInterface(swapChain3.GetAddressOf());
+	GetDeviceResources().GetSwapChain()->QueryInterface(swapChain3.GetAddressOf());
 
 	return swapChain3->GetCurrentBackBufferIndex();
 }

@@ -28,12 +28,12 @@ CommandList::CommandList(Graphics& graphics, D3D12_COMMAND_LIST_TYPE type, Pipel
 	// initializing command allocators
 	{
 		for(unsigned int currAllocatorIndex = 0; currAllocatorIndex < m_pCommandAllocators.size(); currAllocatorIndex++)
-			THROW_ERROR(graphics.GetDevice()->CreateCommandAllocator(type, IID_PPV_ARGS(&m_pCommandAllocators.at(currAllocatorIndex))));
+			THROW_ERROR(graphics.GetDeviceResources().GetDevice()->CreateCommandAllocator(type, IID_PPV_ARGS(&m_pCommandAllocators.at(currAllocatorIndex))));
 	}
 
 	ID3D12PipelineState* pipelineState = (pPipelineState == nullptr) ? nullptr : pPipelineState->Get();
 
-	THROW_ERROR(graphics.GetDevice()->CreateCommandList(0, type, m_pCommandAllocators.at(m_currCommandAllocatorIndex).Get(), pipelineState, IID_PPV_ARGS(&pCommandList)));
+	THROW_ERROR(graphics.GetDeviceResources().GetDevice()->CreateCommandList(0, type, m_pCommandAllocators.at(m_currCommandAllocatorIndex).Get(), pipelineState, IID_PPV_ARGS(&pCommandList)));
 
 	THROW_ERROR(pCommandList->Close());
 }

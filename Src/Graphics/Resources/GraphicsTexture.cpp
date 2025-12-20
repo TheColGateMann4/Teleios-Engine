@@ -76,7 +76,7 @@ void GraphicsTexture::Initialize(Graphics& graphics, D3D12_RESOURCE_FLAGS flags,
 		resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
 		resourceDesc.Flags = flags;
 
-		THROW_ERROR(graphics.GetDevice()->CreateCommittedResource(
+		THROW_ERROR(graphics.GetDeviceResources().GetDevice()->CreateCommittedResource(
 			&heapPropeties,
 			D3D12_HEAP_FLAG_NONE,
 			&resourceDesc,

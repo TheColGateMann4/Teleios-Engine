@@ -101,7 +101,7 @@ void GraphicsPipelineState::Finish(Graphics& graphics)
 {
 	HRESULT hr;
 
-	THROW_ERROR(graphics.GetDevice()->CreateGraphicsPipelineState(&m_desc, IID_PPV_ARGS(&pPipelineState)));
+	THROW_ERROR(graphics.GetDeviceResources().GetDevice()->CreateGraphicsPipelineState(&m_desc, IID_PPV_ARGS(&pPipelineState)));
 
 	m_finished = true;
 }
@@ -146,7 +146,7 @@ void ComputePipelineState::Finish(Graphics& graphics)
 {
 	HRESULT hr;
 
-	THROW_ERROR(graphics.GetDevice()->CreateComputePipelineState(&m_desc, IID_PPV_ARGS(&pPipelineState)));
+	THROW_ERROR(graphics.GetDeviceResources().GetDevice()->CreateComputePipelineState(&m_desc, IID_PPV_ARGS(&pPipelineState)));
 
 	m_finished = true;
 }

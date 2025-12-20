@@ -43,7 +43,7 @@ SurfaceRenderTarget::SurfaceRenderTarget(Graphics& graphics, DXGI_FORMAT format,
 		descriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 		descriptorHeapDesc.NodeMask = 0;
 
-		THROW_ERROR(graphics.GetDevice()->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&m_pDescriptorHeap)));
+		THROW_ERROR(graphics.GetDeviceResources().GetDevice()->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&m_pDescriptorHeap)));
 	}
 
 	pResource->QueryInterface(m_renderTarget.pRenderTarget.GetAddressOf());
@@ -57,7 +57,7 @@ SurfaceRenderTarget::SurfaceRenderTarget(Graphics& graphics, DXGI_FORMAT format,
 
 		m_renderTarget.descriptorHandle = m_pDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 
-		graphics.GetDevice()->CreateRenderTargetView(pResource, &renderTargetViewDesc, m_renderTarget.descriptorHandle);
+		graphics.GetDeviceResources().GetDevice()->CreateRenderTargetView(pResource, &renderTargetViewDesc, m_renderTarget.descriptorHandle);
 	}
 
 	m_renderTarget.state = D3D12_RESOURCE_STATE_RENDER_TARGET;
@@ -95,7 +95,7 @@ SwapChainRenderTarget::SwapChainRenderTarget(Graphics& graphics, DXGI_FORMAT for
 
 	UINT accumulatedSizeOfDescriptor = 0;
 	const size_t numBuffers = bufferList.size();
-	static const UINT sizeOfRTVDescriptor = graphics.GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+	static const UINT sizeOfRTVDescriptor = graphics.GetDeviceResources().GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 
 	// creating descriptor for all RTV's
 	{
@@ -105,7 +105,7 @@ SwapChainRenderTarget::SwapChainRenderTarget(Graphics& graphics, DXGI_FORMAT for
 		descriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 		descriptorHeapDesc.NodeMask = 0;
 
-		THROW_ERROR(graphics.GetDevice()->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&m_pDescriptorHeap)));
+		THROW_ERROR(graphics.GetDeviceResources().GetDevice()->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&m_pDescriptorHeap)));
 	}
 
 
@@ -130,7 +130,7 @@ SwapChainRenderTarget::SwapChainRenderTarget(Graphics& graphics, DXGI_FORMAT for
 
 			accumulatedSizeOfDescriptor += sizeOfRTVDescriptor;
 
-			graphics.GetDevice()->CreateRenderTargetView(renderTargetData.pRenderTarget.Get(), &renderTargetViewDesc, renderTargetData.descriptorHandle);
+			graphics.GetDeviceResources().GetDevice()->CreateRenderTargetView(renderTargetData.pRenderTarget.Get(), &renderTargetViewDesc, renderTargetData.descriptorHandle);
 		}
 
 		// setting state
@@ -173,7 +173,7 @@ BackBufferRenderTarget::BackBufferRenderTarget(Graphics& graphics, DXGI_FORMAT f
 	const unsigned int numBuffers = graphics.GetBufferCount();
 
 	UINT accumulatedSizeOfDescriptor = 0;
-	static const UINT sizeOfRTVDescriptor = graphics.GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+	static const UINT sizeOfRTVDescriptor = graphics.GetDeviceResources().GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 
 	// creating descriptor for all RTV's
 	{
@@ -183,7 +183,7 @@ BackBufferRenderTarget::BackBufferRenderTarget(Graphics& graphics, DXGI_FORMAT f
 		descriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 		descriptorHeapDesc.NodeMask = 0;
 
-		THROW_ERROR(graphics.GetDevice()->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&m_pDescriptorHeap)));
+		THROW_ERROR(graphics.GetDeviceResources().GetDevice()->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&m_pDescriptorHeap)));
 	}
 
 	static constexpr DirectX::XMFLOAT4 optimizedClearValue = { 0.01f, 0.02f, 0.03f, 1.0f };
@@ -208,7 +208,7 @@ BackBufferRenderTarget::BackBufferRenderTarget(Graphics& graphics, DXGI_FORMAT f
 
 			accumulatedSizeOfDescriptor += sizeOfRTVDescriptor;
 
-			graphics.GetDevice()->CreateRenderTargetView(renderTargetData.texture->GetResource(), &renderTargetViewDesc, renderTargetData.descriptorHandle);
+			graphics.GetDeviceResources().GetDevice()->CreateRenderTargetView(renderTargetData.texture->GetResource(), &renderTargetViewDesc, renderTargetData.descriptorHandle);
 		}
 
 		m_ownedRenderTargets.push_back(std::move(renderTargetData));

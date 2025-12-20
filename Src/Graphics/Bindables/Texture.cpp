@@ -81,7 +81,7 @@ void Texture::Initialize(Graphics& graphics)
 	{
 		m_textureDescriptor = graphics.GetDescriptorHeap().GetNextHandle();
 
-		THROW_INFO_ERROR(graphics.GetDevice()->CreateShaderResourceView(
+		THROW_INFO_ERROR(graphics.GetDeviceResources().GetDevice()->CreateShaderResourceView(
 			m_gpuTexture->GetResource(),
 			&shaderResourceViewDesc,
 			m_textureDescriptor.descriptorCpuHandle

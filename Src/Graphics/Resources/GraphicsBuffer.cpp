@@ -36,7 +36,7 @@ GraphicsBuffer::GraphicsBuffer(Graphics& graphics, unsigned int numElements, uns
 		resourceDesc.Flags = flags; 
 
 		// this is very incorrect practice since creating many different commited resources for one purpose is bad practice. It is only temporary solution
-		THROW_ERROR(graphics.GetDevice()->CreateCommittedResource(
+		THROW_ERROR(graphics.GetDeviceResources().GetDevice()->CreateCommittedResource(
 			&heapPropeties,
 			D3D12_HEAP_FLAG_NONE,
 			&resourceDesc,

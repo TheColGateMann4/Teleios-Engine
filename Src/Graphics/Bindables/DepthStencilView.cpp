@@ -14,7 +14,7 @@ DepthStencilViewBase::DepthStencilViewBase(Graphics& graphics, unsigned int numD
 		descriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 		descriptorHeapDesc.NodeMask = 0;
 
-		THROW_ERROR(graphics.GetDevice()->CreateDescriptorHeap(
+		THROW_ERROR(graphics.GetDeviceResources().GetDevice()->CreateDescriptorHeap(
 			&descriptorHeapDesc,
 			IID_PPV_ARGS(&m_descriptorHeap)
 		));
@@ -31,7 +31,7 @@ void DepthStencilViewBase::CreateDSV(Graphics& graphics, D3D12_CPU_DESCRIPTOR_HA
 		depthStencilViewDesc.Flags = D3D12_DSV_FLAG_NONE;
 		depthStencilViewDesc.Texture2D.MipSlice = 0;
 
-		THROW_INFO_ERROR(graphics.GetDevice()->CreateDepthStencilView(
+		THROW_INFO_ERROR(graphics.GetDeviceResources().GetDevice()->CreateDepthStencilView(
 			texture->GetResource(),
 			&depthStencilViewDesc,
 			descriptor
@@ -77,7 +77,7 @@ DepthStencilViewMultiResource::DepthStencilViewMultiResource(Graphics& graphics)
 		
 		D3D12_CPU_DESCRIPTOR_HANDLE& descriptor = m_descriptors.at(i);
 		descriptor = m_descriptorHeap->GetCPUDescriptorHandleForHeapStart();
-		descriptor.ptr += graphics.GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV) * i;
+		descriptor.ptr += graphics.GetDeviceResources().GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV) * i;
 		
 		CreateDSV(graphics, descriptor, m_textures.at(i).get());
 	}

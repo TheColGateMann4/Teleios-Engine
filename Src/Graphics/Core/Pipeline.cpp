@@ -100,7 +100,7 @@ void Pipeline::Execute(Graphics& graphics)
 {
 	ID3D12CommandList* pCommandLists[] = {m_graphicsCommandList->Get()};
 
-	graphics.GetCommandQueue()->ExecuteCommandLists(_countof(pCommandLists), pCommandLists);
+	graphics.GetDeviceResources().GetCommandQueue()->ExecuteCommandLists(_countof(pCommandLists), pCommandLists);
 }
 
 void Pipeline::ExecuteCopyCalls(Graphics& graphics)

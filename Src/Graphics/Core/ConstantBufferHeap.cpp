@@ -61,7 +61,7 @@ void ConstantBufferHeap::Finish(Graphics& graphics)
 	// creating constant buffer of non static resources
 	{
 
-		THROW_ERROR(graphics.GetDevice()->CreateCommittedResource(
+		THROW_ERROR(graphics.GetDeviceResources().GetDevice()->CreateCommittedResource(
 			&heapPropeties,
 			D3D12_HEAP_FLAG_NONE,
 			&resourceDesc,
@@ -78,7 +78,7 @@ void ConstantBufferHeap::Finish(Graphics& graphics)
 
 		resourceDesc.Width = m_combinedSizeStaticBuffer; // setting size to the one for static resources
 
-		THROW_ERROR(graphics.GetDevice()->CreateCommittedResource(
+		THROW_ERROR(graphics.GetDeviceResources().GetDevice()->CreateCommittedResource(
 			&heapPropeties,
 			D3D12_HEAP_FLAG_NONE,
 			&resourceDesc,
@@ -307,7 +307,7 @@ void ConstantBufferHeap::UpdateStaticResource(Graphics& graphics, unsigned int b
 		resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
 		resourceDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
 
-		THROW_ERROR(graphics.GetDevice()->CreateCommittedResource(
+		THROW_ERROR(graphics.GetDeviceResources().GetDevice()->CreateCommittedResource(
 			&heapPropeties,
 			D3D12_HEAP_FLAG_NONE,
 			&resourceDesc,

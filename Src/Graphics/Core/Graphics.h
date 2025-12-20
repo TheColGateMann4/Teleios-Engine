@@ -12,20 +12,16 @@
 #include "FrameResourceDeleter.h"
 #include "Graphics/Core/DescriptorHeap.h"
 #include "ConstantBufferHeap.h"
-
-#include <dxgi1_6.h>
+#include "Graphics/Core/DeviceResources.h"
 
 class Graphics
 {
 public:
-	Graphics() = default;
+	Graphics(HWND hWnd, DXGI_FORMAT renderTargetFormat);
 
 	Graphics(const Graphics&) = delete;
 	
 	~Graphics();
-
-public:
-	void Initialize(HWND hWnd, DXGI_FORMAT renderTargetFormat);
 
 public:
 	unsigned int GetCurrentBufferIndex() const;
@@ -36,22 +32,19 @@ public:
 	void BeginFrame();
 	void FinishFrame();
 
-	void PresentFrame();
-
 	void WaitForGPU();
-
 	void WaitForGPUIfNeeded(); // sets fence value for frame pushed to gpu, and waits for next buffer to be free to start drawing
 
+private:
+	void PresentFrame();
 	void CleanupResources();
 
 public:
+	DeviceResources& GetDeviceResources();
 	ConstantBufferHeap& GetConstantBufferHeap();
 	DescriptorHeap& GetDescriptorHeap();
 	FrameResourceDeleter* GetFrameResourceDeleter();
 	ImguiManager* GetImguiManager();
-	ID3D12Device* GetDevice();
-	ID3D12CommandQueue* GetCommandQueue();
-
 	SwapChainRenderTarget* GetSwapChainBuffer();
 	BackBufferRenderTarget* GetBackBuffer();
 	DepthStencilViewMultiResource* GetDepthStencil();
@@ -68,12 +61,7 @@ private:
 	unsigned int GetCurrentBufferIndexFromSwapchain();
 
 private:
-	Microsoft::WRL::ComPtr<IDXGIFactory2> pFactory;
-	Microsoft::WRL::ComPtr<ID3D12Debug6> pDebugController;
-	Microsoft::WRL::ComPtr<ID3D12Device10> pDevice;
-	Microsoft::WRL::ComPtr<ID3D12CommandQueue> pCommandQueue;
-	Microsoft::WRL::ComPtr<IDXGISwapChain> pSwapChain;
-
+	DeviceResources deviceResources;
 	ConstantBufferHeap constantBufferHeap;
 	DescriptorHeap descriptorHeap;
 	FrameResourceDeleter resourceDeleter;

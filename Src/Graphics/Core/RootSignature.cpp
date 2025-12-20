@@ -68,7 +68,7 @@ void RootSignature::Initialize(Graphics& graphics)
 		&pErrorMessages
 	));
 
-	THROW_ERROR(graphics.GetDevice()->CreateRootSignature(
+	THROW_ERROR(graphics.GetDeviceResources().GetDevice()->CreateRootSignature(
 		0,
 		pRootSignatureBlob->GetBufferPointer(),
 		pRootSignatureBlob->GetBufferSize(),

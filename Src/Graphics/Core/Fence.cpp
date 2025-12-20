@@ -16,7 +16,7 @@ Fence::Fence(Graphics& graphics)
 {
 	HRESULT hr;
 
-	THROW_ERROR(graphics.GetDevice()->CreateFence(
+	THROW_ERROR(graphics.GetDeviceResources().GetDevice()->CreateFence(
 		0,
 		D3D12_FENCE_FLAG_NONE,
 		IID_PPV_ARGS(&pFence)
@@ -59,12 +59,12 @@ void Fence::SetWaitValue(Graphics& graphics)
 	HRESULT hr;
 
 	// if device got removed we don't want to process further since call on commandQueue will not be valid
-	if (graphics.GetDevice()->GetDeviceRemovedReason() != S_OK) //  if GetDeviceRemovedReason() returns S_OK, then device was not removed
+	if (graphics.GetDeviceResources().GetDevice()->GetDeviceRemovedReason() != S_OK) //  if GetDeviceRemovedReason() returns S_OK, then device was not removed
 		return;
 
 	m_fenceValue++; // increasing value of fence
 
-	THROW_ERROR(graphics.GetCommandQueue()->Signal(pFence.Get(), m_fenceValue));
+	THROW_ERROR(graphics.GetDeviceResources().GetCommandQueue()->Signal(pFence.Get(), m_fenceValue));
 
 	m_valueSet = true;
 }
@@ -76,7 +76,7 @@ void Fence::WaitForValue(Graphics& graphics)
 
 	HRESULT hr;
 
-	if (graphics.GetDevice()->GetDeviceRemovedReason() != S_OK)
+	if (graphics.GetDeviceResources().GetDevice()->GetDeviceRemovedReason() != S_OK)
 		return;
 
 	if (pFence->GetCompletedValue() < m_fenceValue)

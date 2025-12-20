@@ -29,12 +29,12 @@ ImguiManager::ImguiManager(Graphics& graphics, HWND hWnd)
 		desc.NumDescriptors = 1;
 		desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 
-		THROW_ERROR(graphics.GetDevice()->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&pDescriptorHeap)));
+		THROW_ERROR(graphics.GetDeviceResources().GetDevice()->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&pDescriptorHeap)));
 
 		ImGui_ImplWin32_Init(hWnd);
 
 		ImGui_ImplDX12_Init(
-			graphics.GetDevice(),
+			graphics.GetDeviceResources().GetDevice(),
 			graphics.GetBufferCount(),
 			graphics.GetBackBuffer()->GetFormat(),
 			pDescriptorHeap.Get(),

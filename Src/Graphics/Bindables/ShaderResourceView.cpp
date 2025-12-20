@@ -65,7 +65,7 @@ void ShaderResourceViewBase::InitializeTextureSRV(Graphics& graphics, unsigned i
 		srvDesc.Texture2D.PlaneSlice = 0;
 		srvDesc.Texture2D.ResourceMinLODClamp = targetMip;
 
-		THROW_INFO_ERROR(graphics.GetDevice()->CreateShaderResourceView(
+		THROW_INFO_ERROR(graphics.GetDeviceResources().GetDevice()->CreateShaderResourceView(
 			texture->GetResource(),
 			&srvDesc,
 			descriptor.descriptorCpuHandle
@@ -91,7 +91,7 @@ void ShaderResourceViewBase::InitializeBufferSRV(Graphics& graphics, DescriptorH
 		srvDesc.Buffer.StructureByteStride = buffer->GetByteStride();
 		srvDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
 
-		THROW_INFO_ERROR(graphics.GetDevice()->CreateShaderResourceView(
+		THROW_INFO_ERROR(graphics.GetDeviceResources().GetDevice()->CreateShaderResourceView(
 			buffer->GetResource(),
 			&srvDesc,
 			descriptor.descriptorCpuHandle
