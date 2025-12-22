@@ -34,6 +34,17 @@ void DescriptorHeap::Finish(Graphics& graphics)
 	m_finished = true;
 }
 
+D3D12_GPU_DESCRIPTOR_HANDLE DescriptorHeap::GetGPUHandle(unsigned int descriptorOffset) const
+{
+	THROW_OBJECT_STATE_ERROR_IF("Tried to get GPU handle when DescriptorHeap object wasn't finished yet", !m_finished);
+
+	D3D12_GPU_DESCRIPTOR_HANDLE result = pDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
+	unsigned int targetViewByteOffset = descriptorOffset * m_descriptorIncrementSize;
+	result.ptr += targetViewByteOffset;
+
+	return result;
+}
+
 DescriptorHeap::DescriptorInfo DescriptorHeap::GetNextHandle()
 {
 	THROW_OBJECT_STATE_ERROR_IF("Tried to get GPU handle when DescriptorHeap object wasn't finished yet", !m_finished);

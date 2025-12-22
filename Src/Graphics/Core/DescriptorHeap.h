@@ -19,6 +19,8 @@ public: // At program initialization
 
 	void Finish(Graphics& graphics);
 
+	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUHandle(unsigned int descriptorOffset) const;
+
 public:	// At runtime
 	DescriptorInfo GetNextHandle();
 

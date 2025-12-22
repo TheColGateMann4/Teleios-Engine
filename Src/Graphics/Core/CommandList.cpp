@@ -263,8 +263,10 @@ void CommandList::SetGraphicsDescriptorTable(Graphics& graphics, Texture* textur
 
 	auto& targets = texture->GetTargets();
 
+	D3D12_GPU_DESCRIPTOR_HANDLE gpuDescriptorHandle = graphics.GetDescriptorHeap().GetGPUHandle(texture->GetOffsetInDescriptor());
+
 	for (auto& targetShader : targets)
-		THROW_INFO_ERROR(pCommandList->SetGraphicsRootDescriptorTable(targetShader.rootIndex, texture->GetDescriptorHeapGPUHandle(graphics)));
+		THROW_INFO_ERROR(pCommandList->SetGraphicsRootDescriptorTable(targetShader.rootIndex, gpuDescriptorHandle));
 }
 
 void CommandList::SetGraphicsDescriptorTable(Graphics& graphics, ShaderResourceViewBase* srv)
@@ -274,8 +276,10 @@ void CommandList::SetGraphicsDescriptorTable(Graphics& graphics, ShaderResourceV
 
 	auto& targets = srv->GetTargets();
 
+	D3D12_GPU_DESCRIPTOR_HANDLE gpuDescriptorHandle = graphics.GetDescriptorHeap().GetGPUHandle(srv->GetOffsetInDescriptor(graphics));
+
 	for (auto& targetShader : targets)
-		THROW_INFO_ERROR(pCommandList->SetGraphicsRootDescriptorTable(targetShader.rootIndex, srv->GetDescriptorHeapGPUHandle(graphics)));
+		THROW_INFO_ERROR(pCommandList->SetGraphicsRootDescriptorTable(targetShader.rootIndex, gpuDescriptorHandle));
 }
 
 void CommandList::ExecuteBundle(Graphics& graphics, CommandList* commandList)
@@ -347,7 +351,9 @@ void CommandList::SetComputeDescriptorTable(Graphics& graphics, Texture* texture
 	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
 	THROW_OBJECT_STATE_ERROR_IF("Only Compute and Direct command lists can set compute descriptor table", m_type != D3D12_COMMAND_LIST_TYPE_COMPUTE && m_type != D3D12_COMMAND_LIST_TYPE_DIRECT);
 
-	THROW_INFO_ERROR(pCommandList->SetComputeRootDescriptorTable(texture->GetComputeRootIndex(), texture->GetDescriptorHeapGPUHandle(graphics)));
+	D3D12_GPU_DESCRIPTOR_HANDLE gpuDescriptorHandle = graphics.GetDescriptorHeap().GetGPUHandle(texture->GetOffsetInDescriptor());
+
+	THROW_INFO_ERROR(pCommandList->SetComputeRootDescriptorTable(texture->GetComputeRootIndex(), gpuDescriptorHandle));
 }
 
 void CommandList::SetComputeDescriptorTable(Graphics& graphics, ShaderResourceViewBase* srv)
@@ -355,7 +361,9 @@ void CommandList::SetComputeDescriptorTable(Graphics& graphics, ShaderResourceVi
 	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
 	THROW_OBJECT_STATE_ERROR_IF("Only Compute and Direct command lists can set compute descriptor table", m_type != D3D12_COMMAND_LIST_TYPE_COMPUTE && m_type != D3D12_COMMAND_LIST_TYPE_DIRECT);
 
-	THROW_INFO_ERROR(pCommandList->SetComputeRootDescriptorTable(srv->GetComputeRootIndex(), srv->GetDescriptorHeapGPUHandle(graphics)));
+	D3D12_GPU_DESCRIPTOR_HANDLE gpuDescriptorHandle = graphics.GetDescriptorHeap().GetGPUHandle(srv->GetOffsetInDescriptor(graphics));
+
+	THROW_INFO_ERROR(pCommandList->SetComputeRootDescriptorTable(srv->GetComputeRootIndex(), gpuDescriptorHandle));
 }
 
 void CommandList::SetComputeDescriptorTable(Graphics& graphics, UnorderedAccessView* uav)
@@ -365,8 +373,10 @@ void CommandList::SetComputeDescriptorTable(Graphics& graphics, UnorderedAccessV
 
 	auto& targets = uav->GetTargets();
 
+	D3D12_GPU_DESCRIPTOR_HANDLE gpuDescriptorHandle = graphics.GetDescriptorHeap().GetGPUHandle(uav->GetOffsetInDescriptor());
+
 	for (auto& targetShader : targets)
-		THROW_INFO_ERROR(pCommandList->SetComputeRootDescriptorTable(targetShader.rootIndex, uav->GetDescriptorHeapGPUHandle(graphics)));
+		THROW_INFO_ERROR(pCommandList->SetComputeRootDescriptorTable(targetShader.rootIndex, gpuDescriptorHandle));
 }
 
 void CommandList::SetComputeRootShaderResourceView(Graphics& graphics, ConstantBuffer* constBuffer)

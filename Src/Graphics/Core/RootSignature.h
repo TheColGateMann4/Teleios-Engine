@@ -42,7 +42,7 @@ private:
 	void ConnectDescriptorParametersToRanges();
 
 	// returns root index
-	unsigned int m_AddDescriptorTableParameter(UINT offsetInDescriptor, TargetSlotAndShader target, D3D12_DESCRIPTOR_RANGE_TYPE descriptorType);
+	unsigned int m_AddDescriptorTableParameter(TargetSlotAndShader target, D3D12_DESCRIPTOR_RANGE_TYPE descriptorType);
 	void m_AddStaticSampler(StaticSampler* staticSampler, TargetSlotAndShader target);
 
 private:
