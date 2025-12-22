@@ -173,9 +173,9 @@ InfoQueue* Graphics::GetInfoQueue()
 }
 #endif
 
-SwapChainRenderTarget* Graphics::GetSwapChainBuffer()
+std::shared_ptr<SwapChainRenderTarget> Graphics::GetSwapChainBuffer()
 {
-	return m_swapChainBuffer.get();
+	return m_swapChainBuffer;
 }
 
 BackBufferRenderTarget* Graphics::GetBackBuffer()

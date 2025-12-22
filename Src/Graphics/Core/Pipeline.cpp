@@ -19,7 +19,7 @@ void Pipeline::BeginRender(Graphics& graphics) const
 	// setting correct states
 	m_graphicsCommandList->SetAllResourcesStates(graphics, graphics.GetDepthStencil()->GetResource(graphics), D3D12_RESOURCE_STATE_DEPTH_WRITE);
 	m_graphicsCommandList->SetResourceState(graphics, graphics.GetBackBuffer()->GetTexture(graphics), D3D12_RESOURCE_STATE_RENDER_TARGET);
-	m_graphicsCommandList->SetResourceState(graphics, graphics.GetSwapChainBuffer(), D3D12_RESOURCE_STATE_RENDER_TARGET);
+	m_graphicsCommandList->SetResourceState(graphics, graphics.GetSwapChainBuffer().get(), D3D12_RESOURCE_STATE_RENDER_TARGET);
 
 	// setting render target
 	m_graphicsCommandList->SetRenderTarget(graphics, graphics.GetBackBuffer(), graphics.GetDepthStencil());
@@ -34,7 +34,7 @@ void Pipeline::BeginRender(Graphics& graphics) const
 
 void Pipeline::FinishRender(Graphics& graphics)
 {
-	m_graphicsCommandList->SetResourceState(graphics, graphics.GetSwapChainBuffer(), D3D12_RESOURCE_STATE_PRESENT);
+	m_graphicsCommandList->SetResourceState(graphics, graphics.GetSwapChainBuffer().get(), D3D12_RESOURCE_STATE_PRESENT);
 
 	m_graphicsCommandList->Close(graphics); // closing graphics command list
 }

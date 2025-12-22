@@ -48,7 +48,7 @@ public:
 	DescriptorHeap& GetDescriptorHeap();
 	FrameResourceDeleter* GetFrameResourceDeleter();
 	ImguiManager* GetImguiManager();
-	SwapChainRenderTarget* GetSwapChainBuffer();
+	std::shared_ptr<SwapChainRenderTarget> GetSwapChainBuffer();
 	BackBufferRenderTarget* GetBackBuffer();
 	DepthStencilViewMultiResource* GetDepthStencil();
 
