@@ -62,6 +62,7 @@
     <ClCompile Include="Src\System\Window.cpp" />
     <ClCompile Include="Src\Graphics\Core\DeviceResources.cpp" />
     <ClCompile Include="Src\Graphics\RenderGraph\RenderGraph.cpp" />
+    <ClCompile Include="Src\System\Time.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Src\Application.h" />
@@ -127,6 +128,7 @@
     <ClInclude Include="Src\Includes\WRLNoWarnings.h" />
     <ClInclude Include="Src\Graphics\Core\DeviceResources.h" />
     <ClInclude Include="Src\Graphics\RenderGraph\RenderGraph.h" />
+    <ClInclude Include="Src\System\Time.h" />
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="Dependencies\zlib1.dll" />
