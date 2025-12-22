@@ -83,32 +83,7 @@ void DepthOfFieldFullscreenPass::Draw(Graphics& graphics, Pipeline& pipeline)
 				commandList->SetResourceState(graphics, depthStencil, D3D12_RESOURCE_STATE_ALL_SHADER_RESOURCE);
 			}
 
-			RenderTarget* renderTarget = graphics.GetSwapChainBuffer();
-
-			TempGraphicsCommandList tempGraphicsCommandList(graphics, pipeline.GetGraphicCommandList());
-
-			{
-				tempGraphicsCommandList.Bind(m_renderTargetSRV); // t0
-				tempGraphicsCommandList.Bind(m_depthStencilSRV); // t1
-				tempGraphicsCommandList.Bind(m_DepthBufferSRV); // t2
-				tempGraphicsCommandList.Bind(m_cameraData); // b0
-				tempGraphicsCommandList.Bind(m_depthOfFieldData); // b1
-				tempGraphicsCommandList.BindIndexBuffer(m_indexBuffer); // ib
-				tempGraphicsCommandList.BindVertexBuffer(m_vertexBuffer); // vb
-				tempGraphicsCommandList.Bind(m_depthOfFieldPS); // ps
-				tempGraphicsCommandList.Bind(m_fullscreenVS); // vs
-				tempGraphicsCommandList.Bind(m_sampler); // s0
-				tempGraphicsCommandList.Bind(m_inputLayout); // il
-				tempGraphicsCommandList.Bind(m_blendState); // bs
-				tempGraphicsCommandList.Bind(m_rasterizerState); // rs
-				tempGraphicsCommandList.Bind(m_topology); // topology
-				tempGraphicsCommandList.Bind(m_viewPort); // vp
-				tempGraphicsCommandList.Bind(renderTarget); // rt
-
-				tempGraphicsCommandList.DrawIndexed(graphics);
-			}
-
-			graphics.GetFrameResourceDeleter()->DeleteResource(graphics, std::move(tempGraphicsCommandList));
+			m_mesh.DrawMesh(graphics, pipeline);
 
 			// changing state of current backbuffer back to render target state
 			{
@@ -126,6 +101,27 @@ void DepthOfFieldFullscreenPass::InternalInitialize(Graphics& graphics, Pipeline
 
 	m_DepthBufferUAV = std::make_shared<UnorderedAccessView>(graphics, m_DepthBuffer.get(), 0);
 	m_DepthBufferSRV = std::make_shared<ShaderResourceView>(graphics, m_DepthBuffer.get(), 2);
+
+	auto renderTarget = graphics.GetSwapChainBuffer();
+
+	m_mesh.AddBindable(m_renderTargetSRV); // t0
+	m_mesh.AddBindable(m_depthStencilSRV); // t1
+	m_mesh.AddBindable(m_DepthBufferSRV); // t2
+	m_mesh.AddBindable(m_cameraData); // b0
+	m_mesh.AddBindable(m_depthOfFieldData); // b1
+	m_mesh.SetIndexBuffer(m_indexBuffer); // ib
+	m_mesh.SetVertexBuffer(m_vertexBuffer); // vb
+	m_mesh.AddBindable(m_depthOfFieldPS); // ps
+	m_mesh.AddBindable(m_fullscreenVS); // vs
+	m_mesh.AddBindable(m_sampler); // s0
+	m_mesh.AddBindable(m_inputLayout); // il
+	m_mesh.AddBindable(m_blendState); // bs
+	m_mesh.AddBindable(m_rasterizerState); // rs
+	m_mesh.AddBindable(m_topology); // topology
+	m_mesh.AddBindable(m_viewPort); // vp
+	m_mesh.AddBindable(renderTarget); // rt
+
+	m_mesh.Initialize(graphics, pipeline);
 }
 
 void DepthOfFieldFullscreenPass::InternalUpdate(Graphics& graphics, Pipeline& pipeline)

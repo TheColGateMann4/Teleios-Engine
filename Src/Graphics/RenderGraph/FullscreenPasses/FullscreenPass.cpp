@@ -108,28 +108,7 @@ void FullscreenPass::Draw(Graphics& graphics, Pipeline& pipeline)
 		commandList->SetResourceState(graphics, backBuffer, D3D12_RESOURCE_STATE_ALL_SHADER_RESOURCE);
 	}
 
-	RenderTarget* renderTarget = graphics.GetSwapChainBuffer();
-
-	TempGraphicsCommandList tempGraphicsCommandList(graphics, pipeline.GetGraphicCommandList());
-
-	{
-		tempGraphicsCommandList.Bind(m_renderTargetSRV); // t0
-		tempGraphicsCommandList.BindIndexBuffer(m_indexBuffer); // ib
-		tempGraphicsCommandList.BindVertexBuffer(m_vertexBuffer); // vb
-		tempGraphicsCommandList.Bind(m_fullscreenPS); // ps
-		tempGraphicsCommandList.Bind(m_fullscreenVS); // vs
-		tempGraphicsCommandList.Bind(m_sampler); // s0
-		tempGraphicsCommandList.Bind(m_inputLayout); // il
-		tempGraphicsCommandList.Bind(m_blendState); // bs
-		tempGraphicsCommandList.Bind(m_rasterizerState); // rs
-		tempGraphicsCommandList.Bind(m_topology); // topology
-		tempGraphicsCommandList.Bind(m_viewPort); // vp
-		tempGraphicsCommandList.Bind(renderTarget); // rt
-
-		tempGraphicsCommandList.DrawIndexed(graphics);
-	}
-
-	graphics.GetFrameResourceDeleter()->DeleteResource(graphics, std::move(tempGraphicsCommandList));
+	m_mesh.DrawMesh(graphics, pipeline);
 
 	// changing state of current backbuffer back to render target state
 	{
@@ -140,7 +119,22 @@ void FullscreenPass::Draw(Graphics& graphics, Pipeline& pipeline)
 
 void FullscreenPass::InternalInitialize(Graphics& graphics, Pipeline& pipeline)
 {
+	auto renderTarget = graphics.GetSwapChainBuffer();
 
+	m_mesh.AddBindable(m_renderTargetSRV); // t0
+	m_mesh.SetIndexBuffer(m_indexBuffer); // ib
+	m_mesh.SetVertexBuffer(m_vertexBuffer); // vb
+	m_mesh.AddBindable(m_fullscreenPS); // ps
+	m_mesh.AddBindable(m_fullscreenVS); // vs
+	m_mesh.AddBindable(m_sampler); // s0
+	m_mesh.AddBindable(m_inputLayout); // il
+	m_mesh.AddBindable(m_blendState); // bs
+	m_mesh.AddBindable(m_rasterizerState); // rs
+	m_mesh.AddBindable(m_topology); // topology
+	m_mesh.AddBindable(m_viewPort); // vp
+	m_mesh.AddBindable(renderTarget); // rt
+
+	m_mesh.Initialize(graphics, pipeline);
 }
 
 void FullscreenPass::InternalUpdate(Graphics& graphics, Pipeline& pipeline)
