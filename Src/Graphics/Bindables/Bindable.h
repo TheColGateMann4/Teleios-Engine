@@ -38,14 +38,6 @@ public:
 	virtual void BindToComputeCommandList(Graphics& graphics, CommandList* commandList);
 };
 
-class DirectCommandListBindable
-{
-public:
-	virtual ~DirectCommandListBindable() = default;
-
-	virtual void BindToDirectCommandList(Graphics& graphics, CommandList* commandList) = 0;
-};
-
 class RootSignatureBindable
 {
 public:

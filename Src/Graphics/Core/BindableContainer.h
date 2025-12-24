@@ -31,7 +31,6 @@ public:
 
 public:
 	const std::vector<CommandListBindable*>& GetCommandListBindables() const;
-	const std::vector<DirectCommandListBindable*>& GetDirectCommandListBindables() const;
 	const std::vector<RootSignatureBindable*>& GetRootSignatureBindables() const;
 	const std::vector<PipelineStateBindable*>& GetPipelineStateBindables() const;
 
@@ -79,7 +78,6 @@ public:
 
 public:
 	const std::vector<CommandListBindable*>& GetCommandListBindables() const;
-	const std::vector<DirectCommandListBindable*>& GetDirectCommandListBindables() const;
 	const std::vector<RootSignatureBindable*>& GetRootSignatureBindables() const;
 	const std::vector<PipelineStateBindable*>& GetPipelineStateBindables() const;
 	const Shader* GetShader() const;
@@ -92,7 +90,6 @@ private:
 	std::vector<std::shared_ptr<Bindable>> m_temporaryBindables;
 
 	std::vector<CommandListBindable*> m_commandListBindables;
-	std::vector<DirectCommandListBindable*> m_directCommandListBindables;
 	std::vector<RootSignatureBindable*> m_rootSignatureBindables;
 	std::vector<PipelineStateBindable*> m_pipelineStateBindables;
 	Shader* m_shader;

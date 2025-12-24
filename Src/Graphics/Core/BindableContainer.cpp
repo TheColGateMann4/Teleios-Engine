@@ -49,11 +49,6 @@ const std::vector<CommandListBindable*>& MeshBindableContainer::GetCommandListBi
 	return m_commandListBindables;
 }
 
-const std::vector<DirectCommandListBindable*>& MeshBindableContainer::GetDirectCommandListBindables() const
-{
-	return m_directCommandListBindables;
-}
-
 const std::vector<RootSignatureBindable*>& MeshBindableContainer::GetRootSignatureBindables() const
 {
 	return m_rootSignatureBindables;
@@ -96,9 +91,6 @@ void MeshBindableContainer::SegregateBindable(Bindable* bindable)
 	if (auto* commandListBindable = dynamic_cast<CommandListBindable*>(bindable))
 		m_commandListBindables.push_back(commandListBindable);
 
-	if (auto* directCommandListBindable = dynamic_cast<DirectCommandListBindable*>(bindable))
-		m_directCommandListBindables.push_back(directCommandListBindable);
-
 	if (auto* rootSignatureBindable = dynamic_cast<RootSignatureBindable*>(bindable))
 		m_rootSignatureBindables.push_back(rootSignatureBindable);
 
@@ -110,9 +102,6 @@ void MeshBindableContainer::SegregateBindableAtFirstPos(Bindable* bindable)
 {
 	if (auto* commandListBindable = dynamic_cast<CommandListBindable*>(bindable))
 		m_commandListBindables.insert(m_commandListBindables.begin(), commandListBindable);
-
-	if (auto* directCommandListBindable = dynamic_cast<DirectCommandListBindable*>(bindable))
-		m_directCommandListBindables.insert(m_directCommandListBindables.begin(), directCommandListBindable);
 
 	if (auto* rootSignatureBindable = dynamic_cast<RootSignatureBindable*>(bindable))
 		m_rootSignatureBindables.insert(m_rootSignatureBindables.begin(), rootSignatureBindable);
@@ -140,11 +129,6 @@ const std::vector<CommandListBindable*>& ComputeBindableContainer::GetCommandLis
 	return m_commandListBindables;
 }
 
-const std::vector<DirectCommandListBindable*>& ComputeBindableContainer::GetDirectCommandListBindables() const
-{
-	return m_directCommandListBindables;
-}
-
 const std::vector<RootSignatureBindable*>& ComputeBindableContainer::GetRootSignatureBindables() const
 {
 	return m_rootSignatureBindables;
@@ -167,9 +151,6 @@ void ComputeBindableContainer::SegregateBindable(Bindable* bindable)
 	
 	if (auto* commandListBindable = dynamic_cast<CommandListBindable*>(bindable))
 		m_commandListBindables.push_back(commandListBindable);
-
-	if (auto* directCommandListBindable = dynamic_cast<DirectCommandListBindable*>(bindable))
-		m_directCommandListBindables.push_back(directCommandListBindable);
 
 	if (auto* rootSignatureBindable = dynamic_cast<RootSignatureBindable*>(bindable))
 		m_rootSignatureBindables.push_back(rootSignatureBindable);
