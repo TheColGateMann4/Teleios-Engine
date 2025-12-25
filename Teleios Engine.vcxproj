@@ -154,7 +154,7 @@
       <LanguageStandard_C>stdclatest</LanguageStandard_C>
       <AdditionalOptions>/external:W0 %(AdditionalOptions)</AdditionalOptions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <SupportJustMyCode>true</SupportJustMyCode>
+      <SupportJustMyCode>false</SupportJustMyCode>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
