@@ -104,7 +104,7 @@ void Graphics::FinishFrame()
 
 void Graphics::Render(Scene& scene)
 {
-	renderGraph.Draw(*this, scene);
+	renderGraph.Draw(*this);
 }
 
 void Graphics::PresentFrame()

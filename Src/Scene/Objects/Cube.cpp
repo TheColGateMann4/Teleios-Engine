@@ -8,6 +8,9 @@
 #include "Graphics/Data/DynamicConstantBuffer.h"
 #include "Graphics/Data/DynamicVertex.h"
 
+#include "Graphics/RenderGraph/Steps/RenderGraphicsStep.h"
+#include "Scene/RenderTechnique.h"
+
 #include <imgui.h>
 
 Cube::Cube(Graphics& graphics, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation)
@@ -16,6 +19,8 @@ Cube::Cube(Graphics& graphics, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rot
 
 	Mesh cubeMesh;
 
+	RenderTechnique technique("Albedo");
+	RenderGraphicsStep step;
 	{
 		struct Vertice
 		{
@@ -91,19 +96,19 @@ Cube::Cube(Graphics& graphics, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rot
 			20,23,22,
 		};
 
-		cubeMesh.SetVertexBuffer(std::make_shared<VertexBuffer>(graphics, vertices.data(), vertices.size(), sizeof(vertices.at(0))));
-		cubeMesh.SetIndexBuffer(std::make_shared<IndexBuffer>(graphics, indices));
-		cubeMesh.AddBindable(m_transform.GetTransformConstantBuffer());
+		step.SetVertexBuffer(std::make_shared<VertexBuffer>(graphics, vertices.data(), vertices.size(), sizeof(vertices.at(0))));
+		step.SetIndexBuffer(std::make_shared<IndexBuffer>(graphics, indices));
+		step.AddBindable(m_transform.GetTransformConstantBuffer());
 
-		cubeMesh.AddBindable(std::make_shared<Shader>(graphics, L"PS_Phong", ShaderType::PixelShader));
-		cubeMesh.AddBindable(std::make_shared<Shader>(graphics, L"VS_Phong", ShaderType::VertexShader));
-		cubeMesh.AddBindable(std::make_shared<BlendState>(graphics));
-		cubeMesh.AddBindable(std::make_shared<RasterizerState>(graphics));
-		cubeMesh.AddBindable(std::make_shared<DepthStencilState>(graphics));
-		cubeMesh.AddBindable(std::make_shared<InputLayout>(graphics, vertexLayout));
-		cubeMesh.AddBindable(std::make_shared<PrimitiveTechnology>(graphics, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE));
+		step.AddBindable(std::make_shared<Shader>(graphics, L"PS_Phong", ShaderType::PixelShader));
+		step.AddBindable(std::make_shared<Shader>(graphics, L"VS_Phong", ShaderType::VertexShader));
+		step.AddBindable(std::make_shared<BlendState>(graphics));
+		step.AddBindable(std::make_shared<RasterizerState>(graphics));
+		step.AddBindable(std::make_shared<DepthStencilState>(graphics));
+		step.AddBindable(std::make_shared<InputLayout>(graphics, vertexLayout));
+		step.AddBindable(std::make_shared<PrimitiveTechnology>(graphics, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE));
 
-		cubeMesh.AddStaticBindable("lightBuffer");
+		step.AddStaticBindable("lightBuffer");
 
 		{
 			DynamicConstantBuffer::ConstantBufferLayout layout;
@@ -115,13 +120,14 @@ Cube::Cube(Graphics& graphics, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rot
 			std::shared_ptr<CachedConstantBuffer> constBuffer = std::make_shared<CachedConstantBuffer>(graphics, bufferData, std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::PixelShader, 2}});
 			m_constantBuffer = constBuffer.get();
 
-			cubeMesh.AddBindable(constBuffer);
+			step.AddBindable(constBuffer);
 		}
 
-		cubeMesh.AddBindable(std::make_shared<Texture>(graphics, "Images/brickwall.jpg"));
+		step.AddBindable(std::make_shared<Texture>(graphics, "Images/brickwall.jpg"));
 
-		cubeMesh.AddBindable(std::make_shared<StaticSampler>(graphics, D3D12_FILTER_MIN_MAG_MIP_POINT));
+		step.AddBindable(std::make_shared<StaticSampler>(graphics, D3D12_FILTER_MIN_MAG_MIP_POINT));
 	}
-
+	technique.AddStep(std::move(step));
+	cubeMesh.AddTechnique(std::move(technique));
 	AddMesh(cubeMesh);
 }

@@ -10,6 +10,8 @@
 #include "Macros/ErrorMacros.h"
 
 #include "Scene/Mesh.h"
+#include "Graphics/RenderGraph/Steps/RenderGraphicsStep.h"
+#include "Scene/RenderTechnique.h"
 
 #include <assimp/Importer.hpp>      // C++ importer interface
 #include <assimp/scene.h>           // Output data structure
@@ -66,223 +68,230 @@ Model::Model(Graphics& graphics, Model* pParent, aiNode* node, std::vector<std::
 
 		Mesh objectMesh;
 
-		objectMesh.AddBindable(m_transform.GetTransformConstantBuffer());
+		RenderTechnique technique("Albedo");
+		RenderGraphicsStep step;
 
-		DynamicVertex::DynamicVertexLayout vertexLayout;
-
-		// initializing vertex layout
 		{
-			if (hasPositions)
-				vertexLayout.AddElement<DynamicVertex::ElementType::Position>();
+			step.AddBindable(m_transform.GetTransformConstantBuffer());
 
-			if (hasTextureCoords)
-				vertexLayout.AddElement<DynamicVertex::ElementType::TextureCoords>();
+			DynamicVertex::DynamicVertexLayout vertexLayout;
 
-			if (hasNormals)
-				vertexLayout.AddElement<DynamicVertex::ElementType::Normal>();
-
-			if (hasTangentsAndBitangent)
+			// initializing vertex layout
 			{
-				vertexLayout.AddElement<DynamicVertex::ElementType::Tangent>();
-				vertexLayout.AddElement<DynamicVertex::ElementType::Bitangent>();
-			}
-
-			if (hasVertexColors)
-				vertexLayout.AddElement<DynamicVertex::ElementType::Color4>();
-		}
-
-		// pushing all the data to vertex buffer
-		{
-			DynamicVertex::DynamicVertex vertexBuffer(vertexLayout, numVertices);
-
-			for (size_t vertexIndex = 0; vertexIndex < numVertices; vertexIndex++)
-			{
-				vertexBuffer.EmplaceBack();
-
 				if (hasPositions)
-				{
-					DirectX::XMFLOAT3* pPosition = reinterpret_cast<DirectX::XMFLOAT3*>(&mesh->mVertices[vertexIndex]);
-
-					vertexBuffer.Back().GetPropety<DynamicVertex::ElementType::Position>() = { pPosition->x * scale, pPosition->y * scale,pPosition->z * scale };
-				}
+					vertexLayout.AddElement<DynamicVertex::ElementType::Position>();
 
 				if (hasTextureCoords)
-					vertexBuffer.Back().GetPropety<DynamicVertex::ElementType::TextureCoords>() = *reinterpret_cast<DirectX::XMFLOAT2*>(&mesh->mTextureCoords[0][vertexIndex]);
+					vertexLayout.AddElement<DynamicVertex::ElementType::TextureCoords>();
 
 				if (hasNormals)
-					vertexBuffer.Back().GetPropety<DynamicVertex::ElementType::Normal>() = *reinterpret_cast<DirectX::XMFLOAT3*>(&mesh->mNormals[vertexIndex]);
+					vertexLayout.AddElement<DynamicVertex::ElementType::Normal>();
 
 				if (hasTangentsAndBitangent)
 				{
-					vertexBuffer.Back().GetPropety<DynamicVertex::ElementType::Tangent>() = *reinterpret_cast<DirectX::XMFLOAT3*>(&mesh->mTangents[vertexIndex]);
-					vertexBuffer.Back().GetPropety<DynamicVertex::ElementType::Bitangent>() = *reinterpret_cast<DirectX::XMFLOAT3*>(&mesh->mBitangents[vertexIndex]);
+					vertexLayout.AddElement<DynamicVertex::ElementType::Tangent>();
+					vertexLayout.AddElement<DynamicVertex::ElementType::Bitangent>();
 				}
 
 				if (hasVertexColors)
-					vertexBuffer.Back().GetPropety<DynamicVertex::ElementType::Color4>() = *reinterpret_cast<DirectX::XMFLOAT4*>(&mesh->mColors[0][vertexIndex]);
+					vertexLayout.AddElement<DynamicVertex::ElementType::Color4>();
 			}
 
-			objectMesh.SetVertexBuffer(VertexBuffer::GetBindableResource(graphics, mesh->mName.C_Str(), vertexBuffer));
-		}
-
-
-		//indices
-		{
-			size_t mNumIndices = mesh->mNumFaces * mesh->mFaces->mNumIndices;
-			std::vector<unsigned int> indices(mNumIndices, '\0');
-
-			for (size_t faceIndex = 0; faceIndex < mesh->mNumFaces; faceIndex++)
-				for (size_t indiceIndex = 0; indiceIndex < mesh->mFaces[faceIndex].mNumIndices; indiceIndex++)
-					indices.at(faceIndex * 3 + indiceIndex) = mesh->mFaces[faceIndex].mIndices[indiceIndex];
-
-			objectMesh.SetIndexBuffer(IndexBuffer::GetBindableResource(graphics, mesh->mName.C_Str(), indices));
-		}
-
-		std::vector<const wchar_t*> shaderMacros = {};
-		shaderMacros.push_back(L"OUTPUT_CAMAERAPOS"); // phong requirement
-		shaderMacros.push_back(L"INPUT_NORMAL"); // model objects will always have normals since we will generate them with assimp if they do not
-
-		// handle material
-		{
-			MaterialPropeties materialPropeties = ProcessMaterialPropeties(material);
-
-			shaderMacros.push_back(L"METALNESS_PIPELINE");
-
-			if(materialPropeties.roughnessMetalnessInOneTexture)
-				shaderMacros.push_back(L"METALNESS_ROUGHNESS_ONE_TEXTURE");
-
-			// textures
-			if (materialPropeties.hasAnyMap)
+			// pushing all the data to vertex buffer
 			{
-				objectMesh.AddBindable(StaticSampler::GetBindableResource(graphics, D3D12_FILTER_MIN_MAG_MIP_POINT));
+				DynamicVertex::DynamicVertex vertexBuffer(vertexLayout, numVertices);
 
-				if(materialPropeties.ignoreDiffseAlpha)
-					shaderMacros.push_back(L"IGNORE_DIFFUSE_ALPHA");
-
-				shaderMacros.push_back(L"TEXTURE_ANY");
-				shaderMacros.push_back(L"INPUT_TEXCCORDS"); // since we are handling textures, we will need texcoords argument provided to our shaders
-
-
-				if (materialPropeties.hasDiffuseMap)
+				for (size_t vertexIndex = 0; vertexIndex < numVertices; vertexIndex++)
 				{
-					objectMesh.AddBindable(Texture::GetBindableResource(graphics, (filePath + materialPropeties.diffuseMapPath).c_str(), true, true, { {ShaderVisibilityGraphic::PixelShader, 0} }));
-					shaderMacros.push_back(L"TEXTURE_DIFFUSE");
-				}
+					vertexBuffer.EmplaceBack();
 
-				if (materialPropeties.hasNormalMap)
-				{
-					objectMesh.AddBindable(Texture::GetBindableResource(graphics, (filePath + materialPropeties.normalMapPath).c_str(), false, true, { {ShaderVisibilityGraphic::PixelShader, 1} }));
-					shaderMacros.push_back(L"TEXTURE_NORMAL");
-
-					shaderMacros.push_back(L"INPUT_TANGENT");
-					shaderMacros.push_back(L"INPUT_BITANGENT");
-				}
-				
-				if(materialPropeties.metalRoughnessSystem)
-				{
-					if (materialPropeties.hasMetalnessMap)
+					if (hasPositions)
 					{
-						std::shared_ptr<Texture> specularTexture = Texture::GetBindableResource(graphics, (filePath + materialPropeties.specularMetalnessMapPath).c_str(), false, true, { {ShaderVisibilityGraphic::PixelShader, 3} });
+						DirectX::XMFLOAT3* pPosition = reinterpret_cast<DirectX::XMFLOAT3*>(&mesh->mVertices[vertexIndex]);
 
-						objectMesh.AddBindable(std::move(specularTexture));
-						shaderMacros.push_back(L"TEXTURE_METALNESS");
+						vertexBuffer.Back().GetPropety<DynamicVertex::ElementType::Position>() = { pPosition->x * scale, pPosition->y * scale,pPosition->z * scale };
 					}
 
-					if (materialPropeties.hasRoughnessMap)
-					{
-						std::shared_ptr<Texture> specularTexture = Texture::GetBindableResource(graphics, (filePath + materialPropeties.specularMetalnessMapPath).c_str(), false, true, { {ShaderVisibilityGraphic::PixelShader, 4} });
+					if (hasTextureCoords)
+						vertexBuffer.Back().GetPropety<DynamicVertex::ElementType::TextureCoords>() = *reinterpret_cast<DirectX::XMFLOAT2*>(&mesh->mTextureCoords[0][vertexIndex]);
 
-						objectMesh.AddBindable(std::move(specularTexture));
-						shaderMacros.push_back(L"TEXTURE_ROUGHNESS");
+					if (hasNormals)
+						vertexBuffer.Back().GetPropety<DynamicVertex::ElementType::Normal>() = *reinterpret_cast<DirectX::XMFLOAT3*>(&mesh->mNormals[vertexIndex]);
+
+					if (hasTangentsAndBitangent)
+					{
+						vertexBuffer.Back().GetPropety<DynamicVertex::ElementType::Tangent>() = *reinterpret_cast<DirectX::XMFLOAT3*>(&mesh->mTangents[vertexIndex]);
+						vertexBuffer.Back().GetPropety<DynamicVertex::ElementType::Bitangent>() = *reinterpret_cast<DirectX::XMFLOAT3*>(&mesh->mBitangents[vertexIndex]);
 					}
 
-					// reflectivity 5
-				}
-				else
-				{
-					if (materialPropeties.hasSpecularMap)
-					{
-						std::shared_ptr<Texture> specularTexture = Texture::GetBindableResource(graphics, (filePath + materialPropeties.specularMetalnessMapPath).c_str(), false, true, { {ShaderVisibilityGraphic::PixelShader, 2} });
-
-						materialPropeties.specularOneChannelOnly = specularTexture->GetTexture()->GetFormat() == DXGI_FORMAT_R8_UNORM;
-
-						objectMesh.AddBindable(std::move(specularTexture));
-						shaderMacros.push_back(L"TEXTURE_SPECULAR");
-					}
+					if (hasVertexColors)
+						vertexBuffer.Back().GetPropety<DynamicVertex::ElementType::Color4>() = *reinterpret_cast<DirectX::XMFLOAT4*>(&mesh->mColors[0][vertexIndex]);
 				}
 
-				if (materialPropeties.hasAmbientMap)
-				{
-					std::shared_ptr<Texture> specularTexture = Texture::GetBindableResource(graphics, (filePath + materialPropeties.ambientMapPath).c_str(), false, true, { {ShaderVisibilityGraphic::PixelShader, 6} });
-
-					objectMesh.AddBindable(std::move(specularTexture));
-					shaderMacros.push_back(L"TEXTURE_AMBIENT");
-				}
-
-				// opacity 7
-
+				step.SetVertexBuffer(VertexBuffer::GetBindableResource(graphics, mesh->mName.C_Str(), vertexBuffer));
 			}
 
-			//Constant buffer describing model material propeties
+
+			//indices
 			{
-				DynamicConstantBuffer::ConstantBufferLayout layout;
+				size_t mNumIndices = mesh->mNumFaces * mesh->mFaces->mNumIndices;
+				std::vector<unsigned int> indices(mNumIndices, '\0');
+
+				for (size_t faceIndex = 0; faceIndex < mesh->mNumFaces; faceIndex++)
+					for (size_t indiceIndex = 0; indiceIndex < mesh->mFaces[faceIndex].mNumIndices; indiceIndex++)
+						indices.at(faceIndex * 3 + indiceIndex) = mesh->mFaces[faceIndex].mIndices[indiceIndex];
+
+				step.SetIndexBuffer(IndexBuffer::GetBindableResource(graphics, mesh->mName.C_Str(), indices));
+			}
+
+			std::vector<const wchar_t*> shaderMacros = {};
+			shaderMacros.push_back(L"OUTPUT_CAMAERAPOS"); // phong requirement
+			shaderMacros.push_back(L"INPUT_NORMAL"); // model objects will always have normals since we will generate them with assimp if they do not
+
+			// handle material
+			{
+				MaterialPropeties materialPropeties = ProcessMaterialPropeties(material);
+
+				shaderMacros.push_back(L"METALNESS_PIPELINE");
+
+				if (materialPropeties.roughnessMetalnessInOneTexture)
+					shaderMacros.push_back(L"METALNESS_ROUGHNESS_ONE_TEXTURE");
+
+				// textures
+				if (materialPropeties.hasAnyMap)
 				{
-					layout.AddElement<DynamicConstantBuffer::ElementType::Float3>("ambient");
-					layout.AddElement<DynamicConstantBuffer::ElementType::Float3>("diffuse");
+					step.AddBindable(StaticSampler::GetBindableResource(graphics, D3D12_FILTER_MIN_MAG_MIP_POINT));
+
+					if (materialPropeties.ignoreDiffseAlpha)
+						shaderMacros.push_back(L"IGNORE_DIFFUSE_ALPHA");
+
+					shaderMacros.push_back(L"TEXTURE_ANY");
+					shaderMacros.push_back(L"INPUT_TEXCCORDS"); // since we are handling textures, we will need texcoords argument provided to our shaders
+
+
+					if (materialPropeties.hasDiffuseMap)
+					{
+						step.AddBindable(Texture::GetBindableResource(graphics, (filePath + materialPropeties.diffuseMapPath).c_str(), true, true, { {ShaderVisibilityGraphic::PixelShader, 0} }));
+						shaderMacros.push_back(L"TEXTURE_DIFFUSE");
+					}
+
+					if (materialPropeties.hasNormalMap)
+					{
+						step.AddBindable(Texture::GetBindableResource(graphics, (filePath + materialPropeties.normalMapPath).c_str(), false, true, { {ShaderVisibilityGraphic::PixelShader, 1} }));
+						shaderMacros.push_back(L"TEXTURE_NORMAL");
+
+						shaderMacros.push_back(L"INPUT_TANGENT");
+						shaderMacros.push_back(L"INPUT_BITANGENT");
+					}
 
 					if (materialPropeties.metalRoughnessSystem)
 					{
-						layout.AddElement<DynamicConstantBuffer::ElementType::Float3>("reflectivity");
-						layout.AddElement<DynamicConstantBuffer::ElementType::Float>("metalness", DynamicConstantBuffer::ImguiFloatData{ true, 0.0f, 1.0f });
-						layout.AddElement<DynamicConstantBuffer::ElementType::Float>("roughness", DynamicConstantBuffer::ImguiFloatData{ true, 0.0f, 1.0f });
+						if (materialPropeties.hasMetalnessMap)
+						{
+							std::shared_ptr<Texture> specularTexture = Texture::GetBindableResource(graphics, (filePath + materialPropeties.specularMetalnessMapPath).c_str(), false, true, { {ShaderVisibilityGraphic::PixelShader, 3} });
+
+							step.AddBindable(std::move(specularTexture));
+							shaderMacros.push_back(L"TEXTURE_METALNESS");
+						}
+
+						if (materialPropeties.hasRoughnessMap)
+						{
+							std::shared_ptr<Texture> specularTexture = Texture::GetBindableResource(graphics, (filePath + materialPropeties.specularMetalnessMapPath).c_str(), false, true, { {ShaderVisibilityGraphic::PixelShader, 4} });
+
+							step.AddBindable(std::move(specularTexture));
+							shaderMacros.push_back(L"TEXTURE_ROUGHNESS");
+						}
+
+						// reflectivity 5
 					}
 					else
 					{
-						layout.AddElement<DynamicConstantBuffer::ElementType::Float3>("defaultSpecularColor");
-						layout.AddElement<DynamicConstantBuffer::ElementType::Bool>("specularOneChannelOnly", DynamicConstantBuffer::ImguiData{ false });
-						layout.AddElement<DynamicConstantBuffer::ElementType::Float>("specular", DynamicConstantBuffer::ImguiFloatData{ true, 0.001f, 150.0f });
-						layout.AddElement<DynamicConstantBuffer::ElementType::Float>("glosiness", DynamicConstantBuffer::ImguiFloatData{ true, 0.001f, 150.0f });
+						if (materialPropeties.hasSpecularMap)
+						{
+							std::shared_ptr<Texture> specularTexture = Texture::GetBindableResource(graphics, (filePath + materialPropeties.specularMetalnessMapPath).c_str(), false, true, { {ShaderVisibilityGraphic::PixelShader, 2} });
+
+							materialPropeties.specularOneChannelOnly = specularTexture->GetTexture()->GetFormat() == DXGI_FORMAT_R8_UNORM;
+
+							step.AddBindable(std::move(specularTexture));
+							shaderMacros.push_back(L"TEXTURE_SPECULAR");
+						}
 					}
-					layout.AddElement<DynamicConstantBuffer::ElementType::Float>("opacity", DynamicConstantBuffer::ImguiFloatData{ true, 0.0f, 1.0f });
+
+					if (materialPropeties.hasAmbientMap)
+					{
+						std::shared_ptr<Texture> specularTexture = Texture::GetBindableResource(graphics, (filePath + materialPropeties.ambientMapPath).c_str(), false, true, { {ShaderVisibilityGraphic::PixelShader, 6} });
+
+						step.AddBindable(std::move(specularTexture));
+						shaderMacros.push_back(L"TEXTURE_AMBIENT");
+					}
+
+					// opacity 7
+
 				}
 
-				DynamicConstantBuffer::ConstantBufferData bufferData(layout);
+				//Constant buffer describing model material propeties
 				{
-					*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float3>("ambient") = materialPropeties.ambient;
-					*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float3>("diffuse") = materialPropeties.diffuse;
+					DynamicConstantBuffer::ConstantBufferLayout layout;
+					{
+						layout.AddElement<DynamicConstantBuffer::ElementType::Float3>("ambient");
+						layout.AddElement<DynamicConstantBuffer::ElementType::Float3>("diffuse");
 
-					if (materialPropeties.metalRoughnessSystem)
-					{
-						*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float3>("reflectivity") = materialPropeties.reflective;
-						*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("metalness") = materialPropeties.metalness;
-						*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("roughness") = materialPropeties.roughness;
+						if (materialPropeties.metalRoughnessSystem)
+						{
+							layout.AddElement<DynamicConstantBuffer::ElementType::Float3>("reflectivity");
+							layout.AddElement<DynamicConstantBuffer::ElementType::Float>("metalness", DynamicConstantBuffer::ImguiFloatData{ true, 0.0f, 1.0f });
+							layout.AddElement<DynamicConstantBuffer::ElementType::Float>("roughness", DynamicConstantBuffer::ImguiFloatData{ true, 0.0f, 1.0f });
+						}
+						else
+						{
+							layout.AddElement<DynamicConstantBuffer::ElementType::Float3>("defaultSpecularColor");
+							layout.AddElement<DynamicConstantBuffer::ElementType::Bool>("specularOneChannelOnly", DynamicConstantBuffer::ImguiData{ false });
+							layout.AddElement<DynamicConstantBuffer::ElementType::Float>("specular", DynamicConstantBuffer::ImguiFloatData{ true, 0.001f, 150.0f });
+							layout.AddElement<DynamicConstantBuffer::ElementType::Float>("glosiness", DynamicConstantBuffer::ImguiFloatData{ true, 0.001f, 150.0f });
+						}
+						layout.AddElement<DynamicConstantBuffer::ElementType::Float>("opacity", DynamicConstantBuffer::ImguiFloatData{ true, 0.0f, 1.0f });
 					}
-					else
+
+					DynamicConstantBuffer::ConstantBufferData bufferData(layout);
 					{
-						*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float3>("defaultSpecularColor") = materialPropeties.specularColor;
-						*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Bool>("specularOneChannelOnly") = materialPropeties.specularOneChannelOnly;
-						*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("specular") = materialPropeties.specular;
-						*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("glosiness") = materialPropeties.glosiness;
+						*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float3>("ambient") = materialPropeties.ambient;
+						*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float3>("diffuse") = materialPropeties.diffuse;
+
+						if (materialPropeties.metalRoughnessSystem)
+						{
+							*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float3>("reflectivity") = materialPropeties.reflective;
+							*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("metalness") = materialPropeties.metalness;
+							*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("roughness") = materialPropeties.roughness;
+						}
+						else
+						{
+							*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float3>("defaultSpecularColor") = materialPropeties.specularColor;
+							*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Bool>("specularOneChannelOnly") = materialPropeties.specularOneChannelOnly;
+							*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("specular") = materialPropeties.specular;
+							*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("glosiness") = materialPropeties.glosiness;
+						}
+						*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("opacity") = materialPropeties.opacity;
 					}
-					*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("opacity") = materialPropeties.opacity;
+
+					step.AddBindable(std::make_shared<CachedConstantBuffer>(graphics, bufferData, std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::PixelShader, 1}}));
 				}
 
-				objectMesh.AddBindable(std::make_shared<CachedConstantBuffer>(graphics, bufferData, std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::PixelShader, 1}}));
+				step.AddBindable(RasterizerState::GetBindableResource(graphics, materialPropeties.twoSided));
 			}
 
-			objectMesh.AddBindable(RasterizerState::GetBindableResource(graphics, materialPropeties.twoSided));
+			step.AddBindable(Shader::GetBindableResource(graphics, L"PS", ShaderType::PixelShader, shaderMacros));
+			step.AddBindable(Shader::GetBindableResource(graphics, L"VS", ShaderType::VertexShader, shaderMacros));
+			step.AddBindable(InputLayout::GetBindableResource(graphics, vertexLayout));
+
+			step.AddBindable(BlendState::GetBindableResource(graphics));
+			step.AddBindable(DepthStencilState::GetBindableResource(graphics));
+			step.AddBindable(PrimitiveTechnology::GetBindableResource(graphics, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE));
+
+			step.AddStaticBindable("lightBuffer");
 		}
 
-		objectMesh.AddBindable(Shader::GetBindableResource(graphics, L"PS", ShaderType::PixelShader, shaderMacros));
-		objectMesh.AddBindable(Shader::GetBindableResource(graphics, L"VS", ShaderType::VertexShader, shaderMacros));
-		objectMesh.AddBindable(InputLayout::GetBindableResource(graphics, vertexLayout));
-
-		objectMesh.AddBindable(BlendState::GetBindableResource(graphics));
-		objectMesh.AddBindable(DepthStencilState::GetBindableResource(graphics));
-		objectMesh.AddBindable(PrimitiveTechnology::GetBindableResource(graphics, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE));
-
-		objectMesh.AddStaticBindable("lightBuffer");
-
+		technique.AddStep(std::move(step));
+		objectMesh.AddTechnique(std::move(technique));
 		AddMesh(objectMesh);
 	}
 }

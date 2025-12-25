@@ -18,21 +18,19 @@ void RenderGraph::FinishInitialization(Graphics& graphics)
 	m_pipeline.FinishInitialization(graphics);
 }
 
-void RenderGraph::Draw(Graphics& graphics, Scene& scene)
+void RenderGraph::Draw(Graphics& graphics)
 {
 	{
 		m_pipeline.BeginRender(graphics);
 
-		scene.InitializeGraphicResources(graphics);
+		//scene.InitializeGraphicResources(graphics);
 
 		m_pipeline.ExecuteCopyCalls(graphics);
 
-		// drawing scene objects
+		// executing graphics render jobs
 		{
-			auto& sceneObjects = scene.GetObjects();
-
-			for (auto& sceneObject : sceneObjects)
-				sceneObject->InternalDraw(graphics, m_pipeline);
+			for (auto& job : m_renderJobs)
+				job.Execute(graphics, m_pipeline.GetGraphicCommandList());
 		}
 
 		// apply post processing
@@ -56,6 +54,11 @@ void RenderGraph::Draw(Graphics& graphics, Scene& scene)
 void RenderGraph::DrawImguiWindow(Graphics& graphics)
 {
 	m_postProcessing.Update(graphics, m_pipeline);
+}
+
+void RenderGraph::SubmitJob(RenderJob&& job)
+{
+	m_renderJobs.push_back(job);
 }
 
 Pipeline& RenderGraph::GetPipeline()

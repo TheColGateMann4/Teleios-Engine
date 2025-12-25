@@ -51,7 +51,6 @@ private:
 	std::vector<const char*> m_staticBindableNames;
 
 	std::vector<CommandListBindable*> m_commandListBindables;
-	std::vector<DirectCommandListBindable*> m_directCommandListBindables;
 	std::vector<RootSignatureBindable*> m_rootSignatureBindables;
 	std::vector<PipelineStateBindable*> m_pipelineStateBindables;
 

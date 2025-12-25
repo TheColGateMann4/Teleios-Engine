@@ -1,5 +1,6 @@
 #pragma once
 #include "Includes/CppIncludes.h"
+#include "System/Time.h"
 #include "System/Window.h"
 #include "Scene/SceneObject.h"
 #include "Scene/Objects/Camera.h"
@@ -26,6 +27,7 @@ private:
 	const char* m_name;
 
 private:
+	Time time;
 	Window window;
 	Graphics graphics;
 	Scene scene;

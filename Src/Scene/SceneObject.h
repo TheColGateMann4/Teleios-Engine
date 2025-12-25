@@ -18,8 +18,6 @@ public:
 public:
 	void InternalInitialize(Graphics& graphics, Pipeline& pipeline);
 
-	void InternalDraw(Graphics& graphics, Pipeline& pipeline) const;
-
 	void InternalUpdate(Graphics& graphics, Camera& camera, Pipeline& pipeline);
 
 	void InternalAddStaticResources(Pipeline& pipeline);

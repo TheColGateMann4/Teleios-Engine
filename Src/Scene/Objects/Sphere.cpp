@@ -6,6 +6,9 @@
 
 #include "Graphics/Data/DynamicVertex.h"
 
+#include "Graphics/RenderGraph/Steps/RenderGraphicsStep.h"
+#include "Scene/RenderTechnique.h"
+
 #include <imgui.h>
 
 Sphere::Sphere(Graphics& graphics, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation, float diameter, size_t tesselation)
@@ -20,24 +23,28 @@ Sphere::Sphere(Graphics& graphics, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3
 
 	m_transform.SetTransformConstantBuffer(std::make_shared<TransformConstantBuffer>(graphics));
 
+
+	RenderTechnique technique("Albedo");
+	RenderGraphicsStep step;
 	{
 		DynamicVertex::DynamicVertexLayout vertexLayout;
 		vertexLayout.AddElement<DynamicVertex::ElementType::Position>();
 		vertexLayout.AddElement<DynamicVertex::ElementType::Normal>();
 		vertexLayout.AddElement<DynamicVertex::ElementType::TextureCoords>();
 
-		modelMesh.AddBindable(InputLayout::GetBindableResource(graphics, vertexLayout));
+		step.AddBindable(InputLayout::GetBindableResource(graphics, vertexLayout));
 
-		modelMesh.AddBindable(Shader::GetBindableResource(graphics, L"PS_WhiteColor", ShaderType::PixelShader));
+		step.AddBindable(Shader::GetBindableResource(graphics, L"PS_WhiteColor", ShaderType::PixelShader));
 		std::vector<const char*> macros = {"NORMAL", "TEXCOORDS"};
-		modelMesh.AddBindable(Shader::GetBindableResource(graphics, L"VS", ShaderType::VertexShader));
-		modelMesh.AddBindable(BlendState::GetBindableResource(graphics));
-		modelMesh.AddBindable(RasterizerState::GetBindableResource(graphics));
-		modelMesh.AddBindable(DepthStencilState::GetBindableResource(graphics));
-		modelMesh.AddBindable(PrimitiveTechnology::GetBindableResource(graphics, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE));
-		modelMesh.AddBindable(m_transform.GetTransformConstantBuffer());
+		step.AddBindable(Shader::GetBindableResource(graphics, L"VS", ShaderType::VertexShader));
+		step.AddBindable(BlendState::GetBindableResource(graphics));
+		step.AddBindable(RasterizerState::GetBindableResource(graphics));
+		step.AddBindable(DepthStencilState::GetBindableResource(graphics));
+		step.AddBindable(PrimitiveTechnology::GetBindableResource(graphics, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE));
+		step.AddBindable(m_transform.GetTransformConstantBuffer());
 	}
-
+	technique.AddStep(std::move(step));
+	modelMesh.AddTechnique(std::move(technique));
 	AddMesh(modelMesh);
 }
 
@@ -83,16 +90,18 @@ void Sphere::UpdateMesh(Graphics& graphics)
 
 	Mesh& modelMesh = m_meshes.front();
 
+	RenderGraphicsStep& albedoStep = modelMesh.GetTechnique("Albedo").GetStep(0);
+
 	if (!m_initialized)
 	{
-		modelMesh.SetVertexBuffer(VertexBuffer::GetBindableResource(graphics, "Sphere", vertices.data(), vertexLayout, vertices.size()));
-		modelMesh.SetIndexBuffer(IndexBuffer::GetBindableResource(graphics, "Sphere", indices));
+		albedoStep.SetVertexBuffer(VertexBuffer::GetBindableResource(graphics, "Sphere", vertices.data(), vertexLayout, vertices.size()));
+		albedoStep.SetIndexBuffer(IndexBuffer::GetBindableResource(graphics, "Sphere", indices));
 
 		m_initialized = true;
 	}
 	else
 	{
-		modelMesh.GetBindableContainter().GetVertexBuffer()->Update(graphics, vertices.data(), vertices.size(), sizeof(vertices.front()));
-		modelMesh.GetBindableContainter().GetIndexBuffer()->Update(graphics, indices.data(), indices.size(), sizeof(indices.front()));
+		albedoStep.GetBindableContainter().GetVertexBuffer()->Update(graphics, vertices.data(), vertices.size(), sizeof(vertices.front()));
+		albedoStep.GetBindableContainter().GetIndexBuffer()->Update(graphics, indices.data(), indices.size(), sizeof(indices.front()));
 	}
 }

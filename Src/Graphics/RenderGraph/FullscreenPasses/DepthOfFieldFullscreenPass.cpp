@@ -83,7 +83,7 @@ void DepthOfFieldFullscreenPass::Draw(Graphics& graphics, Pipeline& pipeline)
 				commandList->SetResourceState(graphics, depthStencil, D3D12_RESOURCE_STATE_ALL_SHADER_RESOURCE);
 			}
 
-			m_mesh.DrawMesh(graphics, pipeline);
+			m_mesh.Draw(graphics, pipeline);
 
 			// changing state of current backbuffer back to render target state
 			{

@@ -1,6 +1,6 @@
 #pragma once
 #include "Includes/BindablesInclude.h"
-#include "Scene/Mesh.h"
+#include "Scene/StandaloneMesh.h"
 
 class FullscreenPass
 {
@@ -37,5 +37,5 @@ protected:
 
 	std::shared_ptr<CachedConstantBuffer> m_cameraData;
 
-	Mesh m_mesh;
+	StandaloneMesh m_mesh;
 };

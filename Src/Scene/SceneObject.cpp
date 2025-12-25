@@ -27,20 +27,7 @@ void SceneObject::InternalUpdate(Graphics& graphics, Camera& camera, Pipeline& p
 	Update(graphics, pipeline);
 
 	for (auto& mesh : m_meshes)
-		mesh.InternalUpdate(graphics, pipeline);
-}
-
-
-void SceneObject::InternalDraw(Graphics& graphics, Pipeline& pipeline) const
-{
-	BEGIN_COMMAND_LIST_EVENT(pipeline.GetGraphicCommandList(), std::string("Drawing ") + m_name);
-
-	Draw(graphics, pipeline);
-
-	for (const auto& mesh : m_meshes)
-		mesh.DrawMesh(graphics, pipeline);
-
-	END_COMMAND_LIST_EVENT(pipeline.GetGraphicCommandList());
+		mesh.Update(graphics, pipeline);
 }
 
 void SceneObject::InternalAddStaticResources(Pipeline& pipeline)
@@ -50,8 +37,8 @@ void SceneObject::InternalAddStaticResources(Pipeline& pipeline)
 
 void SceneObject::InitializeGraphicResources(Graphics& graphics, Pipeline& pipeline)
 {
-	for (auto& mesh : m_meshes)
-		mesh.InitializeGraphicResources(graphics, pipeline);
+	//for (auto& mesh : m_meshes)
+	//	mesh.InitializeGraphicResources(graphics, pipeline);
 }
 
 void SceneObject::UpdateParentMatrix(DirectX::XMMATRIX parentMatrix)
@@ -163,8 +150,8 @@ void SceneObject::DrawAdditionalPropeties(Graphics& graphics, Pipeline& pipeline
 
 void SceneObject::DrawConstantBuffers(Graphics& graphics)
 {
-	for (auto& mesh : m_meshes)
-		mesh.DrawConstantBuffers(graphics);
+	//for (auto& mesh : m_meshes)
+	//	mesh.DrawConstantBuffers(graphics);
 }
 
 bool SceneObject::isChild() const

@@ -63,6 +63,11 @@
     <ClCompile Include="Src\Graphics\Core\DeviceResources.cpp" />
     <ClCompile Include="Src\Graphics\RenderGraph\RenderGraph.cpp" />
     <ClCompile Include="Src\System\Time.cpp" />
+    <ClCompile Include="Src\Scene\RenderTechnique.cpp" />
+    <ClCompile Include="Src\Graphics\RenderGraph\Steps\RenderGraphicsStep.cpp" />
+    <ClCompile Include="Src\Graphics\RenderGraph\RenderJob.cpp" />
+    <ClCompile Include="Src\Graphics\RenderGraph\Steps\RenderStep.cpp" />
+    <ClCompile Include="Src\Scene\StandaloneMesh.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Src\Application.h" />
@@ -129,6 +134,11 @@
     <ClInclude Include="Src\Graphics\Core\DeviceResources.h" />
     <ClInclude Include="Src\Graphics\RenderGraph\RenderGraph.h" />
     <ClInclude Include="Src\System\Time.h" />
+    <ClInclude Include="Src\Scene\RenderTechnique.h" />
+    <ClInclude Include="Src\Graphics\RenderGraph\Steps\RenderGraphicsStep.h" />
+    <ClInclude Include="Src\Graphics\RenderGraph\RenderJob.h" />
+    <ClInclude Include="Src\Graphics\RenderGraph\Steps\RenderStep.h" />
+    <ClInclude Include="Src\Scene\StandaloneMesh.h" />
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="Dependencies\zlib1.dll" />

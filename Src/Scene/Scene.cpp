@@ -39,8 +39,10 @@ void Scene::FinishInitialization(Graphics& graphics)
 {
 	InitializeSceneObjects(graphics);
 
+	InitializeGraphicResources(graphics);
+
 	graphics.GetRenderGraph().FinishInitialization(graphics);
-	
+
 	graphics.WaitForGPU();
 }
 
