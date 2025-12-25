@@ -1,16 +1,8 @@
 #pragma once
 #include "Includes/CppIncludes.h"
+#include "RenderTechnique.h"
 
-#include "Graphics/Core/PipelineState.h"
-#include "Graphics/Core/CommandList.h"
-#include "Graphics/Core/RootSignature.h"
-#include "Graphics/Core/BindableContainer.h"
-
-#include "Includes/BindablesInclude.h"
-
-class Graphics;
-class Pipeline;
-class Camera;
+class RenderGraph;
 
 class Mesh
 {
@@ -24,29 +16,18 @@ public:
 public:
 	void Initialize(Graphics& graphics, Pipeline& pipeline);
 
-	void DrawMesh(Graphics& graphics, Pipeline& pipeline) const;
+	void Update(Graphics& graphics, Pipeline& pipeline);
 
-	void InternalUpdate(Graphics& graphics, Pipeline& pipeline);
+public:
+	void AddTechnique(RenderTechnique&& technique);
 
-	void InitializeGraphicResources(Graphics& graphics, Pipeline& pipeline);
+	RenderTechnique& GetTechnique(const std::string& name);
 
-	void DrawConstantBuffers(Graphics& graphics);
+	std::vector<RenderTechnique>& GetTechniques();
 
-public: // bindable container functions
-	void AddStaticBindable(const char* bindableName);
-
-	void AddBindable(std::shared_ptr<Bindable> bindable);
-
-	void SetVertexBuffer(std::shared_ptr<VertexBuffer> vertexBuffer);
-
-	void SetIndexBuffer(std::shared_ptr<IndexBuffer> indexBuffer);
-
-	const MeshBindableContainer& GetBindableContainter() const;
+public:
+	void SubmitJobs(RenderGraph& renderGraph);
 
 protected:
-	MeshBindableContainer m_bindableContainer;
-
-	std::unique_ptr<GraphicsPipelineState> m_pipelineState;
-	std::unique_ptr<RootSignature> m_rootSignature;
+	std::vector<RenderTechnique> m_techniques;
 };
-
