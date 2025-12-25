@@ -21,7 +21,10 @@ void RenderGraph::FinishInitialization(Graphics& graphics)
 void RenderGraph::Draw(Graphics& graphics)
 {
 	{
-		m_pipeline.BeginRender(graphics);
+		// moved to graphics::BeginFrame(), 
+		// we need to push copy events during runtime, we need to have command list open then
+		// in future we will set up system that will synchronise command lists to support more dynamic and clean workflow
+		//m_pipeline.BeginRender(graphics);
 
 		//scene.InitializeGraphicResources(graphics);
 

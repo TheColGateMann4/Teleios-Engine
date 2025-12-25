@@ -28,7 +28,7 @@ public:
 	void InitializeSceneObjects(Graphics& graphics);
 
 	// resources that need to be initialized using compute shaders, eg. mip maps for textures
-	void InitializeGraphicResources(Graphics& graphics);
+	void UpdateGraphicResources(Graphics& graphics);
 
 	void DrawObjectInspector(Graphics& graphics);
 

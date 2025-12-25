@@ -39,8 +39,6 @@ void Scene::FinishInitialization(Graphics& graphics)
 {
 	InitializeSceneObjects(graphics);
 
-	InitializeGraphicResources(graphics);
-
 	graphics.GetRenderGraph().FinishInitialization(graphics);
 
 	graphics.WaitForGPU();
@@ -65,7 +63,7 @@ void Scene::InitializeSceneObjects(Graphics& graphics)
 		sceneObject->InternalInitialize(graphics, pipeline);
 }
 
-void Scene::InitializeGraphicResources(Graphics& graphics)
+void Scene::UpdateGraphicResources(Graphics& graphics)
 {
 	Pipeline& pipeline = graphics.GetRenderGraph().GetPipeline();
 
@@ -119,6 +117,8 @@ void Scene::Update(Graphics& graphics, const Input& input, bool isCursorLocked)
 	graphics.GetConstantBufferHeap().UpdateHeap(graphics);
 
 	UpdateObjectMatrices(graphics);
+
+	UpdateGraphicResources(graphics);
 }
 
 std::vector<std::shared_ptr<SceneObject>>& Scene::GetObjects()

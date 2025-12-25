@@ -91,6 +91,10 @@ void Graphics::BeginFrame()
 	m_currentBufferIndex = GetCurrentBufferIndexFromSwapchain();
 
 	m_imguiManager->BeginFrame();
+
+	// For now since we don't have proper synchronization system
+	// We need to push copy events during runtime
+	renderGraph.GetPipeline().BeginRender(*this);
 }
 
 void Graphics::FinishFrame()
