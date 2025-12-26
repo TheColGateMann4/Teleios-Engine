@@ -2,7 +2,7 @@
 #include "Includes/CppIncludes.h"
 #include "RenderTechnique.h"
 
-class RenderGraph;
+class Renderer;
 
 class Mesh
 {
@@ -26,7 +26,7 @@ public:
 	std::vector<RenderTechnique>& GetTechniques();
 
 public:
-	void SubmitJobs(RenderGraph& renderGraph);
+	void SubmitJobs(Renderer& renderer);
 
 protected:
 	std::vector<RenderTechnique> m_techniques;

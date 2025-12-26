@@ -13,7 +13,7 @@
 #include "Graphics/Core/DescriptorHeap.h"
 #include "ConstantBufferHeap.h"
 #include "Graphics/Core/DeviceResources.h"
-#include "Graphics/RenderGraph/RenderGraph.h"
+#include "Graphics/Core/Renderer.h"
 
 class Graphics
 {
@@ -42,7 +42,7 @@ private:
 	void CleanupResources();
 
 public:
-	RenderGraph& GetRenderGraph();
+	Renderer& GetRenderGraph();
 	DeviceResources& GetDeviceResources();
 	ConstantBufferHeap& GetConstantBufferHeap();
 	DescriptorHeap& GetDescriptorHeap();
@@ -68,7 +68,7 @@ private:
 	ConstantBufferHeap constantBufferHeap;
 	DescriptorHeap descriptorHeap;
 	FrameResourceDeleter resourceDeleter;
-	RenderGraph renderGraph;
+	Renderer renderer;
 
 private:
 #ifdef _DEBUG

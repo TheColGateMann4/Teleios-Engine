@@ -43,12 +43,12 @@ std::vector<RenderTechnique>& Mesh::GetTechniques()
 	return m_techniques;
 }
 
-void Mesh::SubmitJobs(RenderGraph& renderGraph)
+void Mesh::SubmitJobs(Renderer& renderer)
 {
 	for (auto& technique : m_techniques)
 		for (auto& step : technique.GetSteps())
 		{		
-			renderGraph.SubmitJob(
+			renderer.SubmitJob(
 				RenderJob{
 					technique.GetName(),
 					&step

@@ -58,7 +58,7 @@ Graphics::Graphics(HWND hWnd, DXGI_FORMAT renderTargetFormat)
 		m_imguiManager = std::make_unique<ImguiManager>(*this, hWnd);
 	}
 
-	renderGraph.Initialize(*this);
+	renderer.Initialize(*this);
 }
 
 Graphics::~Graphics()
@@ -94,7 +94,7 @@ void Graphics::BeginFrame()
 
 	// For now since we don't have proper synchronization system
 	// We need to push copy events during runtime
-	renderGraph.GetPipeline().BeginRender(*this);
+	renderer.GetPipeline().BeginRender(*this);
 }
 
 void Graphics::FinishFrame()
@@ -108,7 +108,7 @@ void Graphics::FinishFrame()
 
 void Graphics::Render(Scene& scene)
 {
-	renderGraph.Draw(*this);
+	renderer.Draw(*this);
 }
 
 void Graphics::PresentFrame()
@@ -140,9 +140,9 @@ void Graphics::CleanupResources()
 	resourceDeleter.Update(*this);
 }
 
-RenderGraph& Graphics::GetRenderGraph()
+Renderer& Graphics::GetRenderGraph()
 {
-	return renderGraph;
+	return renderer;
 }
 
 DeviceResources& Graphics::GetDeviceResources()
