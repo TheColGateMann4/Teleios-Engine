@@ -68,7 +68,7 @@ Model::Model(Graphics& graphics, Model* pParent, aiNode* node, std::vector<std::
 
 		Mesh objectMesh;
 
-		RenderTechnique technique("Albedo");
+		RenderTechnique technique(RenderJob::JobType::GeometryPass);
 		RenderGraphicsStep step;
 
 		{

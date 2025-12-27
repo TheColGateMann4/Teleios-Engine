@@ -19,7 +19,7 @@ Cube::Cube(Graphics& graphics, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rot
 
 	Mesh cubeMesh;
 
-	RenderTechnique technique("Albedo");
+	RenderTechnique technique(RenderJob::JobType::GeometryPass);
 	RenderGraphicsStep step;
 	{
 		struct Vertice

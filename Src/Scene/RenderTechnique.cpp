@@ -1,16 +1,16 @@
 #include "RenderTechnique.h"
 #include "Macros/ErrorMacros.h"
 
-RenderTechnique::RenderTechnique(const std::string& name)
+RenderTechnique::RenderTechnique(RenderJob::JobType type)
 	:
-	m_name(name)
+	m_type(type)
 {
 
 }
 
-const std::string& RenderTechnique::GetName() const
+RenderJob::JobType RenderTechnique::GetType() const
 {
-	return m_name;
+	return m_type;
 }
 
 void RenderTechnique::Initialize(Graphics& graphics, Pipeline& pipeline)

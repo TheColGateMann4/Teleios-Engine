@@ -4,12 +4,23 @@
 class RenderJob
 {
 public:
-	RenderJob(const std::string& categoryName, RenderStep* step);
+	enum class JobType
+	{
+		None = -1,
+		GeometryPass = 0,
+
+		Count
+	};
+
+public:
+	RenderJob(JobType m_type, RenderStep* step);
 
 public:
 	void Execute(Graphics& graphics, CommandList* commandList) const;
 
+	JobType GetType() const;
+
 private:
-	std::string m_categoryName;
+	JobType m_type;
 	RenderStep* m_step;
 };

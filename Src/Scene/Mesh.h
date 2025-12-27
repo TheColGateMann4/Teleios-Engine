@@ -21,7 +21,7 @@ public:
 public:
 	void AddTechnique(RenderTechnique&& technique);
 
-	RenderTechnique& GetTechnique(const std::string& name);
+	RenderTechnique& GetTechnique(RenderJob::JobType type);
 
 	std::vector<RenderTechnique>& GetTechniques();
 

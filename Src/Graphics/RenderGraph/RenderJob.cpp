@@ -1,8 +1,8 @@
 #include "RenderJob.h"
 
-RenderJob::RenderJob(const std::string& categoryName, RenderStep* step)
+RenderJob::RenderJob(JobType type, RenderStep* step)
 	:
-	m_categoryName(categoryName),
+	m_type(type),
 	m_step(step)
 {
 
@@ -11,4 +11,9 @@ RenderJob::RenderJob(const std::string& categoryName, RenderStep* step)
 void RenderJob::Execute(Graphics& graphics, CommandList* commandList) const
 {
 	m_step->Execute(graphics, commandList);
+}
+
+RenderJob::JobType RenderJob::GetType() const
+{
+	return m_type;
 }

@@ -1,16 +1,17 @@
 #pragma once
 #include "Includes/CppIncludes.h"
 #include "Graphics/RenderGraph/Steps/RenderGraphicsStep.h"
+#include "Graphics/RenderGraph/RenderJob.h"
 
 class RenderTechnique
 {
 public:
-	RenderTechnique(const std::string& name);
+	RenderTechnique(RenderJob::JobType type);
 	RenderTechnique(RenderTechnique&&) noexcept = default;
 	RenderTechnique(const RenderTechnique&) = delete;
 
 public:
-	const std::string& GetName() const;
+	RenderJob::JobType GetType() const;
 
 public:
 	void Initialize(Graphics& graphics, Pipeline& pipeline);
@@ -26,5 +27,5 @@ public:
 
 private:
 	std::vector<RenderGraphicsStep> m_steps;
-	std::string m_name;
+	RenderJob::JobType m_type;
 };

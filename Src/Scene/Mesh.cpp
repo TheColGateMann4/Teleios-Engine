@@ -22,14 +22,14 @@ void Mesh::AddTechnique(RenderTechnique&& technique)
 	m_techniques.push_back(std::move(technique));
 }
 
-RenderTechnique& Mesh::GetTechnique(const std::string& name)
+RenderTechnique& Mesh::GetTechnique(RenderJob::JobType type)
 {
 	auto found = std::find_if(
 		m_techniques.begin(),
 		m_techniques.end(),
-		[name](const RenderTechnique& renderTechnique)
+		[type](const RenderTechnique& renderTechnique)
 		{
-			return renderTechnique.GetName() == name;
+			return renderTechnique.GetType() == type;
 		}
 	);
 
@@ -50,7 +50,7 @@ void Mesh::SubmitJobs(Renderer& renderer)
 		{		
 			renderer.SubmitJob(
 				RenderJob{
-					technique.GetName(),
+					technique.GetType(),
 					&step
 				}
 			);
