@@ -182,14 +182,14 @@ std::shared_ptr<SwapChainRenderTarget> Graphics::GetSwapChainBuffer()
 	return m_swapChainBuffer;
 }
 
-BackBufferRenderTarget* Graphics::GetBackBuffer()
+std::shared_ptr<BackBufferRenderTarget> Graphics::GetBackBuffer()
 {
-	return m_backBuffer.get();
+	return m_backBuffer;
 }
 
-DepthStencilViewMultiResource* Graphics::GetDepthStencil()
+std::shared_ptr<DepthStencilViewMultiResource> Graphics::GetDepthStencil()
 {
-	return m_depthStencilView.get();
+	return m_depthStencilView;
 }
 
 unsigned int Graphics::GetWidth() const noexcept

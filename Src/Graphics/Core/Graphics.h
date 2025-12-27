@@ -49,8 +49,8 @@ public:
 	FrameResourceDeleter* GetFrameResourceDeleter();
 	ImguiManager* GetImguiManager();
 	std::shared_ptr<SwapChainRenderTarget> GetSwapChainBuffer();
-	BackBufferRenderTarget* GetBackBuffer();
-	DepthStencilViewMultiResource* GetDepthStencil();
+	std::shared_ptr<BackBufferRenderTarget> GetBackBuffer();
+	std::shared_ptr<DepthStencilViewMultiResource> GetDepthStencil();
 
 #ifdef _DEBUG
 	InfoQueue* GetInfoQueue();
