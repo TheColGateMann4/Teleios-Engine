@@ -19,6 +19,7 @@ class UnorderedAccessView;
 class GraphicsResource;
 class GraphicsTexture;
 class ViewPort;
+class RenderPass;
 
 struct ID3D12Resource;
 
@@ -60,8 +61,8 @@ public:
 	void EndEvent();
 #endif
 
-	//void BeginRenderPass();
-	//void EndRenderPass();
+	void BeginRenderPass(Graphics& graphics, RenderPass* renderPass);
+	void EndRenderPass(Graphics& graphics);
 
 public:
 	// sets resource's previously set target state

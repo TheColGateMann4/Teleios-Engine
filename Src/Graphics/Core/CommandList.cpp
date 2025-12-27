@@ -113,15 +113,59 @@ void CommandList::EndEvent()
 }
 #endif
 
-//void CommandList::BeginRenderPass()
-//{
-//	//pCommandList->BeginRenderPass;
-//}
-//
-//void CommandList::EndRenderPass()
-//{ 
-//
-//}
+void CommandList::BeginRenderPass(Graphics& graphics, RenderPass* renderPass)
+{
+	const std::vector<std::shared_ptr<RenderTarget>>& renderTargetViews = renderPass->GetRenderTargets();
+	std::shared_ptr<DepthStencilViewBase> depthStencilView = renderPass->GetDepthStencilView();
+	
+	std::vector<D3D12_RENDER_PASS_RENDER_TARGET_DESC> renderPasRenderTargetDescs(renderTargetViews.size(), {});
+	D3D12_RENDER_PASS_DEPTH_STENCIL_DESC renderPassDepthStencilDesc = {};
+
+	{
+		// static constants for accesses
+		static constexpr D3D12_RENDER_PASS_BEGINNING_ACCESS beginningAccess = { .Type = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_PRESERVE, .PreserveLocal = {.AdditionalWidth = 0, .AdditionalHeight = 0, } };
+		static constexpr D3D12_RENDER_PASS_ENDING_ACCESS endingAccess = { .Type = D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE, .PreserveLocal = {.AdditionalWidth = 0, .AdditionalHeight = 0, } };
+
+		// initializing descriptions for renderTargets
+		{
+			for (size_t i = 0; i < renderTargetViews.size(); i++)
+			{
+				RenderTarget* renderTarget = renderTargetViews.at(i).get();
+				D3D12_RENDER_PASS_RENDER_TARGET_DESC& rtDesc = renderPasRenderTargetDescs[i];
+
+				rtDesc.cpuDescriptor = renderTarget->GetDescriptor(graphics);
+				rtDesc.BeginningAccess = beginningAccess;
+				rtDesc.EndingAccess = endingAccess;
+			}
+		}
+
+		// initializing description for depthStencil
+		if(depthStencilView)
+		{
+			renderPassDepthStencilDesc.cpuDescriptor = depthStencilView->GetDescriptor(graphics);
+			renderPassDepthStencilDesc.DepthBeginningAccess = beginningAccess;
+			renderPassDepthStencilDesc.StencilBeginningAccess = beginningAccess;
+			renderPassDepthStencilDesc.DepthEndingAccess = endingAccess;
+			renderPassDepthStencilDesc.StencilEndingAccess = endingAccess;
+		}
+	}
+
+	unsigned int numRenderTargets = renderPasRenderTargetDescs.size();
+	const D3D12_RENDER_PASS_RENDER_TARGET_DESC* targetRTDesc = numRenderTargets > 0 ? renderPasRenderTargetDescs.data() : nullptr;
+	const D3D12_RENDER_PASS_DEPTH_STENCIL_DESC* targetDDSesc = depthStencilView ? &renderPassDepthStencilDesc : nullptr;
+
+	THROW_INFO_ERROR(pCommandList->BeginRenderPass(
+		numRenderTargets,
+		targetRTDesc,
+		targetDDSesc,
+		D3D12_RENDER_PASS_FLAG_NONE
+	));
+}
+
+void CommandList::EndRenderPass(Graphics& graphics)
+{ 
+	THROW_INFO_ERROR(pCommandList->EndRenderPass());
+}
 
 
 void CommandList::SetResourceToTargetState(Graphics& graphics, GraphicsResource* resource, unsigned int targetSubresource) const
