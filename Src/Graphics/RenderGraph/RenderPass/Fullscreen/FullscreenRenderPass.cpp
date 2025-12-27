@@ -1,11 +1,11 @@
-#include "FullscreenPass.h"
+#include "FullscreenRenderPass.h"
 
 #include "Scene/Objects/Camera.h"
 #include "Graphics/Core/Graphics.h"
 #include "Graphics/Core/Pipeline.h"
 #include "Graphics/Core/TempCommandList.h"
 
-FullscreenPass::FullscreenPass(Graphics& graphics)
+FullscreenRenderPass::FullscreenRenderPass(Graphics& graphics)
 {
 	m_indexBuffer = IndexBuffer::GetBindableResource(graphics, "FullscreenMesh", std::vector<unsigned int>{0, 1, 3, 0, 3, 2});
 
@@ -54,13 +54,13 @@ FullscreenPass::FullscreenPass(Graphics& graphics)
 	}
 }
 
-void FullscreenPass::Initialize(Graphics& graphics, Pipeline& pipeline)
+void FullscreenRenderPass::Initialize(Graphics& graphics, Pipeline& pipeline)
 {
 	m_vertexBuffer->BindToCopyPipelineIfNeeded(graphics, pipeline);
 	m_indexBuffer->BindToCopyPipelineIfNeeded(graphics, pipeline);
 
-	m_renderTargetSRV = ShaderResourceViewMultiResource::GetBindableResource(graphics, "BackBuffer", graphics.GetBackBuffer(), 0);
-	m_depthStencilSRV = ShaderResourceViewMultiResource::GetBindableResource(graphics, "DepthStencil", graphics.GetDepthStencil(), 1);
+	m_renderTargetSRV = ShaderResourceViewMultiResource::GetBindableResource(graphics, "BackBuffer", graphics.GetBackBuffer().get(), 0);
+	m_depthStencilSRV = ShaderResourceViewMultiResource::GetBindableResource(graphics, "DepthStencil", graphics.GetDepthStencil().get(), 1);
 
 	// Updating camera data
 	{
@@ -77,7 +77,7 @@ void FullscreenPass::Initialize(Graphics& graphics, Pipeline& pipeline)
 	InternalInitialize(graphics, pipeline);
 }
 
-void FullscreenPass::Update(Graphics& graphics, Pipeline& pipeline)
+void FullscreenRenderPass::Update(Graphics& graphics, Pipeline& pipeline)
 {
 	// if camera viewmatrix updated then update cameraData cbuffer
 	{
@@ -98,7 +98,7 @@ void FullscreenPass::Update(Graphics& graphics, Pipeline& pipeline)
 	InternalUpdate(graphics, pipeline);
 }
 
-void FullscreenPass::Draw(Graphics& graphics, Pipeline& pipeline)
+void FullscreenRenderPass::Draw(Graphics& graphics, Pipeline& pipeline)
 {
 	GraphicsTexture* backBuffer = graphics.GetBackBuffer()->GetTexture(graphics);
 
@@ -117,7 +117,7 @@ void FullscreenPass::Draw(Graphics& graphics, Pipeline& pipeline)
 	}
 }
 
-void FullscreenPass::InternalInitialize(Graphics& graphics, Pipeline& pipeline)
+void FullscreenRenderPass::InternalInitialize(Graphics& graphics, Pipeline& pipeline)
 {
 	auto renderTarget = graphics.GetSwapChainBuffer();
 
@@ -137,12 +137,12 @@ void FullscreenPass::InternalInitialize(Graphics& graphics, Pipeline& pipeline)
 	m_mesh.Initialize(graphics, pipeline);
 }
 
-void FullscreenPass::InternalUpdate(Graphics& graphics, Pipeline& pipeline)
+void FullscreenRenderPass::InternalUpdate(Graphics& graphics, Pipeline& pipeline)
 {
 
 }
 
-void FullscreenPass::DrawImguiPropeties(Graphics& graphics, Pipeline& pipeline)
+void FullscreenRenderPass::DrawImguiPropeties(Graphics& graphics, Pipeline& pipeline)
 {
 
 }

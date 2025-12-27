@@ -1,12 +1,15 @@
 #pragma once
 #include "Includes/BindablesInclude.h"
 #include "Scene/StandaloneMesh.h"
+#include "Graphics/RenderGraph/RenderPass/RenderPass.h"
 
-class FullscreenPass
+class Graphics;
+
+class FullscreenRenderPass : public RenderPass
 {
 public:
-	FullscreenPass(Graphics& graphics);
-	virtual ~FullscreenPass() = default;
+	FullscreenRenderPass(Graphics& graphics);
+	virtual ~FullscreenRenderPass() = default;
 
 	void Initialize(Graphics& graphics, Pipeline& pipeline);
 	void Update(Graphics& graphics, Pipeline& pipeline);

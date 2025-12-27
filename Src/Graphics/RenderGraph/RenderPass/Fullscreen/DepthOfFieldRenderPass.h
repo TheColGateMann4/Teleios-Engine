@@ -1,12 +1,12 @@
 #pragma once
-#include "FullscreenPass.h"
+#include "FullscreenRenderPass.h"
 
 class Graphics;
 
-class DepthOfFieldFullscreenPass : public FullscreenPass
+class DepthOfFieldRenderPass : public FullscreenRenderPass
 {
 public:
-	DepthOfFieldFullscreenPass(Graphics& graphics);
+	DepthOfFieldRenderPass(Graphics& graphics);
 
 	virtual void Draw(Graphics& graphics, Pipeline& pipeline) override;
 

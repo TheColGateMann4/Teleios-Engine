@@ -1,13 +1,13 @@
-#include "FogFullscreenPass.h"
+#include "FogRenderPass.h"
 
 #include "Scene/Objects/Camera.h"
 #include "Graphics/Core/Graphics.h"
 #include "Graphics/Core/Pipeline.h"
 #include "Graphics/Core/TempCommandList.h"
 
-FogFullscreenPass::FogFullscreenPass(Graphics& graphics)
+FogRenderPass::FogRenderPass(Graphics& graphics)
 	:
-	FullscreenPass(graphics)
+	FullscreenRenderPass(graphics)
 {
 	m_fogPS = std::make_shared<Shader>(graphics, L"PS_Fog", ShaderType::PixelShader);
 
@@ -31,7 +31,7 @@ FogFullscreenPass::FogFullscreenPass(Graphics& graphics)
 	}
 }
 
-void FogFullscreenPass::Draw(Graphics& graphics, Pipeline& pipeline)
+void FogRenderPass::Draw(Graphics& graphics, Pipeline& pipeline)
 {
 	GraphicsTexture* backBuffer = graphics.GetBackBuffer()->GetTexture(graphics);
 	GraphicsTexture* depthStencil = graphics.GetDepthStencil()->GetResource(graphics);
@@ -53,7 +53,7 @@ void FogFullscreenPass::Draw(Graphics& graphics, Pipeline& pipeline)
 	}
 }
 
-void FogFullscreenPass::InternalInitialize(Graphics& graphics, Pipeline& pipeline)
+void FogRenderPass::InternalInitialize(Graphics& graphics, Pipeline& pipeline)
 {
 	m_fogData->InternalInitialize(graphics);
 
@@ -78,12 +78,12 @@ void FogFullscreenPass::InternalInitialize(Graphics& graphics, Pipeline& pipelin
 	m_mesh.Initialize(graphics, pipeline);
 }
 
-void FogFullscreenPass::InternalUpdate(Graphics& graphics, Pipeline& pipeline)
+void FogRenderPass::InternalUpdate(Graphics& graphics, Pipeline& pipeline)
 {
 
 }
 
-void FogFullscreenPass::DrawImguiPropeties(Graphics& graphics, Pipeline& pipeline)
+void FogRenderPass::DrawImguiPropeties(Graphics& graphics, Pipeline& pipeline)
 {
 	m_fogData->DrawImguiProperties(graphics);
 }

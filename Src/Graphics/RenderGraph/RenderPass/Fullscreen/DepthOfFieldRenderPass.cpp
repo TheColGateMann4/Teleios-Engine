@@ -1,4 +1,4 @@
-#include "DepthOfFieldFullscreenPass.h"
+#include "DepthOfFieldRenderPass.h"
 
 #include "Scene/Objects/Camera.h"
 #include "Graphics/Core/Graphics.h"
@@ -7,9 +7,9 @@
 
 #include "Graphics/Resources/GraphicsBuffer.h"
 
-DepthOfFieldFullscreenPass::DepthOfFieldFullscreenPass(Graphics& graphics)
+DepthOfFieldRenderPass::DepthOfFieldRenderPass(Graphics& graphics)
 	:
-	FullscreenPass(graphics)
+	FullscreenRenderPass(graphics)
 {
 	m_depthOfFieldPS = std::make_shared<Shader>(graphics, L"PS_DepthOfField", ShaderType::PixelShader);
 	m_depthFromScreenCS = Shader::GetBindableResource(graphics, L"CS_GetMiddleDepth", ShaderType::ComputeShader);
@@ -32,7 +32,7 @@ DepthOfFieldFullscreenPass::DepthOfFieldFullscreenPass(Graphics& graphics)
 	m_DepthBuffer = std::make_shared<GraphicsBuffer>(graphics, 1, sizeof(float), GraphicsResource::CPUAccess::notavailable, D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
 }
 
-void DepthOfFieldFullscreenPass::Draw(Graphics& graphics, Pipeline& pipeline)
+void DepthOfFieldRenderPass::Draw(Graphics& graphics, Pipeline& pipeline)
 {
 	// computing depth in the middle of the screen
 	{
@@ -95,7 +95,7 @@ void DepthOfFieldFullscreenPass::Draw(Graphics& graphics, Pipeline& pipeline)
 	}
 }
 
-void DepthOfFieldFullscreenPass::InternalInitialize(Graphics& graphics, Pipeline& pipeline)
+void DepthOfFieldRenderPass::InternalInitialize(Graphics& graphics, Pipeline& pipeline)
 {
 	m_depthOfFieldData->InternalInitialize(graphics);
 
@@ -124,12 +124,12 @@ void DepthOfFieldFullscreenPass::InternalInitialize(Graphics& graphics, Pipeline
 	m_mesh.Initialize(graphics, pipeline);
 }
 
-void DepthOfFieldFullscreenPass::InternalUpdate(Graphics& graphics, Pipeline& pipeline)
+void DepthOfFieldRenderPass::InternalUpdate(Graphics& graphics, Pipeline& pipeline)
 {
 
 }
 
-void DepthOfFieldFullscreenPass::DrawImguiPropeties(Graphics& graphics, Pipeline& pipeline)
+void DepthOfFieldRenderPass::DrawImguiPropeties(Graphics& graphics, Pipeline& pipeline)
 {
 	m_depthOfFieldData->DrawImguiProperties(graphics);
 }

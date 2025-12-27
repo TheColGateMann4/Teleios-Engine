@@ -1,12 +1,12 @@
 #pragma once
-#include "FullscreenPass.h"
+#include "FullscreenRenderPass.h"
 
 class Graphics;
 
-class FogFullscreenPass : public FullscreenPass
+class FogRenderPass : public FullscreenRenderPass
 {
 public:
-	FogFullscreenPass(Graphics& graphics);
+	FogRenderPass(Graphics& graphics);
 
 	virtual void Draw(Graphics& graphics, Pipeline& pipeline) override;
 
