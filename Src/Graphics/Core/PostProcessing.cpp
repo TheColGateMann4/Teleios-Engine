@@ -9,19 +9,19 @@
 
 #include "TempCommandList.h"
 
-#include "Graphics/RenderGraph/FullscreenPasses/FogFullscreenPass.h"
-#include "Graphics/RenderGraph/FullscreenPasses/DepthOfFieldFullscreenPass.h"
+#include "Graphics/RenderGraph/RenderPass/Fullscreen/FogRenderPass.h"
+#include "Graphics/RenderGraph/RenderPass/Fullscreen/DepthOfFieldRenderPass.h"
 
 void PostProcessing::Initialize(Graphics& graphics)
 {
 	// requesting size for RT and DS SRV's. Each one has special SRV for one frame
 	graphics.GetDescriptorHeap().RequestMoreSpace(graphics.GetBufferCount() * 2);
 
-	m_effects.push_back(std::make_shared<FullscreenPass>(graphics)); // base class is equivelent to no effect, it just passes pixels through
-	m_effects.push_back(std::make_shared<FogFullscreenPass>(graphics));
-	m_effects.push_back(std::make_shared<DepthOfFieldFullscreenPass>(graphics));
+	m_effects.push_back(std::make_shared<FullscreenRenderPass>(graphics)); // base class is equivelent to no effect, it just passes pixels through
+	m_effects.push_back(std::make_shared<FogRenderPass>(graphics));
+	m_effects.push_back(std::make_shared<DepthOfFieldRenderPass>(graphics));
 
-	THROW_INTERNAL_ERROR_IF("FullscreenPass vector didn't match enum", m_effects.size() != Effect::numEffects);
+	THROW_INTERNAL_ERROR_IF("FullscreenRenderPass vector didn't match enum", m_effects.size() != Effect::numEffects);
 }
 
 void PostProcessing::InitializeResources(Graphics& graphics, Pipeline& pipeline)

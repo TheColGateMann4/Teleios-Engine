@@ -2,7 +2,7 @@
 #include "Graphics/Core/Pipeline.h"
 #include "Graphics/Imgui/ImguiLayer.h"
 #include "Graphics/Core/PostProcessing.h"
-#include "Graphics/RenderGraph/RenderJob.h"
+#include "Graphics/RenderGraph/RenderGraph.h"
 
 class Graphics;
 class Scene;
@@ -27,6 +27,5 @@ private:
 	Pipeline m_pipeline;
 	ImguiLayer m_imguiLayer;
 	PostProcessing m_postProcessing;
-
-	std::vector<RenderJob> m_renderJobs;
+	RenderGraph m_renderGraph;
 };

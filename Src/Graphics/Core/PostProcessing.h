@@ -1,5 +1,5 @@
 #pragma once
-#include "Graphics/RenderGraph/FullscreenPasses/FullscreenPass.h"
+#include "Graphics/RenderGraph/RenderPass/Fullscreen/FullscreenRenderPass.h"
 
 class Graphics;
 class Pipeline;
@@ -32,5 +32,5 @@ private:
 
 private:
 	Effect m_currentEffect = Effect::None;
-	std::vector<std::shared_ptr<FullscreenPass>> m_effects;
+	std::vector<std::shared_ptr<FullscreenRenderPass>> m_effects;
 };

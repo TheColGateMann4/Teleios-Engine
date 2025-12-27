@@ -24,6 +24,7 @@ static constexpr float _pi = 3.14159265358979f;
 #include <functional>
 #include <chrono>
 #include <unordered_map>
+#include <array>
 
 // stripping windows.h not needed stuff
 #define NOGDICAPMASKS
@@ -74,3 +75,7 @@ static constexpr float _pi = 3.14159265358979f;
 	#define CLEANUP_CONSOLE
 	#define CONSOLE_HANDLE
 #endif
+
+// removing macros from windows.h
+#undef AddJob
+#undef UpdateResource
