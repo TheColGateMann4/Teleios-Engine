@@ -39,3 +39,8 @@ void InputLayout::BindToPipelineState(Graphics& graphics, GraphicsPipelineState*
 {
 	pipelineState->SetInputLayout(this);
 }
+
+BindableType InputLayout::GetBindableType() const
+{
+	return BindableType::bindable_inputLayout;
+}

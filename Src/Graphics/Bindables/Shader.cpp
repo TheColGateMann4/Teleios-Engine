@@ -220,7 +220,12 @@ void Shader::BindToComputePipelineState(Graphics& graphics, ComputePipelineState
 	pipelineState->SetShader(this);
 }
 
-ShaderType Shader::GetType() const
+BindableType Shader::GetBindableType() const
+{
+	return BindableType::bindable_shader;
+}
+
+ShaderType Shader::GetShaderType() const
 {
 	return m_type;
 }

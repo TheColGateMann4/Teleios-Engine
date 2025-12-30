@@ -1,5 +1,6 @@
 #pragma once
 #include "Shaders/TargetShaders.h"
+#include "BindableTypes.h"
 
 class Graphics;
 class CommandList;
@@ -22,6 +23,7 @@ public:
 	Bindable() = default;
 	Bindable(Bindable&&) noexcept = default;
 	Bindable& operator=(Bindable&&) noexcept = default;
+	virtual BindableType GetBindableType() const = 0;
 
 	virtual ~Bindable() = default;
 };

@@ -58,3 +58,8 @@ constexpr D3D_PRIMITIVE_TOPOLOGY PrimitiveTechnology::GetD3DPrimitiveFromD3D12(D
 			THROW_INTERNAL_ERROR("Not supporting patch list yet");
 	}
 }
+
+BindableType PrimitiveTechnology::GetBindableType() const
+{
+	return BindableType::bindable_primitiveTechnology;
+}

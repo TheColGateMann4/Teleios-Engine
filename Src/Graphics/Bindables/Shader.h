@@ -35,7 +35,9 @@ public:
 
 	virtual void BindToComputePipelineState(Graphics& graphics, ComputePipelineState* pipelineState) override;
 
-	ShaderType GetType() const;
+	virtual BindableType GetBindableType() const override;
+
+	ShaderType GetShaderType() const;
 
 	DirectX::XMUINT3 GetNumThreads() const;
 

@@ -23,6 +23,8 @@ public:
 
 	virtual void BindToRootSignature(Graphics& graphics, RootSignature* rootSignature) override;
 
+	virtual BindableType GetBindableType() const override;
+
 private:
 	std::shared_ptr<NonCachedConstantBuffer> m_buffer;
 	ObjectTransform* m_pObjectTransform = nullptr;

@@ -20,6 +20,8 @@ public:
 
 	virtual D3D12_GPU_VIRTUAL_ADDRESS GetGPUAddress(Graphics& graphics) const override;
 
+	virtual BindableType GetBindableType() const override;
+
 protected:
 	void InternalUpdate(Graphics& graphics, void* data, size_t size);
 
@@ -35,6 +37,8 @@ public:
 	NonCachedConstantBuffer(Graphics& graphics, DynamicConstantBuffer::ConstantBufferLayout& layout, std::vector<TargetSlotAndShader> targets = { {ShaderVisibilityGraphic::PixelShader, 0} });
 
 	void Update(Graphics& graphics, void* data, size_t size);
+
+	virtual BindableType GetBindableType() const override;
 
 private:
 	DynamicConstantBuffer::ConstantBufferLayout m_layout;
@@ -52,6 +56,8 @@ public:
 	void Update(Graphics& graphics);
 
 	virtual D3D12_GPU_VIRTUAL_ADDRESS GetGPUAddress(Graphics& graphics) const override;
+
+	virtual BindableType GetBindableType() const override;
 
 	DynamicConstantBuffer::ConstantBufferData& GetData();
 

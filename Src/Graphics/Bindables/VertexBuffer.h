@@ -36,6 +36,8 @@ public:
 
 	virtual void BindToCommandList(Graphics& graphics, CommandList* commandList) override;
 
+	virtual BindableType GetBindableType() const override;
+
 	void Update(Graphics& graphics, void* pData, size_t numElements, size_t dataStride);
 
 	GraphicsBuffer* GetBuffer();

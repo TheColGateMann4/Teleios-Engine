@@ -26,6 +26,8 @@ public:
 
 	virtual void BindToPipelineState(Graphics& graphics, GraphicsPipelineState* pipelineState) override;
 
+	virtual BindableType GetBindableType() const override;
+
 private:
 	std::vector<D3D12_INPUT_ELEMENT_DESC> m_layoutElements;
 	D3D12_INPUT_LAYOUT_DESC m_desc;

@@ -24,6 +24,8 @@ public:
 private:
 	static constexpr D3D_PRIMITIVE_TOPOLOGY GetD3DPrimitiveFromD3D12(D3D12_PRIMITIVE_TOPOLOGY_TYPE type);
 
+	virtual BindableType GetBindableType() const override;
+
 private:
 	D3D12_PRIMITIVE_TOPOLOGY_TYPE m_d3d12type;
 	D3D_PRIMITIVE_TOPOLOGY m_d3dtype;

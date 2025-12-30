@@ -34,6 +34,8 @@ public:
 
     virtual void BindToCommandList(Graphics& graphics, CommandList* commandList) override;
 
+    virtual BindableType GetBindableType() const override;
+
     void Update(Graphics& graphics, void* pData, size_t numElements, size_t structureSize);
 
     const D3D12_INDEX_BUFFER_VIEW* Get() const;

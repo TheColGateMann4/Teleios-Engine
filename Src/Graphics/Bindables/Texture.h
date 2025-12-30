@@ -39,6 +39,8 @@ public:
 
 	virtual D3D12_GPU_DESCRIPTOR_HANDLE GetDescriptorHeapGPUHandle(Graphics& graphics) const override;
 	
+	virtual BindableType GetBindableType() const override;
+
 	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUDescriptor(Graphics& graphics) const;
 
 	UINT GetOffsetInDescriptor() const;

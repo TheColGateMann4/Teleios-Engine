@@ -15,6 +15,8 @@ public:
 
 	virtual void BindToCommandList(Graphics& graphics, CommandList* commandList) override;
 
+	virtual BindableType GetBindableType() const override;
+
 public:
 	static std::shared_ptr<ViewPort> GetBindableResource(Graphics& graphics);
 

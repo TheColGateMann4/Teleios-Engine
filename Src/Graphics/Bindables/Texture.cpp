@@ -160,6 +160,11 @@ D3D12_GPU_DESCRIPTOR_HANDLE Texture::GetDescriptorHeapGPUHandle(Graphics& graphi
 	return m_textureDescriptor.descriptorHeapGpuHandle;
 }
 
+BindableType Texture::GetBindableType() const
+{
+	return BindableType::bindable_texture;
+}
+
 D3D12_CPU_DESCRIPTOR_HANDLE Texture::GetCPUDescriptor(Graphics& graphics) const
 {
 	return m_textureDescriptor.descriptorCpuHandle;

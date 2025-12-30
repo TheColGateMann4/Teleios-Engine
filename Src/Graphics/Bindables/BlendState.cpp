@@ -44,3 +44,8 @@ void BlendState::BindToPipelineState(Graphics& graphics, GraphicsPipelineState* 
 {
 	pipelineState->SetBlendState(this);
 }
+
+BindableType BlendState::GetBindableType() const
+{
+	return BindableType::bindable_blendState;
+}

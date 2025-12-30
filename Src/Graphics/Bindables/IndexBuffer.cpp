@@ -69,6 +69,11 @@ void IndexBuffer::BindToCommandList(Graphics& graphics, CommandList* commandList
 	commandList->SetIndexBuffer(graphics, this);
 }
 
+BindableType IndexBuffer::GetBindableType() const
+{
+	return BindableType::bindable_indexBuffer;
+}
+
 void IndexBuffer::Update(Graphics& graphics, void* pData, size_t numElements, size_t structureSize)
 {
 	// if sizes are not the same, we will be creating new GPU resource.

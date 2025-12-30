@@ -28,6 +28,8 @@ public:
 
 	virtual void BindToComputeRootSignature(Graphics& graphics, RootSignature* rootSignature) override;
 
+	virtual BindableType GetBindableType() const override;
+
 public:
 	void SetComputeRootIndex(unsigned int rootIndex);
 

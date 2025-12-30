@@ -25,6 +25,8 @@ public:
 
 	virtual void BindToComputeCommandList(Graphics& graphics, CommandList* commandList) override;
 
+	virtual BindableType GetBindableType() const override;
+
 	UINT GetOffsetInDescriptor() const;
 
 	virtual D3D12_GPU_DESCRIPTOR_HANDLE GetDescriptorHeapGPUHandle(Graphics& graphics) const override;

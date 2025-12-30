@@ -20,6 +20,8 @@ public:
 
 	virtual void BindToPipelineState(Graphics& graphics, GraphicsPipelineState* pipelineState) override;
 
+	virtual BindableType GetBindableType() const override; 
+
 private:
 	D3D12_BLEND_DESC m_desc;
 };

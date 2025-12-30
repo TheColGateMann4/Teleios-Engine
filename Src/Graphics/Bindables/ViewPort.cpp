@@ -35,6 +35,11 @@ void ViewPort::BindToCommandList(Graphics& graphics, CommandList* commandList)
 	commandList->SetViewPort(graphics, this);
 }
 
+BindableType ViewPort::GetBindableType() const
+{
+	return BindableType::bindable_viewPort;
+}
+
 std::shared_ptr<ViewPort> ViewPort::GetBindableResource(Graphics& graphics)
 {
 	return BindableResourceList::GetBindableResource<ViewPort>(graphics);

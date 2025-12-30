@@ -43,3 +43,8 @@ void DepthStencilState::BindToPipelineState(Graphics& graphics, GraphicsPipeline
 {
 	pipelineState->SetDepthStencilState(this);
 }
+
+BindableType DepthStencilState::GetBindableType() const
+{
+	return BindableType::bindable_depthStencilState;
+}

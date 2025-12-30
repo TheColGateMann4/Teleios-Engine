@@ -50,3 +50,8 @@ void TransformConstantBuffer::BindToRootSignature(Graphics& graphics, RootSignat
 {
 	rootSignature->AddConstBufferViewParameter(m_buffer.get());
 }
+
+BindableType TransformConstantBuffer::GetBindableType() const
+{
+	return BindableType::bindable_transformConstantBuffer;
+}

@@ -78,6 +78,11 @@ void VertexBuffer::BindToCommandList(Graphics& graphics, CommandList* commandLis
 	commandList->SetVertexBuffer(graphics, this);
 }
 
+BindableType VertexBuffer::GetBindableType() const
+{
+	return BindableType::bindable_vertexBuffer;
+}
+
 void VertexBuffer::Update(Graphics& graphics, void* pData, size_t numElements, size_t dataStride)
 {
 	// if sizes are not the same, we will be creating new GPU resource.

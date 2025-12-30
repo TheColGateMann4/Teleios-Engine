@@ -39,6 +39,8 @@ public:
 	virtual D3D12_RESOURCE_STATES GetResourceState(Graphics& graphics) const = 0;
 	virtual void SetResourceState(Graphics& graphics, D3D12_RESOURCE_STATES newState) = 0;
 
+	virtual BindableType GetBindableType() const override;
+
 protected:
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_pDescriptorHeap;
 	DXGI_FORMAT m_format;

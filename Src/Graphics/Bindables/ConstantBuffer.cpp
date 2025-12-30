@@ -26,6 +26,11 @@ D3D12_GPU_VIRTUAL_ADDRESS ConstantBuffer::GetGPUAddress(Graphics& graphics) cons
 	return graphics.GetConstantBufferHeap().GetBufferAddress(graphics, resourceIndexInHeap);
 }
 
+BindableType ConstantBuffer::GetBindableType() const
+{
+	return BindableType::bindable_constantBuffer;
+}
+
 void ConstantBuffer::InternalUpdate(Graphics& graphics, void* data, size_t size)
 {
 	graphics.GetConstantBufferHeap().UpdateResource(graphics, resourceIndexInHeap, data, size);
@@ -43,6 +48,11 @@ NonCachedConstantBuffer::NonCachedConstantBuffer(Graphics& graphics, DynamicCons
 void NonCachedConstantBuffer::Update(Graphics& graphics, void* data, size_t size)
 {
 	ConstantBuffer::InternalUpdate(graphics, data, size);
+}
+
+BindableType NonCachedConstantBuffer::GetBindableType() const
+{
+	return BindableType::bindable_nonCachedConstantBuffer;
 }
 
 CachedConstantBuffer::CachedConstantBuffer(Graphics& graphics, DynamicConstantBuffer::ConstantBufferData& data, std::vector<TargetSlotAndShader> targets, bool frequentlyUpdated)
@@ -79,6 +89,11 @@ D3D12_GPU_VIRTUAL_ADDRESS CachedConstantBuffer::GetGPUAddress(Graphics& graphics
 	else
 		return graphics.GetConstantBufferHeap().GetStaticBufferAddress(resourceIndexInHeap);
 
+}
+
+BindableType CachedConstantBuffer::GetBindableType() const
+{
+	return BindableType::bindable_cachedConstantBuffer;
 }
 
 DynamicConstantBuffer::ConstantBufferData& CachedConstantBuffer::GetData()

@@ -42,3 +42,8 @@ void RasterizerState::BindToPipelineState(Graphics& graphics, GraphicsPipelineSt
 {
 	pipelineState->SetRasterizerState(this);
 }
+
+BindableType RasterizerState::GetBindableType() const
+{
+	return BindableType::bindable_rasterizerState;
+}

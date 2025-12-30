@@ -92,6 +92,11 @@ void UnorderedAccessView::BindToComputeCommandList(Graphics& graphics, CommandLi
 	commandList->SetComputeDescriptorTable(graphics, this);
 }
 
+BindableType UnorderedAccessView::GetBindableType() const
+{
+	return BindableType::bindable_unorderedAccessView;
+}
+
 UINT UnorderedAccessView::GetOffsetInDescriptor() const
 {
 	return m_descriptor.offsetInDescriptorFromStart;

@@ -25,6 +25,11 @@ DXGI_FORMAT RenderTarget::GetFormat() const
 	return m_format;
 }
 
+BindableType RenderTarget::GetBindableType() const
+{
+	return BindableType::bindable_renderTarget;
+}
+
 /*
 			// Surface Render Target
 */

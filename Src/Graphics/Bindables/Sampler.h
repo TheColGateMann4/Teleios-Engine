@@ -20,6 +20,8 @@ public:
 
 	virtual void BindToComputeRootSignature(Graphics& graphics, RootSignature* rootSignature) override;
 
+	virtual BindableType GetBindableType() const override;
+
 	D3D12_STATIC_SAMPLER_DESC Get() const;
 
 private:

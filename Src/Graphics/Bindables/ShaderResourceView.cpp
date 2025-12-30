@@ -38,6 +38,11 @@ void ShaderResourceViewBase::BindToComputeRootSignature(Graphics& graphics, Root
 	rootSignature->AddComputeDescriptorTableParameter(graphics, this, GetTargets().front());
 }
 
+BindableType ShaderResourceViewBase::GetBindableType() const
+{
+	return BindableType::bindable_shaderResourceView;
+}
+
 void ShaderResourceViewBase::SetComputeRootIndex(unsigned int rootIndex)
 {
 	m_computeRootIndex = rootIndex;
