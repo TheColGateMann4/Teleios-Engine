@@ -82,25 +82,36 @@ void Scene::DrawObjectInspector(Graphics& graphics)
 
 	if(ImGui::Begin("Scene Inspector"))
 	{
-		ImGui::Columns(2, nullptr, true);
-
-		for (auto& sceneObject : m_sceneObjects)
-			if(!sceneObject->isChild())
-				sceneObject->DrawHierarchy(&m_objectSelectedInHierarchy);
-
-		ImGui::NextColumn();
-
-		if(m_objectSelectedInHierarchy != nullptr)
+		if(ImGui::BeginTable("SceneInspectorTable", 2, ImGuiTableFlags_Resizable | ImGuiTableFlags_BordersInnerV))
 		{
-			m_objectSelectedInHierarchy->DrawTransformPropeties();
+			ImGui::TableNextColumn();
+			ImGui::BeginChild("Hierarchy", ImVec2(0, 0), false);
+			{
+				for (auto& sceneObject : m_sceneObjects)
+					if (!sceneObject->isChild())
+						sceneObject->DrawHierarchy(&m_objectSelectedInHierarchy);
+			}
+			ImGui::EndChild();
 
-			ImGui::NewLine();
+			ImGui::TableNextColumn();
+			ImGui::BeginChild("Inspector", ImVec2(0, 0), false);
+			{
+				if (m_objectSelectedInHierarchy != nullptr)
+				{
+					m_objectSelectedInHierarchy->DrawTransformPropeties();
 
-			m_objectSelectedInHierarchy->DrawAdditionalPropeties(graphics, graphics.GetRenderGraph().GetPipeline());
+					ImGui::NewLine();
 
-			ImGui::NewLine();
+					m_objectSelectedInHierarchy->DrawAdditionalPropeties(graphics, graphics.GetRenderGraph().GetPipeline());
 
-			m_objectSelectedInHierarchy->DrawConstantBuffers(graphics);
+					ImGui::NewLine();
+
+					m_objectSelectedInHierarchy->DrawConstantBuffers(graphics);
+				}
+			}
+			ImGui::EndChild();
+
+			ImGui::EndTable();
 		}
 	}
 

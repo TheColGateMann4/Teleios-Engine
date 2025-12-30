@@ -152,6 +152,8 @@ void SceneObject::DrawConstantBuffers(Graphics& graphics)
 {
 	for (auto& mesh : m_meshes)
 	{
+		ImGui::Separator();
+
 		std::vector<RenderTechnique>& techniques = mesh.GetTechniques();
 
 		for (RenderTechnique& technique : techniques)
