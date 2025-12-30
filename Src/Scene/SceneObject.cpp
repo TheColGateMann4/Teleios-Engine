@@ -150,8 +150,40 @@ void SceneObject::DrawAdditionalPropeties(Graphics& graphics, Pipeline& pipeline
 
 void SceneObject::DrawConstantBuffers(Graphics& graphics)
 {
-	//for (auto& mesh : m_meshes)
-	//	mesh.DrawConstantBuffers(graphics);
+	for (auto& mesh : m_meshes)
+	{
+		std::vector<RenderTechnique>& techniques = mesh.GetTechniques();
+
+		for (RenderTechnique& technique : techniques)
+		{
+			std::string techniqueNodeName = "Technique: " + std::to_string(static_cast<int>(technique.GetType()));
+
+			if (ImGui::TreeNodeEx(
+				techniqueNodeName.c_str(),
+				ImGuiTreeNodeFlags_DefaultOpen
+			))
+			{
+				std::vector<RenderGraphicsStep>& steps = technique.GetSteps();
+				for (RenderGraphicsStep& step : steps)
+				{
+					std::string stepNodeName = "Step: " + step.GetName();
+
+					if (ImGui::TreeNodeEx(
+						stepNodeName.c_str(),
+						ImGuiTreeNodeFlags_DefaultOpen
+					))
+					{
+						step.DrawConstantBuffers(graphics);
+
+						ImGui::TreePop();
+					}
+
+				}
+
+				ImGui::TreePop();
+			}
+		}
+	}
 }
 
 bool SceneObject::isChild() const
