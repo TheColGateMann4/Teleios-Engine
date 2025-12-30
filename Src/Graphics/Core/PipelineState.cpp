@@ -30,7 +30,7 @@ void GraphicsPipelineState::SetRootSignature(RootSignature* rootSignature)
 
 void GraphicsPipelineState::SetShader(Shader* shader)
 {
-	ShaderType shaderType = shader->GetType();
+	ShaderType shaderType = shader->GetShaderType();
 
 	THROW_INTERNAL_ERROR_IF("Graphic pipeline does not support compute shaders", shaderType == ShaderType::ComputeShader);
 
@@ -137,7 +137,7 @@ void ComputePipelineState::SetRootSignature(RootSignature* rootSignature)
 
 void ComputePipelineState::SetShader(Shader* shader)
 {
-	THROW_INTERNAL_ERROR_IF("Only compute shaders can be bound to compute pipeline state", shader->GetType() != ShaderType::ComputeShader);
+	THROW_INTERNAL_ERROR_IF("Only compute shaders can be bound to compute pipeline state", shader->GetShaderType() != ShaderType::ComputeShader);
 
 	m_desc.CS = shader->GetShaderByteCode();
 }

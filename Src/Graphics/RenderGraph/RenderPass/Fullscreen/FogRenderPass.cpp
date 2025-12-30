@@ -63,8 +63,8 @@ void FogRenderPass::InternalInitialize(Graphics& graphics, Pipeline& pipeline)
 	m_mesh.AddBindable(m_depthStencilSRV); // t1
 	m_mesh.AddBindable(m_cameraData); // b0
 	m_mesh.AddBindable(m_fogData); // b1
-	m_mesh.SetIndexBuffer(m_indexBuffer); // ib
-	m_mesh.SetVertexBuffer(m_vertexBuffer); // vb
+	m_mesh.AddBindable(m_indexBuffer); // ib
+	m_mesh.AddBindable(m_vertexBuffer); // vb
 	m_mesh.AddBindable(m_fogPS); // ps
 	m_mesh.AddBindable(m_fullscreenVS); // vs
 	m_mesh.AddBindable(m_sampler); // s0

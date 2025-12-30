@@ -62,8 +62,6 @@ public:
 	}
 
 	void Bind(std::shared_ptr<Bindable> bindable);
-	void BindIndexBuffer(std::shared_ptr<IndexBuffer> bindable);
-	void BindVertexBuffer(std::shared_ptr<VertexBuffer> bindable);
 	void Bind(Bindable* bindable);
 
 private:

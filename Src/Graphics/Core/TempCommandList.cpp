@@ -127,16 +127,6 @@ void TempGraphicsCommandList::Bind(std::shared_ptr<Bindable> bindable)
 	m_bindableContainer.AddBindable(bindable);
 }
 
-void TempGraphicsCommandList::BindIndexBuffer(std::shared_ptr<IndexBuffer> bindable)
-{
-	m_bindableContainer.SetIndexBuffer(bindable);
-}
-
-void TempGraphicsCommandList::BindVertexBuffer(std::shared_ptr<VertexBuffer> bindable)
-{
-	m_bindableContainer.SetVertexBuffer(bindable);
-}
-
 void TempGraphicsCommandList::Bind(Bindable* bindable)
 {
 	m_bindableContainer.AddBindable(bindable);

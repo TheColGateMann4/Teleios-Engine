@@ -13,29 +13,15 @@ void MeshBindableContainer::AddBindable(std::shared_ptr<Bindable> bindable)
 {
 	m_bindables.push_back(bindable);
 
-	SegregateBindable(bindable.get());
+	AddBindable(bindable.get());
 }
 
 void MeshBindableContainer::AddBindable(Bindable* bindable)
 {
-	SegregateBindable(bindable);
+	SegregateBindableClass(bindable);
+
+	SegregateBindableBaseFunctionality(bindable);
 }
-
-
-void MeshBindableContainer::SetVertexBuffer(std::shared_ptr<VertexBuffer> vertexBuffer)
-{
-	m_vertexBuffer = vertexBuffer.get();
-
-	AddBindable(vertexBuffer);
-}
-
-void MeshBindableContainer::SetIndexBuffer(std::shared_ptr<IndexBuffer> indexBuffer)
-{
-	m_indexBuffer = indexBuffer.get();
-
-	AddBindable(indexBuffer);
-}
-
 
 void MeshBindableContainer::Initialize(Pipeline& pipeline)
 {
@@ -79,15 +65,40 @@ const std::vector<Texture*>& MeshBindableContainer::GetTextures() const
 	return m_textures;
 }
 
-void MeshBindableContainer::SegregateBindable(Bindable* bindable)
+void MeshBindableContainer::SegregateBindableClass(Bindable* bindable)
 {
-	if (auto* cachedConstantBuffer = dynamic_cast<CachedConstantBuffer*>(bindable))
-		m_cachedBuffers.push_back(cachedConstantBuffer);
+	BindableType type = bindable->GetBindableType();
 
-	if (auto* texture = dynamic_cast<Texture*>(bindable))
-		m_textures.push_back(texture);
+	switch (type)
+	{
+		case BindableType::bindable_indexBuffer:
+		{
+			m_indexBuffer = static_cast<IndexBuffer*>(bindable);
+			break;
+		}
+		case BindableType::bindable_vertexBuffer:
+		{
+			m_vertexBuffer = static_cast<VertexBuffer*>(bindable);
+			break;
+		}
+		case BindableType::bindable_cachedConstantBuffer:
+		{
+			m_cachedBuffers.push_back(static_cast<CachedConstantBuffer*>(bindable));
+			break;
+		}
+		case BindableType::bindable_texture:
+		{
+			m_textures.push_back(static_cast<Texture*>(bindable));
+			break;
+		}
 
+		default:
+			break;
+	}
+}
 
+void MeshBindableContainer::SegregateBindableBaseFunctionality(Bindable* bindable)
+{
 	if (auto* commandListBindable = dynamic_cast<CommandListBindable*>(bindable))
 		m_commandListBindables.push_back(commandListBindable);
 

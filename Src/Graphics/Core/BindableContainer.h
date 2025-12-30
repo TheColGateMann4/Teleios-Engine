@@ -24,9 +24,6 @@ public:
 		AddBindable(std::make_shared<T>(std::move(bindable)));
 	}
 
-	void SetVertexBuffer(std::shared_ptr<VertexBuffer> vertexBuffer);
-	void SetIndexBuffer(std::shared_ptr<IndexBuffer> indexBuffer);
-
 	void Initialize(Pipeline& pipeline);
 
 public:
@@ -40,7 +37,8 @@ public:
 	const std::vector<Texture*>& GetTextures() const;
 	
 private:
-	void SegregateBindable(Bindable* bindable);
+	void SegregateBindableClass(Bindable* bindable);
+	void SegregateBindableBaseFunctionality(Bindable* bindable);
 	void SegregateBindableAtFirstPos(Bindable* bindable);
 
 private:

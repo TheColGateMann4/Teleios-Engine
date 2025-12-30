@@ -120,16 +120,6 @@ void RenderGraphicsStep::AddBindable(std::shared_ptr<Bindable> bindable)
 	m_bindableContainer.AddBindable(bindable);
 }
 
-void RenderGraphicsStep::SetVertexBuffer(std::shared_ptr<VertexBuffer> vertexBuffer)
-{
-	m_bindableContainer.SetVertexBuffer(vertexBuffer);
-}
-
-void RenderGraphicsStep::SetIndexBuffer(std::shared_ptr<IndexBuffer> indexBuffer)
-{
-	m_bindableContainer.SetIndexBuffer(indexBuffer);
-}
-
 const MeshBindableContainer& RenderGraphicsStep::GetBindableContainter() const
 {
 	return m_bindableContainer;

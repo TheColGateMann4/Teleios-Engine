@@ -122,8 +122,8 @@ void FullscreenRenderPass::InternalInitialize(Graphics& graphics, Pipeline& pipe
 	auto renderTarget = graphics.GetSwapChainBuffer();
 
 	m_mesh.AddBindable(m_renderTargetSRV); // t0
-	m_mesh.SetIndexBuffer(m_indexBuffer); // ib
-	m_mesh.SetVertexBuffer(m_vertexBuffer); // vb
+	m_mesh.AddBindable(m_indexBuffer); // ib
+	m_mesh.AddBindable(m_vertexBuffer); // vb
 	m_mesh.AddBindable(m_fullscreenPS); // ps
 	m_mesh.AddBindable(m_fullscreenVS); // vs
 	m_mesh.AddBindable(m_sampler); // s0

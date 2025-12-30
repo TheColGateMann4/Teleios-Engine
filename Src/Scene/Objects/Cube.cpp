@@ -96,8 +96,8 @@ Cube::Cube(Graphics& graphics, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rot
 			20,23,22,
 		};
 
-		step.SetVertexBuffer(std::make_shared<VertexBuffer>(graphics, vertices.data(), vertices.size(), sizeof(vertices.at(0))));
-		step.SetIndexBuffer(std::make_shared<IndexBuffer>(graphics, indices));
+		step.AddBindable(std::make_shared<VertexBuffer>(graphics, vertices.data(), vertices.size(), sizeof(vertices.at(0))));
+		step.AddBindable(std::make_shared<IndexBuffer>(graphics, indices));
 		step.AddBindable(m_transform.GetTransformConstantBuffer());
 
 		step.AddBindable(std::make_shared<Shader>(graphics, L"PS_Phong", ShaderType::PixelShader));
