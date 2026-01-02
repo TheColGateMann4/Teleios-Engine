@@ -8,15 +8,13 @@ void Renderer::Initialize(Graphics& graphics)
 {
 	m_pipeline.Initialize(graphics);
 	m_imguiLayer.Initialize(graphics);
-	m_postProcessing.Initialize(graphics);
 	m_renderGraph.Initialize(graphics);
 }
 
 void Renderer::FinishInitialization(Graphics& graphics)
 {
-	m_postProcessing.InitializeResources(graphics, m_pipeline);
-
 	m_pipeline.FinishInitialization(graphics);
+
 
 	m_renderGraph.RebindJobs();
 }
@@ -35,9 +33,6 @@ void Renderer::Draw(Graphics& graphics)
 
 		m_renderGraph.Execute(graphics, m_pipeline.GetGraphicCommandList());
 
-		// apply post processing
-		m_postProcessing.ApplyEffect(graphics, m_pipeline);
-
 		// drawing imgui layer
 		{
 			m_imguiLayer.Render();
@@ -55,7 +50,7 @@ void Renderer::Draw(Graphics& graphics)
 
 void Renderer::DrawImguiWindow(Graphics& graphics)
 {
-	m_postProcessing.Update(graphics, m_pipeline);
+	//m_renderGraph.Update(graphics, m_pipeline);
 }
 
 void Renderer::SubmitJob(RenderJob&& job)

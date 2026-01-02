@@ -2,7 +2,6 @@
 #include "Graphics.h"
 #include "Macros/ErrorMacros.h"
 #include "PipelineState.h"
-#include "PostProcessing.h"
 
 #include "Graphics/Bindables/ViewPort.h"
 #include "Graphics/Bindables/IndexBuffer.h"
