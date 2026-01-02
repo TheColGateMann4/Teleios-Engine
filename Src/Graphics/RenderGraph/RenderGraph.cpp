@@ -1,7 +1,8 @@
 #include "RenderGraph.h"
-#include "RenderPass/GeometryPass.h"
-
 #include "Graphics/Core/Graphics.h"
+
+#include "RenderPass/GeometryPass.h"
+#include "RenderPass/Fullscreen/FullscreenRenderPass.h"
 
 void RenderGraph::Initialize(Graphics& graphics)
 {
@@ -12,6 +13,18 @@ void RenderGraph::Initialize(Graphics& graphics)
 
 		AddRenderPass(geometryPass);
 	}
+
+	{
+		std::shared_ptr<FullscreenRenderPass> fullscreenRenderPass = std::make_shared<FullscreenRenderPass>(graphics, GetRenderManager());
+		fullscreenRenderPass->AddRenderTarget(graphics.GetSwapChainBuffer());
+		AddRenderPass(fullscreenRenderPass);
+	}
+}
+
+void RenderGraph::InitializePassResources(Graphics& graphics, Pipeline& pipeline)
+{
+	for (auto& renderPass : m_renderPasses)
+		renderPass->Initialize(graphics, pipeline, GetRenderManager());
 }
 
 void RenderGraph::RebindJobs()

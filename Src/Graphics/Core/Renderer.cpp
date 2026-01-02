@@ -15,6 +15,7 @@ void Renderer::FinishInitialization(Graphics& graphics)
 {
 	m_pipeline.FinishInitialization(graphics);
 
+	m_renderGraph.InitializePassResources(graphics, m_pipeline);
 
 	m_renderGraph.RebindJobs();
 }
