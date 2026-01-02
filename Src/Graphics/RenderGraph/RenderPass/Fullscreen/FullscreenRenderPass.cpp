@@ -4,8 +4,10 @@
 #include "Graphics/Core/Graphics.h"
 #include "Graphics/Core/Pipeline.h"
 #include "Graphics/Core/TempCommandList.h"
+#include "Graphics/RenderGraph/RenderJob/MeshRenderJob.h"
+#include "Scene/StandaloneMesh.h"
 
-FullscreenRenderPass::FullscreenRenderPass(Graphics& graphics)
+FullscreenRenderPass::FullscreenRenderPass(Graphics& graphics, RenderManager& renderManager)
 {
 	m_indexBuffer = IndexBuffer::GetBindableResource(graphics, "FullscreenMesh", std::vector<unsigned int>{0, 1, 3, 0, 3, 2});
 
@@ -29,15 +31,6 @@ FullscreenRenderPass::FullscreenRenderPass(Graphics& graphics)
 	m_vertexBuffer = VertexBuffer::GetBindableResource(graphics, "FullscreenMesh", vertices.data(), vertices.size(), sizeof(vertices.at(0)));
 	m_inputLayout = InputLayout::GetBindableResource(graphics, layout);
 
-	m_sampler = StaticSampler::GetBindableResource(graphics);
-	m_blendState = BlendState::GetBindableResource(graphics);
-	m_rasterizerState = RasterizerState::GetBindableResource(graphics);
-	m_viewPort = ViewPort::GetBindableResource(graphics);
-	m_topology = PrimitiveTechnology::GetBindableResource(graphics, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE);
-
-	m_fullscreenPS = Shader::GetBindableResource(graphics, L"PS_Fullscreen", ShaderType::PixelShader);
-	m_fullscreenVS = Shader::GetBindableResource(graphics, L"VS_Fullscreen", ShaderType::VertexShader);
-
 	const Camera::Settings defaultCameraSettings = Camera::Settings{};
 
 	// camera data
@@ -54,7 +47,7 @@ FullscreenRenderPass::FullscreenRenderPass(Graphics& graphics)
 	}
 }
 
-void FullscreenRenderPass::Initialize(Graphics& graphics, Pipeline& pipeline)
+void FullscreenRenderPass::Initialize(Graphics& graphics, Pipeline& pipeline, RenderManager& renderManager)
 {
 	m_vertexBuffer->BindToCopyPipelineIfNeeded(graphics, pipeline);
 	m_indexBuffer->BindToCopyPipelineIfNeeded(graphics, pipeline);
@@ -74,7 +67,27 @@ void FullscreenRenderPass::Initialize(Graphics& graphics, Pipeline& pipeline)
 		m_cameraData->Update(graphics);
 	}
 
-	InternalInitialize(graphics, pipeline);
+	std::shared_ptr<MeshRenderJob> meshRenderJob = std::make_shared<MeshRenderJob>(RenderJob::JobType::FullscreenPass);
+
+	{
+		StandaloneMesh& mesh = meshRenderJob->GetMesh();
+
+		mesh.AddBindable(m_renderTargetSRV); // t0
+		mesh.AddBindable(m_indexBuffer); // ib
+		mesh.AddBindable(m_vertexBuffer); // vb
+		mesh.AddBindable(m_inputLayout); // il
+		mesh.AddBindable(Shader::GetBindableResource(graphics, L"PS_Fullscreen", ShaderType::PixelShader)); // ps
+		mesh.AddBindable(Shader::GetBindableResource(graphics, L"VS_Fullscreen", ShaderType::VertexShader)); // vs
+		mesh.AddBindable(StaticSampler::GetBindableResource(graphics)); // s0
+		mesh.AddBindable(BlendState::GetBindableResource(graphics)); // bs
+		mesh.AddBindable(RasterizerState::GetBindableResource(graphics)); // rs
+		mesh.AddBindable(PrimitiveTechnology::GetBindableResource(graphics, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)); // topology
+		mesh.AddBindable(ViewPort::GetBindableResource(graphics)); // vp
+
+		mesh.Initialize(graphics, pipeline);
+	}
+
+	renderManager.AddJob(std::move(meshRenderJob));
 }
 
 void FullscreenRenderPass::Update(Graphics& graphics, Pipeline& pipeline)
@@ -98,43 +111,23 @@ void FullscreenRenderPass::Update(Graphics& graphics, Pipeline& pipeline)
 	InternalUpdate(graphics, pipeline);
 }
 
-void FullscreenRenderPass::Draw(Graphics& graphics, Pipeline& pipeline)
+void FullscreenRenderPass::PreDraw(Graphics& graphics, CommandList* commandList)
 {
 	GraphicsTexture* backBuffer = graphics.GetBackBuffer()->GetTexture(graphics);
 
-	// changing current backbuffer state to pixel shader resource so we can bind it with SRV
-	{
-		CommandList* commandList = pipeline.GetGraphicCommandList();
-		commandList->SetResourceState(graphics, backBuffer, D3D12_RESOURCE_STATE_ALL_SHADER_RESOURCE);
-	}
-
-	m_mesh.Draw(graphics, pipeline);
-
-	// changing state of current backbuffer back to render target state
-	{
-		CommandList* commandList = pipeline.GetGraphicCommandList();
-		commandList->SetResourceState(graphics, backBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET);
-	}
+	commandList->SetResourceState(graphics, backBuffer, D3D12_RESOURCE_STATE_ALL_SHADER_RESOURCE);
 }
 
-void FullscreenRenderPass::InternalInitialize(Graphics& graphics, Pipeline& pipeline)
+void FullscreenRenderPass::PostDraw(Graphics& graphics, CommandList* commandList)
 {
-	auto renderTarget = graphics.GetSwapChainBuffer();
+	GraphicsTexture* backBuffer = graphics.GetBackBuffer()->GetTexture(graphics);
 
-	m_mesh.AddBindable(m_renderTargetSRV); // t0
-	m_mesh.AddBindable(m_indexBuffer); // ib
-	m_mesh.AddBindable(m_vertexBuffer); // vb
-	m_mesh.AddBindable(m_fullscreenPS); // ps
-	m_mesh.AddBindable(m_fullscreenVS); // vs
-	m_mesh.AddBindable(m_sampler); // s0
-	m_mesh.AddBindable(m_inputLayout); // il
-	m_mesh.AddBindable(m_blendState); // bs
-	m_mesh.AddBindable(m_rasterizerState); // rs
-	m_mesh.AddBindable(m_topology); // topology
-	m_mesh.AddBindable(m_viewPort); // vp
-	m_mesh.AddBindable(renderTarget); // rt
+	commandList->SetResourceState(graphics, backBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET);
+}
 
-	m_mesh.Initialize(graphics, pipeline);
+RenderJob::JobType FullscreenRenderPass::GetWantedJob() const
+{
+	return RenderJob::JobType::FullscreenPass;
 }
 
 void FullscreenRenderPass::InternalUpdate(Graphics& graphics, Pipeline& pipeline)

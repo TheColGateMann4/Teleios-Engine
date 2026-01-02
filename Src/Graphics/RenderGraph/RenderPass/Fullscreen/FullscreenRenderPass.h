@@ -4,21 +4,25 @@
 #include "Graphics/RenderGraph/RenderPass/RenderPass.h"
 
 class Graphics;
+class RenderManager;
 
 class FullscreenRenderPass : public RenderPass
 {
 public:
-	FullscreenRenderPass(Graphics& graphics);
+	FullscreenRenderPass(Graphics& graphics, RenderManager& renderManager);
 	virtual ~FullscreenRenderPass() = default;
 
-	void Initialize(Graphics& graphics, Pipeline& pipeline);
+	virtual void Initialize(Graphics& graphics, Pipeline& pipeline, RenderManager& renderManager) override;
 	void Update(Graphics& graphics, Pipeline& pipeline);
 
-	virtual void Draw(Graphics& graphics, Pipeline& pipeline);
+	virtual void PreDraw(Graphics& graphics, CommandList* commandList) override;
+	virtual void PostDraw(Graphics& graphics, CommandList* commandList) override;
+
+	virtual RenderJob::JobType GetWantedJob() const override;
+
 	virtual void DrawImguiPropeties(Graphics& graphics, Pipeline& pipeline);
 
 private:
-	virtual void InternalInitialize(Graphics& graphics, Pipeline& pipeline);
 	virtual void InternalUpdate(Graphics& graphics, Pipeline& pipeline);
 
 protected:
@@ -26,19 +30,8 @@ protected:
 	std::shared_ptr<VertexBuffer> m_vertexBuffer;
 	std::shared_ptr<InputLayout> m_inputLayout;
 
-	std::shared_ptr<StaticSampler> m_sampler;
-	std::shared_ptr<BlendState> m_blendState;
-	std::shared_ptr<RasterizerState> m_rasterizerState;
-	std::shared_ptr<ViewPort> m_viewPort;
-	std::shared_ptr<PrimitiveTechnology> m_topology;
-
-	std::shared_ptr<Shader> m_fullscreenPS;
-	std::shared_ptr<Shader> m_fullscreenVS;
-
 	std::shared_ptr<ShaderResourceViewMultiResource> m_renderTargetSRV;
 	std::shared_ptr<ShaderResourceViewMultiResource> m_depthStencilSRV;
 
 	std::shared_ptr<CachedConstantBuffer> m_cameraData;
-
-	StandaloneMesh m_mesh;
 };
