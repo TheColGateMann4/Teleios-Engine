@@ -3,6 +3,7 @@
 
 class Graphics;
 
+/*
 class FogRenderPass : public FullscreenRenderPass
 {
 public:
@@ -19,3 +20,4 @@ private:
 	std::shared_ptr<Shader> m_fogPS;
 	std::shared_ptr<CachedConstantBuffer> m_fogData;
 };
+*/

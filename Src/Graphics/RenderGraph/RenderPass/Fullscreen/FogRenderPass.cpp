@@ -1,5 +1,5 @@
 #include "FogRenderPass.h"
-
+/*
 #include "Scene/Objects/Camera.h"
 #include "Graphics/Core/Graphics.h"
 #include "Graphics/Core/Pipeline.h"
@@ -87,3 +87,4 @@ void FogRenderPass::DrawImguiPropeties(Graphics& graphics, Pipeline& pipeline)
 {
 	m_fogData->DrawImguiProperties(graphics);
 }
+*/

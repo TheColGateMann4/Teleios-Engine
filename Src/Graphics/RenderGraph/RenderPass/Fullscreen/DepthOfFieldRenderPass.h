@@ -2,13 +2,14 @@
 #include "FullscreenRenderPass.h"
 
 class Graphics;
-
+/*
 class DepthOfFieldRenderPass : public FullscreenRenderPass
 {
 public:
 	DepthOfFieldRenderPass(Graphics& graphics);
 
-	virtual void Draw(Graphics& graphics, Pipeline& pipeline) override;
+	virtual void PreDraw(Graphics& graphics, CommandList* commandList) override;
+	virtual void PostDraw(Graphics& graphics, CommandList* commandList) override;
 
 	virtual void DrawImguiPropeties(Graphics& graphics, Pipeline& pipeline) override;
 
@@ -24,3 +25,4 @@ private:
 	std::shared_ptr<ShaderResourceView> m_DepthBufferSRV;
 	std::shared_ptr<GraphicsBuffer> m_DepthBuffer;
 };
+*/

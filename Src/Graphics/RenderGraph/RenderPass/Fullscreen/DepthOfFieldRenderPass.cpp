@@ -1,5 +1,6 @@
 #include "DepthOfFieldRenderPass.h"
 
+/*
 #include "Scene/Objects/Camera.h"
 #include "Graphics/Core/Graphics.h"
 #include "Graphics/Core/Pipeline.h"
@@ -32,7 +33,7 @@ DepthOfFieldRenderPass::DepthOfFieldRenderPass(Graphics& graphics)
 	m_DepthBuffer = std::make_shared<GraphicsBuffer>(graphics, 1, sizeof(float), GraphicsResource::CPUAccess::notavailable, D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
 }
 
-void DepthOfFieldRenderPass::Draw(Graphics& graphics, Pipeline& pipeline)
+void FullscreenRenderPass::PreDraw(Graphics& graphics, CommandList* commandList)
 {
 	// computing depth in the middle of the screen
 	{
@@ -40,15 +41,13 @@ void DepthOfFieldRenderPass::Draw(Graphics& graphics, Pipeline& pipeline)
 
 		// setting depth buffer state to UAV before computing
 		{
-			CommandList* commandList = pipeline.GetGraphicCommandList();
-
 			commandList->SetResourceState(graphics, m_DepthBuffer.get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 			commandList->SetResourceState(graphics, depthStencil, D3D12_RESOURCE_STATE_ALL_SHADER_RESOURCE);
 		}
 
 		{
 
-			TempComputeCommandList computeCommandList(graphics, pipeline.GetGraphicCommandList());
+			TempComputeCommandList computeCommandList(graphics, commandList);
 
 			// resource binding and creating stage-specific resources
 			{
@@ -63,12 +62,10 @@ void DepthOfFieldRenderPass::Draw(Graphics& graphics, Pipeline& pipeline)
 		}
 	}
 
-	// darwing depth of field effect
+	// setting correct states
 	{
 		// setting depth buffer state to SRV before using it in effect shader
 		{
-			CommandList* commandList = pipeline.GetGraphicCommandList();
-
 			commandList->SetResourceState(graphics, m_DepthBuffer.get(), D3D12_RESOURCE_STATE_ALL_SHADER_RESOURCE);
 		}
 
@@ -78,20 +75,22 @@ void DepthOfFieldRenderPass::Draw(Graphics& graphics, Pipeline& pipeline)
 
 			// changing current backbuffer state to pixel shader resource so we can bind it with SRV
 			{
-				CommandList* commandList = pipeline.GetGraphicCommandList();
 				commandList->SetResourceState(graphics, backBuffer, D3D12_RESOURCE_STATE_ALL_SHADER_RESOURCE);
 				commandList->SetResourceState(graphics, depthStencil, D3D12_RESOURCE_STATE_ALL_SHADER_RESOURCE);
 			}
-
-			m_mesh.Draw(graphics, pipeline);
-
-			// changing state of current backbuffer back to render target state
-			{
-				CommandList* commandList = pipeline.GetGraphicCommandList();
-				commandList->SetResourceState(graphics, backBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET);
-				commandList->SetResourceState(graphics, depthStencil, D3D12_RESOURCE_STATE_DEPTH_WRITE);
-			}
 		}
+	}
+}
+
+void FullscreenRenderPass::PostDraw(Graphics& graphics, CommandList* commandList)
+{
+	GraphicsTexture* backBuffer = graphics.GetBackBuffer()->GetTexture(graphics);
+	GraphicsTexture* depthStencil = graphics.GetDepthStencil()->GetResource(graphics);
+
+	// changing state of current backbuffer back to render target state
+	{
+		commandList->SetResourceState(graphics, backBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET);
+		commandList->SetResourceState(graphics, depthStencil, D3D12_RESOURCE_STATE_DEPTH_WRITE);
 	}
 }
 
@@ -133,3 +132,4 @@ void DepthOfFieldRenderPass::DrawImguiPropeties(Graphics& graphics, Pipeline& pi
 {
 	m_depthOfFieldData->DrawImguiProperties(graphics);
 }
+*/
