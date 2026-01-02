@@ -1,7 +1,6 @@
 #pragma once
 #include "Graphics/Core/Pipeline.h"
 #include "Graphics/Imgui/ImguiLayer.h"
-#include "Graphics/Core/PostProcessing.h"
 #include "Graphics/RenderGraph/RenderGraph.h"
 
 class Graphics;
@@ -17,7 +16,7 @@ public:
 
 	void DrawImguiWindow(Graphics& graphics);
 
-	void SubmitJob(RenderJob&& job);
+	void SubmitJob(std::shared_ptr<RenderJob> job);
 
 public:
 	Pipeline& GetPipeline();
@@ -26,6 +25,5 @@ public:
 private:
 	Pipeline m_pipeline;
 	ImguiLayer m_imguiLayer;
-	PostProcessing m_postProcessing;
 	RenderGraph m_renderGraph;
 };

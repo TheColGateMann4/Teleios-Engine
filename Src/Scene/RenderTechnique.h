@@ -1,7 +1,7 @@
 #pragma once
 #include "Includes/CppIncludes.h"
 #include "Graphics/RenderGraph/Steps/RenderGraphicsStep.h"
-#include "Graphics/RenderGraph/RenderJob.h"
+#include "Graphics/RenderGraph/RenderJob/RenderJob.h"
 
 class RenderTechnique
 {

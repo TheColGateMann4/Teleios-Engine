@@ -1,6 +1,6 @@
 #include "RenderManager.h"
 
-void RenderManager::AddJob(RenderJob&& renderJob)
+void RenderManager::AddJob(std::shared_ptr<RenderJob> renderJob)
 {
 	m_allJobs.push_back(std::move(renderJob));
 }
@@ -35,7 +35,7 @@ void RenderManager::AssignJobsToPasses(const RenderManager::PassListByJobType& w
 {
 	for (auto& job : m_allJobs)
 	{
-		RenderJob::JobType jobType = job.GetType();
+		RenderJob::JobType jobType = job->GetType();
 
 		if (jobType == RenderJob::JobType::None)
 			continue;
@@ -43,6 +43,6 @@ void RenderManager::AssignJobsToPasses(const RenderManager::PassListByJobType& w
 		const PassList& targetPassesVector = wantedJobsToPasses.at(static_cast<int>(jobType));
 
 		for (auto& targetPass : targetPassesVector)
-			targetPass->AssignJob(&job);
+			targetPass->AssignJob(job);
 	}
 }

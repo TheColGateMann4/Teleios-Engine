@@ -53,7 +53,7 @@ void Renderer::DrawImguiWindow(Graphics& graphics)
 	//m_renderGraph.Update(graphics, m_pipeline);
 }
 
-void Renderer::SubmitJob(RenderJob&& job)
+void Renderer::SubmitJob(std::shared_ptr<RenderJob> job)
 {
 	m_renderGraph.GetRenderManager().AddJob(std::move(job));
 }

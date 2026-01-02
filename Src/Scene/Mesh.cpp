@@ -2,6 +2,7 @@
 #include "Graphics/Core/Graphics.h"
 #include "Graphics/Core/Pipeline.h"
 #include "Scene/Objects/Camera.h"
+#include "Graphics/RenderGraph/RenderJob/StepRenderJob.h"
 
 void Mesh::Initialize(Graphics& graphics, Pipeline& pipeline)
 {
@@ -49,10 +50,10 @@ void Mesh::SubmitJobs(Renderer& renderer)
 		for (auto& step : technique.GetSteps())
 		{		
 			renderer.SubmitJob(
-				RenderJob{
-					technique.GetType(),
-					&step
-				}
+				std::make_shared<StepRenderJob>(
+						technique.GetType(),
+						&step
+				)
 			);
 		}
 }
