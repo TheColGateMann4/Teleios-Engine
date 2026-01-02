@@ -42,7 +42,7 @@ private:
 	void CleanupResources();
 
 public:
-	Renderer& GetRenderGraph();
+	Renderer& GetRenderer();
 	DeviceResources& GetDeviceResources();
 	ConstantBufferHeap& GetConstantBufferHeap();
 	DescriptorHeap& GetDescriptorHeap();

@@ -8,7 +8,7 @@ void Mesh::Initialize(Graphics& graphics, Pipeline& pipeline)
 	for (auto& technique : m_techniques)
 		technique.Initialize(graphics, pipeline);
 
-	SubmitJobs(graphics.GetRenderGraph());
+	SubmitJobs(graphics.GetRenderer());
 }
 
 void Mesh::Update(Graphics& graphics, Pipeline& pipeline)

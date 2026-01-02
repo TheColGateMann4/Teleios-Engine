@@ -32,21 +32,21 @@ void Scene::AddSceneObject(std::shared_ptr<SceneObject> sceneObject)
 void Scene::BeginInitialization(Graphics& graphics)
 {
 	// for now we will use graphic command list for simplicity
-	graphics.GetRenderGraph().GetPipeline().GetGraphicCommandList()->Open(graphics);
+	graphics.GetRenderer().GetPipeline().GetGraphicCommandList()->Open(graphics);
 }
 
 void Scene::FinishInitialization(Graphics& graphics)
 {
 	InitializeSceneObjects(graphics);
 
-	graphics.GetRenderGraph().FinishInitialization(graphics);
+	graphics.GetRenderer().FinishInitialization(graphics);
 
 	graphics.WaitForGPU();
 }
 
 void Scene::InitializeSceneObjects(Graphics& graphics)
 {
-	Pipeline& pipeline = graphics.GetRenderGraph().GetPipeline();
+	Pipeline& pipeline = graphics.GetRenderer().GetPipeline();
 
 	// adding static resources to scene first
 	for (auto& sceneObject : m_sceneObjects)
@@ -65,7 +65,7 @@ void Scene::InitializeSceneObjects(Graphics& graphics)
 
 void Scene::UpdateGraphicResources(Graphics& graphics)
 {
-	Pipeline& pipeline = graphics.GetRenderGraph().GetPipeline();
+	Pipeline& pipeline = graphics.GetRenderer().GetPipeline();
 
 	// copying constant buffers to GPU
 	graphics.GetConstantBufferHeap().CopyResources(graphics, pipeline.GetGraphicCommandList());
@@ -77,7 +77,7 @@ void Scene::UpdateGraphicResources(Graphics& graphics)
 
 void Scene::DrawObjectInspector(Graphics& graphics)
 {
-	if (!graphics.GetRenderGraph().GetImguiLayer().IsVisible())
+	if (!graphics.GetRenderer().GetImguiLayer().IsVisible())
 		return;
 
 	if(ImGui::Begin("Scene Inspector"))
@@ -102,7 +102,7 @@ void Scene::DrawObjectInspector(Graphics& graphics)
 
 					ImGui::NewLine();
 
-					m_objectSelectedInHierarchy->DrawAdditionalPropeties(graphics, graphics.GetRenderGraph().GetPipeline());
+					m_objectSelectedInHierarchy->DrawAdditionalPropeties(graphics, graphics.GetRenderer().GetPipeline());
 
 					ImGui::NewLine();
 
@@ -123,7 +123,7 @@ void Scene::Update(Graphics& graphics, const Input& input, bool isCursorLocked)
 	m_camera->UpdateCamera(input, isCursorLocked); // it is important that active camera gets updated before other objects, since for example pointlight checks if position or rotation was updated to determine if constant buffer should be updated
 
 	for (auto& sceneObject : m_sceneObjects)
-		sceneObject->InternalUpdate(graphics, *m_camera, graphics.GetRenderGraph().GetPipeline());
+		sceneObject->InternalUpdate(graphics, *m_camera, graphics.GetRenderer().GetPipeline());
 
 	graphics.GetConstantBufferHeap().UpdateHeap(graphics);
 
@@ -155,5 +155,5 @@ void Scene::UpdateObjectMatrices(Graphics& graphics)
 
 	// after all matrices are set up, we send them to camera
 	for (auto& sceneObject : m_sceneObjects)
-		sceneObject->UpdateTransformBufferIfNeeded(graphics, *graphics.GetRenderGraph().GetPipeline().GetCurrentCamera());
+		sceneObject->UpdateTransformBufferIfNeeded(graphics, *graphics.GetRenderer().GetPipeline().GetCurrentCamera());
 }

@@ -140,7 +140,7 @@ void Graphics::CleanupResources()
 	resourceDeleter.Update(*this);
 }
 
-Renderer& Graphics::GetRenderGraph()
+Renderer& Graphics::GetRenderer()
 {
 	return renderer;
 }

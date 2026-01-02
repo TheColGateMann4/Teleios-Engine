@@ -63,7 +63,7 @@ void Application::Update()
 {
 	graphics.BeginFrame();
 
-	ImguiLayer& imguiLayer = graphics.GetRenderGraph().GetImguiLayer();
+	ImguiLayer& imguiLayer = graphics.GetRenderer().GetImguiLayer();
 
 
 	if (imguiLayer.IsVisible())
@@ -83,7 +83,7 @@ void Application::Update()
 	scene.DrawObjectInspector(graphics);
 
 	window.input.DrawImguiWindow(imguiLayer.IsVisible());
-	graphics.GetRenderGraph().DrawImguiWindow(graphics);
+	graphics.GetRenderer().DrawImguiWindow(graphics);
 	imguiLayer.DrawDemoWindow();
 
 	scene.Update(graphics, window.input, window.GetCursorLocked());
