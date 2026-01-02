@@ -1,5 +1,6 @@
 #include "ImguiLayer.h"
 #include "Graphics/Core/Graphics.h"
+#include "Graphics/Core/CommandList.h"
 #include "Graphics/Core/Pipeline.h"
 #include "ImguiManager.h"
 
@@ -28,11 +29,9 @@ void ImguiLayer::GetImguiCommands(Graphics& graphics, ID3D12GraphicsCommandList*
 	ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), pDirectCommandList);
 }
 
-void ImguiLayer::Draw(Graphics& graphics, Pipeline& pipeline)
+void ImguiLayer::Draw(Graphics& graphics, CommandList* commandList)
 {
-	CommandList* directCommandList = pipeline.GetGraphicCommandList();
-
-	GetImguiCommands(graphics, directCommandList->Get());
+	GetImguiCommands(graphics, commandList->Get());
 }
 
 void ImguiLayer::ToggleCaptureInput(bool captureInput)

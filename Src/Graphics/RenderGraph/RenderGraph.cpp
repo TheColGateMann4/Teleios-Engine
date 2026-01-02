@@ -3,6 +3,7 @@
 
 #include "RenderPass/GeometryPass.h"
 #include "RenderPass/Fullscreen/FullscreenRenderPass.h"
+#include "RenderPass/GuiPass.h"
 
 void RenderGraph::Initialize(Graphics& graphics)
 {
@@ -16,6 +17,12 @@ void RenderGraph::Initialize(Graphics& graphics)
 
 	{
 		std::shared_ptr<FullscreenRenderPass> fullscreenRenderPass = std::make_shared<FullscreenRenderPass>(graphics, GetRenderManager());
+		fullscreenRenderPass->AddRenderTarget(graphics.GetSwapChainBuffer());
+		AddRenderPass(fullscreenRenderPass);
+	}
+
+	{
+		std::shared_ptr<GuiPass> fullscreenRenderPass = std::make_shared<GuiPass>(graphics);
 		fullscreenRenderPass->AddRenderTarget(graphics.GetSwapChainBuffer());
 		AddRenderPass(fullscreenRenderPass);
 	}

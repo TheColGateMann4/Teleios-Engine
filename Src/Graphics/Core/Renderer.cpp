@@ -34,14 +34,6 @@ void Renderer::Draw(Graphics& graphics)
 
 		m_renderGraph.Execute(graphics, m_pipeline.GetGraphicCommandList());
 
-		// drawing imgui layer
-		{
-			m_imguiLayer.Render();
-
-			if (m_imguiLayer.IsVisible())
-				m_imguiLayer.Draw(graphics, m_pipeline);
-		}
-
 		m_pipeline.FinishRender(graphics);
 	}
 

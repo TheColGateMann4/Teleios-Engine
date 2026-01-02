@@ -4,7 +4,7 @@
 #include "Includes/WRLNoWarnings.h"
 
 class Graphics;
-class Pipeline;
+class CommandList;
 class ImguiManager;
 
 class ImguiLayer
@@ -14,7 +14,7 @@ public:
 
 	void Render();
 
-	void Draw(Graphics& graphics, Pipeline& pipeline);
+	void Draw(Graphics& graphics, CommandList* commandList);
 
 	void ToggleCaptureInput(bool captureInput);
 

@@ -171,12 +171,14 @@
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Src\Graphics\RenderGraph\RenderPass\GuiPass.cpp" />
+    <ClCompile Include="Src\Graphics\RenderGraph\RenderJob\MeshRenderJob.cpp" />
     <ClCompile Include="Src\Graphics\RenderGraph\RenderPass\GeometryPass.cpp" />
     <ClCompile Include="Src\Graphics\Core\Renderer.cpp" />
     <ClCompile Include="Src\Graphics\RenderGraph\RenderManager.cpp" />
     <ClCompile Include="Src\Graphics\RenderGraph\RenderPass\RenderPass.cpp" />
     <ClCompile Include="Src\Graphics\RenderGraph\Steps\RenderStep.cpp" />
-    <ClCompile Include="Src\Graphics\RenderGraph\RenderJob.cpp" />
+    <ClCompile Include="Src\Graphics\RenderGraph\RenderJob\RenderJob.cpp" />
     <ClCompile Include="Src\Scene\RenderTechnique.cpp" />
     <ClCompile Include="Src\Graphics\RenderGraph\Steps\RenderGraphicsStep.cpp" />
     <ClCompile Include="Src\Graphics\RenderGraph\RenderGraph.cpp" />
@@ -221,7 +223,6 @@
     <ClCompile Include="Src\Graphics\Core\Pipeline.cpp" />
     <ClCompile Include="Src\Graphics\Core\PipelineState.cpp" />
     <ClCompile Include="Src\Scene\Objects\PointLight.cpp" />
-    <ClCompile Include="Src\Graphics\Core\PostProcessing.cpp" />
     <ClCompile Include="Src\Graphics\Bindables\PrimitiveTechnology.cpp" />
     <ClCompile Include="Src\Graphics\Bindables\RasterizerState.cpp" />
     <ClCompile Include="Src\Graphics\Bindables\RenderTarget.cpp" />
@@ -242,14 +243,18 @@
     <ClCompile Include="Src\System\Window.cpp" />
     <ClCompile Include="Src\System\Time.cpp" />
     <ClCompile Include="Src\Scene\StandaloneMesh.cpp" />
+    <ClCompile Include="Src\Graphics\RenderGraph\RenderJob\StepRenderJob.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Src\Graphics\RenderGraph\RenderPass\GuiPass.h" />
+    <ClInclude Include="Src\Graphics\RenderGraph\RenderJob\MeshRenderJob.h" />
+    <ClInclude Include="Src\Graphics\Bindables\BindableTypes.h" />
     <ClInclude Include="Src\Graphics\RenderGraph\RenderPass\GeometryPass.h" />
     <ClInclude Include="Src\Graphics\Core\Renderer.h" />
     <ClInclude Include="Src\Graphics\RenderGraph\RenderManager.h" />
     <ClInclude Include="Src\Graphics\RenderGraph\RenderPass\RenderPass.h" />
     <ClInclude Include="Src\Graphics\RenderGraph\Steps\RenderStep.h" />
-    <ClInclude Include="Src\Graphics\RenderGraph\RenderJob.h" />
+    <ClInclude Include="Src\Graphics\RenderGraph\RenderJob\RenderJob.h" />
     <ClInclude Include="Src\Scene\RenderTechnique.h" />
     <ClInclude Include="Src\Graphics\RenderGraph\Steps\RenderGraphicsStep.h" />
     <ClInclude Include="Src\Graphics\RenderGraph\RenderGraph.h" />
@@ -294,7 +299,6 @@
     <ClInclude Include="Src\Graphics\Core\Pipeline.h" />
     <ClInclude Include="Src\Graphics\Core\PipelineState.h" />
     <ClInclude Include="Src\Scene\Objects\PointLight.h" />
-    <ClInclude Include="Src\Graphics\Core\PostProcessing.h" />
     <ClInclude Include="Src\Graphics\Bindables\PrimitiveTechnology.h" />
     <ClInclude Include="Src\Graphics\Bindables\RasterizerState.h" />
     <ClInclude Include="Src\Graphics\Bindables\RenderTarget.h" />
@@ -317,6 +321,7 @@
     <ClInclude Include="Src\Includes\WRLNoWarnings.h" />
     <ClInclude Include="Src\System\Time.h" />
     <ClInclude Include="Src\Scene\StandaloneMesh.h" />
+    <ClInclude Include="Src\Graphics\RenderGraph\RenderJob\StepRenderJob.h" />
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="Src\Shaders\CS_GetMiddleDepth.hlsl">
