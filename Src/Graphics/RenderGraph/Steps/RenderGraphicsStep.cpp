@@ -3,6 +3,11 @@
 #include "Graphics/Core/Graphics.h"
 #include "Graphics/Core/Pipeline.h"
 
+#include "Graphics/Bindables/IndexBuffer.h"
+#include "Graphics/Bindables/VertexBuffer.h"
+#include "Graphics/Bindables/ConstantBuffer.h"
+#include "Graphics/Bindables/Texture.h"
+
 RenderGraphicsStep::RenderGraphicsStep(const std::string& name)
 	:
 	RenderStep(name)
