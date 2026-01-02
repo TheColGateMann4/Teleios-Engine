@@ -24,7 +24,7 @@ public:
 public:
 	void Initialize(Graphics& graphics, Pipeline& pipeline);
 
-	void Draw(Graphics& graphics, Pipeline& pipeline) const;
+	void Draw(Graphics& graphics, CommandList* commandList) const;
 
 	void Update(Graphics& graphics, Pipeline& pipeline);
 

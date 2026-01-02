@@ -55,24 +55,22 @@ void StandaloneMesh::Initialize(Graphics& graphics, Pipeline& pipeline)
 	}
 }
 
-void StandaloneMesh::Draw(Graphics& graphics, Pipeline& pipeline) const
+void StandaloneMesh::Draw(Graphics& graphics, CommandList* commandList) const
 {
-	CommandList* directCommandList = pipeline.GetGraphicCommandList();
+	commandList->SetPipelineState(graphics, m_pipelineState.get());
 
-	directCommandList->SetPipelineState(graphics, m_pipelineState.get());
+	commandList->SetGraphicsRootSignature(graphics, m_rootSignature.get());
 
-	directCommandList->SetGraphicsRootSignature(graphics, m_rootSignature.get());
-
-	directCommandList->SetDescriptorHeap(graphics, &graphics.GetDescriptorHeap());
+	commandList->SetDescriptorHeap(graphics, &graphics.GetDescriptorHeap());
 
 	{
 		const auto& commandListBindables = m_bindableContainer.GetCommandListBindables();
 
 		for (auto& pCommandListBindable : commandListBindables)
-			pCommandListBindable->BindToCommandList(graphics, directCommandList);
+			pCommandListBindable->BindToCommandList(graphics, commandList);
 	}
 
-	directCommandList->DrawIndexed(graphics, m_bindableContainer.GetIndexBuffer()->GetIndexCount());
+	commandList->DrawIndexed(graphics, m_bindableContainer.GetIndexBuffer()->GetIndexCount());
 };
 
 void StandaloneMesh::Update(Graphics& graphics, Pipeline& pipeline)
