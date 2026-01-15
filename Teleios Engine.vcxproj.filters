@@ -169,11 +169,14 @@
     <CopyFileToFolders Include="Src\Shaders\PS_DepthOfField.hlsl" />
     <CopyFileToFolders Include="Src\Shaders\PS_Fog.hlsl" />
     <CopyFileToFolders Include="Src\Shaders\PS_Fullscreen.hlsl" />
-    <CopyFileToFolders Include="Src\Shaders\PS_WhiteColor.hlsl" />
+    <CopyFileToFolders Include="Src\Shaders\PS_LightSource.hlsl" />
     <CopyFileToFolders Include="Src\Shaders\PS.hlsl" />
     <CopyFileToFolders Include="Src\Shaders\PS_Texture.hlsl" />
     <CopyFileToFolders Include="Src\Shaders\PS_Solid.hlsl" />
     <CopyFileToFolders Include="Src\Shaders\VS.hlsl" />
     <CopyFileToFolders Include="Src\Shaders\VS_Fullscreen.hlsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Src\Shaders\PS_Depth.hlsl" />
   </ItemGroup>
 </Project>

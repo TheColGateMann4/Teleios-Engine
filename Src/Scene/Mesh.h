@@ -34,6 +34,8 @@ private:
 
 	void CreateDepthTechnique(Graphics& graphics, Pipeline& pipeline);
 
+	static bool StepHasOpacity(const RenderGraphicsStep& geometryStep);
+
 	RenderTechnique* m_GetTechnique(RenderJob::JobType type);
 
 protected:
