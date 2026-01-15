@@ -2,6 +2,7 @@
 #include "Includes/BindablesInclude.h"
 #include "Scene/StandaloneMesh.h"
 #include "Graphics/RenderGraph/RenderPass/RenderPass.h"
+#include "Graphics/RenderGraph/RenderJob/MeshRenderJob.h"
 
 class Graphics;
 class RenderManager;
@@ -12,7 +13,9 @@ public:
 	FullscreenRenderPass(Graphics& graphics, RenderManager& renderManager);
 	virtual ~FullscreenRenderPass() = default;
 
-	virtual void Initialize(Graphics& graphics, Pipeline& pipeline, RenderManager& renderManager) override;
+	virtual void Initialize(Graphics& graphics) override;
+	virtual void InitializePassResources(Graphics& graphics, Pipeline& pipeline) override;
+	virtual void SubmitJobs(RenderManager& renderManager) override;
 	void Update(Graphics& graphics, Pipeline& pipeline);
 
 	virtual void PreDraw(Graphics& graphics, CommandList* commandList) override;
@@ -26,6 +29,8 @@ private:
 	virtual void InternalUpdate(Graphics& graphics, Pipeline& pipeline);
 
 protected:
+	std::shared_ptr<MeshRenderJob> m_meshRenderJob;
+
 	std::shared_ptr<IndexBuffer> m_indexBuffer;
 	std::shared_ptr<VertexBuffer> m_vertexBuffer;
 	std::shared_ptr<InputLayout> m_inputLayout;

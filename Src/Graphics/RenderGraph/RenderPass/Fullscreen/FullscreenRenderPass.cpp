@@ -4,7 +4,6 @@
 #include "Graphics/Core/Graphics.h"
 #include "Graphics/Core/Pipeline.h"
 #include "Graphics/Core/TempCommandList.h"
-#include "Graphics/RenderGraph/RenderJob/MeshRenderJob.h"
 #include "Scene/StandaloneMesh.h"
 
 FullscreenRenderPass::FullscreenRenderPass(Graphics& graphics, RenderManager& renderManager)
@@ -45,15 +44,37 @@ FullscreenRenderPass::FullscreenRenderPass(Graphics& graphics, RenderManager& re
 
 		m_cameraData = std::make_shared<CachedConstantBuffer>(graphics, bufferData, std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::PixelShader, 0}});
 	}
+
+	m_meshRenderJob = std::make_shared<MeshRenderJob>(RenderJob::JobType::FullscreenPass);
 }
 
-void FullscreenRenderPass::Initialize(Graphics& graphics, Pipeline& pipeline, RenderManager& renderManager)
+void FullscreenRenderPass::Initialize(Graphics& graphics)
 {
-	m_vertexBuffer->BindToCopyPipelineIfNeeded(graphics, pipeline);
-	m_indexBuffer->BindToCopyPipelineIfNeeded(graphics, pipeline);
-
 	m_renderTargetSRV = ShaderResourceViewMultiResource::GetBindableResource(graphics, "BackBuffer", graphics.GetBackBuffer().get(), 0);
 	m_depthStencilSRV = ShaderResourceViewMultiResource::GetBindableResource(graphics, "DepthStencil", graphics.GetDepthStencil().get(), 1);
+
+	{
+		StandaloneMesh& mesh = m_meshRenderJob->GetMesh();
+
+		mesh.AddBindable(m_renderTargetSRV); // t0
+		mesh.AddBindable(m_indexBuffer); // ib
+		mesh.AddBindable(m_vertexBuffer); // vb
+		mesh.AddBindable(m_inputLayout); // il
+		mesh.AddBindable(Shader::GetBindableResource(graphics, L"PS_Fullscreen", ShaderType::PixelShader)); // ps
+		mesh.AddBindable(Shader::GetBindableResource(graphics, L"VS_Fullscreen", ShaderType::VertexShader)); // vs
+		mesh.AddBindable(StaticSampler::GetBindableResource(graphics)); // s0
+		mesh.AddBindable(BlendState::GetBindableResource(graphics)); // bs
+		mesh.AddBindable(RasterizerState::GetBindableResource(graphics)); // rs
+		mesh.AddBindable(PrimitiveTechnology::GetBindableResource(graphics, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)); // topology
+		mesh.AddBindable(ViewPort::GetBindableResource(graphics)); // vp
+	}
+}
+
+void FullscreenRenderPass::InitializePassResources(Graphics& graphics, Pipeline& pipeline)
+{
+	// copy index and vertex buffers to gpu
+	m_vertexBuffer->BindToCopyPipelineIfNeeded(graphics, pipeline);
+	m_indexBuffer->BindToCopyPipelineIfNeeded(graphics, pipeline);
 
 	// Updating camera data
 	{
@@ -67,27 +88,13 @@ void FullscreenRenderPass::Initialize(Graphics& graphics, Pipeline& pipeline, Re
 		m_cameraData->Update(graphics);
 	}
 
-	std::shared_ptr<MeshRenderJob> meshRenderJob = std::make_shared<MeshRenderJob>(RenderJob::JobType::FullscreenPass);
+	// initialize mesh
+	m_meshRenderJob->GetMesh().Initialize(graphics, pipeline);
+}
 
-	{
-		StandaloneMesh& mesh = meshRenderJob->GetMesh();
-
-		mesh.AddBindable(m_renderTargetSRV); // t0
-		mesh.AddBindable(m_indexBuffer); // ib
-		mesh.AddBindable(m_vertexBuffer); // vb
-		mesh.AddBindable(m_inputLayout); // il
-		mesh.AddBindable(Shader::GetBindableResource(graphics, L"PS_Fullscreen", ShaderType::PixelShader)); // ps
-		mesh.AddBindable(Shader::GetBindableResource(graphics, L"VS_Fullscreen", ShaderType::VertexShader)); // vs
-		mesh.AddBindable(StaticSampler::GetBindableResource(graphics)); // s0
-		mesh.AddBindable(BlendState::GetBindableResource(graphics)); // bs
-		mesh.AddBindable(RasterizerState::GetBindableResource(graphics)); // rs
-		mesh.AddBindable(PrimitiveTechnology::GetBindableResource(graphics, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)); // topology
-		mesh.AddBindable(ViewPort::GetBindableResource(graphics)); // vp
-
-		mesh.Initialize(graphics, pipeline);
-	}
-
-	renderManager.AddJob(std::move(meshRenderJob));
+void FullscreenRenderPass::SubmitJobs(RenderManager& renderManager)
+{
+	renderManager.AddJob(m_meshRenderJob);
 }
 
 void FullscreenRenderPass::Update(Graphics& graphics, Pipeline& pipeline)
