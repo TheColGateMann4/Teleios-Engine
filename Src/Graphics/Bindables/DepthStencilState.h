@@ -8,12 +8,20 @@ class GraphicsPipelineState;
 class DepthStencilState : public Bindable, public PipelineStateBindable
 {
 public:
-	DepthStencilState(Graphics& graphics);
+	enum class DepthComparisonFunc
+	{
+		Less,
+		Equal,
+		Greater
+	};
 
 public:
-	static std::shared_ptr<DepthStencilState> GetBindableResource(Graphics& graphics);
+	DepthStencilState(Graphics& graphics, DepthComparisonFunc depthComparisonFunc = DepthComparisonFunc::Less);
 
-	static std::string GetIdentifier();
+public:
+	static std::shared_ptr<DepthStencilState> GetBindableResource(Graphics& graphics, DepthComparisonFunc depthComparisonFunc = DepthComparisonFunc::Less);
+
+	static std::string GetIdentifier(DepthComparisonFunc depthComparisonFunc);
 
 public:
 	D3D12_DEPTH_STENCIL_DESC Get();
@@ -21,6 +29,9 @@ public:
 	virtual void BindToPipelineState(Graphics& graphics, GraphicsPipelineState* pipelineState) override;
 
 	virtual BindableType GetBindableType() const override;
+
+private:
+	D3D12_COMPARISON_FUNC GetComparisonFunc(DepthComparisonFunc depthComparisonFunc);
 
 private:
 	D3D12_DEPTH_STENCIL_DESC m_desc;
