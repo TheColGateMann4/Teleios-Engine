@@ -55,6 +55,16 @@ IndexBuffer* MeshBindableContainer::GetIndexBuffer() const
 	return m_indexBuffer;
 }
 
+InputLayout* MeshBindableContainer::GetInputLayout() const
+{
+	return m_inputLayout;
+}
+
+TransformConstantBuffer* MeshBindableContainer::GetTransformConstantBuffer() const
+{
+	return m_transformConstantBuffer;
+}
+
 const std::vector<CachedConstantBuffer*>& MeshBindableContainer::GetCachedBuffers() const
 {
 	return m_cachedBuffers;
@@ -79,6 +89,16 @@ void MeshBindableContainer::SegregateBindableClass(Bindable* bindable)
 		case BindableType::bindable_vertexBuffer:
 		{
 			m_vertexBuffer = static_cast<VertexBuffer*>(bindable);
+			break;
+		}
+		case BindableType::bindable_inputLayout:
+		{
+			m_inputLayout = static_cast<InputLayout*>(bindable);
+			break;
+		}
+		case BindableType::bindable_transformConstantBuffer:
+		{
+			m_transformConstantBuffer = static_cast<TransformConstantBuffer*>(bindable);
 			break;
 		}
 		case BindableType::bindable_cachedConstantBuffer:

@@ -37,6 +37,13 @@ RenderGraphicsStep& RenderTechnique::GetStep(unsigned int index)
 	return m_steps.at(index);
 }
 
+const RenderGraphicsStep& RenderTechnique::GetStep(unsigned int index) const
+{
+	THROW_INTERNAL_ERROR_IF("Tried to access index out of bounds", index < 0 || index >= m_steps.size());
+
+	return m_steps.at(index);
+}
+
 std::vector<RenderGraphicsStep>& RenderTechnique::GetSteps()
 {
 	return m_steps;

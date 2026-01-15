@@ -6,6 +6,7 @@ class Pipeline;
 
 class VertexBuffer;
 class IndexBuffer;
+class InputLayout;
 class TransformConstantBuffer;
 class CachedConstantBuffer;
 class Texture;
@@ -33,6 +34,8 @@ public:
 
 	VertexBuffer* GetVertexBuffer() const;
 	IndexBuffer* GetIndexBuffer() const;
+	InputLayout* GetInputLayout() const;
+	TransformConstantBuffer* GetTransformConstantBuffer() const;
 	const std::vector<CachedConstantBuffer*>& GetCachedBuffers() const;
 	const std::vector<Texture*>& GetTextures() const;
 	
@@ -54,6 +57,8 @@ private:
 
 	VertexBuffer* m_vertexBuffer = nullptr;
 	IndexBuffer* m_indexBuffer = nullptr;
+	InputLayout* m_inputLayout = nullptr;
+	TransformConstantBuffer* m_transformConstantBuffer = nullptr;
 
 	std::vector<CachedConstantBuffer*> m_cachedBuffers;
 	std::vector<Texture*> m_textures;

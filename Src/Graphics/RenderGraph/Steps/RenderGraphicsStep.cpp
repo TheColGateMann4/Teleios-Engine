@@ -125,6 +125,11 @@ void RenderGraphicsStep::AddBindable(std::shared_ptr<Bindable> bindable)
 	m_bindableContainer.AddBindable(bindable);
 }
 
+void RenderGraphicsStep::AddBindable(Bindable* bindable)
+{
+	m_bindableContainer.AddBindable(bindable);
+}
+
 const MeshBindableContainer& RenderGraphicsStep::GetBindableContainter() const
 {
 	return m_bindableContainer;

@@ -31,6 +31,8 @@ public: // bindable container functions
 
 	void AddBindable(std::shared_ptr<Bindable> bindable);
 
+	void AddBindable(Bindable* bindable);
+
 	const MeshBindableContainer& GetBindableContainter() const;
 
 private:

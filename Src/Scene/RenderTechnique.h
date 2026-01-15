@@ -23,6 +23,8 @@ public:
 
 	RenderGraphicsStep& GetStep(unsigned int index = 0);
 
+	const RenderGraphicsStep& GetStep(unsigned int index = 0) const;
+
 	std::vector<RenderGraphicsStep>& GetSteps();
 
 private:
