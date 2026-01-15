@@ -8,8 +8,6 @@ void Mesh::Initialize(Graphics& graphics, Pipeline& pipeline)
 {
 	for (auto& technique : m_techniques)
 		technique.Initialize(graphics, pipeline);
-
-	SubmitJobs(graphics.GetRenderer());
 }
 
 void Mesh::Update(Graphics& graphics, Pipeline& pipeline)
@@ -25,18 +23,18 @@ void Mesh::AddTechnique(RenderTechnique&& technique)
 
 RenderTechnique& Mesh::GetTechnique(RenderJob::JobType type)
 {
-	auto found = std::find_if(
-		m_techniques.begin(),
-		m_techniques.end(),
-		[type](const RenderTechnique& renderTechnique)
-		{
-			return renderTechnique.GetType() == type;
+	RenderTechnique* targetTechnique = m_GetTechnique(type);
+
+	THROW_INTERNAL_ERROR_IF("Failed to find technique by name", targetTechnique == nullptr);
+
+	return *targetTechnique;
 		}
-	);
 
-	THROW_INTERNAL_ERROR_IF("Failed to find technique by name", found == m_techniques.end());
+bool Mesh::HasTechnique(RenderJob::JobType type)
+{
+	RenderTechnique* targetTechnique = m_GetTechnique(type);
 
-	return *found;
+	return targetTechnique != nullptr;
 }
 
 std::vector<RenderTechnique>& Mesh::GetTechniques()
@@ -56,4 +54,17 @@ void Mesh::SubmitJobs(Renderer& renderer)
 				)
 			);
 		}
+}
+RenderTechnique* Mesh::m_GetTechnique(RenderJob::JobType type)
+{
+	auto found = std::find_if(
+		m_techniques.begin(),
+		m_techniques.end(),
+		[type](const RenderTechnique& renderTechnique)
+		{
+			return renderTechnique.GetType() == type;
+		}
+	);
+
+	return found != m_techniques.end() ? found._Ptr : nullptr;
 }

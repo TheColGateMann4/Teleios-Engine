@@ -22,11 +22,15 @@ public:
 	void AddTechnique(RenderTechnique&& technique);
 
 	RenderTechnique& GetTechnique(RenderJob::JobType type);
+	bool HasTechnique(RenderJob::JobType type);
 
 	std::vector<RenderTechnique>& GetTechniques();
 
 public:
 	void SubmitJobs(Renderer& renderer);
+
+private:
+	RenderTechnique* m_GetTechnique(RenderJob::JobType type);
 
 protected:
 	std::vector<RenderTechnique> m_techniques;
