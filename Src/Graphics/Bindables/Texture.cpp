@@ -190,6 +190,11 @@ void Texture::SetComputeRootIndex(unsigned int rootIndex)
 	m_computeRootIndex = rootIndex;
 }
 
+bool Texture::IsAlphaOpaque() const
+{
+	return m_isAlphaOpaque;
+}
+
 unsigned int Texture::GetMipLevels(unsigned int textureWidth)
 {
 	THROW_INTERNAL_ERROR_IF("Texture width passed was equal to 0", textureWidth == 0);

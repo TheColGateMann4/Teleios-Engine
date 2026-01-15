@@ -51,6 +51,8 @@ public:
 
 	void SetComputeRootIndex(unsigned int rootIndex);
 	
+	bool IsAlphaOpaque() const;
+
 	static DXGI_FORMAT GetCorrectedFormat(DXGI_FORMAT format);
 	static DXGI_FORMAT GetLinearFormat(DXGI_FORMAT format);
 	static DXGI_FORMAT GetSRGBFormat(DXGI_FORMAT format);
