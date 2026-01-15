@@ -10,6 +10,7 @@ public:
 	{
 		None = -1,
 		GeometryPass = 0,
+		DepthPass,
 
 		FullscreenPass,
 

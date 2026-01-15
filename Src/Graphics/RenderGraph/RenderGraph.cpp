@@ -1,12 +1,20 @@
 #include "RenderGraph.h"
 #include "Graphics/Core/Graphics.h"
 
+#include "RenderPass/PreDepthPass.h"
 #include "RenderPass/GeometryPass.h"
 #include "RenderPass/Fullscreen/FullscreenRenderPass.h"
 #include "RenderPass/GuiPass.h"
 
 void RenderGraph::Initialize(Graphics& graphics)
 {
+	{
+		std::shared_ptr<PreDepthPass> preDepthPass = std::make_shared<PreDepthPass>();
+		preDepthPass->SetDepthStencilView(graphics.GetDepthStencil());
+
+		AddRenderPass(preDepthPass);
+	}
+
 	{
 		std::shared_ptr<GeometryPass> geometryPass = std::make_shared<GeometryPass>();
 		geometryPass->AddRenderTarget(graphics.GetBackBuffer());
@@ -16,10 +24,17 @@ void RenderGraph::Initialize(Graphics& graphics)
 	}
 
 	{
-		std::shared_ptr<FullscreenRenderPass> fullscreenRenderPass = std::make_shared<FullscreenRenderPass>(graphics, GetRenderManager());
-		fullscreenRenderPass->AddRenderTarget(graphics.GetSwapChainBuffer());
-		AddRenderPass(fullscreenRenderPass);
+		std::shared_ptr<FullscreenRenderPass> fullscreenPass = std::make_shared<FullscreenRenderPass>(graphics, GetRenderManager());
+		fullscreenPass->AddRenderTarget(graphics.GetSwapChainBuffer());
+		AddRenderPass(fullscreenPass);
 	}
+
+	{
+		std::shared_ptr<GuiPass> guiPass = std::make_shared<GuiPass>(graphics);
+		guiPass->AddRenderTarget(graphics.GetSwapChainBuffer());
+		AddRenderPass(guiPass);
+	}
+}
 
 void RenderGraph::InitializePasses(Graphics& graphics, Pipeline& pipeline)
 {
