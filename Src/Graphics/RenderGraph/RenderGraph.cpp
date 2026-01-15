@@ -21,20 +21,22 @@ void RenderGraph::Initialize(Graphics& graphics)
 		AddRenderPass(fullscreenRenderPass);
 	}
 
+void RenderGraph::InitializePasses(Graphics& graphics, Pipeline& pipeline)
+{
+	for (auto& renderPass : m_renderPasses)
 	{
-		std::shared_ptr<GuiPass> fullscreenRenderPass = std::make_shared<GuiPass>(graphics);
-		fullscreenRenderPass->AddRenderTarget(graphics.GetSwapChainBuffer());
-		AddRenderPass(fullscreenRenderPass);
+		renderPass->Initialize(graphics);
+		renderPass->InitializePassResources(graphics, pipeline);
 	}
 }
 
-void RenderGraph::InitializePassResources(Graphics& graphics, Pipeline& pipeline)
+void RenderGraph::SubmitPassesJobs()
 {
 	for (auto& renderPass : m_renderPasses)
-		renderPass->Initialize(graphics, pipeline, GetRenderManager());
+		renderPass->SubmitJobs(GetRenderManager());
 }
 
-void RenderGraph::RebindJobs()
+void RenderGraph::AssignJobsToPasses()
 {
 	m_renderManager.BindJobsToPasses(m_renderPasses);
 }

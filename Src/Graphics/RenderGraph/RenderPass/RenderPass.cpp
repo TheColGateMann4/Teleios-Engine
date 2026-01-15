@@ -2,9 +2,29 @@
 #include "Graphics/Core/CommandList.h"
 #include "Graphics/RenderGraph/RenderJob/RenderJob.h"
 
-void RenderPass::Initialize(Graphics& graphics, Pipeline& pipeline, RenderManager& renderManager)
+void RenderPass::Initialize(Graphics& graphics)
 {
 
+}
+
+void RenderPass::InitializePassResources(Graphics& graphics, Pipeline& pipeline)
+{
+
+}
+
+void RenderPass::SubmitJobs(RenderManager& renderManager)
+{
+
+}
+
+void RenderPass::AddBindable(std::shared_ptr<Bindable> bindable)
+{
+	m_bindables.push_back(bindable);
+}
+
+const std::vector<std::shared_ptr<Bindable>>& RenderPass::GetBindables() const
+{
+	return m_bindables;
 }
 
 void RenderPass::AddRenderTarget(std::shared_ptr<RenderTarget> renderTarget)

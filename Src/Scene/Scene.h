@@ -25,6 +25,8 @@ public:
 	// ends initialization state in pipeline
 	void FinishInitialization(Graphics& graphics);
 
+	void AssignJobs(Graphics& graphics);
+
 	void InitializeSceneObjects(Graphics& graphics);
 
 	// resources that need to be initialized using compute shaders, eg. mip maps for textures

@@ -39,9 +39,23 @@ void Scene::FinishInitialization(Graphics& graphics)
 {
 	InitializeSceneObjects(graphics);
 
+	AssignJobs(graphics);
+
+	graphics.GetRenderer().InitializePasses(graphics);
+
 	graphics.GetRenderer().FinishInitialization(graphics);
 
 	graphics.WaitForGPU();
+}
+
+void Scene::AssignJobs(Graphics& graphics)
+{
+	for (auto& sceneObject : m_sceneObjects)
+		sceneObject->SubmitJobs(graphics.GetRenderer());
+
+	graphics.GetRenderer().SubmitPassesJobs();
+
+	graphics.GetRenderer().AssignJobsToPasses();
 }
 
 void Scene::InitializeSceneObjects(Graphics& graphics)

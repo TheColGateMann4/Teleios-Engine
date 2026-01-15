@@ -11,9 +11,12 @@ class RenderGraph
 public:
 	void Initialize(Graphics& graphics);
 
-	void InitializePassResources(Graphics& graphics, Pipeline& pipeline);
+	void InitializePasses(Graphics& graphics, Pipeline& pipeline);
 
-	void RebindJobs();
+	// submits jobs that passes created
+	void SubmitPassesJobs();
+
+	void AssignJobsToPasses();
 
 	void Execute(Graphics& graphics, CommandList* commandList);
 

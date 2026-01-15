@@ -11,13 +11,24 @@ void Renderer::Initialize(Graphics& graphics)
 	m_renderGraph.Initialize(graphics);
 }
 
+void Renderer::InitializePasses(Graphics& graphics)
+{
+	m_renderGraph.InitializePasses(graphics, m_pipeline);
+}
+
 void Renderer::FinishInitialization(Graphics& graphics)
 {
 	m_pipeline.FinishInitialization(graphics);
+}
 
-	m_renderGraph.InitializePassResources(graphics, m_pipeline);
+void Renderer::SubmitPassesJobs()
+{
+	m_renderGraph.SubmitPassesJobs();
+}
 
-	m_renderGraph.RebindJobs();
+void Renderer::AssignJobsToPasses()
+{
+	m_renderGraph.AssignJobsToPasses();
 }
 
 void Renderer::Draw(Graphics& graphics)

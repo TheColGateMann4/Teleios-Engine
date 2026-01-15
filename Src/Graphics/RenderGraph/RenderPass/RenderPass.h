@@ -12,7 +12,15 @@ class RenderPass
 {
 public: 
 	// resource initialization for passes with their own jobs
-	virtual void Initialize(Graphics& graphics, Pipeline& pipeline, RenderManager& renderManager);
+	virtual void Initialize(Graphics& graphics);
+	virtual void InitializePassResources(Graphics& graphics, Pipeline& pipeline);
+
+	virtual void SubmitJobs(RenderManager& renderManager);
+
+public: // Handling for pass specific bindables
+	void AddBindable(std::shared_ptr<Bindable> bindable);
+	const std::vector<std::shared_ptr<Bindable>>& GetBindables() const;
+
 
 public: // RenderTargets and DepthStecilViews
 	void AddRenderTarget(std::shared_ptr<RenderTarget> renderTarget);
@@ -38,6 +46,8 @@ public:  // enlisting and pushing jobs
 	void AssignJob(std::shared_ptr<RenderJob> pJob);
 
 private:
+	std::vector<std::shared_ptr<Bindable>> m_bindables;
+
 	std::vector<std::shared_ptr<RenderJob>> m_pJobs;
 
 	std::vector<std::shared_ptr<RenderTarget>> m_renderTargets;

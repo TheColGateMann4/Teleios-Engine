@@ -10,7 +10,10 @@ class Renderer
 {
 public:
 	void Initialize(Graphics& graphics);
+	void InitializePasses(Graphics& graphics);
 	void FinishInitialization(Graphics& graphics);
+	void SubmitPassesJobs();
+	void AssignJobsToPasses();
 
 	void Draw(Graphics& graphics);
 
