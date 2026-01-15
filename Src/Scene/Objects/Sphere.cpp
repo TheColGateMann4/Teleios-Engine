@@ -41,6 +41,7 @@ Sphere::Sphere(Graphics& graphics, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3
 		step.AddBindable(RasterizerState::GetBindableResource(graphics));
 		step.AddBindable(DepthStencilState::GetBindableResource(graphics, DepthStencilState::DepthComparisonFunc::Equal));
 		step.AddBindable(PrimitiveTechnology::GetBindableResource(graphics, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE));
+		step.AddStaticBindable("lightBuffer");
 		step.AddBindable(m_transform.GetTransformConstantBuffer());
 	}
 	technique.AddStep(std::move(step));
