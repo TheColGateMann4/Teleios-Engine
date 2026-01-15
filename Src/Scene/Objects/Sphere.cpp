@@ -34,7 +34,7 @@ Sphere::Sphere(Graphics& graphics, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3
 
 		step.AddBindable(InputLayout::GetBindableResource(graphics, vertexLayout));
 
-		step.AddBindable(Shader::GetBindableResource(graphics, L"PS_WhiteColor", ShaderType::PixelShader));
+		step.AddBindable(Shader::GetBindableResource(graphics, L"PS_LightSource", ShaderType::PixelShader));
 		std::vector<const char*> macros = {"NORMAL", "TEXCOORDS"};
 		step.AddBindable(Shader::GetBindableResource(graphics, L"VS", ShaderType::VertexShader));
 		step.AddBindable(BlendState::GetBindableResource(graphics));
