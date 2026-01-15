@@ -30,6 +30,10 @@ public:
 	void SubmitJobs(Renderer& renderer);
 
 private:
+	void CreateImplicitTechniques(Graphics& graphics, Pipeline& pipeline);
+
+	void CreateDepthTechnique(Graphics& graphics, Pipeline& pipeline);
+
 	RenderTechnique* m_GetTechnique(RenderJob::JobType type);
 
 protected:
