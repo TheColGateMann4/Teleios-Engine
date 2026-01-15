@@ -54,6 +54,7 @@ void RenderPass::SortJobs()
 
 void RenderPass::Execute(Graphics& graphics, CommandList* commandList)
 {
+	BEGIN_COMMAND_LIST_EVENT(commandList, typeid(*this).name() + 6); // + 6 skips "class " from type info literal
 	commandList->BeginRenderPass(graphics, this);
 
 	PreDraw(graphics, commandList);
@@ -64,6 +65,7 @@ void RenderPass::Execute(Graphics& graphics, CommandList* commandList)
 	PostDraw(graphics, commandList);
 
 	commandList->EndRenderPass(graphics);
+	END_COMMAND_LIST_EVENT(commandList);
 }
 
 void RenderPass::PreDraw(Graphics& graphics, CommandList* commandList)
