@@ -6,6 +6,7 @@
 class Graphics;
 class Pipeline;
 class Camera;
+class Renderer;
 
 class SceneObject
 {
@@ -17,6 +18,8 @@ public:
 
 public:
 	void InternalInitialize(Graphics& graphics, Pipeline& pipeline);
+
+	void SubmitJobs(Renderer& renderer);
 
 	void InternalUpdate(Graphics& graphics, Camera& camera, Pipeline& pipeline);
 

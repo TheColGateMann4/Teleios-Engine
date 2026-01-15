@@ -22,6 +22,12 @@ void SceneObject::InternalInitialize(Graphics& graphics, Pipeline& pipeline)
 		mesh.Initialize(graphics, pipeline);
 }
 
+void SceneObject::SubmitJobs(Renderer& renderer)
+{
+	for (auto& mesh : m_meshes)
+		mesh.SubmitJobs(renderer);
+}
+
 void SceneObject::InternalUpdate(Graphics& graphics, Camera& camera, Pipeline& pipeline)
 {
 	Update(graphics, pipeline);
