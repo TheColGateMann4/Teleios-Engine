@@ -178,5 +178,7 @@
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Src\Shaders\PS_Depth.hlsl" />
+    <FxCompile Include="Src\Shaders\PS_GBuffer.hlsl" />
+    <FxCompile Include="Src\Shaders\PS_Lightning.hlsl" />
   </ItemGroup>
 </Project>
