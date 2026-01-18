@@ -12,10 +12,15 @@ class CachedConstantBuffer;
 class Texture;
 class Shader;
 
-class MeshBindableContainer
+class BindableContainer
 {
 public:
-	void AddStaticBindable(const char* bindableName);
+	BindableContainer() = default;
+	BindableContainer(const BindableContainer& other) = default;
+	BindableContainer(BindableContainer&& other) noexcept = default;
+	virtual ~BindableContainer() = default;
+	
+public:
 	void AddBindable(std::shared_ptr<Bindable> bindable);
 	void AddBindable(Bindable* bindable);
 
@@ -25,35 +30,45 @@ public:
 		AddBindable(std::make_shared<T>(std::move(bindable)));
 	}
 
-	void Initialize(Pipeline& pipeline);
-
 public:
+	virtual void SegregateBindableByClass(Bindable* bindable) = 0;
+	void SegregateBindableBaseFunctionality(Bindable* bindable);
+	void SegregateBindableAtFirstPos(Bindable* bindable);
+	
 	const std::vector<CommandListBindable*>& GetCommandListBindables() const;
 	const std::vector<RootSignatureBindable*>& GetRootSignatureBindables() const;
 	const std::vector<PipelineStateBindable*>& GetPipelineStateBindables() const;
 
+protected:
+	// vector owning potentially shared bindables
+	std::vector<std::shared_ptr<Bindable>> m_bindables;
+
+	std::vector<CommandListBindable*> m_commandListBindables;
+	std::vector<RootSignatureBindable*> m_rootSignatureBindables;
+	std::vector<PipelineStateBindable*> m_pipelineStateBindables;
+};
+
+class MeshBindableContainer : public BindableContainer
+{
+public:
+	void AddStaticBindable(const char* bindableName);
+
+	void Initialize(Pipeline& pipeline);
+
+public:
 	VertexBuffer* GetVertexBuffer() const;
 	IndexBuffer* GetIndexBuffer() const;
 	InputLayout* GetInputLayout() const;
 	TransformConstantBuffer* GetTransformConstantBuffer() const;
 	const std::vector<CachedConstantBuffer*>& GetCachedBuffers() const;
 	const std::vector<Texture*>& GetTextures() const;
-	
-private:
-	void SegregateBindableClass(Bindable* bindable);
-	void SegregateBindableBaseFunctionality(Bindable* bindable);
-	void SegregateBindableAtFirstPos(Bindable* bindable);
 
 private:
-	// vector owning potentially shared scene bindables
-	std::vector<std::shared_ptr<Bindable>> m_bindables;
+	virtual void SegregateBindableByClass(Bindable* bindable) override;
 
+private:
 	// vector with names of static scene resources
 	std::vector<const char*> m_staticBindableNames;
-
-	std::vector<CommandListBindable*> m_commandListBindables;
-	std::vector<RootSignatureBindable*> m_rootSignatureBindables;
-	std::vector<PipelineStateBindable*> m_pipelineStateBindables;
 
 	VertexBuffer* m_vertexBuffer = nullptr;
 	IndexBuffer* m_indexBuffer = nullptr;
@@ -64,35 +79,14 @@ private:
 	std::vector<Texture*> m_textures;
 };
 
-class ComputeBindableContainer
+class ComputeBindableContainer : public BindableContainer
 {
 public:
-	template<class T, std::enable_if_t<std::is_base_of_v<Bindable, T>, int> = 0> 
-	void AddBindable(T&& bindable)
-	{
-		m_temporaryBindables.push_back(std::make_shared<T>(std::move(bindable)));
-
-		SegregateBindable(m_temporaryBindables.back().get());
-	}
-
-	void AddBindable(std::shared_ptr<Bindable> bindable);
-	void AddBindable(Bindable* bindable);
-
-public:
-	const std::vector<CommandListBindable*>& GetCommandListBindables() const;
-	const std::vector<RootSignatureBindable*>& GetRootSignatureBindables() const;
-	const std::vector<PipelineStateBindable*>& GetPipelineStateBindables() const;
 	const Shader* GetShader() const;
 
 private:
-	void SegregateBindable(Bindable* bindable);
+	virtual void SegregateBindableByClass(Bindable* bindable) override;
 
 private:
-	// vector owning potentially shared scene bindables
-	std::vector<std::shared_ptr<Bindable>> m_temporaryBindables;
-
-	std::vector<CommandListBindable*> m_commandListBindables;
-	std::vector<RootSignatureBindable*> m_rootSignatureBindables;
-	std::vector<PipelineStateBindable*> m_pipelineStateBindables;
 	Shader* m_shader;
 };

@@ -4,45 +4,68 @@
 
 #include "Includes/BindablesInclude.h"
 
-void MeshBindableContainer::AddStaticBindable(const char* bindableName)
-{
-	m_staticBindableNames.push_back(bindableName);
-}
-
-void MeshBindableContainer::AddBindable(std::shared_ptr<Bindable> bindable)
+void BindableContainer::AddBindable(std::shared_ptr<Bindable> bindable)
 {
 	m_bindables.push_back(bindable);
 
 	AddBindable(bindable.get());
 }
 
-void MeshBindableContainer::AddBindable(Bindable* bindable)
+void BindableContainer::AddBindable(Bindable* bindable)
 {
-	SegregateBindableClass(bindable);
+	SegregateBindableByClass(bindable);
 
 	SegregateBindableBaseFunctionality(bindable);
+}
+
+void BindableContainer::SegregateBindableBaseFunctionality(Bindable* bindable)
+{
+	if (auto* commandListBindable = dynamic_cast<CommandListBindable*>(bindable))
+		m_commandListBindables.push_back(commandListBindable);
+
+	if (auto* rootSignatureBindable = dynamic_cast<RootSignatureBindable*>(bindable))
+		m_rootSignatureBindables.push_back(rootSignatureBindable);
+
+	if (auto* pipelineStateBindable = dynamic_cast<PipelineStateBindable*>(bindable))
+		m_pipelineStateBindables.push_back(pipelineStateBindable);
+}
+
+void BindableContainer::SegregateBindableAtFirstPos(Bindable* bindable)
+{
+	if (auto* commandListBindable = dynamic_cast<CommandListBindable*>(bindable))
+		m_commandListBindables.insert(m_commandListBindables.begin(), commandListBindable);
+
+	if (auto* rootSignatureBindable = dynamic_cast<RootSignatureBindable*>(bindable))
+		m_rootSignatureBindables.insert(m_rootSignatureBindables.begin(), rootSignatureBindable);
+
+	if (auto* pipelineStateBindable = dynamic_cast<PipelineStateBindable*>(bindable))
+		m_pipelineStateBindables.insert(m_pipelineStateBindables.begin(), pipelineStateBindable);
+}
+
+const std::vector<CommandListBindable*>& BindableContainer::GetCommandListBindables() const
+{
+	return m_commandListBindables;
+}
+
+const std::vector<RootSignatureBindable*>& BindableContainer::GetRootSignatureBindables() const
+{
+	return m_rootSignatureBindables;
+}
+
+const std::vector<PipelineStateBindable*>& BindableContainer::GetPipelineStateBindables() const
+{
+	return m_pipelineStateBindables;
+}
+
+void MeshBindableContainer::AddStaticBindable(const char* bindableName)
+{
+	m_staticBindableNames.push_back(bindableName);
 }
 
 void MeshBindableContainer::Initialize(Pipeline& pipeline)
 {
 	for (auto staticBindableName : m_staticBindableNames)
 		SegregateBindableAtFirstPos(pipeline.GetStaticResource(staticBindableName));
-}
-
-
-const std::vector<CommandListBindable*>& MeshBindableContainer::GetCommandListBindables() const
-{
-	return m_commandListBindables;
-}
-
-const std::vector<RootSignatureBindable*>& MeshBindableContainer::GetRootSignatureBindables() const
-{
-	return m_rootSignatureBindables;
-}
-
-const std::vector<PipelineStateBindable*>& MeshBindableContainer::GetPipelineStateBindables() const
-{
-	return m_pipelineStateBindables;
 }
 
 VertexBuffer* MeshBindableContainer::GetVertexBuffer() const
@@ -75,7 +98,7 @@ const std::vector<Texture*>& MeshBindableContainer::GetTextures() const
 	return m_textures;
 }
 
-void MeshBindableContainer::SegregateBindableClass(Bindable* bindable)
+void MeshBindableContainer::SegregateBindableByClass(Bindable* bindable)
 {
 	BindableType type = bindable->GetBindableType();
 
@@ -117,75 +140,15 @@ void MeshBindableContainer::SegregateBindableClass(Bindable* bindable)
 	}
 }
 
-void MeshBindableContainer::SegregateBindableBaseFunctionality(Bindable* bindable)
-{
-	if (auto* commandListBindable = dynamic_cast<CommandListBindable*>(bindable))
-		m_commandListBindables.push_back(commandListBindable);
-
-	if (auto* rootSignatureBindable = dynamic_cast<RootSignatureBindable*>(bindable))
-		m_rootSignatureBindables.push_back(rootSignatureBindable);
-
-	if (auto* pipelineStateBindable = dynamic_cast<PipelineStateBindable*>(bindable))
-		m_pipelineStateBindables.push_back(pipelineStateBindable);
-}
-
-void MeshBindableContainer::SegregateBindableAtFirstPos(Bindable* bindable)
-{
-	if (auto* commandListBindable = dynamic_cast<CommandListBindable*>(bindable))
-		m_commandListBindables.insert(m_commandListBindables.begin(), commandListBindable);
-
-	if (auto* rootSignatureBindable = dynamic_cast<RootSignatureBindable*>(bindable))
-		m_rootSignatureBindables.insert(m_rootSignatureBindables.begin(), rootSignatureBindable);
-
-	if (auto* pipelineStateBindable = dynamic_cast<PipelineStateBindable*>(bindable))
-		m_pipelineStateBindables.insert(m_pipelineStateBindables.begin(), pipelineStateBindable);
-}
-
-
-
-void ComputeBindableContainer::AddBindable(std::shared_ptr<Bindable> bindable)
-{
-	m_temporaryBindables.push_back(bindable);
-
-	SegregateBindable(bindable.get());
-}
-
-void ComputeBindableContainer::AddBindable(Bindable* bindable)
-{
-	SegregateBindable(bindable);
-}
-
-const std::vector<CommandListBindable*>& ComputeBindableContainer::GetCommandListBindables() const
-{
-	return m_commandListBindables;
-}
-
-const std::vector<RootSignatureBindable*>& ComputeBindableContainer::GetRootSignatureBindables() const
-{
-	return m_rootSignatureBindables;
-}
-
-const std::vector<PipelineStateBindable*>& ComputeBindableContainer::GetPipelineStateBindables() const
-{
-	return m_pipelineStateBindables;
-}
-
 const Shader* ComputeBindableContainer::GetShader() const
 {
 	return m_shader;
 }
 
-void ComputeBindableContainer::SegregateBindable(Bindable* bindable)
+void ComputeBindableContainer::SegregateBindableByClass(Bindable* bindable)
 {
-	if (auto* shader = dynamic_cast<Shader*>(bindable))
-		m_shader = shader;
-	
-	if (auto* commandListBindable = dynamic_cast<CommandListBindable*>(bindable))
-		m_commandListBindables.push_back(commandListBindable);
+	BindableType type = bindable->GetBindableType();
 
-	if (auto* rootSignatureBindable = dynamic_cast<RootSignatureBindable*>(bindable))
-		m_rootSignatureBindables.push_back(rootSignatureBindable);
-
-	if (auto* pipelineStateBindable = dynamic_cast<PipelineStateBindable*>(bindable))
-		m_pipelineStateBindables.push_back(pipelineStateBindable);
+	if(type == BindableType::bindable_shader)
+		m_shader = static_cast<Shader*>(bindable);
 }
