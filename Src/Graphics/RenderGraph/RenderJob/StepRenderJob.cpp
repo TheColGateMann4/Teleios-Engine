@@ -1,15 +1,9 @@
 #include "StepRenderJob.h"
 #include "Graphics/RenderGraph/Steps/RenderStep.h"
 
-StepRenderJob::StepRenderJob(JobType type, RenderStep* step)
+StepRenderJob::StepRenderJob(JobType type)
 	:
-	RenderJob(type),
-	m_step(step)
+	RenderJob(type)
 {
 
-}
-
-void StepRenderJob::Execute(Graphics& graphics, CommandList* commandList) const
-{
-	m_step->Execute(graphics, commandList);
 }

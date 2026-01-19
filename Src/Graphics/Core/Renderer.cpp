@@ -11,6 +11,16 @@ void Renderer::Initialize(Graphics& graphics)
 	m_renderGraph.Initialize(graphics);
 }
 
+void Renderer::GatherJobBindables()
+{
+	m_renderGraph.GatherJobBindables();
+}
+
+void Renderer::InitializeJobs(Graphics& graphics)
+{
+	m_renderGraph.InitializeJobs(graphics, m_pipeline);
+}
+
 void Renderer::InitializePasses(Graphics& graphics)
 {
 	m_renderGraph.InitializePasses(graphics, m_pipeline);

@@ -2,7 +2,7 @@
 #include "Graphics/Core/Graphics.h"
 #include "Graphics/Core/Pipeline.h"
 #include "Scene/Objects/Camera.h"
-#include "Graphics/RenderGraph/RenderJob/StepRenderJob.h"
+#include "Graphics/RenderGraph/RenderJob/GraphicsStepRenderJob.h"
 
 #include "Graphics/Bindables/VertexBuffer.h"
 #include "Graphics/Bindables/IndexBuffer.h"
@@ -18,15 +18,6 @@
 void Mesh::Initialize(Graphics& graphics, Pipeline& pipeline)
 {
 	CreateImplicitTechniques(graphics, pipeline);
-
-	for (auto& technique : m_techniques)
-		technique.Initialize(graphics, pipeline);
-}
-
-void Mesh::Update(Graphics& graphics, Pipeline& pipeline)
-{
-	for(auto& technique : m_techniques)
-		technique.Update(graphics, pipeline);
 }
 
 void Mesh::AddTechnique(RenderTechnique&& technique)
@@ -61,7 +52,7 @@ void Mesh::SubmitJobs(Renderer& renderer)
 		for (auto& step : technique.GetSteps())
 		{		
 			renderer.SubmitJob(
-				std::make_shared<StepRenderJob>(
+				std::make_shared<GraphicsStepRenderJob>(
 						technique.GetType(),
 						&step
 				)

@@ -75,6 +75,7 @@
     <ClCompile Include="Src\Graphics\RenderGraph\RenderJob\RenderJob.cpp" />
     <ClCompile Include="Src\Graphics\RenderGraph\RenderJob\StepRenderJob.cpp" />
     <ClCompile Include="Src\Graphics\RenderGraph\RenderPass\PreDepthPass.cpp" />
+    <ClCompile Include="Src\Graphics\RenderGraph\RenderJob\GraphicsStepRenderJob.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Src\Application.h" />
@@ -154,6 +155,7 @@
     <ClInclude Include="Src\Graphics\RenderGraph\RenderJob\RenderJob.h" />
     <ClInclude Include="Src\Graphics\RenderGraph\RenderJob\StepRenderJob.h" />
     <ClInclude Include="Src\Graphics\RenderGraph\RenderPass\PreDepthPass.h" />
+    <ClInclude Include="Src\Graphics\RenderGraph\RenderJob\GraphicsStepRenderJob.h" />
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="Dependencies\zlib1.dll" />

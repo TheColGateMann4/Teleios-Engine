@@ -1,16 +1,17 @@
 #pragma once
 #include "RenderJob.h"
+#include "Graphics/Core/RootSignature.h"
 
-class RenderStep;
+class Graphics;
+class Pipeline;
 
 class StepRenderJob : public RenderJob
 {
 public:
-	StepRenderJob(RenderJob::JobType m_type, RenderStep* step);
+	StepRenderJob(RenderJob::JobType m_type);
 
-public:
-	virtual void Execute(Graphics& graphics, CommandList* commandList) const override;
+	virtual void Execute(Graphics& graphics, CommandList* commandList) const = 0;
 
-private:
-	RenderStep* m_step;
+protected:
+	std::shared_ptr<RootSignature> m_rootSignature;
 };

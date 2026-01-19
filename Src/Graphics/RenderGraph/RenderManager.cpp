@@ -12,6 +12,18 @@ void RenderManager::BindJobsToPasses(std::vector<std::shared_ptr<RenderPass>>& r
 	AssignJobsToPasses(wantedJobsByPasses);
 }
 
+void RenderManager::GatherJobBindables()
+{
+	for(auto& job : m_allJobs)
+		job->GatherBindables();
+}
+
+void RenderManager::InitializeJobs(Graphics& graphics, Pipeline& pipeline)
+{
+	for(auto& job : m_allJobs)
+		job->Initialize(graphics, pipeline);
+}
+
 RenderManager::PassListByJobType RenderManager::GetWantedJobTypesByPasses(std::vector<std::shared_ptr<RenderPass>>& renderPasses) const
 {
 	RenderManager::PassListByJobType m_targetPasses = {};
@@ -43,6 +55,9 @@ void RenderManager::AssignJobsToPasses(const RenderManager::PassListByJobType& w
 		const PassList& targetPassesVector = wantedJobsToPasses.at(static_cast<int>(jobType));
 
 		for (auto& targetPass : targetPassesVector)
+		{
 			targetPass->AssignJob(job);
+			job->LinkToPass(targetPass);
+		}
 	}
 }

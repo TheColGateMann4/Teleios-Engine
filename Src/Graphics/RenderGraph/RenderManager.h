@@ -13,6 +13,10 @@ public:
 
 	void BindJobsToPasses(std::vector<std::shared_ptr<RenderPass>>& renderPasses);
 
+	void GatherJobBindables();
+
+	void InitializeJobs(Graphics& graphics, Pipeline& pipeline);
+
 private:
 	RenderManager::PassListByJobType GetWantedJobTypesByPasses(std::vector<std::shared_ptr<RenderPass>>& renderPasses) const;
 

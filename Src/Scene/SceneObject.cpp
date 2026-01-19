@@ -31,20 +31,11 @@ void SceneObject::SubmitJobs(Renderer& renderer)
 void SceneObject::InternalUpdate(Graphics& graphics, Camera& camera, Pipeline& pipeline)
 {
 	Update(graphics, pipeline);
-
-	for (auto& mesh : m_meshes)
-		mesh.Update(graphics, pipeline);
 }
 
 void SceneObject::InternalAddStaticResources(Pipeline& pipeline)
 {
 	AddStaticResources(pipeline);
-}
-
-void SceneObject::InitializeGraphicResources(Graphics& graphics, Pipeline& pipeline)
-{
-	//for (auto& mesh : m_meshes)
-	//	mesh.InitializeGraphicResources(graphics, pipeline);
 }
 
 void SceneObject::UpdateParentMatrix(DirectX::XMMATRIX parentMatrix)

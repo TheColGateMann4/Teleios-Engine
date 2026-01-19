@@ -25,8 +25,6 @@ public:
 
 	void InternalAddStaticResources(Pipeline& pipeline);
 
-	void InitializeGraphicResources(Graphics& graphics, Pipeline& pipeline);
-
 	void UpdateParentMatrix(DirectX::XMMATRIX parentMatrix = DirectX::XMMatrixIdentity());
 
 	// this function allows us to update transformCbuffer once per frame

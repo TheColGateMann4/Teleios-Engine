@@ -10,6 +10,8 @@ class Renderer
 {
 public:
 	void Initialize(Graphics& graphics);
+	void GatherJobBindables();
+	void InitializeJobs(Graphics& graphics);
 	void InitializePasses(Graphics& graphics);
 	void FinishInitialization(Graphics& graphics);
 	void SubmitPassesJobs();

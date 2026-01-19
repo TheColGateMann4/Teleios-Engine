@@ -14,11 +14,6 @@ public:
 	RenderJob::JobType GetType() const;
 
 public:
-	void Initialize(Graphics& graphics, Pipeline& pipeline);
-
-	void Update(Graphics& graphics, Pipeline& pipeline);
-
-public:
 	void AddStep(RenderGraphicsStep&& step);
 
 	RenderGraphicsStep& GetStep(unsigned int index = 0);

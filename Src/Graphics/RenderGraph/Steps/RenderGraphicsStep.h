@@ -16,14 +16,6 @@ public:
 	RenderGraphicsStep(const RenderGraphicsStep&) = delete;
 
 public:
-	void Initialize(Graphics& graphics, Pipeline& pipeline);
-
-	virtual void Execute(Graphics& graphics, CommandList* commandList) const override;
-
-	void Update(Graphics& graphics, Pipeline& pipeline);
-
-	void InitializeGraphicResources(Graphics& graphics, Pipeline& pipeline);
-
 	void DrawConstantBuffers(Graphics& graphics);
 
 public: // bindable container functions
@@ -37,7 +29,4 @@ public: // bindable container functions
 
 private:
 	MeshBindableContainer m_bindableContainer;
-
-	std::unique_ptr<GraphicsPipelineState> m_pipelineState;
-	std::unique_ptr<RootSignature> m_rootSignature;
 };

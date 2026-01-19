@@ -11,6 +11,10 @@ class RenderGraph
 public:
 	void Initialize(Graphics& graphics);
 
+	void GatherJobBindables();
+
+	void InitializeJobs(Graphics& graphics, Pipeline& pipeline);
+
 	void InitializePasses(Graphics& graphics, Pipeline& pipeline);
 
 	// submits jobs that passes created

@@ -16,8 +16,6 @@ public:
 public:
 	void Initialize(Graphics& graphics, Pipeline& pipeline);
 
-	void Update(Graphics& graphics, Pipeline& pipeline);
-
 public:
 	void AddTechnique(RenderTechnique&& technique);
 

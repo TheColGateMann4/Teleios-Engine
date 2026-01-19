@@ -36,6 +36,16 @@ void RenderGraph::Initialize(Graphics& graphics)
 	}
 }
 
+void RenderGraph::GatherJobBindables()
+{
+	m_renderManager.GatherJobBindables();
+}
+
+void RenderGraph::InitializeJobs(Graphics& graphics, Pipeline& pipeline)
+{
+	m_renderManager.InitializeJobs(graphics, pipeline);
+}
+
 void RenderGraph::InitializePasses(Graphics& graphics, Pipeline& pipeline)
 {
 	for (auto& renderPass : m_renderPasses)

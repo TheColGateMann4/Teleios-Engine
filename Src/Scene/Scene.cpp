@@ -37,13 +37,20 @@ void Scene::BeginInitialization(Graphics& graphics)
 
 void Scene::FinishInitialization(Graphics& graphics)
 {
+	Renderer& renderer = graphics.GetRenderer();
+	Pipeline& pipeline = renderer.GetPipeline();
+
 	InitializeSceneObjects(graphics);
 
 	AssignJobs(graphics);
 
-	graphics.GetRenderer().InitializePasses(graphics);
+	renderer.GatherJobBindables();
 
-	graphics.GetRenderer().FinishInitialization(graphics);
+	renderer.InitializeJobs(graphics);
+
+	renderer.InitializePasses(graphics);
+
+	renderer.FinishInitialization(graphics);
 
 	graphics.WaitForGPU();
 }
@@ -83,10 +90,6 @@ void Scene::UpdateGraphicResources(Graphics& graphics)
 
 	// copying constant buffers to GPU
 	graphics.GetConstantBufferHeap().CopyResources(graphics, pipeline.GetGraphicCommandList());
-
-	// running compute shaders and copying resources for specific resources like textures 
-	for (auto& sceneObject : m_sceneObjects)
-		sceneObject->InitializeGraphicResources(graphics, pipeline);
 }
 
 void Scene::DrawObjectInspector(Graphics& graphics)
