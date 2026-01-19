@@ -4,6 +4,16 @@
 
 #include "Includes/BindablesInclude.h"
 
+BindableContainer& BindableContainer::operator+=(const BindableContainer& other)
+{
+	m_bindables.insert(m_bindables.end(), other.m_bindables.begin(), other.m_bindables.end());
+	m_commandListBindables.insert(m_commandListBindables.end(), other.m_commandListBindables.begin(), other.m_commandListBindables.end());
+	m_rootSignatureBindables.insert(m_rootSignatureBindables.end(), other.m_rootSignatureBindables.begin(), other.m_rootSignatureBindables.end());
+	m_pipelineStateBindables.insert(m_pipelineStateBindables.end(), other.m_pipelineStateBindables.begin(), other.m_pipelineStateBindables.end());
+
+	return *this;
+}
+
 void BindableContainer::AddBindable(std::shared_ptr<Bindable> bindable)
 {
 	m_bindables.push_back(bindable);
@@ -55,6 +65,24 @@ const std::vector<RootSignatureBindable*>& BindableContainer::GetRootSignatureBi
 const std::vector<PipelineStateBindable*>& BindableContainer::GetPipelineStateBindables() const
 {
 	return m_pipelineStateBindables;
+}
+
+MeshBindableContainer& MeshBindableContainer::operator+=(const MeshBindableContainer& other)
+{
+	// calling base constructor
+	BindableContainer::operator+=(other);
+
+	m_staticBindableNames.insert(m_staticBindableNames.end(), other.m_staticBindableNames.begin(), other.m_staticBindableNames.end());
+
+	if (m_vertexBuffer == nullptr) m_vertexBuffer = other.m_vertexBuffer;
+	if (m_indexBuffer == nullptr) m_indexBuffer = other.m_indexBuffer;
+	if (m_inputLayout == nullptr) m_inputLayout = other.m_inputLayout;
+	if (m_transformConstantBuffer == nullptr) m_transformConstantBuffer = other.m_transformConstantBuffer;
+
+	m_cachedBuffers.insert(m_cachedBuffers.end(), other.m_cachedBuffers.begin(), other.m_cachedBuffers.end());
+	m_textures.insert(m_textures.end(), other.m_textures.begin(), other.m_textures.end());
+
+	return *this;
 }
 
 void MeshBindableContainer::AddStaticBindable(const char* bindableName)
@@ -138,6 +166,16 @@ void MeshBindableContainer::SegregateBindableByClass(Bindable* bindable)
 		default:
 			break;
 	}
+}
+
+ComputeBindableContainer& ComputeBindableContainer::operator+=(const ComputeBindableContainer& other)
+{
+	// calling base constructor
+	BindableContainer::operator+=(other);
+
+	if (m_shader == nullptr) m_shader = other.m_shader;
+
+	return *this;
 }
 
 const Shader* ComputeBindableContainer::GetShader() const
