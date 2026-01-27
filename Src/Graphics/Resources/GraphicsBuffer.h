@@ -18,6 +18,7 @@ public:
 
 public:
 	void Update(Graphics& graphics, const void* data, size_t size);
+	void Update(Graphics& graphics, const void* data, size_t rowSize, size_t rows, size_t rowPitch);
 	void Update(Graphics& graphics, Pipeline& pipeline, const void* data, size_t size);
 
 	template<class T>
@@ -38,7 +39,7 @@ public:
 
 private:
 	void UpdateUsingTempResource(Graphics& graphics, Pipeline& pipeline, const void* data, size_t size);
-	void UpdateLocalResource(Graphics& graphics, const void* data, size_t size);
+	void UpdateLocalResource(Graphics& graphics, const void* data, size_t rowSize, size_t rows, size_t rowPitch);
 
 private:
 	size_t m_byteSize;

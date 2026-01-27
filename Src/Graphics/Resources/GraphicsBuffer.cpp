@@ -49,9 +49,14 @@ GraphicsBuffer::GraphicsBuffer(Graphics& graphics, unsigned int numElements, uns
 
 void GraphicsBuffer::Update(Graphics& graphics, const void* data, size_t size)
 {
+	Update(graphics, data, size, 1, size);
+}
+
+void GraphicsBuffer::Update(Graphics& graphics, const void* data, size_t rowSize, size_t rows, size_t rowPitch)
+{
 	if (m_cpuAccess == CPUAccess::readwrite || m_cpuAccess == CPUAccess::write)
 	{
-		UpdateLocalResource(graphics, data, size);
+		UpdateLocalResource(graphics, data, rowSize, rows, rowPitch);
 	}
 	else
 	{
@@ -63,7 +68,7 @@ void GraphicsBuffer::Update(Graphics& graphics, Pipeline& pipeline, const void* 
 {
 	if (m_cpuAccess == CPUAccess::readwrite || m_cpuAccess == CPUAccess::write)
 	{
-		UpdateLocalResource(graphics, data, size);
+		UpdateLocalResource(graphics, data, size, 1, size);
 	}
 	else
 	{
@@ -95,9 +100,9 @@ void GraphicsBuffer::UpdateUsingTempResource(Graphics& graphics, Pipeline& pipel
 
 	graphics.GetFrameResourceDeleter()->DeleteResource(graphics, std::move(uploadBuffer));
 }
-void GraphicsBuffer::UpdateLocalResource(Graphics& graphics, const void* data, size_t size)
+void GraphicsBuffer::UpdateLocalResource(Graphics& graphics, const void* data, size_t rowSize, size_t rows, size_t rowPitch)
 {
-	THROW_INTERNAL_ERROR_IF("GraphicsBuffer was larger than resource itself", size > m_byteSize);
+	THROW_INTERNAL_ERROR_IF("GraphicsBuffer was larger than resource itself", rowSize > m_byteSize);
 
 	ID3D12Resource* pConstBuffer = GetResource();
 
@@ -111,17 +116,26 @@ void GraphicsBuffer::UpdateLocalResource(Graphics& graphics, const void* data, s
 
 		D3D12_RANGE writeRange = {};
 		writeRange.Begin = 0;
-		writeRange.End = size;
+		writeRange.End = rowSize * rows;
 
-		void* pMappedData = nullptr;
+		unsigned char* pMappedData = nullptr;
+		const unsigned char* pData = static_cast<const unsigned char*>(data);
 
 		THROW_ERROR(pConstBuffer->Map(
 			0,
 			&readRange,
-			&pMappedData
+			reinterpret_cast<void**>(&pMappedData)
 		));
 
-		memcpy_s(pMappedData, size, data, size);
+		for(int row = 0; row < rows; row++)
+		{
+			memcpy_s(
+				pMappedData + row * rowSize,
+				rowSize,
+				pData + row * rowPitch,
+				rowSize
+			);
+		}
 
 		pConstBuffer->Unmap(0, &writeRange);
 	}
