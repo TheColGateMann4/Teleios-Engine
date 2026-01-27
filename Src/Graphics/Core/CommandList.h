@@ -124,6 +124,8 @@ public:
 
 	void CopyTextureRegion(Graphics& graphics, ID3D12Resource* dstResource, ID3D12Resource* srcResource, unsigned int MipMapLvel);
 
+	void CopyBufferToTexture(Graphics& graphics, ID3D12Resource* dstResource, ID3D12Resource* srcResource);
+
 	void CopyResource(Graphics& graphics, ID3D12Resource* dstResource, ID3D12Resource* srcResource);
 
 private:

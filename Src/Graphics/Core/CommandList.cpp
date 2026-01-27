@@ -493,6 +493,48 @@ void CommandList::CopyTextureRegion(Graphics& graphics, ID3D12Resource* dstResou
 	));
 }
 
+void CommandList::CopyBufferToTexture(Graphics& graphics, ID3D12Resource* dstResource, ID3D12Resource* srcResource)
+{
+	THROW_OBJECT_STATE_ERROR_IF("Bundle command lists cannot copy resources", m_type == D3D12_COMMAND_LIST_TYPE_BUNDLE);
+
+	D3D12_PLACED_SUBRESOURCE_FOOTPRINT resourceLayout = {};
+	UINT resourceNumRows = 0;
+	UINT64 resourceRowSizeInBytes = 0;
+	UINT64 resourceTotalBytes = 0;
+
+	D3D12_RESOURCE_DESC resourceDesc = dstResource->GetDesc();
+
+	THROW_INFO_ERROR(graphics.GetDeviceResources().GetDevice()->GetCopyableFootprints(
+		&resourceDesc,
+		0,
+		1,
+		0,
+		&resourceLayout,
+		&resourceNumRows,
+		&resourceRowSizeInBytes,
+		&resourceTotalBytes
+	));
+
+	D3D12_TEXTURE_COPY_LOCATION dstTexture;
+	dstTexture.pResource = dstResource;
+	dstTexture.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
+	dstTexture.SubresourceIndex = 0;
+
+	D3D12_TEXTURE_COPY_LOCATION srcTexture;
+	srcTexture.pResource = srcResource;
+	srcTexture.Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
+	srcTexture.PlacedFootprint = resourceLayout;
+
+	THROW_INFO_ERROR(pCommandList->CopyTextureRegion(
+		&dstTexture,
+		0,
+		0,
+		0,
+		&srcTexture,
+		nullptr
+	));
+}
+
 void CommandList::CopyResource(Graphics& graphics, ID3D12Resource* dstResource, ID3D12Resource* srcResource)
 {
 	THROW_OBJECT_STATE_ERROR_IF("Bundle command lists cannot copy resources", m_type == D3D12_COMMAND_LIST_TYPE_BUNDLE);
