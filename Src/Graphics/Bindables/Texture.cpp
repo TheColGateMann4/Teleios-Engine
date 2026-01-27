@@ -21,7 +21,7 @@
 
 #include "Graphics/Resources/GraphicsTexture.h"
 
-Texture::Texture(Graphics& graphics, const char* path, bool srgb, bool generateMips, std::vector<TargetSlotAndShader> targets)
+Texture::Texture(Graphics& graphics, const char* path, bool srgb, bool generateMips, bool compress, std::vector<TargetSlotAndShader> targets)
 	:
 	RootSignatureBindable(targets),
 
@@ -31,7 +31,8 @@ Texture::Texture(Graphics& graphics, const char* path, bool srgb, bool generateM
 	m_path(path),
 #endif
 	m_srgb(srgb),
-	m_generateMipMaps(generateMips)
+	m_generateMipMaps(false),
+	m_compressed(compress)
 {
 	graphics.GetDescriptorHeap().RequestMoreSpace();
 
@@ -58,11 +59,14 @@ Texture::Texture(Graphics& graphics, const char* path, bool srgb, bool generateM
 
 		DXGI_FORMAT format = GetCorrectedFormat(metaData.format);
 		format = m_srgb ? GetSRGBFormat(format) : GetLinearFormat(format);
+		
+		if(m_compressed)
+			format = GetCompressedFormat(format);
 
 		m_isAlphaOpaque = metaData.GetAlphaMode() == DirectX::TEX_ALPHA_MODE_OPAQUE;
 		m_mipmapLevels = m_generateMipMaps ? GetMipLevels(metaData.width) : 1;
 
-		m_gpuTexture = std::make_shared<GraphicsTexture>(graphics, metaData.width, metaData.height, m_mipmapLevels, format, GraphicsTexture::CPUAccess::notavailable, targetResourceState, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+		m_gpuTexture = std::make_shared<GraphicsTexture>(graphics, metaData.width, metaData.height, m_mipmapLevels, format, GraphicsTexture::CPUAccess::notavailable, targetResourceState, D3D12_RESOURCE_FLAG_NONE);
 	}
 }
 
@@ -89,12 +93,12 @@ void Texture::Initialize(Graphics& graphics)
 	}
 }
 
-std::shared_ptr<Texture> Texture::GetBindableResource(Graphics& graphics, const char* path, bool srgb, bool generateMips, std::vector<TargetSlotAndShader> targets)
+std::shared_ptr<Texture> Texture::GetBindableResource(Graphics& graphics, const char* path, bool srgb, bool generateMips, bool compress, std::vector<TargetSlotAndShader> targets)
 {
-	return BindableResourceList::GetBindableResource<Texture>(graphics, path, srgb, generateMips, targets);
+	return BindableResourceList::GetBindableResource<Texture>(graphics, path, srgb, generateMips, compress, targets);
 }
 
-std::string Texture::GetIdentifier(const char* path, bool allowSRGB, bool generateMips, std::vector<TargetSlotAndShader> targets)
+std::string Texture::GetIdentifier(const char* path, bool allowSRGB, bool generateMips, bool compress, std::vector<TargetSlotAndShader> targets)
 {
 	std::string resultString = "Texture#";
 
@@ -102,6 +106,9 @@ std::string Texture::GetIdentifier(const char* path, bool allowSRGB, bool genera
 	resultString += '#';
 
 	resultString += std::to_string(generateMips);
+	resultString += '#';
+
+	resultString += std::to_string(compress);
 	resultString += '#';
 
 	resultString += std::to_string(allowSRGB);
@@ -126,7 +133,7 @@ void Texture::InitializeGraphicResources(Graphics& graphics, Pipeline& pipeline)
 
 	BEGIN_COMMAND_LIST_EVENT(pipeline.GetGraphicCommandList(), "Initializing Texture " + m_path);
 
-	UploadData(graphics, pipeline);
+	ReadAndUploadData(graphics, pipeline);
 
 	GenerateMipMaps(graphics, pipeline);
 
@@ -247,27 +254,56 @@ DXGI_FORMAT Texture::GetSRGBFormat(DXGI_FORMAT format)
 	}
 }
 
-void Texture::UploadData(Graphics& graphics, Pipeline& pipeline)
+DXGI_FORMAT Texture::GetCompressedFormat(DXGI_FORMAT format)
+{
+	return DirectX::IsSRGB(format) ? DXGI_FORMAT_BC1_UNORM_SRGB : DXGI_FORMAT_BC1_UNORM;
+}
+
+void Texture::ReadAndUploadData(Graphics& graphics, Pipeline& pipeline)
 {
 	HRESULT hr;
 
 	std::wstring wPath = std::wstring(m_path.begin(), m_path.end());
-	DirectX::ScratchImage image = {};
-	DirectX::TexMetadata metaData = {};
+	DirectX::ScratchImage uncompressedImage = {};
+	DirectX::ScratchImage compressedImage = {};
 	DirectX::WIC_FLAGS flags = m_srgb ? DirectX::WIC_FLAGS_FORCE_SRGB : DirectX::WIC_FLAGS_IGNORE_SRGB;
 
 	// reading image data from file
 	THROW_ERROR(DirectX::LoadFromWICFile(
 		wPath.c_str(),
 		flags,
-		&metaData,
-		image
+		nullptr,
+		uncompressedImage
 	));
 
-	DXGI_FORMAT format = GetCorrectedFormat(metaData.format);
-	format = m_srgb ? GetSRGBFormat(format) : GetLinearFormat(format);
 
-	m_gpuTexture->Update(graphics, pipeline, image.GetImages()->pixels, metaData.width, metaData.height, format);
+	if (m_compressed)
+	{
+		const DirectX::TexMetadata& uncompressedMetadata = uncompressedImage.GetMetadata();
+
+		// compressing read image to BC format
+		THROW_ERROR(DirectX::Compress(
+			uncompressedImage.GetImages(),
+			uncompressedImage.GetImageCount(),
+			uncompressedMetadata,
+			GetCompressedFormat(uncompressedMetadata.format),
+			DirectX::TEX_COMPRESS_PARALLEL,
+			DirectX::TEX_THRESHOLD_DEFAULT,
+			compressedImage
+		));
+	}
+
+	// uploading image to gpu
+	{
+		const DirectX::ScratchImage& targetScratchImage = m_compressed ? compressedImage : uncompressedImage;
+
+		DXGI_FORMAT format = GetCorrectedFormat(targetScratchImage.GetMetadata().format);
+		format = m_srgb ? GetSRGBFormat(format) : GetLinearFormat(format);
+
+		const DirectX::Image& targetImage = targetScratchImage.GetImages()[0];
+
+		m_gpuTexture->Update(graphics, pipeline, targetImage.pixels, targetImage.slicePitch, 1, targetImage.rowPitch, format);
+	}
 }
 
 void Texture::GenerateMipMaps(Graphics& graphics, Pipeline& pipeline)

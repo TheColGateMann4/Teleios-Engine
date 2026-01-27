@@ -16,15 +16,15 @@ class GraphicsTexture;
 class Texture : public Bindable, public CommandListBindable, public RootSignatureBindable
 {
 public:
-	Texture(Graphics& graphics, const char* path, bool allowSRGB = false, bool generateMips = true, std::vector<TargetSlotAndShader> targets = { {ShaderVisibilityGraphic::PixelShader, 0} });
+	Texture(Graphics& graphics, const char* path, bool allowSRGB = false, bool generateMips = true, bool compress = true, std::vector<TargetSlotAndShader> targets = { {ShaderVisibilityGraphic::PixelShader, 0} });
 
 protected:
 	virtual void Initialize(Graphics& graphics) override;
 
 public:
-	static std::shared_ptr<Texture> GetBindableResource(Graphics& graphics, const char* path, bool srgb = false, bool generateMips = true, std::vector<TargetSlotAndShader> targets = { {ShaderVisibilityGraphic::PixelShader, 0} });
+	static std::shared_ptr<Texture> GetBindableResource(Graphics& graphics, const char* path, bool srgb = false, bool generateMips = true, bool compress = true,  std::vector<TargetSlotAndShader> targets = { {ShaderVisibilityGraphic::PixelShader, 0} });
 
-	static std::string GetIdentifier(const char* path, bool srgb, bool generateMips, std::vector<TargetSlotAndShader> targets);
+	static std::string GetIdentifier(const char* path, bool srgb, bool generateMips, bool compress, std::vector<TargetSlotAndShader> targets);
 
 public:
 	void InitializeGraphicResources(Graphics& graphics, Pipeline& pipeline);
@@ -56,12 +56,13 @@ public:
 	static DXGI_FORMAT GetCorrectedFormat(DXGI_FORMAT format);
 	static DXGI_FORMAT GetLinearFormat(DXGI_FORMAT format);
 	static DXGI_FORMAT GetSRGBFormat(DXGI_FORMAT format);
+	static DXGI_FORMAT GetCompressedFormat(DXGI_FORMAT format);
 
 private:
 	static unsigned int GetMipLevels(unsigned int textureWidth);
 
 private:
-	void UploadData(Graphics& graphics, Pipeline& pipeline);
+	void ReadAndUploadData(Graphics& graphics, Pipeline& pipeline);
 	void GenerateMipMaps(Graphics& graphics, Pipeline& pipeline);
 
 private:
@@ -75,6 +76,7 @@ private:
 	DescriptorHeap::DescriptorInfo m_textureDescriptor = {};
 
 	bool m_generateMipMaps;
+	bool m_compressed;
 	bool m_resourcesInitialized = false;
 
 	unsigned int m_computeRootIndex = 0;
