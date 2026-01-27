@@ -3,6 +3,7 @@
 #include "Graphics/Core/Graphics.h"
 #include "Graphics/Core/Pipeline.h"
 #include "Graphics/Core/CommandList.h"
+#include "Graphics/Resources/GraphicsBuffer.h"
 
 GraphicsTexture::GraphicsTexture(Graphics& graphics, unsigned int width, unsigned int height, unsigned int mipLevels, DXGI_FORMAT format, CPUAccess cpuAccess, D3D12_RESOURCE_STATES state, D3D12_RESOURCE_FLAGS flags)
 	:
@@ -130,7 +131,7 @@ void GraphicsTexture::SetTargetResourceState(D3D12_RESOURCE_STATES newState, uns
 	m_states.at(targetSubresource).targetState = newState;
 }
 
-void GraphicsTexture::Update(Graphics& graphics, const void* data, unsigned int width, unsigned int height, DXGI_FORMAT format)
+void GraphicsTexture::Update(Graphics& graphics, const void* data, unsigned int width, unsigned int height, unsigned int rowPitch, DXGI_FORMAT format)
 {
 	if (m_cpuAccess == CPUAccess::readwrite || m_cpuAccess == CPUAccess::write)
 	{
@@ -142,7 +143,7 @@ void GraphicsTexture::Update(Graphics& graphics, const void* data, unsigned int 
 	}
 }
 
-void GraphicsTexture::Update(Graphics& graphics, Pipeline& pipeline, const void* data, unsigned int width, unsigned int height, DXGI_FORMAT format)
+void GraphicsTexture::Update(Graphics& graphics, Pipeline& pipeline, const void* data, unsigned int width, unsigned int height, unsigned int rowPitch, DXGI_FORMAT format)
 {
 	if (m_cpuAccess == CPUAccess::readwrite || m_cpuAccess == CPUAccess::write)
 	{
@@ -150,7 +151,7 @@ void GraphicsTexture::Update(Graphics& graphics, Pipeline& pipeline, const void*
 	}
 	else
 	{
-		UpdateUsingTempResource(graphics, pipeline, data, width, height, format);
+		UpdateUsingTempResource(graphics, pipeline, data, width, height, rowPitch, format);
 	}
 }
 
@@ -164,33 +165,33 @@ unsigned int GraphicsTexture::GetHeight() const
 	return m_height;
 }
 
-void GraphicsTexture::UpdateUsingTempResource(Graphics& graphics, Pipeline& pipeline, const void* data, unsigned int width, unsigned int height, DXGI_FORMAT format)
+void GraphicsTexture::UpdateUsingTempResource(Graphics& graphics, Pipeline& pipeline, const void* data, unsigned int width, unsigned int height, unsigned int rowPitch, DXGI_FORMAT format)
 {
-	std::shared_ptr<GraphicsTexture> uploadResource = std::make_shared<GraphicsTexture>(graphics, width, height, 1, format, CPUAccess::write);
-	uploadResource->Update(graphics, data, width, height, format);
+	std::shared_ptr<GraphicsBuffer> uploadResource = std::make_shared<GraphicsBuffer>(graphics, width * height, 1, CPUAccess::write);
+	uploadResource->Update(graphics, data, width, height, rowPitch);
 
-	uploadResource->CopyResourcesMipTo(graphics, pipeline.GetGraphicCommandList(), this, 0);
+	uploadResource->CopyResourcesToTexture(graphics, pipeline.GetGraphicCommandList(), this);
 
 	graphics.GetFrameResourceDeleter()->DeleteResource(graphics, std::move(uploadResource));
 }
 
 void GraphicsTexture::UpdateLocalResource(Graphics& graphics, const void* data, unsigned int width, unsigned int height, DXGI_FORMAT format)
 {
-	THROW_INTERNAL_ERROR_IF("GraphicsTextures weren't same dimensions", m_width != width || m_height != height || m_format != format);
+    THROW_INTERNAL_ERROR_IF("GraphicsTextures weren't same dimensions", m_width != width || m_height != height || m_format != format);
 
-	HRESULT hr;
+    HRESULT hr;
 
     int bitWidth = width * GetPixelSize(format);
     float byteWidth = std::ceil(static_cast<float>(bitWidth) / 8.0f);
 
-	// passing data to upload resource
+    // passing data to upload resource
 	THROW_ERROR(m_pResource->WriteToSubresource(
-		0,
-		nullptr,
+        0,
+        nullptr,
 		data,
         byteWidth,
 		0
-	));
+    ));
 }
 
 int GraphicsTexture::GetPixelSize(DXGI_FORMAT format)

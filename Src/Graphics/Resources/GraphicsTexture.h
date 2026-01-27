@@ -33,15 +33,15 @@ public:
 	virtual void SetTargetResourceState(D3D12_RESOURCE_STATES newState, unsigned int targetSubresource = 0) override;
 
 public:
-	void Update(Graphics& graphics, const void* data, unsigned int width, unsigned int height, DXGI_FORMAT format);
-	void Update(Graphics& graphics, Pipeline& pipeline, const void* data, unsigned int width, unsigned int height, DXGI_FORMAT format);
+	void Update(Graphics& graphics, const void* data, unsigned int width, unsigned int height, unsigned int rowPitch, DXGI_FORMAT format);
+	void Update(Graphics& graphics, Pipeline& pipeline, const void* data, unsigned int width, unsigned int height, unsigned int rowPitch, DXGI_FORMAT format);
 
 public:
 	unsigned int GetWidth() const;
 	unsigned int GetHeight() const;
 
 private:
-	void UpdateUsingTempResource(Graphics& graphics, Pipeline& pipeline, const void* data, unsigned int width, unsigned int height, DXGI_FORMAT format);
+	void UpdateUsingTempResource(Graphics& graphics, Pipeline& pipeline, const void* data, unsigned int width, unsigned int height, unsigned int rowPitch, DXGI_FORMAT format);
 	void UpdateLocalResource(Graphics& graphics, const void* data, unsigned int width, unsigned int height, DXGI_FORMAT format);
 
 	static int GetPixelSize(DXGI_FORMAT format);
