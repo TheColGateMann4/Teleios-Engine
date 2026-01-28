@@ -47,6 +47,23 @@ GraphicsBuffer::GraphicsBuffer(Graphics& graphics, unsigned int numElements, uns
 	}
 }
 
+void GraphicsBuffer::CopyResourcesToTexture(Graphics& graphics, CommandList* copyCommandList, GraphicsResource* dst, int targetMip)
+{
+	THROW_INTERNAL_ERROR_IF("Dest resource was NULL", dst == nullptr);
+
+	BEGIN_COMMAND_LIST_EVENT(copyCommandList, "Copying GraphicsBuffer to GraphicsTexture");
+
+	copyCommandList->SetResourceState(graphics, this, D3D12_RESOURCE_STATE_COPY_SOURCE);
+	copyCommandList->SetResourceState(graphics, dst, D3D12_RESOURCE_STATE_COPY_DEST);
+
+	copyCommandList->CopyBufferToTexture(graphics, dst->GetResource(), this->GetResource());
+
+	copyCommandList->SetResourceState(graphics, dst, dst->GetResourceTargetState());
+	copyCommandList->SetResourceState(graphics, this, this->GetResourceTargetState());
+
+	END_COMMAND_LIST_EVENT(copyCommandList);
+}
+
 void GraphicsBuffer::Update(Graphics& graphics, const void* data, size_t size)
 {
 	Update(graphics, data, size, 1, size);

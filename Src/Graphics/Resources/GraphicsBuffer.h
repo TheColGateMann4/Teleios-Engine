@@ -17,6 +17,8 @@ public:
 	GraphicsBuffer(Graphics& graphics, unsigned int numElements, unsigned int byteStride, CPUAccess cpuAccess = CPUAccess::notavailable, D3D12_RESOURCE_STATES state = D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_FLAGS flags = D3D12_RESOURCE_FLAG_NONE);
 
 public:
+	virtual void CopyResourcesToTexture(Graphics& graphics, CommandList* copyCommandList, GraphicsResource* dst, int targetMip = 0) override;
+
 	void Update(Graphics& graphics, const void* data, size_t size);
 	void Update(Graphics& graphics, const void* data, size_t rowSize, size_t rows, size_t rowPitch);
 	void Update(Graphics& graphics, Pipeline& pipeline, const void* data, size_t size);

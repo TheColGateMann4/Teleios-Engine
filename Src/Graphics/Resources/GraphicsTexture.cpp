@@ -88,7 +88,7 @@ void GraphicsTexture::Initialize(Graphics& graphics, D3D12_RESOURCE_FLAGS flags,
 	}
 }
 
-void GraphicsTexture::CopyResourcesMipTo(Graphics& graphics, CommandList* copyCommandList, GraphicsTexture* dst, unsigned int targetMip)
+void GraphicsTexture::CopyResourcesToTexture(Graphics& graphics, CommandList* copyCommandList, GraphicsResource* dst, int targetMip)
 {
 	THROW_INTERNAL_ERROR_IF("Dest resource was NULL", dst == nullptr);
 

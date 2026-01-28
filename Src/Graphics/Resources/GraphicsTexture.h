@@ -24,7 +24,7 @@ private:
 	void Initialize(Graphics& graphics, D3D12_RESOURCE_FLAGS flags, D3D12_CLEAR_VALUE* clearValue);
 
 public:
-	void CopyResourcesMipTo(Graphics& graphics, CommandList* copyCommandList, GraphicsTexture* dst, unsigned int targetMip = 0);
+	virtual void CopyResourcesToTexture(Graphics& graphics, CommandList* copyCommandList, GraphicsResource* dst, int targetMip = 0) override;
 
 	virtual D3D12_RESOURCE_STATES GetResourceState(unsigned int targetSubresource = 0) const override;
 	virtual D3D12_RESOURCE_STATES GetResourceTargetState(unsigned int targetSubresource = 0) override;

@@ -34,25 +34,6 @@ void GraphicsResource::CopyResourcesTo(Graphics& graphics, CommandList* copyComm
 	END_COMMAND_LIST_EVENT(copyCommandList);
 }
 
-void GraphicsResource::CopyResourcesToTexture(Graphics& graphics, CommandList* copyCommandList, GraphicsResource* dst)
-{
-	// TODO: for now we assume its only called from GraphicsBuffer, later we can add cool overrides
-
-	THROW_INTERNAL_ERROR_IF("Dest resource was NULL", dst == nullptr);
-
-	BEGIN_COMMAND_LIST_EVENT(copyCommandList, "Copying GraphicsBuffer to GraphicsTexture");
-
-	copyCommandList->SetResourceState(graphics, this, D3D12_RESOURCE_STATE_COPY_SOURCE);
-	copyCommandList->SetResourceState(graphics, dst, D3D12_RESOURCE_STATE_COPY_DEST);
-
-	copyCommandList->CopyBufferToTexture(graphics, dst->GetResource(), this->GetResource());
-
-	copyCommandList->SetResourceState(graphics, dst, dst->GetResourceTargetState());
-	copyCommandList->SetResourceState(graphics, this, this->GetResourceTargetState());
-
-	END_COMMAND_LIST_EVENT(copyCommandList);
-}
-
 DXGI_FORMAT GraphicsResource::GetFormat() const
 {
 	return m_format;

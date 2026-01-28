@@ -35,7 +35,7 @@ public:
 	ID3D12Resource* GetResource() const;
 
 	void CopyResourcesTo(Graphics& graphics, CommandList* copyCommandList, GraphicsResource* dst);
-	void CopyResourcesToTexture(Graphics& graphics, CommandList* copyCommandList, GraphicsResource* dst);
+	virtual void CopyResourcesToTexture(Graphics& graphics, CommandList* copyCommandList, GraphicsResource* dst, int targetMip = 0) = 0;
 
 public:
 	DXGI_FORMAT GetFormat() const;
