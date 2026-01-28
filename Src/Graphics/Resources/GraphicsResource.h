@@ -6,6 +6,14 @@
 class Graphics;
 class CommandList;
 
+struct ResourceFootprint
+{
+	D3D12_PLACED_SUBRESOURCE_FOOTPRINT layout = {};
+	UINT numRows = 0;
+	UINT64 rowSizeInBytes = 0;
+	UINT64 totalBytes = 0;
+};
+
 class GraphicsResource
 {
 public:
@@ -36,6 +44,9 @@ public:
 
 	void CopyResourcesTo(Graphics& graphics, CommandList* copyCommandList, GraphicsResource* dst);
 	virtual void CopyResourcesToTexture(Graphics& graphics, CommandList* copyCommandList, GraphicsResource* dst, int targetMip = 0) = 0;
+
+public:
+	ResourceFootprint GetResourceFootprint(Graphics& graphics, unsigned int targetSubresource = 0);
 
 public:
 	DXGI_FORMAT GetFormat() const;

@@ -1,6 +1,7 @@
 #include "GraphicsResource.h"
 #include "Macros/ErrorMacros.h"
 
+#include "Graphics/Core/Graphics.h"
 #include "Graphics/Core/CommandList.h"
 
 GraphicsResource::GraphicsResource(DXGI_FORMAT format, CPUAccess cpuAccess, D3D12_RESOURCE_STATES targetState)
@@ -32,6 +33,26 @@ void GraphicsResource::CopyResourcesTo(Graphics& graphics, CommandList* copyComm
 	copyCommandList->SetResourceState(graphics, this, this->GetResourceTargetState());
 
 	END_COMMAND_LIST_EVENT(copyCommandList);
+}
+
+ResourceFootprint GraphicsResource::GetResourceFootprint(Graphics& graphics, unsigned int targetSubresource)
+{
+	ResourceFootprint footprint = {};
+
+	D3D12_RESOURCE_DESC resourceDesc = m_pResource->GetDesc();
+
+	THROW_INFO_ERROR(graphics.GetDeviceResources().GetDevice()->GetCopyableFootprints(
+		&resourceDesc,
+		targetSubresource,
+		1,
+		0,
+		&footprint.layout,
+		&footprint.numRows,
+		&footprint.rowSizeInBytes,
+		&footprint.totalBytes
+	));
+
+	return footprint;
 }
 
 DXGI_FORMAT GraphicsResource::GetFormat() const
