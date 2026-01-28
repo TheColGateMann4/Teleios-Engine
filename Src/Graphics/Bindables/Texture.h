@@ -13,8 +13,22 @@ class Pipeline;
 
 class GraphicsTexture;
 
+namespace DirectX
+{
+	struct Image;
+	class ScratchImage;
+};
+
 class Texture : public Bindable, public CommandListBindable, public RootSignatureBindable
 {
+private:
+	enum class TextureProcessingStage
+	{
+		unprocessed,
+		mipmaps,
+		compressed // if there are no mip maps in compressed texture we are going to throw
+	};
+
 public:
 	Texture(Graphics& graphics, const char* path, bool allowSRGB = false, bool generateMips = true, bool compress = true, std::vector<TargetSlotAndShader> targets = { {ShaderVisibilityGraphic::PixelShader, 0} });
 
@@ -63,7 +77,23 @@ private:
 
 private:
 	void ReadAndUploadData(Graphics& graphics, Pipeline& pipeline);
-	void GenerateMipMaps(Graphics& graphics, Pipeline& pipeline);
+
+	// texture loading
+	std::optional<std::wstring> GetDDSImagePath();
+
+	TextureProcessingStage LoadImage(Graphics& graphics, DirectX::ScratchImage& targetImage);
+	void LoadWICImage(Graphics& graphics, DirectX::ScratchImage& targetImage);
+	TextureProcessingStage LoadDDSImage(Graphics& graphics, DirectX::ScratchImage& targetImage, std::wstring ddsImagePath);
+
+	// texture saving
+	void SaveProcessedTexture(Graphics& graphics, const DirectX::ScratchImage& image);
+
+	// texture processing
+	void GenerateMipMaps(Graphics& graphics, const DirectX::Image& uncompressedImage, DirectX::ScratchImage& targetImage, unsigned int mipLevels);
+	void CompressImage(Graphics& graphics, const DirectX::ScratchImage& uncompressedImage, DirectX::ScratchImage& targetImage);
+
+	// data uploading
+	void UploadImage(Graphics& graphics, Pipeline& pipeline, const DirectX::ScratchImage& targetImage);
 
 private:
 	std::shared_ptr<GraphicsTexture> m_gpuTexture;
@@ -76,7 +106,7 @@ private:
 	DescriptorHeap::DescriptorInfo m_textureDescriptor = {};
 
 	bool m_generateMipMaps;
-	bool m_compressed;
+	bool m_compressImage;
 	bool m_resourcesInitialized = false;
 
 	unsigned int m_computeRootIndex = 0;

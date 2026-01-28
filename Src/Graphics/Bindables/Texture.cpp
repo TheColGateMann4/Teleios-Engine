@@ -32,7 +32,7 @@ Texture::Texture(Graphics& graphics, const char* path, bool srgb, bool generateM
 #endif
 	m_srgb(srgb),
 	m_generateMipMaps(generateMips),
-	m_compressed(compress)
+	m_compressImage(compress)
 {
 	graphics.GetDescriptorHeap().RequestMoreSpace();
 
@@ -60,7 +60,7 @@ Texture::Texture(Graphics& graphics, const char* path, bool srgb, bool generateM
 		DXGI_FORMAT format = GetCorrectedFormat(metaData.format);
 		format = m_srgb ? GetSRGBFormat(format) : GetLinearFormat(format);
 		
-		if(m_compressed)
+		if(m_compressImage)
 			format = GetCompressedFormat(format);
 
 		m_isAlphaOpaque = metaData.GetAlphaMode() == DirectX::TEX_ALPHA_MODE_OPAQUE;
@@ -260,11 +260,92 @@ DXGI_FORMAT Texture::GetCompressedFormat(DXGI_FORMAT format)
 void Texture::ReadAndUploadData(Graphics& graphics, Pipeline& pipeline)
 {
 	HRESULT hr;
-
-	std::wstring wPath = std::wstring(m_path.begin(), m_path.end());
 	DirectX::ScratchImage readImage = {};
 	DirectX::ScratchImage mipmappedImage = {};
 	DirectX::ScratchImage compressedImage = {};
+
+	// reading image from file
+	TextureProcessingStage processingStageRead = LoadImage(graphics, readImage);
+
+	// generating mip mapps
+	if (m_generateMipMaps && processingStageRead < TextureProcessingStage::mipmaps)
+	{
+		GenerateMipMaps(graphics, readImage.GetImages()[0], mipmappedImage, m_mipmapLevels);
+
+		readImage.Release();
+	}
+
+	DirectX::ScratchImage& uncompressedImage = m_generateMipMaps ? mipmappedImage : readImage;
+
+	// compressing image to BC format
+	if (m_compressImage && processingStageRead < TextureProcessingStage::compressed)
+	{
+		CompressImage(graphics, uncompressedImage, compressedImage);
+
+		uncompressedImage.Release();
+	}
+
+	const DirectX::ScratchImage& imageToUpload = processingStageRead == TextureProcessingStage::compressed ? readImage : (m_compressImage ? compressedImage : uncompressedImage);
+
+	// uploading image to gpu
+	UploadImage(graphics, pipeline, imageToUpload);
+
+	// saving image we processed to dds file
+	SaveProcessedTexture(graphics, imageToUpload);
+}
+
+std::optional<std::wstring> Texture::GetDDSImagePath()
+{
+	std::filesystem::path imagePath = m_path;
+
+	THROW_INTERNAL_ERROR_IF("File does not exist", !std::filesystem::exists(imagePath));
+	THROW_INTERNAL_ERROR_IF("Path was not pointing to a file", !std::filesystem::is_regular_file(imagePath));
+	
+	imagePath.replace_extension(".dds");
+
+	// checking in target image path
+	if (std::filesystem::exists(imagePath))
+		return imagePath;
+
+	// checking in local Textures/ folder
+	{
+		std::filesystem::path modelFoldersPath;
+
+		bool found = false;
+		for (const auto& part : imagePath)
+		{
+			if (found)
+				modelFoldersPath /= part;
+
+			if (part == L"Models")
+				found = true;
+		}
+
+		std::filesystem::path ddsTexture = std::filesystem::current_path() / "Textures" / modelFoldersPath;
+
+		if (std::filesystem::exists(ddsTexture))
+			return ddsTexture;
+	}
+
+	return std::nullopt;
+}
+
+Texture::TextureProcessingStage Texture::LoadImage(Graphics& graphics, DirectX::ScratchImage& targetImage)
+{
+	auto optDdsImagePath = GetDDSImagePath();
+
+	if (optDdsImagePath)
+		return LoadDDSImage(graphics, targetImage, optDdsImagePath.value());
+
+	LoadWICImage(graphics, targetImage);
+	return TextureProcessingStage::unprocessed;
+}
+
+void Texture::LoadWICImage(Graphics& graphics, DirectX::ScratchImage& targetImage)
+{
+	HRESULT hr;
+
+	std::wstring wPath = std::wstring(m_path.begin(), m_path.end());
 	DirectX::WIC_FLAGS flags = m_srgb ? DirectX::WIC_FLAGS_FORCE_SRGB : DirectX::WIC_FLAGS_IGNORE_SRGB;
 
 	// reading image data from file
@@ -272,67 +353,119 @@ void Texture::ReadAndUploadData(Graphics& graphics, Pipeline& pipeline)
 		wPath.c_str(),
 		flags,
 		nullptr,
-		readImage
+		targetImage
+	));
+}
+
+Texture::TextureProcessingStage Texture::LoadDDSImage(Graphics& graphics, DirectX::ScratchImage& targetImage, std::wstring ddsImagePath)
+{
+	HRESULT hr;
+
+	THROW_ERROR(DirectX::LoadFromDDSFile(
+		ddsImagePath.c_str(), 
+		DirectX::DDS_FLAGS_NONE,
+		nullptr,
+		targetImage
 	));
 
-	unsigned int mipLevels = GetMipLevels(readImage.GetMetadata().width);
+	const DirectX::TexMetadata& readImageMetaData = targetImage.GetMetadata();
+	unsigned int readImageMipsLevels = readImageMetaData.mipLevels;
 
-	// optionally generating mip mapps
-	if (m_generateMipMaps)
+	bool isCompressed = DirectX::IsCompressed(readImageMetaData.format);
+	bool hasMips = readImageMipsLevels > 1;
+
+	THROW_INTERNAL_ERROR_IF("Read image had wrong number of mip levels", m_mipmapLevels != readImageMipsLevels);
+	THROW_INTERNAL_ERROR_IF("Read image didn't have mips, but was already compressed", isCompressed && !hasMips);
+
+	if (isCompressed)
+		return TextureProcessingStage::compressed;
+
+	if (hasMips)
+		return TextureProcessingStage::mipmaps;
+
+	return TextureProcessingStage::unprocessed;
+}
+
+void Texture::SaveProcessedTexture(Graphics& graphics, const DirectX::ScratchImage& image)
+{
+	HRESULT hr;
+
+	std::filesystem::path originalImagePath = m_path;
+	std::filesystem::path modelFoldersPath;
+
+	bool found = false;
+	for (const auto& part : originalImagePath)
 	{
-		THROW_ERROR(DirectX::GenerateMipMaps(
-			readImage.GetImages()[0],
-			DirectX::TEX_FILTER_DEFAULT,
-			mipLevels,
-			mipmappedImage
-		));
+		if (found)
+			modelFoldersPath /= part;
 
-		//releasing not needed data
-		readImage.Release();
+		if (part == L"Models")
+			found = true;
 	}
 
-	DirectX::ScratchImage& uncompressedImage = m_generateMipMaps ? mipmappedImage : readImage;
+	std::filesystem::path targetImagePath = std::filesystem::current_path() / "Textures" / modelFoldersPath.replace_extension(".dds");
 
-	//optionally compressing image to BC format
-	if (m_compressed)
+	std::filesystem::path pathToNewImage = targetImagePath;
+	pathToNewImage.remove_filename();
+
+	std::filesystem::create_directories(pathToNewImage);
+
+	THROW_ERROR(DirectX::SaveToDDSFile(
+		image.GetImages(),
+		image.GetImageCount(),
+		image.GetMetadata(),
+		DirectX::DDS_FLAGS_NONE,
+		targetImagePath.c_str()
+	));
+}
+
+void Texture::GenerateMipMaps(Graphics& graphics, const DirectX::Image& uncompressedImage, DirectX::ScratchImage& targetImage, unsigned int mipLevels)
+{
+	HRESULT hr;
+
+	THROW_ERROR(DirectX::GenerateMipMaps(
+		uncompressedImage,
+		DirectX::TEX_FILTER_DEFAULT,
+		mipLevels,
+		targetImage
+	));
+}
+
+void Texture::CompressImage(Graphics& graphics, const DirectX::ScratchImage& uncompressedImage, DirectX::ScratchImage& targetImage)
+{
+	HRESULT hr;
+
+	const DirectX::TexMetadata& uncompressedMetadata = uncompressedImage.GetMetadata();
+
+	// compressing read image to BC format
+	THROW_ERROR(DirectX::Compress(
+		uncompressedImage.GetImages(),
+		uncompressedImage.GetImageCount(),
+		uncompressedMetadata,
+		GetCompressedFormat(uncompressedMetadata.format),
+		DirectX::TEX_COMPRESS_PARALLEL,
+		DirectX::TEX_THRESHOLD_DEFAULT,
+		targetImage
+	));
+}
+
+void Texture::UploadImage(Graphics& graphics, Pipeline& pipeline, const DirectX::ScratchImage& targetImage)
+{
+	DXGI_FORMAT format = GetCorrectedFormat(targetImage.GetMetadata().format);
+	format = m_srgb ? GetSRGBFormat(format) : GetLinearFormat(format);
+
+	for (int targetMip = 0; targetMip < m_mipmapLevels; targetMip++)
 	{
-		const DirectX::TexMetadata& uncompressedMetadata = uncompressedImage.GetMetadata();
+		const DirectX::Image* pTargetImageData = targetImage.GetImage(targetMip, 0, 0);
 
-		// compressing read image to BC format
-		THROW_ERROR(DirectX::Compress(
-			uncompressedImage.GetImages(),
-			uncompressedImage.GetImageCount(),
-			uncompressedMetadata,
-			GetCompressedFormat(uncompressedMetadata.format),
-			DirectX::TEX_COMPRESS_PARALLEL,
-			DirectX::TEX_THRESHOLD_DEFAULT,
-			compressedImage
-		));
+		THROW_INTERNAL_ERROR_IF("Failed to get image mip", pTargetImageData == nullptr);
 
-		//releasing not needed data
-		uncompressedImage.Release();
-	}
+		const DirectX::Image& targetImageData = *pTargetImageData;
 
-	// uploading image to gpu
-	{
-		const DirectX::ScratchImage& targetScratchImage = m_compressed ? compressedImage : uncompressedImage;
+		unsigned int mipSize = targetImageData.slicePitch;
+		unsigned int rowSize = targetImageData.rowPitch; // DirectXTex provides data padding-less, so pitch=size
+		unsigned int numRows = mipSize / rowSize;
 
-		DXGI_FORMAT format = GetCorrectedFormat(targetScratchImage.GetMetadata().format);
-		format = m_srgb ? GetSRGBFormat(format) : GetLinearFormat(format);
-
-		for (int targetMip = 0; targetMip < mipLevels; targetMip++)
-		{
-			const DirectX::Image* pTargetImage = targetScratchImage.GetImage(targetMip, 0, 0);
-
-			THROW_INTERNAL_ERROR_IF("Failed to get image mip", pTargetImage == nullptr);
-
-			const DirectX::Image& targetImage = *pTargetImage;
-
-			unsigned int mipSize = targetImage.slicePitch;
-			unsigned int rowSize = targetImage.rowPitch; // DirectXTex provides data padding-less, so pitch=size
-			unsigned int numRows = mipSize / rowSize;
-
-			m_gpuTexture->Update(graphics, pipeline, targetImage.pixels, rowSize, numRows, targetImage.rowPitch, targetMip, format);
-		}
+		m_gpuTexture->Update(graphics, pipeline, targetImageData.pixels, rowSize, numRows, targetImageData.rowPitch, targetMip, format);
 	}
 }
