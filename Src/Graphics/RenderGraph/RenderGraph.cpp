@@ -63,7 +63,7 @@ void RenderGraph::SubmitPassesJobs()
 
 void RenderGraph::AssignJobsToPasses()
 {
-	m_renderManager.BindJobsToPasses(m_renderPasses);
+	m_renderManager.BindJobsToPasses(m_geometryPasses);
 }
 
 void RenderGraph::Execute(Graphics& graphics, CommandList* commandList)
@@ -79,5 +79,8 @@ RenderManager& RenderGraph::GetRenderManager()
 
 void RenderGraph::AddRenderPass(std::shared_ptr<RenderPass> renderPass)
 {
+	if (GeometryPass* geometryPass = dynamic_cast<GeometryPass*>(renderPass.get()))
+		m_geometryPasses.push_back(geometryPass);
+
 	m_renderPasses.push_back(renderPass);
 }

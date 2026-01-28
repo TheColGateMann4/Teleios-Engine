@@ -1,7 +1,7 @@
 #pragma once
-#include "RenderPass.h"
+#include "GeometryPass.h"
 
-class GeometryPass : public RenderPass
+class PreDepthPass : public GeometryPass
 {
 public:
 	virtual RenderJob::JobType GetWantedJob() const override;

@@ -17,16 +17,6 @@ void RenderPass::SubmitJobs(RenderManager& renderManager)
 
 }
 
-void RenderPass::AddBindable(std::shared_ptr<Bindable> bindable)
-{
-	m_bindables.push_back(bindable);
-}
-
-const std::vector<std::shared_ptr<Bindable>>& RenderPass::GetBindables() const
-{
-	return m_bindables;
-}
-
 void RenderPass::AddRenderTarget(std::shared_ptr<RenderTarget> renderTarget)
 {
 	m_renderTargets.push_back(renderTarget);
@@ -47,43 +37,13 @@ std::shared_ptr<DepthStencilViewBase> RenderPass::GetDepthStencilView() const
 	return m_depthStencil;
 }
 
-void RenderPass::SortJobs()
-{
-	// TODO: sort jobs by their PSO
-}
-
 void RenderPass::Execute(Graphics& graphics, CommandList* commandList)
 {
 	BEGIN_COMMAND_LIST_EVENT(commandList, typeid(*this).name() + 6); // + 6 skips "class " from type info literal
 	commandList->BeginRenderPass(graphics, this);
 
-	PreDraw(graphics, commandList);
-
-	for (auto pJob : m_pJobs)
-		pJob->Execute(graphics, commandList);
-
-	PostDraw(graphics, commandList);
+	ExecutePass(graphics, commandList);
 
 	commandList->EndRenderPass(graphics);
 	END_COMMAND_LIST_EVENT(commandList);
-}
-
-void RenderPass::PreDraw(Graphics& graphics, CommandList* commandList)
-{
-
-}
-
-void RenderPass::PostDraw(Graphics& graphics, CommandList* commandList)
-{
-
-}
-
-RenderJob::JobType RenderPass::GetWantedJob() const
-{
-	return RenderJob::JobType::None;
-}
-
-void RenderPass::AssignJob(std::shared_ptr<RenderJob> pJob)
-{
-	m_pJobs.push_back(pJob);
 }

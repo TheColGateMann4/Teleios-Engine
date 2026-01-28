@@ -1,7 +1,7 @@
 #include "GraphicsStepRenderJob.h"
 
 #include "Graphics/RenderGraph/Steps/RenderGraphicsStep.h"
-#include "Graphics/RenderGraph/RenderPass/RenderPass.h"
+#include "Graphics/RenderGraph/RenderPass/Geometry/GeometryPass.h"
 
 #include "Graphics/Core/Graphics.h"
 #include "Graphics/Core/CommandList.h"

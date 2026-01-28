@@ -5,7 +5,7 @@ void RenderManager::AddJob(std::shared_ptr<RenderJob> renderJob)
 	m_allJobs.push_back(std::move(renderJob));
 }
 
-void RenderManager::BindJobsToPasses(std::vector<std::shared_ptr<RenderPass>>& renderPasses)
+void RenderManager::BindJobsToPasses(const std::vector<GeometryPass*>& renderPasses)
 {
 	const RenderManager::PassListByJobType wantedJobsByPasses = GetWantedJobTypesByPasses(renderPasses);
 
@@ -24,11 +24,11 @@ void RenderManager::InitializeJobs(Graphics& graphics, Pipeline& pipeline)
 		job->Initialize(graphics, pipeline);
 }
 
-RenderManager::PassListByJobType RenderManager::GetWantedJobTypesByPasses(std::vector<std::shared_ptr<RenderPass>>& renderPasses) const
+RenderManager::PassListByJobType RenderManager::GetWantedJobTypesByPasses(const std::vector<GeometryPass*>& renderPasses) const
 {
 	RenderManager::PassListByJobType m_targetPasses = {};
 
-	for (auto& pRenderPass : renderPasses)
+	for (const auto& pRenderPass : renderPasses)
 	{
 		RenderJob::JobType wantedJob = pRenderPass->GetWantedJob();
 
@@ -37,7 +37,7 @@ RenderManager::PassListByJobType RenderManager::GetWantedJobTypesByPasses(std::v
 
 		PassList& targetVec = m_targetPasses.at(static_cast<int>(wantedJob));
 
-		targetVec.push_back(pRenderPass.get());
+		targetVec.push_back(pRenderPass);
 	}
 
 	return m_targetPasses;

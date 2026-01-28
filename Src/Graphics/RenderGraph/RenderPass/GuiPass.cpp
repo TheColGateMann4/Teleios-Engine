@@ -9,7 +9,7 @@ GuiPass::GuiPass(Graphics& graphics)
 
 }
 
-void GuiPass::PreDraw(Graphics& graphics, CommandList* commandList)
+void GuiPass::ExecutePass(Graphics& graphics, CommandList* commandList)
 {
 	m_imguiLayer.Render();
 

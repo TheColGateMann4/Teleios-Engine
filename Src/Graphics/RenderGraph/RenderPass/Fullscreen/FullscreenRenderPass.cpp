@@ -8,7 +8,9 @@
 
 FullscreenRenderPass::FullscreenRenderPass(Graphics& graphics, RenderManager& renderManager)
 {
-	m_indexBuffer = IndexBuffer::GetBindableResource(graphics, "FullscreenMesh", std::vector<unsigned int>{0, 1, 3, 0, 3, 2});
+	std::shared_ptr<IndexBuffer> indexBuffer = IndexBuffer::GetBindableResource(graphics, "FullscreenMesh", std::vector<unsigned int>{0, 1, 3, 0, 3, 2});
+	m_pIndexBuffer = indexBuffer.get();
+	m_bindables.push_back(std::move(indexBuffer));
 
 	DynamicVertex::DynamicVertexLayout layout;
 	layout.AddElement<DynamicVertex::ElementType::Position>();
@@ -27,8 +29,11 @@ FullscreenRenderPass::FullscreenRenderPass(Graphics& graphics, RenderManager& re
 		{{ 1.0f, -1.0f, 0.0f }, { 1.0f, 1.0f }}
 	};
 
-	m_vertexBuffer = VertexBuffer::GetBindableResource(graphics, "FullscreenMesh", vertices.data(), vertices.size(), sizeof(vertices.at(0)));
-	m_inputLayout = InputLayout::GetBindableResource(graphics, layout);
+	std::shared_ptr<VertexBuffer> vertexBuffer = VertexBuffer::GetBindableResource(graphics, "FullscreenMesh", vertices.data(), vertices.size(), sizeof(vertices.at(0)));
+	m_pVertexBuffer = vertexBuffer.get();
+	m_bindables.push_back(std::move(vertexBuffer));
+
+	m_bindables.push_back(InputLayout::GetBindableResource(graphics, layout));
 
 	const Camera::Settings defaultCameraSettings = Camera::Settings{};
 
@@ -42,10 +47,17 @@ FullscreenRenderPass::FullscreenRenderPass(Graphics& graphics, RenderManager& re
 		*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("nearPlane") = defaultCameraSettings.NearZ;
 		*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("farPlane") = defaultCameraSettings.FarZ;
 
-		m_cameraData = std::make_shared<CachedConstantBuffer>(graphics, bufferData, std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::PixelShader, 0}});
+		std::shared_ptr<CachedConstantBuffer> cameraData = std::make_shared<CachedConstantBuffer>(graphics, bufferData, std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::PixelShader, 0}});
+
+		m_pCameraData = cameraData.get();
+		m_bindables.push_back(std::move(cameraData));
 	}
 
-	m_meshRenderJob = std::make_shared<MeshRenderJob>(RenderJob::JobType::FullscreenPass);
+	m_bindables.push_back(StaticSampler::GetBindableResource(graphics));
+	m_bindables.push_back(BlendState::GetBindableResource(graphics));
+	m_bindables.push_back(RasterizerState::GetBindableResource(graphics));
+
+	m_meshRenderJob = std::make_shared<MeshRenderJob>(RenderJob::JobType::None);
 }
 
 void FullscreenRenderPass::Initialize(Graphics& graphics)
@@ -56,15 +68,12 @@ void FullscreenRenderPass::Initialize(Graphics& graphics)
 	{
 		StandaloneMesh& mesh = m_meshRenderJob->GetMesh();
 
+		for (const auto& bind : m_bindables)
+			mesh.AddBindable(bind);
+
 		mesh.AddBindable(m_renderTargetSRV); // t0
-		mesh.AddBindable(m_indexBuffer); // ib
-		mesh.AddBindable(m_vertexBuffer); // vb
-		mesh.AddBindable(m_inputLayout); // il
 		mesh.AddBindable(Shader::GetBindableResource(graphics, L"PS_Fullscreen", ShaderType::PixelShader)); // ps
 		mesh.AddBindable(Shader::GetBindableResource(graphics, L"VS_Fullscreen", ShaderType::VertexShader)); // vs
-		mesh.AddBindable(StaticSampler::GetBindableResource(graphics)); // s0
-		mesh.AddBindable(BlendState::GetBindableResource(graphics)); // bs
-		mesh.AddBindable(RasterizerState::GetBindableResource(graphics)); // rs
 		mesh.AddBindable(PrimitiveTechnology::GetBindableResource(graphics, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)); // topology
 		mesh.AddBindable(ViewPort::GetBindableResource(graphics)); // vp
 	}
@@ -73,28 +82,23 @@ void FullscreenRenderPass::Initialize(Graphics& graphics)
 void FullscreenRenderPass::InitializePassResources(Graphics& graphics, Pipeline& pipeline)
 {
 	// copy index and vertex buffers to gpu
-	m_vertexBuffer->BindToCopyPipelineIfNeeded(graphics, pipeline);
-	m_indexBuffer->BindToCopyPipelineIfNeeded(graphics, pipeline);
+	m_pVertexBuffer->BindToCopyPipelineIfNeeded(graphics, pipeline);
+	m_pIndexBuffer->BindToCopyPipelineIfNeeded(graphics, pipeline);
 
 	// Updating camera data
 	{
 		Camera* currentCamera = pipeline.GetCurrentCamera();
 		const Camera::Settings* currentCameraSettings = currentCamera->GetSettings();
 
-		DynamicConstantBuffer::ConstantBufferData& cameraData = m_cameraData->GetData();
+		DynamicConstantBuffer::ConstantBufferData& cameraData = m_pCameraData->GetData();
 		*cameraData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("nearPlane") = currentCameraSettings->NearZ;
 		*cameraData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("farPlane") = currentCameraSettings->FarZ;
 
-		m_cameraData->Update(graphics);
+		m_pCameraData->Update(graphics);
 	}
 
-	// initialize mesh
-	m_meshRenderJob->GetMesh().Initialize(graphics, pipeline);
-}
-
-void FullscreenRenderPass::SubmitJobs(RenderManager& renderManager)
-{
-	renderManager.AddJob(m_meshRenderJob);
+	// initializing job
+	m_meshRenderJob->Initialize(graphics, pipeline);
 }
 
 void FullscreenRenderPass::Update(Graphics& graphics, Pipeline& pipeline)
@@ -107,15 +111,29 @@ void FullscreenRenderPass::Update(Graphics& graphics, Pipeline& pipeline)
 		{
 			const Camera::Settings* currentCameraSettings = currentCamera->GetSettings();
 
-			DynamicConstantBuffer::ConstantBufferData& cameraData = m_cameraData->GetData();
+			DynamicConstantBuffer::ConstantBufferData& cameraData = m_pCameraData->GetData();
 			*cameraData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("nearPlane") = currentCameraSettings->NearZ;
 			*cameraData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("farPlane") = currentCameraSettings->FarZ;
 
-			m_cameraData->Update(graphics);
+			m_pCameraData->Update(graphics);
 		}
 	}
 
 	InternalUpdate(graphics, pipeline);
+}
+
+void FullscreenRenderPass::AddBindable(std::shared_ptr<Bindable> bind)
+{
+	m_bindables.push_back(std::move(bind));
+}
+
+void FullscreenRenderPass::ExecutePass(Graphics& graphics, CommandList* commandList)
+{
+	PreDraw(graphics, commandList);
+
+	m_meshRenderJob->Execute(graphics, commandList);
+
+	PostDraw(graphics, commandList);
 }
 
 void FullscreenRenderPass::PreDraw(Graphics& graphics, CommandList* commandList)
@@ -132,17 +150,12 @@ void FullscreenRenderPass::PostDraw(Graphics& graphics, CommandList* commandList
 	commandList->SetResourceState(graphics, backBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET);
 }
 
-RenderJob::JobType FullscreenRenderPass::GetWantedJob() const
+void FullscreenRenderPass::DrawImguiPropeties(Graphics& graphics, Pipeline& pipeline)
 {
-	return RenderJob::JobType::FullscreenPass;
+
 }
 
 void FullscreenRenderPass::InternalUpdate(Graphics& graphics, Pipeline& pipeline)
-{
-
-}
-
-void FullscreenRenderPass::DrawImguiPropeties(Graphics& graphics, Pipeline& pipeline)
 {
 
 }

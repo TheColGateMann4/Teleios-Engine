@@ -7,7 +7,7 @@ RenderJob::RenderJob(JobType type)
 
 }
 
-void RenderJob::LinkToPass(RenderPass* pass)
+void RenderJob::LinkToPass(GeometryPass* pass)
 {
 	m_pass = pass;
 }

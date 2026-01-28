@@ -68,7 +68,7 @@ Model::Model(Graphics& graphics, Model* pParent, aiNode* node, std::vector<std::
 
 		Mesh objectMesh;
 
-		RenderTechnique technique(RenderJob::JobType::GeometryPass);
+		RenderTechnique technique(RenderJob::JobType::GBuffer);
 		RenderGraphicsStep step;
 
 		{

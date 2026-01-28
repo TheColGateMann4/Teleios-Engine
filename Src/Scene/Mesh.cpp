@@ -62,13 +62,13 @@ void Mesh::SubmitJobs(Renderer& renderer)
 
 void Mesh::CreateImplicitTechniques(Graphics& graphics, Pipeline& pipeline)
 {
-	if(HasTechnique(RenderJob::JobType::GeometryPass) && !HasTechnique(RenderJob::JobType::DepthPass))
+	if(HasTechnique(RenderJob::JobType::GBuffer) && !HasTechnique(RenderJob::JobType::DepthPass))
 		CreateDepthTechnique(graphics, pipeline);
 }
 
 void Mesh::CreateDepthTechnique(Graphics& graphics, Pipeline& pipeline)
 {
-	const RenderTechnique& geometryTechnique = GetTechnique(RenderJob::JobType::GeometryPass);
+	const RenderTechnique& geometryTechnique = GetTechnique(RenderJob::JobType::GBuffer);
 
 	const RenderGraphicsStep& geometryStep = geometryTechnique.GetStep(0);
 

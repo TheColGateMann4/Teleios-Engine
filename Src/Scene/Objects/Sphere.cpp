@@ -24,7 +24,7 @@ Sphere::Sphere(Graphics& graphics, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3
 	m_transform.SetTransformConstantBuffer(std::make_shared<TransformConstantBuffer>(graphics));
 
 
-	RenderTechnique technique(RenderJob::JobType::GeometryPass);
+	RenderTechnique technique(RenderJob::JobType::GBuffer);
 	RenderGraphicsStep step;
 	{
 		DynamicVertex::DynamicVertexLayout vertexLayout;
@@ -91,7 +91,7 @@ void Sphere::UpdateMesh(Graphics& graphics)
 
 	Mesh& modelMesh = m_meshes.front();
 
-	RenderGraphicsStep& albedoStep = modelMesh.GetTechnique(RenderJob::JobType::GeometryPass).GetStep(0);
+	RenderGraphicsStep& albedoStep = modelMesh.GetTechnique(RenderJob::JobType::GBuffer).GetStep(0);
 
 	if (!m_initialized)
 	{

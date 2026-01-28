@@ -3,7 +3,7 @@
 class Graphics;
 class Pipeline;
 class CommandList;
-class RenderPass;
+class GeometryPass;
 
 class RenderJob
 {
@@ -11,10 +11,8 @@ public:
 	enum class JobType
 	{
 		None = -1,
-		GeometryPass = 0,
+		GBuffer = 0,
 		DepthPass,
-
-		FullscreenPass,
 
 		Count
 	};
@@ -23,7 +21,7 @@ public:
 	RenderJob(JobType m_type);
 
 public:
-	void LinkToPass(RenderPass* pass);
+	void LinkToPass(GeometryPass* pass);
 
 	virtual void GatherBindables();
 
@@ -37,5 +35,5 @@ private:
 	JobType m_type;
 
 protected:
-	RenderPass* m_pass = nullptr;
+	GeometryPass* m_pass = nullptr;
 };
