@@ -54,11 +54,13 @@ void GraphicsBuffer::CopyResourcesToTexture(Graphics& graphics, CommandList* cop
 	BEGIN_COMMAND_LIST_EVENT(copyCommandList, "Copying GraphicsBuffer to GraphicsTexture");
 
 	copyCommandList->SetResourceState(graphics, this, D3D12_RESOURCE_STATE_COPY_SOURCE);
-	copyCommandList->SetResourceState(graphics, dst, D3D12_RESOURCE_STATE_COPY_DEST);
+	copyCommandList->SetResourceState(graphics, dst, D3D12_RESOURCE_STATE_COPY_DEST, targetMip);
 
-	copyCommandList->CopyBufferToTexture(graphics, dst->GetResource(), this->GetResource());
+	ResourceFootprint dstFootprint = dst->GetResourceFootprint(graphics, targetMip);
 
-	copyCommandList->SetResourceState(graphics, dst, dst->GetResourceTargetState());
+	copyCommandList->CopyBufferToTexture(graphics, dst->GetResource(), dstFootprint, this->GetResource(), targetMip);
+
+	copyCommandList->SetResourceState(graphics, dst, dst->GetResourceTargetState(), targetMip);
 	copyCommandList->SetResourceState(graphics, this, this->GetResourceTargetState());
 
 	END_COMMAND_LIST_EVENT(copyCommandList);
@@ -66,14 +68,14 @@ void GraphicsBuffer::CopyResourcesToTexture(Graphics& graphics, CommandList* cop
 
 void GraphicsBuffer::Update(Graphics& graphics, const void* data, size_t size)
 {
-	Update(graphics, data, size, 1, size);
+	Update(graphics, data, size, 1, size, size);
 }
 
-void GraphicsBuffer::Update(Graphics& graphics, const void* data, size_t rowSize, size_t rows, size_t rowPitch)
+void GraphicsBuffer::Update(Graphics& graphics, const void* data, size_t rowSize, size_t rows, size_t dataRowPitch, size_t targetRowPitch)
 {
 	if (m_cpuAccess == CPUAccess::readwrite || m_cpuAccess == CPUAccess::write)
 	{
-		UpdateLocalResource(graphics, data, rowSize, rows, rowPitch);
+		UpdateLocalResource(graphics, data, rowSize, rows, dataRowPitch, targetRowPitch);
 	}
 	else
 	{
@@ -85,7 +87,7 @@ void GraphicsBuffer::Update(Graphics& graphics, Pipeline& pipeline, const void* 
 {
 	if (m_cpuAccess == CPUAccess::readwrite || m_cpuAccess == CPUAccess::write)
 	{
-		UpdateLocalResource(graphics, data, size, 1, size);
+		UpdateLocalResource(graphics, data, size, 1, size, size);
 	}
 	else
 	{
@@ -117,7 +119,7 @@ void GraphicsBuffer::UpdateUsingTempResource(Graphics& graphics, Pipeline& pipel
 
 	graphics.GetFrameResourceDeleter()->DeleteResource(graphics, std::move(uploadBuffer));
 }
-void GraphicsBuffer::UpdateLocalResource(Graphics& graphics, const void* data, size_t rowSize, size_t rows, size_t rowPitch)
+void GraphicsBuffer::UpdateLocalResource(Graphics& graphics, const void* data, size_t rowSize, size_t rows, size_t dataRowPitch, size_t targetRowPitch)
 {
 	THROW_INTERNAL_ERROR_IF("GraphicsBuffer was larger than resource itself", rowSize > m_byteSize);
 
@@ -147,9 +149,9 @@ void GraphicsBuffer::UpdateLocalResource(Graphics& graphics, const void* data, s
 		for(int row = 0; row < rows; row++)
 		{
 			memcpy_s(
-				pMappedData + row * rowSize,
+				pMappedData + row * targetRowPitch,
 				rowSize,
-				pData + row * rowPitch,
+				pData + row * dataRowPitch,
 				rowSize
 			);
 		}

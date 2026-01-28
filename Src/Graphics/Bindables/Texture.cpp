@@ -31,7 +31,7 @@ Texture::Texture(Graphics& graphics, const char* path, bool srgb, bool generateM
 	m_path(path),
 #endif
 	m_srgb(srgb),
-	m_generateMipMaps(false),
+	m_generateMipMaps(generateMips),
 	m_compressed(compress)
 {
 	graphics.GetDescriptorHeap().RequestMoreSpace();
@@ -134,8 +134,6 @@ void Texture::InitializeGraphicResources(Graphics& graphics, Pipeline& pipeline)
 	BEGIN_COMMAND_LIST_EVENT(pipeline.GetGraphicCommandList(), "Initializing Texture " + m_path);
 
 	ReadAndUploadData(graphics, pipeline);
-
-	GenerateMipMaps(graphics, pipeline);
 
 	END_COMMAND_LIST_EVENT(pipeline.GetGraphicCommandList());
 
@@ -264,7 +262,8 @@ void Texture::ReadAndUploadData(Graphics& graphics, Pipeline& pipeline)
 	HRESULT hr;
 
 	std::wstring wPath = std::wstring(m_path.begin(), m_path.end());
-	DirectX::ScratchImage uncompressedImage = {};
+	DirectX::ScratchImage readImage = {};
+	DirectX::ScratchImage mipmappedImage = {};
 	DirectX::ScratchImage compressedImage = {};
 	DirectX::WIC_FLAGS flags = m_srgb ? DirectX::WIC_FLAGS_FORCE_SRGB : DirectX::WIC_FLAGS_IGNORE_SRGB;
 
@@ -273,10 +272,28 @@ void Texture::ReadAndUploadData(Graphics& graphics, Pipeline& pipeline)
 		wPath.c_str(),
 		flags,
 		nullptr,
-		uncompressedImage
+		readImage
 	));
 
+	unsigned int mipLevels = GetMipLevels(readImage.GetMetadata().width);
 
+	// optionally generating mip mapps
+	if (m_generateMipMaps)
+	{
+		THROW_ERROR(DirectX::GenerateMipMaps(
+			readImage.GetImages()[0],
+			DirectX::TEX_FILTER_DEFAULT,
+			mipLevels,
+			mipmappedImage
+		));
+
+		//releasing not needed data
+		readImage.Release();
+	}
+
+	DirectX::ScratchImage& uncompressedImage = m_generateMipMaps ? mipmappedImage : readImage;
+
+	//optionally compressing image to BC format
 	if (m_compressed)
 	{
 		const DirectX::TexMetadata& uncompressedMetadata = uncompressedImage.GetMetadata();
@@ -291,6 +308,9 @@ void Texture::ReadAndUploadData(Graphics& graphics, Pipeline& pipeline)
 			DirectX::TEX_THRESHOLD_DEFAULT,
 			compressedImage
 		));
+
+		//releasing not needed data
+		uncompressedImage.Release();
 	}
 
 	// uploading image to gpu
@@ -300,81 +320,19 @@ void Texture::ReadAndUploadData(Graphics& graphics, Pipeline& pipeline)
 		DXGI_FORMAT format = GetCorrectedFormat(targetScratchImage.GetMetadata().format);
 		format = m_srgb ? GetSRGBFormat(format) : GetLinearFormat(format);
 
-		const DirectX::Image& targetImage = targetScratchImage.GetImages()[0];
-
-		m_gpuTexture->Update(graphics, pipeline, targetImage.pixels, targetImage.slicePitch, 1, targetImage.rowPitch, format);
-	}
-}
-
-void Texture::GenerateMipMaps(Graphics& graphics, Pipeline& pipeline)
-{
-	D3D12_RESOURCE_STATES entryResourceTargetState = m_gpuTexture->GetResourceTargetState();
-
-	// when we don't want to generate mip maps, we still want our resource to be copied
-	if (!m_generateMipMaps)
-	{
-		m_resourcesInitialized = true;
-		return;
-	}
-
-	// compute stage
-	{
-		// compute shader
-		std::shared_ptr<Shader> computeShader = Shader::GetBindableResource(graphics, L"CS_MipMapGeneration", ShaderType::ComputeShader);
-
-		// sampler to sample from texture SRV
-		std::shared_ptr<StaticSampler> sampler = StaticSampler::GetBindableResource(graphics, D3D12_FILTER_MIN_MAG_MIP_LINEAR, D3D12_TEXTURE_ADDRESS_MODE_WRAP, { {ShaderVisibilityGraphic::AllShaders, 0} });
-
-		// pre-setting resource states in bulk
+		for (int targetMip = 0; targetMip < mipLevels; targetMip++)
 		{
-			CommandList* commandList = pipeline.GetGraphicCommandList();
+			const DirectX::Image* pTargetImage = targetScratchImage.GetImage(targetMip, 0, 0);
 
-			for (unsigned int targetMipLevel = 1; targetMipLevel < m_mipmapLevels; targetMipLevel++)
-				commandList->SetResourceState(graphics, m_gpuTexture.get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, targetMipLevel);
-		}
+			THROW_INTERNAL_ERROR_IF("Failed to get image mip", pTargetImage == nullptr);
 
-		for (unsigned int targetMipLevel = 1; targetMipLevel < m_mipmapLevels; targetMipLevel++)
-		{
-			// setting higher LOD mip level as SRV to sample from it
-			{
-				CommandList* commandList = pipeline.GetGraphicCommandList();
+			const DirectX::Image& targetImage = *pTargetImage;
 
-				commandList->SetResourceState(graphics, m_gpuTexture.get(), D3D12_RESOURCE_STATE_ALL_SHADER_RESOURCE, targetMipLevel - 1);
-			}
+			unsigned int mipSize = targetImage.slicePitch;
+			unsigned int rowSize = targetImage.rowPitch; // DirectXTex provides data padding-less, so pitch=size
+			unsigned int numRows = mipSize / rowSize;
 
-			TempComputeCommandList computeCommandList(graphics, pipeline.GetGraphicCommandList());
-
-			// resource binding and creating stage-specific resources
-			{
-				ShaderResourceView srv(graphics, this->GetTexture(), targetMipLevel - 1);
-				UnorderedAccessView uav(graphics, this->GetTexture(), targetMipLevel);
-
-				computeCommandList.Bind(computeShader);
-				computeCommandList.Bind(sampler);
-				computeCommandList.Bind(std::move(srv)); // binding SRV of desired mip map
-				computeCommandList.Bind(std::move(uav)); // binding UAV
-
-				computeCommandList.Dispatch(graphics, m_gpuTexture->GetWidth(), m_gpuTexture->GetHeight());
-			}
-
-			graphics.GetFrameResourceDeleter()->DeleteResource(graphics, std::move(computeCommandList));
-		}
-	}
-
-	// setting target resource state after execution
-	{
-		CommandList* commandList = pipeline.GetGraphicCommandList();
-
-		if (entryResourceTargetState != D3D12_RESOURCE_STATE_ALL_SHADER_RESOURCE)
-		{
-			// if state we want is only pixel_shared_resource then we have to change all mip levels states
-			for (unsigned int targetMipLevel = 0; targetMipLevel < m_mipmapLevels; targetMipLevel++)
-				commandList->SetResourceState(graphics, m_gpuTexture.get(), entryResourceTargetState, targetMipLevel);
-		}
-		else
-		{
-			// if state we want is all_shader_resource then out compute pipeline already set most of them correctly, only last one to set
-			commandList->SetResourceState(graphics, m_gpuTexture.get(), entryResourceTargetState, m_mipmapLevels - 1);
+			m_gpuTexture->Update(graphics, pipeline, targetImage.pixels, rowSize, numRows, targetImage.rowPitch, targetMip, format);
 		}
 	}
 }

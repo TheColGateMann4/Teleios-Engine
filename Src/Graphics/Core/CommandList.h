@@ -17,9 +17,11 @@ class ShaderResourceViewBase;
 class DescriptorHeap;
 class UnorderedAccessView;
 class GraphicsResource;
+struct ResourceFootprint;
 class GraphicsTexture;
 class ViewPort;
 class RenderPass;
+
 
 struct ID3D12Resource;
 
@@ -124,7 +126,7 @@ public:
 
 	void CopyTextureRegion(Graphics& graphics, ID3D12Resource* dstResource, ID3D12Resource* srcResource, unsigned int MipMapLvel);
 
-	void CopyBufferToTexture(Graphics& graphics, ID3D12Resource* dstResource, ID3D12Resource* srcResource);
+	void CopyBufferToTexture(Graphics& graphics, ID3D12Resource* dstResource, ResourceFootprint& dstFootprint, ID3D12Resource* srcResource, unsigned int MipMapLvel);
 
 	void CopyResource(Graphics& graphics, ID3D12Resource* dstResource, ID3D12Resource* srcResource);
 

@@ -131,7 +131,7 @@ void GraphicsTexture::SetTargetResourceState(D3D12_RESOURCE_STATES newState, uns
 	m_states.at(targetSubresource).targetState = newState;
 }
 
-void GraphicsTexture::Update(Graphics& graphics, const void* data, unsigned int width, unsigned int height, unsigned int rowPitch, DXGI_FORMAT format)
+void GraphicsTexture::Update(Graphics& graphics, const void* data, unsigned int width, unsigned int height, unsigned int rowPitch, unsigned int targetMip, DXGI_FORMAT format)
 {
 	if (m_cpuAccess == CPUAccess::readwrite || m_cpuAccess == CPUAccess::write)
 	{
@@ -143,15 +143,15 @@ void GraphicsTexture::Update(Graphics& graphics, const void* data, unsigned int 
 	}
 }
 
-void GraphicsTexture::Update(Graphics& graphics, Pipeline& pipeline, const void* data, unsigned int width, unsigned int height, unsigned int rowPitch, DXGI_FORMAT format)
+void GraphicsTexture::Update(Graphics& graphics, Pipeline& pipeline, const void* data, unsigned int rowSize, unsigned int numRows, unsigned int rowPitch, unsigned int targetMip, DXGI_FORMAT format)
 {
 	if (m_cpuAccess == CPUAccess::readwrite || m_cpuAccess == CPUAccess::write)
 	{
-		UpdateLocalResource(graphics, data, width, height, format);
+		UpdateLocalResource(graphics, data, rowSize, numRows, format);
 	}
 	else
 	{
-		UpdateUsingTempResource(graphics, pipeline, data, width, height, rowPitch, format);
+		UpdateUsingTempResource(graphics, pipeline, data, rowSize, numRows, rowPitch, targetMip);
 	}
 }
 
@@ -165,12 +165,18 @@ unsigned int GraphicsTexture::GetHeight() const
 	return m_height;
 }
 
-void GraphicsTexture::UpdateUsingTempResource(Graphics& graphics, Pipeline& pipeline, const void* data, unsigned int width, unsigned int height, unsigned int rowPitch, DXGI_FORMAT format)
+void GraphicsTexture::UpdateUsingTempResource(Graphics& graphics, Pipeline& pipeline, const void* data, unsigned int rowSize, unsigned int rows, unsigned int rowPitch, unsigned int targetMip)
 {
-	std::shared_ptr<GraphicsBuffer> uploadResource = std::make_shared<GraphicsBuffer>(graphics, width * height, 1, CPUAccess::write);
-	uploadResource->Update(graphics, data, width, height, rowPitch);
+    ResourceFootprint footprint = GetResourceFootprint(graphics, targetMip);
 
-	uploadResource->CopyResourcesToTexture(graphics, pipeline.GetGraphicCommandList(), this);
+    THROW_INTERNAL_ERROR_IF("Upload data didn't match gpu resource", rowSize != footprint.rowSizeInBytes || rows != footprint.numRows);
+
+
+	std::shared_ptr<GraphicsBuffer> uploadResource = std::make_shared<GraphicsBuffer>(graphics, footprint.totalBytes, 1, CPUAccess::write);
+
+	uploadResource->Update(graphics, data, footprint.rowSizeInBytes, footprint.numRows, rowPitch, footprint.layout.Footprint.RowPitch);
+
+	uploadResource->CopyResourcesToTexture(graphics, pipeline.GetGraphicCommandList(), this, targetMip);
 
 	graphics.GetFrameResourceDeleter()->DeleteResource(graphics, std::move(uploadResource));
 }
