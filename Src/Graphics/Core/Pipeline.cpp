@@ -15,20 +15,9 @@ void Pipeline::BeginRender(Graphics& graphics) const
 {
 	m_graphicsCommandList->Open(graphics);	// opening graphics command list and clearning allocator
 
-	// setting correct states
-	m_graphicsCommandList->SetAllResourcesStates(graphics, graphics.GetDepthStencil()->GetResource(graphics), D3D12_RESOURCE_STATE_DEPTH_WRITE);
-	m_graphicsCommandList->SetResourceState(graphics, graphics.GetBackBuffer()->GetTexture(graphics), D3D12_RESOURCE_STATE_RENDER_TARGET);
-	m_graphicsCommandList->SetResourceState(graphics, graphics.GetSwapChainBuffer().get(), D3D12_RESOURCE_STATE_RENDER_TARGET);
-
-	// setting render target
-	m_graphicsCommandList->SetRenderTarget(graphics, graphics.GetBackBuffer().get(), graphics.GetDepthStencil().get());
-
 	static ViewPort viewPort(graphics);
 
 	viewPort.BindToCommandList(graphics, m_graphicsCommandList.get());
-
-	m_graphicsCommandList->ClearRenderTargetView(graphics, graphics.GetBackBuffer().get()); // clearning render target from previous frames
-	m_graphicsCommandList->ClearDepthStencilView(graphics, graphics.GetDepthStencil().get()); // clearning depth stencil from previous frames
 }
 
 void Pipeline::FinishRender(Graphics& graphics)
