@@ -5,6 +5,7 @@
 
 class Graphics;
 class CommandList;
+class GeometryPass;
 
 class RenderGraph
 {
@@ -31,5 +32,6 @@ private:
 
 private:
 	std::vector<std::shared_ptr<RenderPass>> m_renderPasses;
+	std::vector<GeometryPass*> m_geometryPasses;
 	RenderManager m_renderManager;
 };

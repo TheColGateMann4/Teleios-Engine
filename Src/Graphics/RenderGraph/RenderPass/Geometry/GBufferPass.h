@@ -3,5 +3,6 @@
 
 class GBufferPass : public GeometryPass
 {
+public:
 	virtual RenderJob::JobType GetWantedJob() const override;
 };

@@ -1,9 +1,10 @@
 #include "RenderGraph.h"
 #include "Graphics/Core/Graphics.h"
 
-#include "RenderPass/PreDepthPass.h"
-#include "RenderPass/GeometryPass.h"
+#include "RenderPass/Geometry/PreDepthPass.h"
+#include "RenderPass/Geometry/GBufferPass.h"
 #include "RenderPass/Fullscreen/FullscreenRenderPass.h"
+#include "RenderPass/Fullscreen/LightningPass.h"
 #include "RenderPass/GuiPass.h"
 
 void RenderGraph::Initialize(Graphics& graphics)
@@ -15,10 +16,34 @@ void RenderGraph::Initialize(Graphics& graphics)
 		AddRenderPass(preDepthPass);
 	}
 
+
+	DXGI_FORMAT backBufferFormat = graphics.GetBackBuffer()->GetFormat();
+	std::shared_ptr<BackBufferRenderTarget> rt0 = std::make_shared<BackBufferRenderTarget>(graphics, backBufferFormat);
+	std::shared_ptr<BackBufferRenderTarget> rt1 = std::make_shared<BackBufferRenderTarget>(graphics, backBufferFormat);
+	std::shared_ptr<BackBufferRenderTarget> rt2 = std::make_shared<BackBufferRenderTarget>(graphics, backBufferFormat);
+
 	{
-		std::shared_ptr<GeometryPass> geometryPass = std::make_shared<GeometryPass>();
-		geometryPass->AddRenderTarget(graphics.GetBackBuffer());
+		std::shared_ptr<GBufferPass> geometryPass = std::make_shared<GBufferPass>();
+		geometryPass->AddRenderTarget(rt0);
+		geometryPass->AddRenderTarget(rt1);
+		geometryPass->AddRenderTarget(rt2);
 		geometryPass->SetDepthStencilView(graphics.GetDepthStencil());
+	
+		AddRenderPass(geometryPass);
+	}
+
+	std::shared_ptr<ShaderResourceViewMultiResource> rt0srv = std::make_shared<ShaderResourceViewMultiResource>(graphics, rt0.get(), 0);
+	std::shared_ptr<ShaderResourceViewMultiResource> rt1srv = std::make_shared<ShaderResourceViewMultiResource>(graphics, rt1.get(), 1);
+	std::shared_ptr<ShaderResourceViewMultiResource> rt2srv = std::make_shared<ShaderResourceViewMultiResource>(graphics, rt2.get(), 2);
+	std::shared_ptr<ShaderResourceViewMultiResource> depthsrv = std::make_shared<ShaderResourceViewMultiResource>(graphics, graphics.GetDepthStencil().get(), 3);
+
+	{
+		std::shared_ptr<LightningPass> geometryPass = std::make_shared<LightningPass>(graphics, GetRenderManager());
+		geometryPass->AddRenderTarget(graphics.GetBackBuffer());
+		geometryPass->AddBindable(rt0srv);
+		geometryPass->AddBindable(rt1srv);
+		geometryPass->AddBindable(rt2srv);
+		geometryPass->AddBindable(depthsrv);
 
 		AddRenderPass(geometryPass);
 	}
@@ -72,7 +97,7 @@ void RenderGraph::Execute(Graphics& graphics, CommandList* commandList)
 	{
 		renderPass->SetCorrectStates(graphics, commandList);
 		renderPass->Execute(graphics, commandList);
-}
+	}
 }
 
 RenderManager& RenderGraph::GetRenderManager()

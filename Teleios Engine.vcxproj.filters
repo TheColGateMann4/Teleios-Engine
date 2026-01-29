@@ -69,13 +69,15 @@
     <ClCompile Include="Src\Graphics\RenderGraph\RenderPass\RenderPass.cpp" />
     <ClCompile Include="Src\Graphics\RenderGraph\RenderManager.cpp" />
     <ClCompile Include="Src\Graphics\Core\Renderer.cpp" />
-    <ClCompile Include="Src\Graphics\RenderGraph\RenderPass\GeometryPass.cpp" />
+    <ClCompile Include="Src\Graphics\RenderGraph\RenderPass\Geometry\GeometryPass.cpp" />
     <ClCompile Include="Src\Graphics\RenderGraph\RenderPass\GuiPass.cpp" />
     <ClCompile Include="Src\Graphics\RenderGraph\RenderJob\MeshRenderJob.cpp" />
     <ClCompile Include="Src\Graphics\RenderGraph\RenderJob\RenderJob.cpp" />
     <ClCompile Include="Src\Graphics\RenderGraph\RenderJob\StepRenderJob.cpp" />
-    <ClCompile Include="Src\Graphics\RenderGraph\RenderPass\PreDepthPass.cpp" />
+    <ClCompile Include="Src\Graphics\RenderGraph\RenderPass\Geometry\PreDepthPass.cpp" />
     <ClCompile Include="Src\Graphics\RenderGraph\RenderJob\GraphicsStepRenderJob.cpp" />
+    <ClCompile Include="Src\Graphics\RenderGraph\RenderPass\Geometry\GBufferPass.cpp" />
+    <ClCompile Include="Src\Graphics\RenderGraph\RenderPass\Fullscreen\LightningPass.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Src\Application.h" />
@@ -148,14 +150,16 @@
     <ClInclude Include="Src\Graphics\RenderGraph\RenderPass\RenderPass.h" />
     <ClInclude Include="Src\Graphics\RenderGraph\RenderManager.h" />
     <ClInclude Include="Src\Graphics\Core\Renderer.h" />
-    <ClInclude Include="Src\Graphics\RenderGraph\RenderPass\GeometryPass.h" />
+    <ClInclude Include="Src\Graphics\RenderGraph\RenderPass\Geometry\GeometryPass.h" />
     <ClInclude Include="Src\Graphics\RenderGraph\RenderPass\GuiPass.h" />
     <ClInclude Include="Src\Graphics\RenderGraph\RenderJob\MeshRenderJob.h" />
     <ClInclude Include="Src\Graphics\Bindables\BindableTypes.h" />
     <ClInclude Include="Src\Graphics\RenderGraph\RenderJob\RenderJob.h" />
     <ClInclude Include="Src\Graphics\RenderGraph\RenderJob\StepRenderJob.h" />
-    <ClInclude Include="Src\Graphics\RenderGraph\RenderPass\PreDepthPass.h" />
+    <ClInclude Include="Src\Graphics\RenderGraph\RenderPass\Geometry\PreDepthPass.h" />
     <ClInclude Include="Src\Graphics\RenderGraph\RenderJob\GraphicsStepRenderJob.h" />
+    <ClInclude Include="Src\Graphics\RenderGraph\RenderPass\Geometry\GBufferPass.h" />
+    <ClInclude Include="Src\Graphics\RenderGraph\RenderPass\Fullscreen\LightningPass.h" />
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="Dependencies\zlib1.dll" />
@@ -177,10 +181,8 @@
     <CopyFileToFolders Include="Src\Shaders\PS_Solid.hlsl" />
     <CopyFileToFolders Include="Src\Shaders\VS.hlsl" />
     <CopyFileToFolders Include="Src\Shaders\VS_Fullscreen.hlsl" />
-  </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="Src\Shaders\PS_Depth.hlsl" />
-    <FxCompile Include="Src\Shaders\PS_GBuffer.hlsl" />
-    <FxCompile Include="Src\Shaders\PS_Lightning.hlsl" />
+    <CopyFileToFolders Include="Src\Shaders\PS_Depth.hlsl" />
+    <CopyFileToFolders Include="Src\Shaders\PS_GBuffer.hlsl" />
+    <CopyFileToFolders Include="Src\Shaders\PS_Lightning.hlsl" />
   </ItemGroup>
 </Project>

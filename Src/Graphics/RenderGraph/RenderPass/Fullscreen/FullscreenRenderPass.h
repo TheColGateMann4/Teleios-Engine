@@ -15,6 +15,7 @@ public:
 
 	virtual void Initialize(Graphics& graphics) override;
 	virtual void InitializePassResources(Graphics& graphics, Pipeline& pipeline) override;
+	virtual void InitializeFullscreenResources(Graphics& graphics, Pipeline& pipeline);
 	void Update(Graphics& graphics, Pipeline& pipeline);
 
 	void AddBindable(std::shared_ptr<Bindable> bind);

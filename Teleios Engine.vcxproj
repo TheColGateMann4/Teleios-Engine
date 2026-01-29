@@ -171,11 +171,13 @@
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Src\Graphics\RenderGraph\RenderPass\Fullscreen\LightningPass.cpp" />
+    <ClCompile Include="Src\Graphics\RenderGraph\RenderPass\Geometry\GBufferPass.cpp" />
     <ClCompile Include="Src\Graphics\RenderGraph\RenderJob\GraphicsStepRenderJob.cpp" />
-    <ClCompile Include="Src\Graphics\RenderGraph\RenderPass\PreDepthPass.cpp" />
+    <ClCompile Include="Src\Graphics\RenderGraph\RenderPass\Geometry\PreDepthPass.cpp" />
     <ClCompile Include="Src\Graphics\RenderGraph\RenderPass\GuiPass.cpp" />
     <ClCompile Include="Src\Graphics\RenderGraph\RenderJob\MeshRenderJob.cpp" />
-    <ClCompile Include="Src\Graphics\RenderGraph\RenderPass\GeometryPass.cpp" />
+    <ClCompile Include="Src\Graphics\RenderGraph\RenderPass\Geometry\GeometryPass.cpp" />
     <ClCompile Include="Src\Graphics\Core\Renderer.cpp" />
     <ClCompile Include="Src\Graphics\RenderGraph\RenderManager.cpp" />
     <ClCompile Include="Src\Graphics\RenderGraph\RenderPass\RenderPass.cpp" />
@@ -248,12 +250,14 @@
     <ClCompile Include="Src\Graphics\RenderGraph\RenderJob\StepRenderJob.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Src\Graphics\RenderGraph\RenderPass\Fullscreen\LightningPass.h" />
+    <ClInclude Include="Src\Graphics\RenderGraph\RenderPass\Geometry\GBufferPass.h" />
     <ClInclude Include="Src\Graphics\RenderGraph\RenderJob\GraphicsStepRenderJob.h" />
-    <ClInclude Include="Src\Graphics\RenderGraph\RenderPass\PreDepthPass.h" />
+    <ClInclude Include="Src\Graphics\RenderGraph\RenderPass\Geometry\PreDepthPass.h" />
     <ClInclude Include="Src\Graphics\RenderGraph\RenderPass\GuiPass.h" />
     <ClInclude Include="Src\Graphics\RenderGraph\RenderJob\MeshRenderJob.h" />
     <ClInclude Include="Src\Graphics\Bindables\BindableTypes.h" />
-    <ClInclude Include="Src\Graphics\RenderGraph\RenderPass\GeometryPass.h" />
+    <ClInclude Include="Src\Graphics\RenderGraph\RenderPass\Geometry\GeometryPass.h" />
     <ClInclude Include="Src\Graphics\Core\Renderer.h" />
     <ClInclude Include="Src\Graphics\RenderGraph\RenderManager.h" />
     <ClInclude Include="Src\Graphics\RenderGraph\RenderPass\RenderPass.h" />
@@ -527,27 +531,19 @@
     </CopyFileToFolders>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Src\Shaders\PS_Depth.hlsl">
+    <CopyFileToFolders Include="Src\Shaders\PS_Depth.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">6.7</ShaderModel>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">6.7</ShaderModel>
-    </FxCompile>
-    <FxCompile Include="Src\Shaders\PS_GBuffer.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">6.7</ShaderModel>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">6.7</ShaderModel>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </FxCompile>
-    <FxCompile Include="Src\Shaders\PS_Lightning.hlsl">
+      <FileType>Document</FileType>
+      <DestinationFolders Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)\Shaders</DestinationFolders>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Src\Shaders\PS_GBuffer.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
@@ -555,8 +551,22 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">6.7</ShaderModel>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">6.7</ShaderModel>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </FxCompile>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+      <FileType>Document</FileType>
+      <DestinationFolders Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)\Shaders</DestinationFolders>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Src\Shaders\PS_Lightning.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">6.7</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">6.7</ShaderModel>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+      <FileType>Document</FileType>
+      <DestinationFolders Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)\Shaders</DestinationFolders>
+    </CopyFileToFolders>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

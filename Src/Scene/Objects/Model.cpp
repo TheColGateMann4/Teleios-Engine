@@ -279,7 +279,7 @@ Model::Model(Graphics& graphics, Model* pParent, aiNode* node, std::vector<std::
 				step.AddBindable(RasterizerState::GetBindableResource(graphics, materialPropeties.twoSided));
 			}
 
-			step.AddBindable(Shader::GetBindableResource(graphics, L"PS", ShaderType::PixelShader, shaderMacros));
+			step.AddBindable(Shader::GetBindableResource(graphics, L"PS_GBuffer", ShaderType::PixelShader, shaderMacros));
 			step.AddBindable(Shader::GetBindableResource(graphics, L"VS", ShaderType::VertexShader, shaderMacros));
 			step.AddBindable(InputLayout::GetBindableResource(graphics, vertexLayout));
 

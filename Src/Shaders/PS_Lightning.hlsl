@@ -17,9 +17,6 @@ cbuffer lightBuffer : register(b0)
 
 cbuffer transforms : register(b2)
 {
-    matrix b_transform;
-    matrix b_transformInCameraSpace;
-    matrix b_transformInCameraView;
     matrix b_inverseProjection;
 };
 
@@ -69,12 +66,12 @@ static const float _pi = 3.14159265358979f;
 
 
 
-float4 main(float2 textureCoords : TEXCOORDS) : SV_TARGET
+float4 PSMain(float2 textureCoords : TEXCOORDS) : SV_TARGET
 {
     float4 rt0sample = t_rt0.Sample(s_sampler, textureCoords);
     float4 rt1sample = t_rt1.Sample(s_sampler, textureCoords);
     float4 rt2sample = t_rt2.Sample(s_sampler, textureCoords);
-    float depth = t_depth.Sample(s_sampler, textureCoords);
+    float depth = t_depth.Sample(s_sampler, textureCoords).r;
     
     
     float3 diffuse = rt0sample.rgb;

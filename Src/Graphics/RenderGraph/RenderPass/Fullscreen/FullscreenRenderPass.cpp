@@ -99,6 +99,13 @@ void FullscreenRenderPass::InitializePassResources(Graphics& graphics, Pipeline&
 
 	// initializing job
 	m_meshRenderJob->Initialize(graphics, pipeline);
+
+	InitializeFullscreenResources(graphics, pipeline);
+}
+
+void FullscreenRenderPass::InitializeFullscreenResources(Graphics& graphics, Pipeline& pipeline)
+{
+
 }
 
 void FullscreenRenderPass::Update(Graphics& graphics, Pipeline& pipeline)
