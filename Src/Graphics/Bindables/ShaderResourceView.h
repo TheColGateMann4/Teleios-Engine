@@ -5,6 +5,7 @@
 class Graphics;
 class GraphicsTexture;
 class GraphicsBuffer;
+class GraphicsResource;
 class RootSignature;
 class CommandList;
 
@@ -13,7 +14,7 @@ class DepthStencilViewMultiResource;
 
 class ShaderResourceViewBase : public Bindable, public CommandListBindable, public RootSignatureBindable
 {
-public:
+protected:
 	ShaderResourceViewBase(unsigned int slot);
 	ShaderResourceViewBase(ShaderResourceViewBase&&) noexcept = default;
 
@@ -37,7 +38,7 @@ public:
 
 protected:
 	static void InitializeTextureSRV(Graphics& graphics, unsigned int targetMip, DescriptorHeap::DescriptorInfo& descriptor, const GraphicsTexture* texture);
-	static void InitializeBufferSRV(Graphics& graphics, DescriptorHeap::DescriptorInfo& descriptor, GraphicsBuffer* buffer);
+	static void InitializeBufferSRV(Graphics& graphics, DescriptorHeap::DescriptorInfo& descriptor, const GraphicsBuffer* buffer);
 
 protected:
 	unsigned int m_computeRootIndex;
@@ -55,7 +56,11 @@ public:
 
 	virtual unsigned int GetOffsetInDescriptor(Graphics& graphics) const override;
 
+	virtual void Initialize(Graphics& graphics) override;
+
 private:
+	unsigned int m_targetSubresource = 0;
+	GraphicsResource* m_resource;
 	DescriptorHeap::DescriptorInfo m_descriptor = {};
 };
 
@@ -71,12 +76,17 @@ public:
 
 	virtual unsigned int GetOffsetInDescriptor(Graphics& graphics) const override;
 
+	virtual void Initialize(Graphics& graphics) override;
+
 public:
 	static std::shared_ptr<ShaderResourceViewMultiResource> GetBindableResource(Graphics& graphics, std::string identifier, BackBufferRenderTarget* renderTarget, UINT slot = 0);
 	static std::shared_ptr<ShaderResourceViewMultiResource> GetBindableResource(Graphics& graphics, std::string identifier, DepthStencilViewMultiResource* depthStencil, UINT slot = 0);
 
 	static std::string GetIdentifier(std::string identifier);
 
+	GraphicsResource* GetResource(Graphics& graphics) const;
+
 private:
+	std::vector<GraphicsResource*> m_resources;
 	std::vector<DescriptorHeap::DescriptorInfo> m_descriptors = {};
 };

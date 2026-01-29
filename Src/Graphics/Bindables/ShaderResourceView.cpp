@@ -79,7 +79,7 @@ void ShaderResourceViewBase::InitializeTextureSRV(Graphics& graphics, unsigned i
 	}
 }
 
-void ShaderResourceViewBase::InitializeBufferSRV(Graphics& graphics, DescriptorHeap::DescriptorInfo& descriptor, GraphicsBuffer* buffer)
+void ShaderResourceViewBase::InitializeBufferSRV(Graphics& graphics, DescriptorHeap::DescriptorInfo& descriptor, const GraphicsBuffer* buffer)
 {
 	THROW_INTERNAL_ERROR_IF("GraphicsBuffer was NULL", buffer == nullptr);
 
@@ -107,16 +107,19 @@ void ShaderResourceViewBase::InitializeBufferSRV(Graphics& graphics, DescriptorH
 
 ShaderResourceView::ShaderResourceView(Graphics& graphics, GraphicsTexture* texture, unsigned int targetMip, UINT slot)
 	:
-	ShaderResourceViewBase(slot)
+	ShaderResourceViewBase(slot),
+	m_targetSubresource(targetMip),
+	m_resource(texture)
 {
-	InitializeTextureSRV(graphics, targetMip, m_descriptor, texture);
+	graphics.GetDescriptorHeap().RequestMoreSpace();
 }
 
 ShaderResourceView::ShaderResourceView(Graphics& graphics, GraphicsBuffer* buffer, UINT slot)
 	:
-	ShaderResourceViewBase(slot)
+	ShaderResourceViewBase(slot),
+	m_resource(buffer)
 {
-	InitializeBufferSRV(graphics, m_descriptor, buffer);
+	graphics.GetDescriptorHeap().RequestMoreSpace();
 }
 
 D3D12_GPU_DESCRIPTOR_HANDLE ShaderResourceView::GetDescriptorHeapGPUHandle(Graphics& graphics) const
@@ -129,18 +132,39 @@ UINT ShaderResourceView::GetOffsetInDescriptor(Graphics& graphics) const
 	return m_descriptor.offsetInDescriptorFromStart;
 }
 
+void ShaderResourceView::Initialize(Graphics& graphics)
+{
+	GraphicsResourceType resourceType = m_resource->GetResourceType();
+
+	if(resourceType == GraphicsResourceType::texture)
+	{
+		const GraphicsTexture* texture = static_cast<const GraphicsTexture*>(m_resource);
+		InitializeTextureSRV(graphics, m_targetSubresource, m_descriptor, texture);
+	}
+	else if(resourceType == GraphicsResourceType::buffer)
+	{
+		const GraphicsBuffer* buffer = static_cast<const GraphicsBuffer*>(m_resource);
+		InitializeBufferSRV(graphics, m_descriptor, buffer);
+	}
+}
+
 ShaderResourceViewMultiResource::ShaderResourceViewMultiResource(Graphics& graphics, BackBufferRenderTarget* renderTarget, UINT slot)
 	:
 	ShaderResourceViewBase(slot)
 {
 	unsigned int numBuffers = graphics.GetBufferCount();
-	DXGI_FORMAT format = renderTarget->GetTexture(graphics)->GetFormat();
 
-	m_descriptors.resize(numBuffers);
+	graphics.GetDescriptorHeap().RequestMoreSpace(numBuffers);
+
+	m_resources.reserve(numBuffers);
 
 	for (int i = 0; i < numBuffers; i++)
 	{
-		InitializeTextureSRV(graphics, 0, m_descriptors.at(i), renderTarget->GetTexture(i));
+		GraphicsTexture* frameTexture = renderTarget->GetTexture(i);
+
+		THROW_INTERNAL_ERROR_IF("GraphicsTexture from BackBufferRenderTarget was null", frameTexture == nullptr);
+
+		m_resources.push_back(frameTexture);
 	}
 }
 
@@ -149,13 +173,18 @@ ShaderResourceViewMultiResource::ShaderResourceViewMultiResource(Graphics& graph
 	ShaderResourceViewBase(slot)
 {
 	unsigned int numBuffers = graphics.GetBufferCount();
-	DXGI_FORMAT format = depthStencil->GetResource(graphics)->GetFormat();
 
-	m_descriptors.resize(numBuffers);
+	graphics.GetDescriptorHeap().RequestMoreSpace(numBuffers);
+
+	m_resources.reserve(numBuffers);
 
 	for (int i = 0; i < numBuffers; i++)
 	{
-		InitializeTextureSRV(graphics, 0, m_descriptors.at(i), depthStencil->GetResource(i));
+		GraphicsTexture* frameTexture = depthStencil->GetResource(i);
+
+		THROW_INTERNAL_ERROR_IF("GraphicsTexture from DepthStencilViewMultiResource was null", frameTexture == nullptr);
+
+		m_resources.push_back(frameTexture);
 	}
 }
 
@@ -167,6 +196,26 @@ D3D12_GPU_DESCRIPTOR_HANDLE ShaderResourceViewMultiResource::GetDescriptorHeapGP
 unsigned int ShaderResourceViewMultiResource::GetOffsetInDescriptor(Graphics& graphics) const
 {
 	return m_descriptors.at(graphics.GetCurrentBufferIndex()).offsetInDescriptorFromStart;
+}
+
+void ShaderResourceViewMultiResource::Initialize(Graphics& graphics)
+{
+	unsigned int numResources = static_cast<unsigned int>(m_resources.size());
+
+	m_descriptors.resize(numResources);
+
+	for (int i = 0; i < numResources; i++)
+	{
+		GraphicsResource* targetResource = m_resources.at(i);
+
+		GraphicsResourceType resourceType = targetResource->GetResourceType();
+
+		THROW_INTERNAL_ERROR_IF("GraphicsResource type was not texture", resourceType != GraphicsResourceType::texture);
+
+		const GraphicsTexture* texture = static_cast<const GraphicsTexture*>(targetResource);
+
+		InitializeTextureSRV(graphics, 0, m_descriptors.at(i), texture);
+	}
 }
 
 std::shared_ptr<ShaderResourceViewMultiResource> ShaderResourceViewMultiResource::GetBindableResource(Graphics& graphics, std::string identifier, BackBufferRenderTarget* renderTarget, UINT slot)
@@ -186,4 +235,9 @@ std::string ShaderResourceViewMultiResource::GetIdentifier(std::string identifie
 	resultString += identifier;
 
 	return resultString;
+}
+
+GraphicsResource* ShaderResourceViewMultiResource::GetResource(Graphics& graphics) const
+{
+	return m_resources.at(graphics.GetCurrentBufferIndex());
 }
