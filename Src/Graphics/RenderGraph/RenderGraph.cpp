@@ -69,7 +69,10 @@ void RenderGraph::AssignJobsToPasses()
 void RenderGraph::Execute(Graphics& graphics, CommandList* commandList)
 {
 	for (auto& renderPass : m_renderPasses)
+	{
+		renderPass->SetCorrectStates(graphics, commandList);
 		renderPass->Execute(graphics, commandList);
+}
 }
 
 RenderManager& RenderGraph::GetRenderManager()

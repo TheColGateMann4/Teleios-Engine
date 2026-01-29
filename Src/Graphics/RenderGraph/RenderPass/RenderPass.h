@@ -17,6 +17,8 @@ public:
 
 	virtual void SubmitJobs(RenderManager& renderManager);
 
+	void SetCorrectStates(Graphics& graphics, CommandList* commandList);
+
 	// record jobs on command list
 	void Execute(Graphics& graphics, CommandList* commandList);
 
