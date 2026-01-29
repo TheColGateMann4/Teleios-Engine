@@ -20,6 +20,8 @@ GraphicsStepRenderJob::GraphicsStepRenderJob(RenderJob::JobType m_type, RenderGr
 
 void GraphicsStepRenderJob::GatherBindables()
 {
+	THROW_INTERNAL_ERROR_IF("Pass was not linked to job", m_pass == nullptr);
+
 	const auto& passBinds = m_pass->GetBindables();
 
 	for (const auto& passBind : passBinds)
