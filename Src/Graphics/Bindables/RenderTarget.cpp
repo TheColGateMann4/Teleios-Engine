@@ -88,6 +88,11 @@ void SurfaceRenderTarget::SetResourceState(Graphics& graphics, D3D12_RESOURCE_ST
 	m_renderTarget.state = newState;
 }
 
+RenderTargetType SurfaceRenderTarget::GetRenderTargetType() const
+{
+	return RenderTargetType::surface;
+}
+
 /*
 			// Wrapper around back buffer resources provided by swapchain
 */
@@ -163,6 +168,11 @@ D3D12_RESOURCE_STATES SwapChainRenderTarget::GetResourceState(Graphics& graphics
 void SwapChainRenderTarget::SetResourceState(Graphics& graphics, D3D12_RESOURCE_STATES newState)
 {
 	m_renderTargets.at(graphics.GetCurrentBufferIndex()).state = newState;
+}
+
+RenderTargetType SwapChainRenderTarget::GetRenderTargetType() const
+{
+	return RenderTargetType::swapChain;
 }
 
 /*
@@ -248,4 +258,9 @@ D3D12_RESOURCE_STATES BackBufferRenderTarget::GetResourceState(Graphics& graphic
 void BackBufferRenderTarget::SetResourceState(Graphics& graphics, D3D12_RESOURCE_STATES newState)
 {
 	m_ownedRenderTargets.at(graphics.GetCurrentBufferIndex()).texture->SetResourceState(newState);
+}
+
+RenderTargetType BackBufferRenderTarget::GetRenderTargetType() const
+{
+	return RenderTargetType::backBuffer;
 }

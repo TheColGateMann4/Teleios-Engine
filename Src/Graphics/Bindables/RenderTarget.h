@@ -7,6 +7,14 @@
 
 class Graphics;
 
+enum class RenderTargetType
+{
+	unknown,
+	surface,
+	swapChain,
+	backBuffer
+};
+
 class RenderTarget : public Bindable, public CommandListBindable
 {
 protected:
@@ -41,6 +49,8 @@ public:
 
 	virtual BindableType GetBindableType() const override;
 
+	virtual RenderTargetType GetRenderTargetType() const = 0;
+
 protected:
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_pDescriptorHeap;
 	DXGI_FORMAT m_format;
@@ -59,6 +69,8 @@ public:
 	virtual D3D12_RESOURCE_STATES GetResourceState(Graphics& graphics) const override;
 	virtual void SetResourceState(Graphics& graphics, D3D12_RESOURCE_STATES newState) override;
 
+	virtual RenderTargetType GetRenderTargetType() const override;
+
 private:
 	NonOwningRenderTargetData m_renderTarget;
 };
@@ -75,6 +87,8 @@ public:
 
 	virtual D3D12_RESOURCE_STATES GetResourceState(Graphics& graphics) const override;
 	virtual void SetResourceState(Graphics& graphics, D3D12_RESOURCE_STATES newState) override;
+
+	virtual RenderTargetType GetRenderTargetType() const override;
 
 private:
 	std::vector<NonOwningRenderTargetData> m_renderTargets;
@@ -94,6 +108,8 @@ public:
 
 	virtual D3D12_RESOURCE_STATES GetResourceState(Graphics& graphics) const override;
 	virtual void SetResourceState(Graphics& graphics, D3D12_RESOURCE_STATES newState) override;
+
+	virtual RenderTargetType GetRenderTargetType() const override;
 
 private:
 	std::vector<OwningRenderTargetData> m_ownedRenderTargets;
