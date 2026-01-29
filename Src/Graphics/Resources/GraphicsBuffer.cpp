@@ -66,6 +66,11 @@ void GraphicsBuffer::CopyResourcesToTexture(Graphics& graphics, CommandList* cop
 	END_COMMAND_LIST_EVENT(copyCommandList);
 }
 
+GraphicsResourceType GraphicsBuffer::GetResourceType()
+{
+	return GraphicsResourceType::buffer;
+}
+
 void GraphicsBuffer::Update(Graphics& graphics, const void* data, size_t size)
 {
 	Update(graphics, data, size, 1, size, size);

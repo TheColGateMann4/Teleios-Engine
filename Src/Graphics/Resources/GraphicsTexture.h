@@ -32,6 +32,8 @@ public:
 	virtual void SetResourceState(D3D12_RESOURCE_STATES newState, unsigned int targetSubresource = 0) override;
 	virtual void SetTargetResourceState(D3D12_RESOURCE_STATES newState, unsigned int targetSubresource = 0) override;
 
+	virtual GraphicsResourceType GetResourceType() override;
+
 public:
 	void Update(Graphics& graphics, const void* data, unsigned int width, unsigned int height, unsigned int rowPitch, unsigned int targetMip, DXGI_FORMAT format);
 	void Update(Graphics& graphics, Pipeline& pipeline, const void* data, unsigned int rowSize, unsigned int numRows, unsigned int rowPitch, unsigned int targetMip, DXGI_FORMAT format);

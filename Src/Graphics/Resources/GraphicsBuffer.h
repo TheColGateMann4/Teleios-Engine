@@ -19,6 +19,8 @@ public:
 public:
 	virtual void CopyResourcesToTexture(Graphics& graphics, CommandList* copyCommandList, GraphicsResource* dst, int targetMip = 0) override;
 
+	virtual GraphicsResourceType GetResourceType() override;
+
 	void Update(Graphics& graphics, const void* data, size_t size);
 	void Update(Graphics& graphics, const void* data, size_t rowSize, size_t rows, size_t dataRowPitch, size_t targetRowPitch);
 	void Update(Graphics& graphics, Pipeline& pipeline, const void* data, size_t size);

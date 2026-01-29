@@ -14,6 +14,13 @@ struct ResourceFootprint
 	UINT64 totalBytes = 0;
 };
 
+enum class GraphicsResourceType
+{
+	unknown,
+	texture,
+	buffer
+};
+
 class GraphicsResource
 {
 public:
@@ -58,6 +65,8 @@ public:
 	virtual void SetTargetResourceState(D3D12_RESOURCE_STATES newState, unsigned int targetSubresource = 0);
 
 	CPUAccess GetCPUAccess() const;
+
+	virtual GraphicsResourceType GetResourceType() = 0;
 
 protected:
 	static D3D12_CPU_PAGE_PROPERTY GetHardwareHeapUsagePropety(CPUAccess cpuAccess);

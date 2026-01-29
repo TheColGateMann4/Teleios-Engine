@@ -131,6 +131,11 @@ void GraphicsTexture::SetTargetResourceState(D3D12_RESOURCE_STATES newState, uns
 	m_states.at(targetSubresource).targetState = newState;
 }
 
+GraphicsResourceType GraphicsTexture::GetResourceType()
+{
+    return GraphicsResourceType::texture;
+}
+
 void GraphicsTexture::Update(Graphics& graphics, const void* data, unsigned int width, unsigned int height, unsigned int rowPitch, unsigned int targetMip, DXGI_FORMAT format)
 {
 	if (m_cpuAccess == CPUAccess::readwrite || m_cpuAccess == CPUAccess::write)
