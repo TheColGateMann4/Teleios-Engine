@@ -179,7 +179,7 @@ void CommandList::SetResourcesToTargetStates(Graphics& graphics, GraphicsResourc
 {
 	D3D12_RESOURCE_STATES newState = resource->GetResourceTargetState(0);
 
-	SetResourceState(graphics, resource, newState);
+	SetAllResourcesStates(graphics, resource, newState);
 }
 
 void CommandList::SetResourceState(Graphics& graphics, GraphicsResource* resource, D3D12_RESOURCE_STATES newState, unsigned int targetSubresource) const
