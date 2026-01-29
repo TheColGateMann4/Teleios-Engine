@@ -6,15 +6,12 @@
 
 void DescriptorHeap::RequestMoreSpace(unsigned int space)
 {
-	THROW_OBJECT_STATE_ERROR_IF("Tried to increment DescriptorHeap size after it has been created", m_finished);
-
 	m_requestedSize += space;
 }
 
 void DescriptorHeap::Finish(Graphics& graphics)
 {
 	THROW_OBJECT_STATE_ERROR_IF("Tried to finish when DescriptorHeap object was finished", m_finished);
-	THROW_OBJECT_STATE_ERROR_IF("Tried to finish when requested size was 0", m_requestedSize == 0);
 
 	HRESULT hr;
 
@@ -31,6 +28,7 @@ void DescriptorHeap::Finish(Graphics& graphics)
 
 	m_descriptorIncrementSize = graphics.GetDeviceResources().GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
+	m_usedSize = m_requestedSize + ADDITIONAL_DESCRIPTOR_HEAP_SIZE;
 	m_finished = true;
 }
 
@@ -48,7 +46,7 @@ D3D12_GPU_DESCRIPTOR_HANDLE DescriptorHeap::GetGPUHandle(unsigned int descriptor
 DescriptorHeap::DescriptorInfo DescriptorHeap::GetNextHandle()
 {
 	THROW_OBJECT_STATE_ERROR_IF("Tried to get GPU handle when DescriptorHeap object wasn't finished yet", !m_finished);
-	THROW_OBJECT_STATE_ERROR_IF("Tried to get descriptor handle out of bounds", m_nextHandleIndex > m_requestedSize + ADDITIONAL_DESCRIPTOR_HEAP_SIZE - 1);
+	THROW_OBJECT_STATE_ERROR_IF("Tried to get descriptor handle out of bounds", m_nextHandleIndex > m_usedSize - 1);
 
 	SIZE_T resourceOffset = static_cast<SIZE_T>(m_descriptorIncrementSize * m_nextHandleIndex);
 

@@ -29,6 +29,7 @@ public:	// At runtime
 private:
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> pDescriptorHeap;
 	UINT m_requestedSize = 0;
+	UINT m_usedSize = 0;
 	UINT m_nextHandleIndex = 0;
 	bool m_finished;
 
