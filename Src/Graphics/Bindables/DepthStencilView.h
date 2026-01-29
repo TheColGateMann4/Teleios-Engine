@@ -6,6 +6,13 @@
 
 class Graphics;
 
+enum class DepthStencilType
+{
+	unknown,
+	singleResource,
+	multiResource
+};
+
 class DepthStencilViewBase
 {
 protected:
@@ -16,6 +23,8 @@ public:
 
 	virtual const GraphicsTexture* GetResource(Graphics& graphics) const = 0;
 	virtual GraphicsTexture* GetResource(Graphics& graphics) = 0;
+
+	virtual DepthStencilType GetDepthStencilType() const = 0;
 
 protected:
 	void CreateDSV(Graphics& graphics, D3D12_CPU_DESCRIPTOR_HANDLE& descriptor, GraphicsTexture* texture);
@@ -34,6 +43,8 @@ public:
 
 	virtual const GraphicsTexture* GetResource(Graphics& graphics) const override;
 	virtual GraphicsTexture* GetResource(Graphics& graphics) override;
+
+	virtual DepthStencilType GetDepthStencilType() const override;
 
 private:
 	D3D12_CPU_DESCRIPTOR_HANDLE m_descriptor;
@@ -54,6 +65,8 @@ public:
 
 	const GraphicsTexture* GetResource(unsigned int i) const;
 	GraphicsTexture* GetResource(unsigned int i);
+
+	virtual DepthStencilType GetDepthStencilType() const override;
 
 private:
 	std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> m_descriptors;

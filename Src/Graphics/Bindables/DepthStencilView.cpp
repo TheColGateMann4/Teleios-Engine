@@ -62,6 +62,11 @@ GraphicsTexture* DepthStencilView::GetResource(Graphics& graphics)
 	return &m_texture;
 }
 
+DepthStencilType DepthStencilView::GetDepthStencilType() const
+{
+	return DepthStencilType::singleResource;
+}
+
 DepthStencilViewMultiResource::DepthStencilViewMultiResource(Graphics& graphics)
 	:
 	DepthStencilViewBase(graphics, graphics.GetBufferCount())
@@ -107,4 +112,9 @@ const GraphicsTexture* DepthStencilViewMultiResource::GetResource(unsigned int i
 GraphicsTexture* DepthStencilViewMultiResource::GetResource(unsigned int i)
 {
 	return m_textures.at(i).get();
+}
+
+DepthStencilType DepthStencilViewMultiResource::GetDepthStencilType() const
+{
+	return DepthStencilType::multiResource;
 }
