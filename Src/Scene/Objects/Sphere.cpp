@@ -52,7 +52,7 @@ Sphere::Sphere(Graphics& graphics, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3
 void Sphere::Initialize(Graphics& graphics, Pipeline& pipeline)
 {
 	// upload mesh data to object
-	UpdateMesh(graphics);
+	UpdateMesh(graphics, pipeline);
 }
 
 void Sphere::DrawAdditionalPropeties(Graphics& graphics, Pipeline& pipeline)
@@ -73,10 +73,10 @@ void Sphere::DrawAdditionalPropeties(Graphics& graphics, Pipeline& pipeline)
 	checkChanged(ImGui::SliderScalar("tesselation", ImGuiDataType_U32, &m_tesselation, &minTesselationVal, &maxTesselationVal));
 
 	if (changed)
-		UpdateMesh(graphics);
+		UpdateMesh(graphics, pipeline);
 }
 
-void Sphere::UpdateMesh(Graphics& graphics)
+void Sphere::UpdateMesh(Graphics& graphics, Pipeline& pipeline)
 {
 	std::vector<DirectX::VertexPositionNormalTexture> vertices;
 	std::vector<uint16_t> indices;
@@ -91,7 +91,7 @@ void Sphere::UpdateMesh(Graphics& graphics)
 
 	Mesh& modelMesh = m_meshes.front();
 
-	RenderGraphicsStep& albedoStep = modelMesh.GetTechnique(RenderJob::JobType::GBuffer).GetStep(0);
+	RenderGraphicsStep& albedoStep = modelMesh.GetTechnique(RenderJob::JobType::Emissive).GetStep(0);
 
 	if (!m_initialized)
 	{
@@ -102,7 +102,13 @@ void Sphere::UpdateMesh(Graphics& graphics)
 	}
 	else
 	{
-		albedoStep.GetBindableContainter().GetVertexBuffer()->Update(graphics, vertices.data(), vertices.size(), sizeof(vertices.front()));
-		albedoStep.GetBindableContainter().GetIndexBuffer()->Update(graphics, indices.data(), indices.size(), sizeof(indices.front()));
+		VertexBuffer* vbuffer = albedoStep.GetBindableContainter().GetVertexBuffer();
+		IndexBuffer* ibuffer = albedoStep.GetBindableContainter().GetIndexBuffer();
+
+		vbuffer->Update(graphics, vertices.data(), vertices.size(), sizeof(vertices.front()));
+		ibuffer->Update(graphics, indices.data(), indices.size(), sizeof(indices.front()));
+	
+		vbuffer->BindToCopyPipelineIfNeeded(graphics, pipeline);
+		ibuffer->BindToCopyPipelineIfNeeded(graphics, pipeline);
 	}
 }

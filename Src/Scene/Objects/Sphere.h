@@ -15,7 +15,7 @@ public:
 	virtual void DrawAdditionalPropeties(Graphics& graphics, Pipeline& pipeline) override;
 
 private:
-	void UpdateMesh(Graphics& graphics);
+	void UpdateMesh(Graphics& graphics, Pipeline& pipeline);
 
 private:
 	bool m_initialized;

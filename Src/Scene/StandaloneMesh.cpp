@@ -75,9 +75,7 @@ void StandaloneMesh::Draw(Graphics& graphics, CommandList* commandList) const
 
 void StandaloneMesh::Update(Graphics& graphics, Pipeline& pipeline)
 {
-	m_bindableContainer.GetVertexBuffer()->BindToCopyPipelineIfNeeded(graphics, pipeline);
 
-	m_bindableContainer.GetIndexBuffer()->BindToCopyPipelineIfNeeded(graphics, pipeline);
 }
 
 void StandaloneMesh::InitializeGraphicResources(Graphics& graphics, Pipeline& pipeline)
