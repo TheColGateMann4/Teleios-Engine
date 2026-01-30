@@ -247,6 +247,9 @@ DXGI_FORMAT Texture::GetSRGBFormat(DXGI_FORMAT format)
 		case DXGI_FORMAT_B8G8R8A8_UNORM:
 			return DXGI_FORMAT_B8G8R8A8_UNORM_SRGB;
 
+		case DXGI_FORMAT_BC1_UNORM:
+			DXGI_FORMAT_BC1_UNORM_SRGB;
+
 	default:
 		return format;
 	}
@@ -254,7 +257,18 @@ DXGI_FORMAT Texture::GetSRGBFormat(DXGI_FORMAT format)
 
 DXGI_FORMAT Texture::GetCompressedFormat(DXGI_FORMAT format)
 {
-	return DirectX::IsSRGB(format) ? DXGI_FORMAT_BC1_UNORM_SRGB : DXGI_FORMAT_BC1_UNORM;
+	DXGI_FORMAT compressed = DXGI_FORMAT_UNKNOWN;
+
+	unsigned int numChannels = DirectX::BitsPerPixel(format) / DirectX::BitsPerColor(format);
+
+	if (numChannels == 1)
+		compressed = DXGI_FORMAT_BC4_UNORM;
+	else if (numChannels == 2)
+		compressed = DXGI_FORMAT_BC5_UNORM;
+	else
+		compressed = DXGI_FORMAT_BC1_UNORM;
+
+	return DirectX::IsSRGB(format) ? GetSRGBFormat(compressed) : compressed;
 }
 
 void Texture::ReadAndUploadData(Graphics& graphics, Pipeline& pipeline)
