@@ -52,7 +52,9 @@ float GetAttenuation(const float distanceToLight)
 
 float3 GetViewPosition(float2 texcoords, float depth)
 {
-    float2 ndc = texcoords * 2.0f - 1.0f;
+    float2 ndc;
+    ndc.x = texcoords.x * 2.0f - 1.0f;
+    ndc.y = 1.0f - texcoords.y * 2.0f;
   
     float4 clip = float4(ndc, depth, 1.0f);
   
@@ -75,11 +77,10 @@ float4 PSMain(float2 textureCoords : TEXCOORDS) : SV_TARGET
     
     
     float3 diffuse = rt0sample.rgb;
-    float3 normal = rt2sample.rgb;
+    float3 normal = rt2sample.rgb * 2.0f - 1.0f;
     float metalness = rt1sample.r;
     float roughness = rt1sample.g;
     float3 viewPosition = GetViewPosition(textureCoords, depth);
-    
     
     const float3 N = normalize(normal); // normal
     const float3 V = normalize(-viewPosition); // view

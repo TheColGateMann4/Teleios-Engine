@@ -88,7 +88,7 @@ PSOut PSMain(
 #ifdef INPUT_BITANGENT  
     , float3 bitangent : BITANGENT
 #endif
-    , bool isBackFace : SV_IsFrontFace
+    , bool isFrontFace : SV_IsFrontFace
 
 )
 {
@@ -105,6 +105,8 @@ PSOut PSMain(
         const float3 normalMapSample = t_normal.Sample(s_sampler, textureCoords).rgb * 2.0f - 1.0f;
         
         normal = normalize(mul(tangentRotationMatrix, normalMapSample));
+    
+        normal = (normal + 1.0f) / 2.0f;
     }
 #endif
     
@@ -169,7 +171,7 @@ PSOut PSMain(
     float opacity = b_opacity;
 #endif
     
-    if (!isBackFace)
+    if (!isFrontFace)
         normal = -normal;
     
     
