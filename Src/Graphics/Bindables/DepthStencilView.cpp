@@ -67,6 +67,16 @@ DepthStencilType DepthStencilView::GetDepthStencilType() const
 	return DepthStencilType::singleResource;
 }
 
+DXGI_FORMAT DepthStencilView::GetFormat() const
+{
+	return m_texture.GetFormat();
+}
+
+DepthStencilClearValue DepthStencilView::GetClearValue() const
+{
+	return m_texture.GetDepthStencilClearValue();
+}
+
 DepthStencilViewMultiResource::DepthStencilViewMultiResource(Graphics& graphics)
 	:
 	DepthStencilViewBase(graphics, graphics.GetBufferCount())
@@ -117,4 +127,18 @@ GraphicsTexture* DepthStencilViewMultiResource::GetResource(unsigned int i)
 DepthStencilType DepthStencilViewMultiResource::GetDepthStencilType() const
 {
 	return DepthStencilType::multiResource;
+}
+
+DXGI_FORMAT DepthStencilViewMultiResource::GetFormat() const
+{
+	THROW_INTERNAL_ERROR_IF("Depth Stencil didn't own any resources", m_textures.empty());
+
+	return m_textures.front()->GetFormat();
+}
+
+DepthStencilClearValue DepthStencilViewMultiResource::GetClearValue() const
+{
+	THROW_INTERNAL_ERROR_IF("Depth Stencil didn't own any resources", m_textures.empty());
+
+	return m_textures.front()->GetDepthStencilClearValue();
 }

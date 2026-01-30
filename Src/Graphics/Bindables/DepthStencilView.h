@@ -26,6 +26,10 @@ public:
 
 	virtual DepthStencilType GetDepthStencilType() const = 0;
 
+	virtual DXGI_FORMAT GetFormat() const = 0;
+
+	virtual DepthStencilClearValue GetClearValue() const = 0;
+
 protected:
 	void CreateDSV(Graphics& graphics, D3D12_CPU_DESCRIPTOR_HANDLE& descriptor, GraphicsTexture* texture);
 
@@ -45,6 +49,10 @@ public:
 	virtual GraphicsTexture* GetResource(Graphics& graphics) override;
 
 	virtual DepthStencilType GetDepthStencilType() const override;
+
+	virtual DXGI_FORMAT GetFormat() const override;
+
+	virtual DepthStencilClearValue GetClearValue() const override;
 
 private:
 	D3D12_CPU_DESCRIPTOR_HANDLE m_descriptor;
@@ -67,6 +75,10 @@ public:
 	GraphicsTexture* GetResource(unsigned int i);
 
 	virtual DepthStencilType GetDepthStencilType() const override;
+
+	virtual DXGI_FORMAT GetFormat() const override;
+
+	virtual DepthStencilClearValue GetClearValue() const override;
 
 private:
 	std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> m_descriptors;
