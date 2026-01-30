@@ -115,44 +115,40 @@ void CommandList::EndEvent()
 
 void CommandList::BeginRenderPass(Graphics& graphics, RenderPass* renderPass)
 {
-	const std::vector<std::shared_ptr<RenderTarget>>& renderTargetViews = renderPass->GetRenderTargets();
-	std::shared_ptr<DepthStencilViewBase> depthStencilView = renderPass->GetDepthStencilView();
+	const std::vector<RenderPass::RenderTargetData>& renderTargetViews = renderPass->GetRenderTargets();
+	RenderPass::DepthStencilData depthStencilView = renderPass->GetDepthStencilView();
 	
 	std::vector<D3D12_RENDER_PASS_RENDER_TARGET_DESC> renderPasRenderTargetDescs(renderTargetViews.size(), {});
 	D3D12_RENDER_PASS_DEPTH_STENCIL_DESC renderPassDepthStencilDesc = {};
 
 	{
-		// static constants for accesses
-		static constexpr D3D12_RENDER_PASS_BEGINNING_ACCESS beginningAccess = { .Type = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_PRESERVE, .PreserveLocal = {.AdditionalWidth = 0, .AdditionalHeight = 0, } };
-		static constexpr D3D12_RENDER_PASS_ENDING_ACCESS endingAccess = { .Type = D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE, .PreserveLocal = {.AdditionalWidth = 0, .AdditionalHeight = 0, } };
-
 		// initializing descriptions for renderTargets
 		{
 			for (size_t i = 0; i < renderTargetViews.size(); i++)
 			{
-				RenderTarget* renderTarget = renderTargetViews.at(i).get();
+				const RenderPass::RenderTargetData& renderTargetInfo = renderTargetViews.at(i);
 				D3D12_RENDER_PASS_RENDER_TARGET_DESC& rtDesc = renderPasRenderTargetDescs[i];
 
-				rtDesc.cpuDescriptor = renderTarget->GetDescriptor(graphics);
-				rtDesc.BeginningAccess = beginningAccess;
-				rtDesc.EndingAccess = endingAccess;
+				rtDesc.cpuDescriptor = renderTargetInfo.resource->GetDescriptor(graphics);
+				rtDesc.BeginningAccess = CreateBeginningAccess(renderTargetInfo.loadOperation, renderTargetInfo.resource.get());
+				rtDesc.EndingAccess = CreateEndingAccess(renderTargetInfo.storeOperation);
 			}
 		}
 
 		// initializing description for depthStencil
-		if(depthStencilView)
+		if(depthStencilView.resource)
 		{
-			renderPassDepthStencilDesc.cpuDescriptor = depthStencilView->GetDescriptor(graphics);
-			renderPassDepthStencilDesc.DepthBeginningAccess = beginningAccess;
-			renderPassDepthStencilDesc.StencilBeginningAccess = beginningAccess;
-			renderPassDepthStencilDesc.DepthEndingAccess = endingAccess;
-			renderPassDepthStencilDesc.StencilEndingAccess = endingAccess;
+			renderPassDepthStencilDesc.cpuDescriptor = depthStencilView.resource->GetDescriptor(graphics);
+			renderPassDepthStencilDesc.DepthBeginningAccess = CreateBeginningAccess(depthStencilView.loadOperation, depthStencilView.resource.get());
+			renderPassDepthStencilDesc.StencilBeginningAccess = CreateBeginningAccess(depthStencilView.loadOperation, depthStencilView.resource.get());
+			renderPassDepthStencilDesc.DepthEndingAccess = CreateEndingAccess(depthStencilView.storeOperation);
+			renderPassDepthStencilDesc.StencilEndingAccess = CreateEndingAccess(depthStencilView.storeOperation);
 		}
 	}
 
 	unsigned int numRenderTargets = renderPasRenderTargetDescs.size();
 	const D3D12_RENDER_PASS_RENDER_TARGET_DESC* targetRTDesc = numRenderTargets > 0 ? renderPasRenderTargetDescs.data() : nullptr;
-	const D3D12_RENDER_PASS_DEPTH_STENCIL_DESC* targetDDSesc = depthStencilView ? &renderPassDepthStencilDesc : nullptr;
+	const D3D12_RENDER_PASS_DEPTH_STENCIL_DESC* targetDDSesc = depthStencilView.resource ? &renderPassDepthStencilDesc : nullptr;
 
 	THROW_INFO_ERROR(pCommandList->BeginRenderPass(
 		numRenderTargets,
@@ -525,4 +521,81 @@ void CommandList::CopyResource(Graphics& graphics, ID3D12Resource* dstResource, 
 		dstResource,
 		srcResource
 	));
+}
+
+D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE CommandList::GetBeginningOP(ResourceDataOperation op)
+{
+	switch (op)
+	{
+	case ResourceDataOperation::keep:
+		return D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_PRESERVE;
+	case ResourceDataOperation::clear:
+		return D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_CLEAR;
+	case ResourceDataOperation::discard:
+		return D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_DISCARD;
+	default:
+		THROW_INTERNAL_ERROR("Failed to map resource operation to DX counterpart");
+	}
+}
+
+D3D12_RENDER_PASS_ENDING_ACCESS_TYPE CommandList::GetEndingOP(ResourceDataOperation op)
+{
+	switch (op)
+	{
+	case ResourceDataOperation::keep:
+		return D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
+	case ResourceDataOperation::discard:
+		return D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_DISCARD;
+	default:
+		THROW_INTERNAL_ERROR("Failed to map resource operation to DX counterpart");
+	}
+}
+
+D3D12_RENDER_PASS_BEGINNING_ACCESS CommandList::CreateBeginningAccess(ResourceDataOperation op, auto* resource)
+{
+	if (op == ResourceDataOperation::clear)
+	{
+		auto GetClearValue = [](auto* resource)
+			{
+				D3D12_CLEAR_VALUE clearValue = {};
+				clearValue.Format = resource->GetFormat();
+
+				using T = std::remove_pointer_t<decltype(resource)>;
+
+				if constexpr (std::is_base_of_v<RenderTarget, T>)
+				{
+					RenderTargetClearValue rtcv = resource->GetClearValue();
+
+					clearValue.Color[0] = rtcv.x;
+					clearValue.Color[1] = rtcv.y;
+					clearValue.Color[2] = rtcv.z;
+					clearValue.Color[3] = rtcv.w;
+				}
+				else if constexpr (std::is_base_of_v<DepthStencilViewBase, T>)
+				{
+					DepthStencilClearValue dscv = resource->GetClearValue();
+
+					clearValue.DepthStencil = {
+						.Depth = dscv.depth,
+						.Stencil = dscv.stencil
+					};
+				}
+				else
+				{
+					static_assert(false, "unsupported resource type was passed");
+				}
+
+				return clearValue;
+			};
+
+		return D3D12_RENDER_PASS_BEGINNING_ACCESS{ .Type = GetBeginningOP(op), .Clear = {.ClearValue = GetClearValue(resource)} };
+	}
+
+	// if discard is passed, .PreserveLocal being initialized doesn't matter
+	return D3D12_RENDER_PASS_BEGINNING_ACCESS{ .Type = GetBeginningOP(op), .PreserveLocal = {.AdditionalWidth = 0, .AdditionalHeight = 0} };
+}
+
+D3D12_RENDER_PASS_ENDING_ACCESS CommandList::CreateEndingAccess(ResourceDataOperation op)
+{
+	return D3D12_RENDER_PASS_ENDING_ACCESS{ .Type = GetEndingOP(op), .PreserveLocal = {.AdditionalWidth = 0, .AdditionalHeight = 0} };
 }

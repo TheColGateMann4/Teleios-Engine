@@ -37,8 +37,8 @@ void GraphicsStepRenderJob::Initialize(Graphics& graphics, Pipeline& pipeline)
 
 	m_rootSignature = std::make_unique<RootSignature>();
 
-	const std::vector<std::shared_ptr<RenderTarget>>& renderTargets = m_pass->GetRenderTargets();
-	std::shared_ptr<DepthStencilViewBase> depthStencilView = m_pass->GetDepthStencilView();
+	const std::vector<RenderPass::RenderTargetData>& renderTargets = m_pass->GetRenderTargets();
+	RenderPass::DepthStencilData depthStencilView = m_pass->GetDepthStencilView();
 
 	// initializing root signature
 	{
@@ -77,9 +77,9 @@ void GraphicsStepRenderJob::Initialize(Graphics& graphics, Pipeline& pipeline)
 			m_pipelineState->SetNumRenderTargets(renderTargets.size());
 
 			for(int i = 0; i < renderTargets.size(); i++)
-				m_pipelineState->SetRenderTargetFormat(i, renderTargets.at(i)->GetFormat());
+				m_pipelineState->SetRenderTargetFormat(i, renderTargets.at(i).resource->GetFormat());
 
-			m_pipelineState->SetDepthStencilFormat(depthStencilView ? depthStencilView->GetResource(graphics)->GetFormat() : DXGI_FORMAT_UNKNOWN);
+			m_pipelineState->SetDepthStencilFormat(depthStencilView.resource ? depthStencilView.resource->GetResource(graphics)->GetFormat() : DXGI_FORMAT_UNKNOWN);
 		}
 
 		m_pipelineState->Finish(graphics); // Finish() call gets object from desc it made up

@@ -17,22 +17,22 @@ void RenderPass::SubmitJobs(RenderManager& renderManager)
 
 }
 
-void RenderPass::AddRenderTarget(std::shared_ptr<RenderTarget> renderTarget)
+void RenderPass::AddRenderTarget(std::shared_ptr<RenderTarget> renderTarget, ResourceDataOperation loadop, ResourceDataOperation storeop)
 {
-	m_renderTargets.push_back(renderTarget);
+	m_renderTargets.push_back({ renderTarget, loadop, storeop });
 }
 
-void RenderPass::SetDepthStencilView(std::shared_ptr<DepthStencilViewBase> depthStencil)
+void RenderPass::SetDepthStencilView(std::shared_ptr<DepthStencilViewBase> depthStencil, ResourceDataOperation loadop, ResourceDataOperation storeop)
 {
-	m_depthStencil = depthStencil;
+	m_depthStencil = { depthStencil, loadop, storeop };
 }
 
-const std::vector<std::shared_ptr<RenderTarget>>& RenderPass::GetRenderTargets() const
+const std::vector<RenderPass::RenderTargetData>& RenderPass::GetRenderTargets() const
 {
 	return m_renderTargets;
 }
 
-std::shared_ptr<DepthStencilViewBase> RenderPass::GetDepthStencilView() const
+RenderPass::DepthStencilData RenderPass::GetDepthStencilView() const
 {
 	return m_depthStencil;
 }
@@ -40,10 +40,10 @@ std::shared_ptr<DepthStencilViewBase> RenderPass::GetDepthStencilView() const
 void RenderPass::SetCorrectStates(Graphics& graphics, CommandList* commandList)
 {
 	for (auto& renderTarget : m_renderTargets)
-		commandList->SetResourceState(graphics, renderTarget.get(), D3D12_RESOURCE_STATE_RENDER_TARGET);
+		commandList->SetResourceState(graphics, renderTarget.resource.get(), D3D12_RESOURCE_STATE_RENDER_TARGET);
 
-	if (m_depthStencil)
-		commandList->SetAllResourcesStates(graphics, m_depthStencil->GetResource(graphics), D3D12_RESOURCE_STATE_DEPTH_WRITE);
+	if (m_depthStencil.resource)
+		commandList->SetAllResourcesStates(graphics, m_depthStencil.resource->GetResource(graphics), D3D12_RESOURCE_STATE_DEPTH_WRITE);
 }
 
 void RenderPass::Execute(Graphics& graphics, CommandList* commandList)

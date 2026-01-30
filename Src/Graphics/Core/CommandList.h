@@ -21,6 +21,7 @@ struct ResourceFootprint;
 class GraphicsTexture;
 class ViewPort;
 class RenderPass;
+enum class ResourceDataOperation : uint8_t;
 
 
 struct ID3D12Resource;
@@ -129,6 +130,14 @@ public:
 	void CopyBufferToTexture(Graphics& graphics, ID3D12Resource* dstResource, ResourceFootprint& dstFootprint, ID3D12Resource* srcResource, unsigned int MipMapLvel);
 
 	void CopyResource(Graphics& graphics, ID3D12Resource* dstResource, ID3D12Resource* srcResource);
+
+
+private: // helpers
+	D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE GetBeginningOP(ResourceDataOperation op);
+	D3D12_RENDER_PASS_ENDING_ACCESS_TYPE GetEndingOP(ResourceDataOperation op);
+
+	D3D12_RENDER_PASS_BEGINNING_ACCESS CreateBeginningAccess(ResourceDataOperation op, auto* resource);
+	D3D12_RENDER_PASS_ENDING_ACCESS CreateEndingAccess(ResourceDataOperation op);
 
 private:
 	std::vector<Microsoft::WRL::ComPtr<ID3D12CommandAllocator>> m_pCommandAllocators;

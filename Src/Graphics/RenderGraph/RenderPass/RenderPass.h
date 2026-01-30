@@ -8,8 +8,30 @@ class Graphics;
 class CommandList;
 class RenderManager;
 
+enum class ResourceDataOperation : uint8_t
+{
+	keep,
+	clear,
+	discard
+};
+
 class RenderPass
 {
+public:
+	struct RenderTargetData
+	{
+		std::shared_ptr<RenderTarget> resource;
+		ResourceDataOperation loadOperation = ResourceDataOperation::keep;
+		ResourceDataOperation storeOperation = ResourceDataOperation::keep;
+	};
+
+	struct DepthStencilData
+	{
+		std::shared_ptr<DepthStencilViewBase> resource;
+		ResourceDataOperation loadOperation = ResourceDataOperation::keep;
+		ResourceDataOperation storeOperation = ResourceDataOperation::keep;
+	};
+
 public: 
 	// resource initialization for passes with their own work
 	virtual void Initialize(Graphics& graphics);
@@ -23,16 +45,16 @@ public:
 	void Execute(Graphics& graphics, CommandList* commandList);
 
 public: // RenderTargets and DepthStecilViews
-	void AddRenderTarget(std::shared_ptr<RenderTarget> renderTarget);
-	void SetDepthStencilView(std::shared_ptr<DepthStencilViewBase> depthStencil);
+	void AddRenderTarget(std::shared_ptr<RenderTarget> renderTarget, ResourceDataOperation loadop = ResourceDataOperation::keep, ResourceDataOperation storeop = ResourceDataOperation::keep);
+	void SetDepthStencilView(std::shared_ptr<DepthStencilViewBase> depthStencil, ResourceDataOperation loadop = ResourceDataOperation::keep, ResourceDataOperation storeop = ResourceDataOperation::keep);
 
-	const std::vector<std::shared_ptr<RenderTarget>>& GetRenderTargets() const;
-	std::shared_ptr<DepthStencilViewBase> GetDepthStencilView() const;
+	const std::vector<RenderTargetData>& GetRenderTargets() const;
+	DepthStencilData GetDepthStencilView() const;
 
 protected:
 	virtual void ExecutePass(Graphics& graphics, CommandList* commandList) = 0;
 
 private:
-	std::vector<std::shared_ptr<RenderTarget>> m_renderTargets;
-	std::shared_ptr<DepthStencilViewBase> m_depthStencil;
+	std::vector<RenderTargetData> m_renderTargets;
+	DepthStencilData m_depthStencil;
 };
