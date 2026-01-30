@@ -8,12 +8,12 @@ class GraphicsPipelineState;
 class BlendState : public Bindable, public PipelineStateBindable
 {
 public:
-	BlendState(Graphics& graphics);
+	BlendState(Graphics& graphics, bool alphaToCoverage = true);
 
 public:
-	static std::shared_ptr<BlendState> GetBindableResource(Graphics& graphics);
+	static std::shared_ptr<BlendState> GetBindableResource(Graphics& graphics, bool alphaToCoverage = true);
 
-	static std::string GetIdentifier();
+	static std::string GetIdentifier(bool alphaToCoverage);
 
 public:
 	D3D12_BLEND_DESC Get();

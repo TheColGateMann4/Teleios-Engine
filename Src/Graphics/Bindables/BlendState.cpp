@@ -3,7 +3,7 @@
 
 #include "Graphics/Core/BindableResourceList.h"
 
-BlendState::BlendState(Graphics& graphics)
+BlendState::BlendState(Graphics& graphics, bool alphaToCoverage)
 {
 	D3D12_RENDER_TARGET_BLEND_DESC renderTargetBlendDesc = {};
 	renderTargetBlendDesc.BlendEnable = true;
@@ -18,19 +18,21 @@ BlendState::BlendState(Graphics& graphics)
 	renderTargetBlendDesc.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 
 	m_desc = {};
-	m_desc.AlphaToCoverageEnable = true;			// alpha will be used for output color
+	m_desc.AlphaToCoverageEnable = alphaToCoverage;			// alpha will be used for output color
 	m_desc.IndependentBlendEnable = false;			// every render target will use blend desc at index 0
 	m_desc.RenderTarget[0] = renderTargetBlendDesc;
 }
 
-std::shared_ptr<BlendState> BlendState::GetBindableResource(Graphics& graphics)
+std::shared_ptr<BlendState> BlendState::GetBindableResource(Graphics& graphics, bool alphaToCoverage)
 {
-	return BindableResourceList::GetBindableResource<BlendState>(graphics);
+	return BindableResourceList::GetBindableResource<BlendState>(graphics, alphaToCoverage);
 }
 
-std::string BlendState::GetIdentifier()
+std::string BlendState::GetIdentifier(bool alphaToCoverage)
 {
 	std::string resultString = "BlendState#";
+
+	resultString += std::to_string(alphaToCoverage);
 
 	return resultString;
 }
