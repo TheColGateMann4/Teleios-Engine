@@ -3,6 +3,7 @@
 
 #include "RenderPass/Geometry/PreDepthPass.h"
 #include "RenderPass/Geometry/GBufferPass.h"
+#include "RenderPass/Geometry/EmissivePass.h"
 #include "RenderPass/Fullscreen/FullscreenRenderPass.h"
 #include "RenderPass/Fullscreen/LightningPass.h"
 #include "RenderPass/GuiPass.h"
@@ -38,14 +39,22 @@ void RenderGraph::Initialize(Graphics& graphics)
 	std::shared_ptr<ShaderResourceViewMultiResource> depthsrv = std::make_shared<ShaderResourceViewMultiResource>(graphics, graphics.GetDepthStencil().get(), 3);
 
 	{
-		std::shared_ptr<LightningPass> geometryPass = std::make_shared<LightningPass>(graphics, GetRenderManager());
-		geometryPass->AddRenderTarget(graphics.GetBackBuffer());
-		geometryPass->AddBindable(rt0srv);
-		geometryPass->AddBindable(rt1srv);
-		geometryPass->AddBindable(rt2srv);
-		geometryPass->AddBindable(depthsrv);
+		std::shared_ptr<LightningPass> lightningPass = std::make_shared<LightningPass>(graphics, GetRenderManager());
+		lightningPass->AddRenderTarget(graphics.GetBackBuffer());
+		lightningPass->AddBindable(rt0srv);
+		lightningPass->AddBindable(rt1srv);
+		lightningPass->AddBindable(rt2srv);
+		lightningPass->AddBindable(depthsrv);
 
-		AddRenderPass(geometryPass);
+		AddRenderPass(lightningPass);
+	}
+
+	{
+		std::shared_ptr<EmissivePass> emissivePass = std::make_shared<EmissivePass>();
+		emissivePass->AddRenderTarget(graphics.GetBackBuffer());
+		emissivePass->SetDepthStencilView(graphics.GetDepthStencil());
+
+		AddRenderPass(emissivePass);
 	}
 
 	{

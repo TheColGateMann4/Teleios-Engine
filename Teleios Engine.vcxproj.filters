@@ -78,6 +78,7 @@
     <ClCompile Include="Src\Graphics\RenderGraph\RenderJob\GraphicsStepRenderJob.cpp" />
     <ClCompile Include="Src\Graphics\RenderGraph\RenderPass\Geometry\GBufferPass.cpp" />
     <ClCompile Include="Src\Graphics\RenderGraph\RenderPass\Fullscreen\LightningPass.cpp" />
+    <ClCompile Include="Src\Graphics\RenderGraph\RenderPass\Geometry\EmissivePass.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Src\Application.h" />
@@ -160,6 +161,7 @@
     <ClInclude Include="Src\Graphics\RenderGraph\RenderJob\GraphicsStepRenderJob.h" />
     <ClInclude Include="Src\Graphics\RenderGraph\RenderPass\Geometry\GBufferPass.h" />
     <ClInclude Include="Src\Graphics\RenderGraph\RenderPass\Fullscreen\LightningPass.h" />
+    <ClInclude Include="Src\Graphics\RenderGraph\RenderPass\Geometry\EmissivePass.h" />
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="Dependencies\zlib1.dll" />

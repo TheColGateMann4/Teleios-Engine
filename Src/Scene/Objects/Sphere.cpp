@@ -24,7 +24,7 @@ Sphere::Sphere(Graphics& graphics, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3
 	m_transform.SetTransformConstantBuffer(std::make_shared<TransformConstantBuffer>(graphics));
 
 
-	RenderTechnique technique(RenderJob::JobType::GBuffer);
+	RenderTechnique technique(RenderJob::JobType::Emissive);
 	RenderGraphicsStep step;
 	{
 		DynamicVertex::DynamicVertexLayout vertexLayout;
@@ -39,7 +39,7 @@ Sphere::Sphere(Graphics& graphics, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3
 		step.AddBindable(Shader::GetBindableResource(graphics, L"VS", ShaderType::VertexShader));
 		step.AddBindable(BlendState::GetBindableResource(graphics));
 		step.AddBindable(RasterizerState::GetBindableResource(graphics));
-		step.AddBindable(DepthStencilState::GetBindableResource(graphics, DepthStencilState::DepthComparisonFunc::Equal));
+		step.AddBindable(DepthStencilState::GetBindableResource(graphics, DepthStencilState::DepthComparisonFunc::Less));
 		step.AddBindable(PrimitiveTechnology::GetBindableResource(graphics, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE));
 		step.AddStaticBindable("lightBuffer");
 		step.AddBindable(m_transform.GetTransformConstantBuffer());
