@@ -11,7 +11,7 @@ void RenderGraph::Initialize(Graphics& graphics)
 {
 	{
 		std::shared_ptr<PreDepthPass> preDepthPass = std::make_shared<PreDepthPass>();
-		preDepthPass->SetDepthStencilView(graphics.GetDepthStencil());
+		preDepthPass->SetDepthStencilView(graphics.GetDepthStencil(), ResourceDataOperation::clear);
 
 		AddRenderPass(preDepthPass);
 	}
@@ -24,9 +24,9 @@ void RenderGraph::Initialize(Graphics& graphics)
 
 	{
 		std::shared_ptr<GBufferPass> geometryPass = std::make_shared<GBufferPass>();
-		geometryPass->AddRenderTarget(rt0);
-		geometryPass->AddRenderTarget(rt1);
-		geometryPass->AddRenderTarget(rt2);
+		geometryPass->AddRenderTarget(rt0, ResourceDataOperation::clear);
+		geometryPass->AddRenderTarget(rt1, ResourceDataOperation::clear);
+		geometryPass->AddRenderTarget(rt2, ResourceDataOperation::clear);
 		geometryPass->SetDepthStencilView(graphics.GetDepthStencil());
 	
 		AddRenderPass(geometryPass);
@@ -50,7 +50,7 @@ void RenderGraph::Initialize(Graphics& graphics)
 
 	{
 		std::shared_ptr<FullscreenRenderPass> fullscreenPass = std::make_shared<FullscreenRenderPass>(graphics, GetRenderManager());
-		fullscreenPass->AddRenderTarget(graphics.GetSwapChainBuffer());
+		fullscreenPass->AddRenderTarget(graphics.GetSwapChainBuffer(), ResourceDataOperation::discard);
 		AddRenderPass(fullscreenPass);
 	}
 
