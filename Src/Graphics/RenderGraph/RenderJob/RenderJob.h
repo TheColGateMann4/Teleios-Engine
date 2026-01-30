@@ -12,7 +12,7 @@ public:
 	{
 		None = -1,
 		GBuffer = 0,
-		DepthPass,
+		Depth,
 		Emissive,
 
 		Count

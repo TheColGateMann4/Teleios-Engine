@@ -62,7 +62,7 @@ void Mesh::SubmitJobs(Renderer& renderer)
 
 void Mesh::CreateImplicitTechniques(Graphics& graphics, Pipeline& pipeline)
 {
-	if(HasTechnique(RenderJob::JobType::GBuffer) && !HasTechnique(RenderJob::JobType::DepthPass))
+	if(HasTechnique(RenderJob::JobType::GBuffer) && !HasTechnique(RenderJob::JobType::Depth))
 		CreateDepthTechnique(graphics, pipeline);
 }
 
@@ -78,7 +78,7 @@ void Mesh::CreateDepthTechnique(Graphics& graphics, Pipeline& pipeline)
 
 	//creating technique
 	{
-		RenderTechnique depthTechnique(RenderJob::JobType::DepthPass);
+		RenderTechnique depthTechnique(RenderJob::JobType::Depth);
 
 		{
 			RenderGraphicsStep depthStep;		

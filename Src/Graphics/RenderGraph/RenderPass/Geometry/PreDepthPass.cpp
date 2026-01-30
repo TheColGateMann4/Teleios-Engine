@@ -2,5 +2,5 @@
 
 RenderJob::JobType PreDepthPass::GetWantedJob() const
 {
-	return RenderJob::JobType::DepthPass;
+	return RenderJob::JobType::Depth;
 }
