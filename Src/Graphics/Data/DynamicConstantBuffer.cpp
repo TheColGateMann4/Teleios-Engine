@@ -163,7 +163,7 @@ bool DynamicConstantBuffer::ConstantBufferData::DrawImguiProperties()
 		{
 			case ElementType::Int:
 			{
-				auto imguiIntData = dynamic_cast<ImguiIntData*>(layoutElement.imguiData.get());
+				auto imguiIntData = static_cast<ImguiIntData*>(layoutElement.imguiData.get());
 
 				if (imguiIntData->ShouldShow())
 					checkChanged(changed, ImGui::SliderInt(layoutElement.name, reinterpret_cast<int*>(elementData), imguiIntData->min, imguiIntData->max, imguiIntData->format, imguiIntData->flags));
@@ -177,7 +177,7 @@ bool DynamicConstantBuffer::ConstantBufferData::DrawImguiProperties()
 			}
 			case ElementType::Float:
 			{
-				auto imguiFloatData = dynamic_cast<ImguiFloatData*>(layoutElement.imguiData.get());
+				auto imguiFloatData = static_cast<ImguiFloatData*>(layoutElement.imguiData.get());
 
 				if (imguiFloatData->ShouldShow())
 					checkChanged(changed, ImGui::SliderFloat(layoutElement.name, reinterpret_cast<float*>(elementData), imguiFloatData->min, imguiFloatData->max, imguiFloatData->format, imguiFloatData->flags));
@@ -185,7 +185,7 @@ bool DynamicConstantBuffer::ConstantBufferData::DrawImguiProperties()
 			}
 			case ElementType::Float2:
 			{
-				auto imguiFloatData = dynamic_cast<ImguiFloatData*>(layoutElement.imguiData.get());
+				auto imguiFloatData = static_cast<ImguiFloatData*>(layoutElement.imguiData.get());
 
 				if (imguiFloatData->ShouldShow())
 					checkChanged(changed, ImGui::SliderFloat2(layoutElement.name, reinterpret_cast<float*>(elementData), imguiFloatData->min, imguiFloatData->max, imguiFloatData->format, imguiFloatData->flags));
@@ -193,7 +193,7 @@ bool DynamicConstantBuffer::ConstantBufferData::DrawImguiProperties()
 			}
 			case ElementType::Float3:
 			{
-				auto imguiColorData = dynamic_cast<ImguiColorData*>(layoutElement.imguiData.get());
+				auto imguiColorData = static_cast<ImguiColorData*>(layoutElement.imguiData.get());
 
 				if (imguiColorData->ShouldShow())
 					checkChanged(changed, ImGui::ColorEdit3(layoutElement.name, reinterpret_cast<float*>(elementData), imguiColorData->flags));
@@ -201,7 +201,7 @@ bool DynamicConstantBuffer::ConstantBufferData::DrawImguiProperties()
 			}
 			case ElementType::Float4:
 			{
-				auto imguiColorData = dynamic_cast<ImguiColorData*>(layoutElement.imguiData.get());
+				auto imguiColorData = static_cast<ImguiColorData*>(layoutElement.imguiData.get());
 
 				if (imguiColorData->ShouldShow())
 					checkChanged(changed, ImGui::ColorEdit4(layoutElement.name, reinterpret_cast<float*>(elementData), imguiColorData->flags));
