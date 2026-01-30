@@ -16,22 +16,25 @@ GraphicsTexture::GraphicsTexture(Graphics& graphics, unsigned int width, unsigne
 	Initialize(graphics, flags, nullptr);
 }
 
-GraphicsTexture::GraphicsTexture(Graphics& graphics, unsigned int width, unsigned int height, unsigned int mipLevels, DXGI_FORMAT format, DirectX::XMFLOAT4 optimizedClearValue, CPUAccess cpuAccess, D3D12_RESOURCE_STATES state, D3D12_RESOURCE_FLAGS flags)
+GraphicsTexture::GraphicsTexture(Graphics& graphics, unsigned int width, unsigned int height, unsigned int mipLevels, DXGI_FORMAT format, DirectX::XMFLOAT4 clearValue, CPUAccess cpuAccess, D3D12_RESOURCE_STATES state, D3D12_RESOURCE_FLAGS flags)
 	:
 	GraphicsResource(format, cpuAccess, state),
 	m_width(width),
 	m_height(height),
 	m_mipLevels(mipLevels),
+    m_type(GraphicsTextureType::renderTarget),
 	m_states(m_mipLevels, { D3D12_RESOURCE_STATE_COMMON, state })
 {
-	D3D12_CLEAR_VALUE clearValue = {};
-	clearValue.Format = format;
-	clearValue.Color[0] = optimizedClearValue.x;
-	clearValue.Color[1] = optimizedClearValue.y;
-	clearValue.Color[2] = optimizedClearValue.z;
-	clearValue.Color[3] = optimizedClearValue.w;
+    m_clearValue.renderTarget = clearValue;
 
-	Initialize(graphics, flags, &clearValue);
+	D3D12_CLEAR_VALUE cv = {};
+    cv.Format = format;
+    cv.Color[0] = clearValue.x;
+    cv.Color[1] = clearValue.y;
+    cv.Color[2] = clearValue.z;
+    cv.Color[3] = clearValue.w;
+
+	Initialize(graphics, flags, &cv);
 }
 
 GraphicsTexture::GraphicsTexture(Graphics& graphics, unsigned int width, unsigned int height, unsigned int mipLevels, DXGI_FORMAT format, float depthClearValue, uint8_t stencilClearValue, CPUAccess cpuAccess, D3D12_RESOURCE_STATES state, D3D12_RESOURCE_FLAGS flags)
@@ -40,8 +43,12 @@ GraphicsTexture::GraphicsTexture(Graphics& graphics, unsigned int width, unsigne
 	m_width(width),
 	m_height(height),
 	m_mipLevels(mipLevels),
+    m_type(GraphicsTextureType::depthStencil),
 	m_states(m_mipLevels, { D3D12_RESOURCE_STATE_COMMON, state })
 {
+    m_clearValue.depthStencil.depth = depthClearValue;
+    m_clearValue.depthStencil.stencil = stencilClearValue;
+
 	D3D12_CLEAR_VALUE clearValue = {};
 	clearValue.Format = format;
 	clearValue.DepthStencil = {};
@@ -168,6 +175,20 @@ unsigned int GraphicsTexture::GetWidth() const
 unsigned int GraphicsTexture::GetHeight() const
 {
 	return m_height;
+}
+
+RenderTargetClearValue GraphicsTexture::GetRenderTargetClearValue() const
+{
+    THROW_INTERNAL_ERROR_IF("GraphicsTexture subtype was not render target", m_type != GraphicsTextureType::renderTarget);
+
+    return m_clearValue.renderTarget;
+}
+
+DepthStencilClearValue GraphicsTexture::GetDepthStencilClearValue() const
+{
+    THROW_INTERNAL_ERROR_IF("GraphicsTexture subtype was not depth stencil", m_type != GraphicsTextureType::depthStencil);
+
+    return m_clearValue.depthStencil;
 }
 
 void GraphicsTexture::UpdateUsingTempResource(Graphics& graphics, Pipeline& pipeline, const void* data, unsigned int rowSize, unsigned int rows, unsigned int rowPitch, unsigned int targetMip)

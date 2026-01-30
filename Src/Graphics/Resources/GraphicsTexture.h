@@ -8,14 +8,36 @@
 class Graphics;
 class Pipeline;
 
+using RenderTargetClearValue = DirectX::XMFLOAT4;
+
+struct DepthStencilClearValue
+{
+	float depth;
+	uint8_t stencil;
+};
+
+enum class GraphicsTextureType
+{
+	unkown,
+	renderTarget,
+	depthStencil
+};
+
 class GraphicsTexture : public GraphicsResource
 {
+private:
+	union ClearValue
+	{
+		RenderTargetClearValue renderTarget;
+		DepthStencilClearValue depthStencil;
+	};
+
 public:
 	// default resource constructor for textures
 	GraphicsTexture(Graphics& graphics, unsigned int width, unsigned int height, unsigned int mipLevels, DXGI_FORMAT format, CPUAccess cpuAccess = CPUAccess::notavailable, D3D12_RESOURCE_STATES state = D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_FLAGS flags = D3D12_RESOURCE_FLAG_NONE);
 
 	// Render Target resource constructor
-	GraphicsTexture(Graphics& graphics, unsigned int width, unsigned int height, unsigned int mipLevels, DXGI_FORMAT format, DirectX::XMFLOAT4 optimizedClearValue, CPUAccess cpuAccess = CPUAccess::notavailable, D3D12_RESOURCE_STATES state = D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_FLAGS flags = D3D12_RESOURCE_FLAG_NONE);
+	GraphicsTexture(Graphics& graphics, unsigned int width, unsigned int height, unsigned int mipLevels, DXGI_FORMAT format, DirectX::XMFLOAT4 clearValue, CPUAccess cpuAccess = CPUAccess::notavailable, D3D12_RESOURCE_STATES state = D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_FLAGS flags = D3D12_RESOURCE_FLAG_NONE);
 
 	// Depth Stencil resource constructor
 	GraphicsTexture(Graphics& graphics, unsigned int width, unsigned int height, unsigned int mipLevels, DXGI_FORMAT format, float depthClearValue, uint8_t stencilClearValue, CPUAccess cpuAccess = CPUAccess::notavailable, D3D12_RESOURCE_STATES state = D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_FLAGS flags = D3D12_RESOURCE_FLAG_NONE);
@@ -42,6 +64,9 @@ public:
 	unsigned int GetWidth() const;
 	unsigned int GetHeight() const;
 
+	RenderTargetClearValue GetRenderTargetClearValue() const;
+	DepthStencilClearValue GetDepthStencilClearValue() const;
+
 private:
 	void UpdateUsingTempResource(Graphics& graphics, Pipeline& pipeline, const void* data, unsigned int rowSize, unsigned int rows, unsigned int rowPitch, unsigned int targetMip = 0);
 	void UpdateLocalResource(Graphics& graphics, const void* data, unsigned int width, unsigned int height, DXGI_FORMAT format);
@@ -52,5 +77,7 @@ private:
 	unsigned int m_width;
 	unsigned int m_height;
 	unsigned int m_mipLevels;
+	GraphicsTextureType m_type = GraphicsTextureType::unkown;
 	std::vector<ResourceStates> m_states;
+	ClearValue m_clearValue;
 };
