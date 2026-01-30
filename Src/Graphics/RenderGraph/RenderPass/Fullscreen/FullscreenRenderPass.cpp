@@ -47,10 +47,7 @@ FullscreenRenderPass::FullscreenRenderPass(Graphics& graphics, RenderManager& re
 		*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("nearPlane") = defaultCameraSettings.NearZ;
 		*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("farPlane") = defaultCameraSettings.FarZ;
 
-		std::shared_ptr<CachedConstantBuffer> cameraData = std::make_shared<CachedConstantBuffer>(graphics, bufferData, std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::PixelShader, 0}});
-
-		m_pCameraData = cameraData.get();
-		m_bindables.push_back(std::move(cameraData));
+		m_pCameraData = std::make_shared<CachedConstantBuffer>(graphics, bufferData, std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::PixelShader, 0}});
 	}
 
 	m_bindables.push_back(StaticSampler::GetBindableResource(graphics));
@@ -71,6 +68,7 @@ void FullscreenRenderPass::Initialize(Graphics& graphics)
 		for (const auto& bind : m_bindables)
 			mesh.AddBindable(bind);
 
+		mesh.AddBindable(m_pCameraData); // b0
 		mesh.AddBindable(m_renderTargetSRV); // t0
 		mesh.AddBindable(Shader::GetBindableResource(graphics, L"PS_Fullscreen", ShaderType::PixelShader)); // ps
 		mesh.AddBindable(Shader::GetBindableResource(graphics, L"VS_Fullscreen", ShaderType::VertexShader)); // vs

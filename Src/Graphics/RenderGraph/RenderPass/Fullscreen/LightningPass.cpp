@@ -29,6 +29,7 @@ void LightningPass::Initialize(Graphics& graphics)
 	for (const auto& bind : m_bindables)
 		mesh.AddBindable(bind);
 
+	mesh.AddStaticBindable("lightBuffer");
 	mesh.AddBindable(Shader::GetBindableResource(graphics, L"PS_Lightning", ShaderType::PixelShader)); // ps
 	mesh.AddBindable(Shader::GetBindableResource(graphics, L"VS_Fullscreen", ShaderType::VertexShader)); // vs
 	mesh.AddBindable(PrimitiveTechnology::GetBindableResource(graphics, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)); // topology
