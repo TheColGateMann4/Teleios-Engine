@@ -30,6 +30,11 @@ BindableType RenderTarget::GetBindableType() const
 	return BindableType::bindable_renderTarget;
 }
 
+RenderTargetClearValue RenderTarget::GetClearValue() const
+{
+	return RenderTargetClearValue(0.0f, 0.0f, 0.0f, 0.0f);
+}
+
 /*
 			// Surface Render Target
 */
@@ -263,4 +268,11 @@ void BackBufferRenderTarget::SetResourceState(Graphics& graphics, D3D12_RESOURCE
 RenderTargetType BackBufferRenderTarget::GetRenderTargetType() const
 {
 	return RenderTargetType::backBuffer;
+}
+
+RenderTargetClearValue BackBufferRenderTarget::GetClearValue() const
+{
+	THROW_INTERNAL_ERROR_IF("Render Target didn't own any resources", m_ownedRenderTargets.empty());
+
+	return m_ownedRenderTargets.front().texture->GetRenderTargetClearValue();
 }

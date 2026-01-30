@@ -51,6 +51,8 @@ public:
 
 	virtual RenderTargetType GetRenderTargetType() const = 0;
 
+	virtual RenderTargetClearValue GetClearValue() const;
+
 protected:
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_pDescriptorHeap;
 	DXGI_FORMAT m_format;
@@ -110,6 +112,8 @@ public:
 	virtual void SetResourceState(Graphics& graphics, D3D12_RESOURCE_STATES newState) override;
 
 	virtual RenderTargetType GetRenderTargetType() const override;
+
+	virtual RenderTargetClearValue GetClearValue() const override;
 
 private:
 	std::vector<OwningRenderTargetData> m_ownedRenderTargets;
