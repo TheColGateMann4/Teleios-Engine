@@ -178,10 +178,20 @@ SceneObjectType Camera::GetSceneObjectType()
 	return SceneObjectType::camera;
 }
 
+void Camera::UpdateDecoratedName()
+{
+	m_decoratedName = m_originalName;
+
+	if (m_active)
+		m_decoratedName += " (Active)";
+}
+
 void Camera::SetActive(bool active)
 {
 	m_active = active;
 	m_viewChanged = true;
+
+	UpdateDecoratedName();
 }
 
 bool Camera::IsActive() const

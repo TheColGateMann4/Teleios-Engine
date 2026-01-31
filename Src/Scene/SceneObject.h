@@ -77,9 +77,19 @@ protected:
 public:
 	ObjectTransform* GetTransform();
 
-	std::string GetName() const;
 
+	std::string GetName() const;
 	void SetName(std::string newName);
+
+	std::string GetDecoratedName() const;
+	std::string GetOriginalName() const;
+
+	unsigned int GetNameIndex() const;
+	void SetNameIndex(unsigned int nameIndex);
+
+	void UpdateOriginalName();
+
+	virtual void UpdateDecoratedName();
 
 	virtual SceneObjectType GetSceneObjectType();
 
@@ -88,6 +98,9 @@ protected:
 	std::vector<Mesh> m_meshes;
 	std::vector<SceneObject*> m_children;
 	std::string m_name = "unnamed";
+	std::string m_originalName = "unnamed";
+	std::string m_decoratedName = "unnamed";
+	unsigned int m_nameIndex = 0;
 	bool m_isChild;
 	bool m_hideInHierarchy = false;
 };

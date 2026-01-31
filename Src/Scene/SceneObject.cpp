@@ -91,7 +91,7 @@ void SceneObject::DrawHierarchy(SceneObject** selectedObject)
 	if (!hasVisibleChildren())
 		flags |= flags |= ImGuiTreeNodeFlags_Leaf;
 
-	const bool nodeExpanded = ImGui::TreeNodeEx(m_name.c_str(), flags);
+	const bool nodeExpanded = ImGui::TreeNodeEx(GetDecoratedName().c_str(), flags);
 
 	if (ImGui::IsItemClicked())
 		*selectedObject = *selectedObject != this ? this : nullptr;
@@ -239,6 +239,49 @@ std::string SceneObject::GetName() const
 void SceneObject::SetName(std::string newName)
 {
 	m_name = newName;
+
+	UpdateOriginalName();
+	UpdateDecoratedName();
+}
+
+std::string SceneObject::GetDecoratedName() const
+{
+	return m_decoratedName;
+}
+
+std::string SceneObject::GetOriginalName() const
+{
+	return m_originalName;
+}
+
+unsigned int SceneObject::GetNameIndex() const
+{
+	return m_nameIndex;
+}
+
+void SceneObject::SetNameIndex(unsigned int nameIndex)
+{
+	m_nameIndex = nameIndex;
+
+	UpdateOriginalName();
+	UpdateDecoratedName();
+}
+
+void SceneObject::UpdateOriginalName()
+{
+	m_originalName = m_name;
+
+	if (m_nameIndex > 0)
+	{
+		m_originalName += " (";
+		m_originalName += std::to_string(m_nameIndex);
+		m_originalName += ")";
+	}
+}
+
+void SceneObject::UpdateDecoratedName()
+{
+	m_decoratedName = m_originalName;
 }
 
 SceneObjectType SceneObject::GetSceneObjectType()

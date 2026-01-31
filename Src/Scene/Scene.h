@@ -15,9 +15,10 @@ class Scene
 public:
 	void AddSceneObjectFromFile(Graphics& graphics, const char* path, float scale = 1.0f);
 
-	void AddSceneObjectFromFile(std::shared_ptr<Model> model, std::string objectName);
-
 	void AddSceneObject(std::shared_ptr<SceneObject> sceneObject);
+
+	// called only by ModelImporter
+	void AddSceneObjectFromFile(std::shared_ptr<Model> model, std::string objectName);
 
 public:
 	// starts initialization state in pipeline, allows copying GPU resources and performing GPU operations
@@ -44,18 +45,22 @@ public:
 	void SetActiveCamera(Camera* camera);
 
 private:
-	std::string GetOriginalName(std::string name);
+	unsigned int GetOriginalNameIndex(std::string name);
 
 	void UpdateObjectMatrices(Graphics& graphics);
 
 	void m_SetActiveCamera(Camera* camera);
 
 private:
+
 	std::vector<std::shared_ptr<SceneObject>> m_sceneObjects = {};
 	std::vector<Camera*> m_cameras;
 	Camera* m_activeCamera = nullptr;
 
 	std::vector<PointLight*> m_pointlights;
+
+	using NameBucket = std::vector<SceneObject*>;
+	std::unordered_map<std::string, NameBucket> m_nameRegistry;
 
 	SceneObject* m_objectSelectedInHierarchy = nullptr;
 };

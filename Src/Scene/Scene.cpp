@@ -15,23 +15,28 @@ void Scene::AddSceneObjectFromFile(Graphics& graphics, const char* path, float s
 	ModelImporter::AddSceneObjectFromFile(graphics, path, scale, *this);
 }
 
-void Scene::AddSceneObjectFromFile(std::shared_ptr<Model> model, std::string objectName)
-{
-	model->SetName(GetOriginalName(objectName));
-
-	m_sceneObjects.push_back(model);
-}
 
 void Scene::AddSceneObject(std::shared_ptr<SceneObject> sceneObject)
 {
 	SceneObjectType objectType = sceneObject->GetSceneObjectType();
+	SceneObject* pSceneObject = sceneObject.get();
 
 	if (objectType == SceneObjectType::camera)
-		m_cameras.push_back(static_cast<Camera*>(sceneObject.get())); 
+		m_cameras.push_back(static_cast<Camera*>(pSceneObject));
 	else if (objectType == SceneObjectType::pointlight)
-		m_pointlights.push_back(static_cast<PointLight*>(sceneObject.get()));
+		m_pointlights.push_back(static_cast<PointLight*>(pSceneObject));
 
 	m_sceneObjects.push_back(sceneObject);
+	m_nameRegistry[sceneObject->GetName()].push_back(pSceneObject);
+
+	sceneObject->SetNameIndex(GetOriginalNameIndex(sceneObject->GetName()));
+}
+
+void Scene::AddSceneObjectFromFile(std::shared_ptr<Model> model, std::string objectName)
+{
+	model->SetName(objectName);
+
+	AddSceneObject(model);
 }
 
 void Scene::BeginInitialization(Graphics& graphics)
@@ -179,9 +184,14 @@ void Scene::SetActiveCamera(Camera* camera)
 	m_SetActiveCamera(camera);
 }
 
-std::string Scene::GetOriginalName(std::string name)
+unsigned int Scene::GetOriginalNameIndex(std::string name)
 {
-	return name; // temporary
+	auto found = m_nameRegistry.find(name);
+
+	// we assume that object that is trying to get its index previously was pushed to name registry
+	THROW_INTERNAL_ERROR_IF("Failed to find name bucket of scene object", found == m_nameRegistry.end());
+
+	return found->second.size() - 1; // substracting 1 because our objects is already in the registry
 }
 
 void Scene::UpdateObjectMatrices(Graphics& graphics)

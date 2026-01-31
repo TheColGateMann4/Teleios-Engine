@@ -44,6 +44,8 @@ public:
 
 	virtual SceneObjectType GetSceneObjectType() override;
 
+	virtual void UpdateDecoratedName() override;
+
 public:
 	void SetActive(bool active);
 
