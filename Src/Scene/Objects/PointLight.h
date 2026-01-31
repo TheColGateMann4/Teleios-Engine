@@ -19,9 +19,13 @@ public:
 	
 	virtual void Update(Graphics& graphics, Pipeline& pipeline) override;
 
+	void UpdateLight(Graphics& graphics, Scene& scene);
+
 	virtual void DrawTransformPropeties() override;
 
 	virtual void DrawAdditionalPropeties(Graphics& graphics, Pipeline& pipeline) override;
+
+	virtual SceneObjectType GetSceneObjectType() override;
 
 private:
 	DirectX::XMFLOAT3 m_position;

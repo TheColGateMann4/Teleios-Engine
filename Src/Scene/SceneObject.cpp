@@ -28,7 +28,7 @@ void SceneObject::SubmitJobs(Renderer& renderer)
 		mesh.SubmitJobs(renderer);
 }
 
-void SceneObject::InternalUpdate(Graphics& graphics, Camera& camera, Pipeline& pipeline)
+void SceneObject::InternalUpdate(Graphics& graphics, Pipeline& pipeline)
 {
 	Update(graphics, pipeline);
 }
@@ -239,4 +239,9 @@ std::string SceneObject::GetName() const
 void SceneObject::SetName(std::string newName)
 {
 	m_name = newName;
+}
+
+SceneObjectType SceneObject::GetSceneObjectType()
+{
+	return SceneObjectType::unknown;
 }

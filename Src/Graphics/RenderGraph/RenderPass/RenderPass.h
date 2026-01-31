@@ -5,6 +5,8 @@
 #include "Graphics/RenderGraph/RenderJob/RenderJob.h"
 
 class Graphics;
+class RenderManager;
+class Scene;
 class CommandList;
 class RenderManager;
 
@@ -35,7 +37,7 @@ public:
 public: 
 	// resource initialization for passes with their own work
 	virtual void Initialize(Graphics& graphics);
-	virtual void InitializePassResources(Graphics& graphics, Pipeline& pipeline);
+	virtual void InitializePassResources(Graphics& graphics, Pipeline& pipeline, Scene& scene);
 
 	virtual void SubmitJobs(RenderManager& renderManager);
 

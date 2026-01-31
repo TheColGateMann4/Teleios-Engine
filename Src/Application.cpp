@@ -43,16 +43,16 @@ void Application::InitializeScene()
 
 
 	scene.AddSceneObject(std::make_shared<Camera>(graphics));
-	//scene.AddSceneObject(std::make_shared<Cube>(window.graphics));
-	//scene.AddSceneObjectFromFile(window.graphics, "Models/nanosuit/nanosuit.obj");
+	//scene.AddSceneObject(std::make_shared<Cube>(graphics));
+	//scene.AddSceneObjectFromFile(graphics, "Models/nanosuit/nanosuit.obj");
 	scene.AddSceneObjectFromFile(graphics, "Models/sponza/sponza.obj", 1.0f / 40.0f);
-	//scene.AddSceneObjectFromFile(window.graphics, "Models/intel_sponza/main1_sponza/NewSponza_Main_Yup_003.fbx", 1.0f);
-	//scene.AddSceneObjectFromFile(window.graphics, "Models/intel_sponza/pkg_a_curtains/NewSponza_Curtains_FBX_YUp.fbx", 1.0f);
+	//scene.AddSceneObjectFromFile(graphics, "Models/intel_sponza/main1_sponza/NewSponza_Main_Yup_003.fbx", 1.0f);
+	//scene.AddSceneObjectFromFile(graphics, "Models/intel_sponza/pkg_a_curtains/NewSponza_Curtains_FBX_YUp.fbx", 1.0f);
 
-	//scene.AddSceneObjectFromFile(window.graphics, "Models/intel_sponza/main1_sponza/NewSponza_Main_glTF_003.gltf");
-	//scene.AddSceneObjectFromFile(window.graphics, "Models/intel_sponza/pkg_a_curtains/NewSponza_Curtains_glTF.gltf");
-	//scene.AddSceneObjectFromFile(window.graphics, "Models/intel_sponza/pkg_b_ivy/NewSponza_IvyGrowth_glTF.gltf");
-	//scene.AddSceneObjectFromFile(window.graphics, "Models/intel_sponza/pkg_c_trees/NewSponza_CypressTree_glTF.gltf");
+	//scene.AddSceneObjectFromFile(graphics, "Models/intel_sponza/main1_sponza/NewSponza_Main_glTF_003.gltf");
+	//scene.AddSceneObjectFromFile(graphics, "Models/intel_sponza/pkg_a_curtains/NewSponza_Curtains_glTF.gltf");
+	//scene.AddSceneObjectFromFile(graphics, "Models/intel_sponza/pkg_b_ivy/NewSponza_IvyGrowth_glTF.gltf");
+	//scene.AddSceneObjectFromFile(graphics, "Models/intel_sponza/pkg_c_trees/NewSponza_CypressTree_glTF.gltf");
 
 	scene.AddSceneObject(std::make_shared<PointLight>(graphics, scene));
 

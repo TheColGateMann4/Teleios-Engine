@@ -56,16 +56,6 @@ void Pipeline::AddStaticResource(const char* resourceName, Bindable* bindable)
 	m_staticResources.push_back({ resourceName, bindable });
 }
 
-Camera* Pipeline::GetCurrentCamera() const
-{
-	return m_camera;
-}
-
-void Pipeline::SetCurrentCamera(Camera* newCurrentCamera)
-{
-	m_camera = newCurrentCamera;
-}
-
 void Pipeline::AddBufferToCopyPipeline(GraphicsResource* dst, GraphicsResource* src)
 {
 	m_buffersToCopy.push_back({ dst , src});

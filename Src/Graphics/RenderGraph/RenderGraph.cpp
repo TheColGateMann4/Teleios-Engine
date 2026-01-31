@@ -80,12 +80,12 @@ void RenderGraph::InitializeJobs(Graphics& graphics, Pipeline& pipeline)
 	m_renderManager.InitializeJobs(graphics, pipeline);
 }
 
-void RenderGraph::InitializePasses(Graphics& graphics, Pipeline& pipeline)
+void RenderGraph::InitializePasses(Graphics& graphics, Pipeline& pipeline, Scene& scene)
 {
 	for (auto& renderPass : m_renderPasses)
 	{
 		renderPass->Initialize(graphics);
-		renderPass->InitializePassResources(graphics, pipeline);
+		renderPass->InitializePassResources(graphics, pipeline, scene);
 	}
 }
 

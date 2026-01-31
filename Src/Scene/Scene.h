@@ -7,6 +7,7 @@ class Input;
 class Graphics;
 class SceneObject;
 class Camera;
+class PointLight;
 class Model;
 
 class Scene
@@ -38,6 +39,8 @@ public:
 
 	std::vector<std::shared_ptr<SceneObject>>& GetObjects();
 
+	Camera* GetCurrentCamera() const;
+
 private:
 	std::string GetOriginalName(std::string name);
 
@@ -45,6 +48,10 @@ private:
 
 private:
 	std::vector<std::shared_ptr<SceneObject>> m_sceneObjects = {};
-	Camera* m_camera = nullptr;
+	std::vector<Camera*> m_cameras;
+	Camera* m_activeCamera = nullptr;
+
+	std::vector<PointLight*> m_pointlights;
+
 	SceneObject* m_objectSelectedInHierarchy = nullptr;
 };

@@ -23,8 +23,6 @@ public:
 	Camera(Graphics& graphics, DirectX::XMFLOAT3 position = { 0.0f, 0.0f, -5.0f }, DirectX::XMFLOAT3 rotation = { 0.0f, 0.0f, 0.0f }, Settings* settings = nullptr);
 
 public:
-	virtual void Initialize(Graphics& graphics, Pipeline& pipeline) override;
-
 	void UpdateCamera(const Input& input, bool cursorLocked);
 
 	virtual void DrawTransformPropeties() override;
@@ -43,6 +41,8 @@ public:
 	bool PerspectiveChanged() const;
 
 	const Settings* GetSettings() const;
+
+	virtual SceneObjectType GetSceneObjectType() override;
 
 private:
 	void UpdatePerspectiveMatrix();

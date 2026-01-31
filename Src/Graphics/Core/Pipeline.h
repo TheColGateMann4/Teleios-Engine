@@ -22,10 +22,6 @@ public:
 	void AddStaticResource(const char* resourceName, Bindable* bindable);
 
 public:
-	Camera* GetCurrentCamera() const;
-	void SetCurrentCamera(Camera* newCurrentCamera);
-
-public:
 	void AddBufferToCopyPipeline(GraphicsResource* dst, GraphicsResource* src);
 
 public:
@@ -37,7 +33,6 @@ public:
 	std::shared_ptr<CommandList> m_graphicsCommandList;
 
 	std::vector<std::pair<const char*, Bindable*>> m_staticResources;
-	Camera* m_camera = nullptr;
 
 	struct CopyData
 	{

@@ -51,8 +51,14 @@ void PointLight::AddStaticResources(Pipeline& pipeline)
 
 void PointLight::Update(Graphics& graphics, Pipeline& pipeline)
 {
+	// dragging our model with us
+	m_pSphereModel->GetTransform()->SetPosition(m_position);
+}
+
+void PointLight::UpdateLight(Graphics& graphics, Scene& scene)
+{
 	// updating light constant buffer with light position in camera space
-	Camera* activeCamera = pipeline.GetCurrentCamera();
+	Camera* activeCamera = scene.GetCurrentCamera();
 
 	if (m_transformChanged || activeCamera->ViewChanged())
 	{
@@ -68,9 +74,6 @@ void PointLight::Update(Graphics& graphics, Pipeline& pipeline)
 
 		m_transformChanged = false;
 	}
-
-	// dragging our model with us
-	m_pSphereModel->GetTransform()->SetPosition(m_position);
 }
 
 void PointLight::DrawTransformPropeties()
@@ -98,4 +101,9 @@ void PointLight::DrawAdditionalPropeties(Graphics& graphics, Pipeline& pipeline)
 	m_lightBuffer->DrawImguiProperties(graphics);
 
 	m_pSphereModel->DrawAdditionalPropeties(graphics, pipeline);
+}
+
+SceneObjectType PointLight::GetSceneObjectType()
+{
+	return SceneObjectType::pointlight;
 }

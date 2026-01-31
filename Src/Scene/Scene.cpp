@@ -3,6 +3,7 @@
 #include "System/Window.h"
 #include "SceneObject.h"
 #include "Objects/Camera.h"
+#include "Objects/PointLight.h"
 #include "Objects/Model.h"
 
 #include "ModelImporter.h"
@@ -23,8 +24,12 @@ void Scene::AddSceneObjectFromFile(std::shared_ptr<Model> model, std::string obj
 
 void Scene::AddSceneObject(std::shared_ptr<SceneObject> sceneObject)
 {
-	if (auto camera = dynamic_cast<Camera*>(sceneObject.get()))
-		m_camera = camera;
+	SceneObjectType objectType = sceneObject->GetSceneObjectType();
+
+	if (objectType == SceneObjectType::camera)
+		m_cameras.push_back(static_cast<Camera*>(sceneObject.get())); 
+	else if (objectType == SceneObjectType::pointlight)
+		m_pointlights.push_back(static_cast<PointLight*>(sceneObject.get()));
 
 	m_sceneObjects.push_back(sceneObject);
 }
@@ -37,6 +42,8 @@ void Scene::BeginInitialization(Graphics& graphics)
 
 void Scene::FinishInitialization(Graphics& graphics)
 {
+	m_activeCamera = m_cameras.front();
+
 	Renderer& renderer = graphics.GetRenderer();
 	Pipeline& pipeline = renderer.GetPipeline();
 
@@ -48,7 +55,7 @@ void Scene::FinishInitialization(Graphics& graphics)
 
 	renderer.InitializeJobs(graphics);
 
-	renderer.InitializePasses(graphics);
+	renderer.InitializePasses(graphics, *this);
 
 	renderer.FinishInitialization(graphics);
 
@@ -137,10 +144,18 @@ void Scene::DrawObjectInspector(Graphics& graphics)
 
 void Scene::Update(Graphics& graphics, const Input& input, bool isCursorLocked)
 {
-	m_camera->UpdateCamera(input, isCursorLocked); // it is important that active camera gets updated before other objects, since for example pointlight checks if position or rotation was updated to determine if constant buffer should be updated
+	// updating importatnt data that other objects depend on
+	{
+		// light position and data
+		for (auto& pointlight : m_pointlights)
+			pointlight->UpdateLight(graphics, *this);
+
+		// camera position and rotation so all objects can update their matrices in the same frame
+		m_activeCamera->UpdateCamera(input, isCursorLocked);
+	}
 
 	for (auto& sceneObject : m_sceneObjects)
-		sceneObject->InternalUpdate(graphics, *m_camera, graphics.GetRenderer().GetPipeline());
+		sceneObject->InternalUpdate(graphics, graphics.GetRenderer().GetPipeline());
 
 	graphics.GetConstantBufferHeap().UpdateHeap(graphics);
 
@@ -152,6 +167,11 @@ void Scene::Update(Graphics& graphics, const Input& input, bool isCursorLocked)
 std::vector<std::shared_ptr<SceneObject>>& Scene::GetObjects()
 {
 	return m_sceneObjects;
+}
+
+Camera* Scene::GetCurrentCamera() const
+{
+	return m_activeCamera;
 }
 
 std::string Scene::GetOriginalName(std::string name)
@@ -172,5 +192,5 @@ void Scene::UpdateObjectMatrices(Graphics& graphics)
 
 	// after all matrices are set up, we send them to camera
 	for (auto& sceneObject : m_sceneObjects)
-		sceneObject->UpdateTransformBufferIfNeeded(graphics, *graphics.GetRenderer().GetPipeline().GetCurrentCamera());
+		sceneObject->UpdateTransformBufferIfNeeded(graphics, *m_activeCamera);
 }

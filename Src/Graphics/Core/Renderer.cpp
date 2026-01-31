@@ -21,9 +21,9 @@ void Renderer::InitializeJobs(Graphics& graphics)
 	m_renderGraph.InitializeJobs(graphics, m_pipeline);
 }
 
-void Renderer::InitializePasses(Graphics& graphics)
+void Renderer::InitializePasses(Graphics& graphics, Scene& scene)
 {
-	m_renderGraph.InitializePasses(graphics, m_pipeline);
+	m_renderGraph.InitializePasses(graphics, m_pipeline, scene);
 }
 
 void Renderer::FinishInitialization(Graphics& graphics)

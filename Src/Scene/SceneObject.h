@@ -8,6 +8,13 @@ class Pipeline;
 class Camera;
 class Renderer;
 
+enum class SceneObjectType
+{
+	unknown,
+	camera,
+	pointlight,
+};
+
 class SceneObject
 {
 public:
@@ -21,7 +28,7 @@ public:
 
 	void SubmitJobs(Renderer& renderer);
 
-	void InternalUpdate(Graphics& graphics, Camera& camera, Pipeline& pipeline);
+	void InternalUpdate(Graphics& graphics, Pipeline& pipeline);
 
 	void InternalAddStaticResources(Pipeline& pipeline);
 
@@ -72,6 +79,8 @@ public:
 	std::string GetName() const;
 
 	void SetName(std::string newName);
+
+	virtual SceneObjectType GetSceneObjectType();
 
 protected:
 	ObjectTransform m_transform;

@@ -2,6 +2,7 @@
 
 #include "Graphics/Core/Pipeline.h"
 #include "Scene/Objects/Camera.h"
+#include "Scene/Scene.h"
 
 LightningPass::LightningPass(Graphics& graphics, RenderManager& renderManager)
 	:
@@ -36,7 +37,7 @@ void LightningPass::Initialize(Graphics& graphics)
 	mesh.AddBindable(ViewPort::GetBindableResource(graphics)); // vp
 }
 
-void LightningPass::InitializeFullscreenResources(Graphics& graphics, Pipeline& pipeline)
+void LightningPass::InitializeFullscreenResources(Graphics& graphics, Pipeline& pipeline, Scene& scene)
 {
 	// before we have any meaningful output-input system on our render passes, we can only get passed bindables by using out bindable buffer
 	{
@@ -60,7 +61,7 @@ void LightningPass::InitializeFullscreenResources(Graphics& graphics, Pipeline& 
 
 	// Updating inverse projection matrix
 	{
-		Camera* currentCamera = pipeline.GetCurrentCamera();
+		Camera* currentCamera = scene.GetCurrentCamera();
 		const Camera::Settings* currentCameraSettings = currentCamera->GetSettings();
 
 		DirectX::XMMATRIX inverseProjection = DirectX::XMMatrixInverse(nullptr, currentCamera->GetPerspectiveMatrix());

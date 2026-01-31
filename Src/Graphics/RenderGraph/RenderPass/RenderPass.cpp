@@ -7,7 +7,7 @@ void RenderPass::Initialize(Graphics& graphics)
 
 }
 
-void RenderPass::InitializePassResources(Graphics& graphics, Pipeline& pipeline)
+void RenderPass::InitializePassResources(Graphics& graphics, Pipeline& pipeline, Scene& scene)
 {
 
 }

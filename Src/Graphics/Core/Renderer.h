@@ -12,7 +12,7 @@ public:
 	void Initialize(Graphics& graphics);
 	void GatherJobBindables();
 	void InitializeJobs(Graphics& graphics);
-	void InitializePasses(Graphics& graphics);
+	void InitializePasses(Graphics& graphics, Scene& scene);
 	void FinishInitialization(Graphics& graphics);
 	void SubmitPassesJobs();
 	void AssignJobsToPasses();

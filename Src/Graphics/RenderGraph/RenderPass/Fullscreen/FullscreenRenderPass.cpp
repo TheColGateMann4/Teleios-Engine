@@ -3,6 +3,7 @@
 #include "Scene/Objects/Camera.h"
 #include "Graphics/Core/Graphics.h"
 #include "Graphics/Core/Pipeline.h"
+#include "Scene/Scene.h"
 #include "Graphics/Core/TempCommandList.h"
 #include "Scene/StandaloneMesh.h"
 
@@ -77,7 +78,7 @@ void FullscreenRenderPass::Initialize(Graphics& graphics)
 	}
 }
 
-void FullscreenRenderPass::InitializePassResources(Graphics& graphics, Pipeline& pipeline)
+void FullscreenRenderPass::InitializePassResources(Graphics& graphics, Pipeline& pipeline, Scene& scene)
 {
 	// copy index and vertex buffers to gpu
 	m_pVertexBuffer->BindToCopyPipelineIfNeeded(graphics, pipeline);
@@ -85,7 +86,7 @@ void FullscreenRenderPass::InitializePassResources(Graphics& graphics, Pipeline&
 
 	// Updating camera data
 	{
-		Camera* currentCamera = pipeline.GetCurrentCamera();
+		Camera* currentCamera = scene.GetCurrentCamera();
 		const Camera::Settings* currentCameraSettings = currentCamera->GetSettings();
 
 		DynamicConstantBuffer::ConstantBufferData& cameraData = m_pCameraData->GetData();
@@ -98,19 +99,19 @@ void FullscreenRenderPass::InitializePassResources(Graphics& graphics, Pipeline&
 	// initializing job
 	m_meshRenderJob->Initialize(graphics, pipeline);
 
-	InitializeFullscreenResources(graphics, pipeline);
+	InitializeFullscreenResources(graphics, pipeline, scene);
 }
 
-void FullscreenRenderPass::InitializeFullscreenResources(Graphics& graphics, Pipeline& pipeline)
+void FullscreenRenderPass::InitializeFullscreenResources(Graphics& graphics, Pipeline& pipeline, Scene& scene)
 {
 
 }
 
-void FullscreenRenderPass::Update(Graphics& graphics, Pipeline& pipeline)
+void FullscreenRenderPass::Update(Graphics& graphics, Pipeline& pipeline, Scene& scene)
 {
 	// if camera viewmatrix updated then update cameraData cbuffer
 	{
-		Camera* currentCamera = pipeline.GetCurrentCamera();
+		Camera* currentCamera = scene.GetCurrentCamera();
 
 		if (currentCamera->PerspectiveChanged())
 		{

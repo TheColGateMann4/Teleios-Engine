@@ -4,9 +4,6 @@
 #include "Graphics/RenderGraph/RenderPass/RenderPass.h"
 #include "Graphics/RenderGraph/RenderJob/MeshRenderJob.h"
 
-class Graphics;
-class RenderManager;
-
 class FullscreenRenderPass : public RenderPass
 {
 public:
@@ -14,9 +11,9 @@ public:
 	virtual ~FullscreenRenderPass() = default;
 
 	virtual void Initialize(Graphics& graphics) override;
-	virtual void InitializePassResources(Graphics& graphics, Pipeline& pipeline) override;
-	virtual void InitializeFullscreenResources(Graphics& graphics, Pipeline& pipeline);
-	void Update(Graphics& graphics, Pipeline& pipeline);
+	virtual void InitializePassResources(Graphics& graphics, Pipeline& pipeline, Scene& scene) override;
+	virtual void InitializeFullscreenResources(Graphics& graphics, Pipeline& pipeline, Scene& scene);
+	void Update(Graphics& graphics, Pipeline& pipeline, Scene& scene);
 
 	void AddBindable(std::shared_ptr<Bindable> bind);
 

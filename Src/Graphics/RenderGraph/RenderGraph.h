@@ -4,6 +4,8 @@
 #include "RenderManager.h"
 
 class Graphics;
+class Pipeline;
+class Scene;
 class CommandList;
 class GeometryPass;
 
@@ -16,7 +18,7 @@ public:
 
 	void InitializeJobs(Graphics& graphics, Pipeline& pipeline);
 
-	void InitializePasses(Graphics& graphics, Pipeline& pipeline);
+	void InitializePasses(Graphics& graphics, Pipeline& pipeline, Scene& scene);
 
 	// submits jobs that passes created
 	void SubmitPassesJobs();

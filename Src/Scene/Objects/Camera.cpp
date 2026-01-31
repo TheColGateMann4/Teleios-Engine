@@ -30,11 +30,6 @@ Camera::Camera(Graphics& graphics, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3
 	UpdatePerspectiveMatrix();
 }
 
-void Camera::Initialize(Graphics& graphics, Pipeline& pipeline)
-{
-	pipeline.SetCurrentCamera(this);
-}
-
 void Camera::UpdateCamera(const Input& input, bool cursorLocked)
 {
 	// rotation
@@ -169,6 +164,11 @@ bool Camera::PerspectiveChanged() const
 const Camera::Settings* Camera::GetSettings() const
 {
 	return &m_settings;
+}
+
+SceneObjectType Camera::GetSceneObjectType()
+{
+	return SceneObjectType::camera;
 }
 
 void Camera::UpdatePerspectiveMatrix()
