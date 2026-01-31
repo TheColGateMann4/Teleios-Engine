@@ -39,6 +39,8 @@ public:
 	virtual void Initialize(Graphics& graphics);
 	virtual void InitializePassResources(Graphics& graphics, Pipeline& pipeline, Scene& scene);
 
+	virtual void Update(Graphics& graphics, Pipeline& pipeline, Scene& scene);
+
 	virtual void SubmitJobs(RenderManager& renderManager);
 
 	void SetCorrectStates(Graphics& graphics, CommandList* commandList);

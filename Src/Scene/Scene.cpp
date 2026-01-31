@@ -162,6 +162,9 @@ void Scene::Update(Graphics& graphics, const Input& input, bool isCursorLocked)
 	for (auto& sceneObject : m_sceneObjects)
 		sceneObject->InternalUpdate(graphics, graphics.GetRenderer().GetPipeline());
 
+	// Updating passes
+	graphics.GetRenderer().UpdatePasses(graphics, *this);
+
 	graphics.GetConstantBufferHeap().UpdateHeap(graphics);
 
 	UpdateObjectMatrices(graphics);

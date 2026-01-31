@@ -13,7 +13,7 @@ public:
 	virtual void Initialize(Graphics& graphics) override;
 	virtual void InitializePassResources(Graphics& graphics, Pipeline& pipeline, Scene& scene) override;
 	virtual void InitializeFullscreenResources(Graphics& graphics, Pipeline& pipeline, Scene& scene);
-	void Update(Graphics& graphics, Pipeline& pipeline, Scene& scene);
+	virtual void Update(Graphics& graphics, Pipeline& pipeline, Scene& scene) override;
 
 	void AddBindable(std::shared_ptr<Bindable> bind);
 
@@ -24,8 +24,10 @@ public: // Execution
 
 	virtual void DrawImguiPropeties(Graphics& graphics, Pipeline& pipeline);
 
-private:
-	virtual void InternalUpdate(Graphics& graphics, Pipeline& pipeline);
+protected:
+	virtual void InternalUpdate(Graphics& graphics, Pipeline& pipeline, Scene& scene);
+
+	void UpdateCameraData(Graphics& graphics, Scene& scene);
 
 protected:
 	std::shared_ptr<MeshRenderJob> m_meshRenderJob;

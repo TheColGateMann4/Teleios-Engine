@@ -60,17 +60,7 @@ void LightningPass::InitializeFullscreenResources(Graphics& graphics, Pipeline& 
 	}
 
 	// Updating inverse projection matrix
-	{
-		Camera* currentCamera = scene.GetCurrentCamera();
-		const Camera::Settings* currentCameraSettings = currentCamera->GetSettings();
-
-		DirectX::XMMATRIX inverseProjection = DirectX::XMMatrixInverse(nullptr, currentCamera->GetPerspectiveMatrix());
-
-		DynamicConstantBuffer::ConstantBufferData& cameraData = m_pInverseProjectionBuffer->GetData();
-		*cameraData.GetValuePointer<DynamicConstantBuffer::ElementType::Matrix>("inverseProjection") = inverseProjection;
-
-		m_pInverseProjectionBuffer->Update(graphics);
-	}
+	UpdateInverseProjectionMatrix(graphics, scene);
 }
 
 void LightningPass::PreDraw(Graphics& graphics, CommandList* commandList)
@@ -86,4 +76,25 @@ void LightningPass::PreDraw(Graphics& graphics, CommandList* commandList)
 void LightningPass::PostDraw(Graphics& graphics, CommandList* commandList)
 {
 
+}
+
+void LightningPass::InternalUpdate(Graphics& graphics, Pipeline& pipeline, Scene& scene)
+{
+	Camera* currentCamera = scene.GetCurrentCamera();
+
+	if (currentCamera->PerspectiveChanged())
+		UpdateInverseProjectionMatrix(graphics, scene);
+}
+
+void LightningPass::UpdateInverseProjectionMatrix(Graphics& graphics, Scene& scene)
+{
+	Camera* currentCamera = scene.GetCurrentCamera();
+	const Camera::Settings* currentCameraSettings = currentCamera->GetSettings();
+
+	DirectX::XMMATRIX inverseProjection = DirectX::XMMatrixInverse(nullptr, currentCamera->GetPerspectiveMatrix());
+
+	DynamicConstantBuffer::ConstantBufferData& cameraData = m_pInverseProjectionBuffer->GetData();
+	*cameraData.GetValuePointer<DynamicConstantBuffer::ElementType::Matrix>("inverseProjection") = inverseProjection;
+
+	m_pInverseProjectionBuffer->Update(graphics);
 }

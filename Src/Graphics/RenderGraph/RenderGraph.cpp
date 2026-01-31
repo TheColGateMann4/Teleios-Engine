@@ -89,6 +89,12 @@ void RenderGraph::InitializePasses(Graphics& graphics, Pipeline& pipeline, Scene
 	}
 }
 
+void RenderGraph::UpdatePasses(Graphics& graphics, Pipeline& pipeline, Scene& scene)
+{
+	for (auto& renderPass : m_renderPasses)
+		renderPass->Update(graphics, pipeline, scene);
+}
+
 void RenderGraph::SubmitPassesJobs()
 {
 	for (auto& renderPass : m_renderPasses)

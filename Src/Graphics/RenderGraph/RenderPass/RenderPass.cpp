@@ -12,6 +12,11 @@ void RenderPass::InitializePassResources(Graphics& graphics, Pipeline& pipeline,
 
 }
 
+void RenderPass::Update(Graphics& graphics, Pipeline& pipeline, Scene& scene)
+{
+
+}
+
 void RenderPass::SubmitJobs(RenderManager& renderManager)
 {
 

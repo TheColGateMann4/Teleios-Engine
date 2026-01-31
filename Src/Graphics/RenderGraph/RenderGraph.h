@@ -20,6 +20,8 @@ public:
 
 	void InitializePasses(Graphics& graphics, Pipeline& pipeline, Scene& scene);
 
+	void UpdatePasses(Graphics& graphics, Pipeline& pipeline, Scene& scene);
+
 	// submits jobs that passes created
 	void SubmitPassesJobs();
 

@@ -109,23 +109,12 @@ void FullscreenRenderPass::InitializeFullscreenResources(Graphics& graphics, Pip
 
 void FullscreenRenderPass::Update(Graphics& graphics, Pipeline& pipeline, Scene& scene)
 {
-	// if camera viewmatrix updated then update cameraData cbuffer
-	{
-		Camera* currentCamera = scene.GetCurrentCamera();
+	Camera* currentCamera = scene.GetCurrentCamera();
 
-		if (currentCamera->PerspectiveChanged())
-		{
-			const Camera::Settings* currentCameraSettings = currentCamera->GetSettings();
+	if(currentCamera->PerspectiveChanged())
+		UpdateCameraData(graphics, scene);
 
-			DynamicConstantBuffer::ConstantBufferData& cameraData = m_pCameraData->GetData();
-			*cameraData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("nearPlane") = currentCameraSettings->NearZ;
-			*cameraData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("farPlane") = currentCameraSettings->FarZ;
-
-			m_pCameraData->Update(graphics);
-		}
-	}
-
-	InternalUpdate(graphics, pipeline);
+	InternalUpdate(graphics, pipeline, scene);
 }
 
 void FullscreenRenderPass::AddBindable(std::shared_ptr<Bindable> bind)
@@ -161,7 +150,20 @@ void FullscreenRenderPass::DrawImguiPropeties(Graphics& graphics, Pipeline& pipe
 
 }
 
-void FullscreenRenderPass::InternalUpdate(Graphics& graphics, Pipeline& pipeline)
+void FullscreenRenderPass::InternalUpdate(Graphics& graphics, Pipeline& pipeline, Scene& scene)
 {
 
+}
+
+void FullscreenRenderPass::UpdateCameraData(Graphics& graphics, Scene& scene)
+{
+	Camera* currentCamera = scene.GetCurrentCamera();
+
+	const Camera::Settings* currentCameraSettings = currentCamera->GetSettings();
+
+	DynamicConstantBuffer::ConstantBufferData& cameraData = m_pCameraData->GetData();
+	*cameraData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("nearPlane") = currentCameraSettings->NearZ;
+	*cameraData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("farPlane") = currentCameraSettings->FarZ;
+
+	m_pCameraData->Update(graphics);
 }

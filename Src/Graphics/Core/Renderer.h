@@ -13,6 +13,7 @@ public:
 	void GatherJobBindables();
 	void InitializeJobs(Graphics& graphics);
 	void InitializePasses(Graphics& graphics, Scene& scene);
+	void UpdatePasses(Graphics& graphics, Scene& scene);
 	void FinishInitialization(Graphics& graphics);
 	void SubmitPassesJobs();
 	void AssignJobsToPasses();

@@ -190,6 +190,7 @@ void Camera::SetActive(bool active)
 {
 	m_active = active;
 	m_viewChanged = true;
+	m_perspectiveChanged = true;
 
 	UpdateDecoratedName();
 }

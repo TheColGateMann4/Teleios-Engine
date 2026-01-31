@@ -26,6 +26,11 @@ void Renderer::InitializePasses(Graphics& graphics, Scene& scene)
 	m_renderGraph.InitializePasses(graphics, m_pipeline, scene);
 }
 
+void Renderer::UpdatePasses(Graphics& graphics, Scene& scene)
+{
+	m_renderGraph.UpdatePasses(graphics, m_pipeline, scene);
+}
+
 void Renderer::FinishInitialization(Graphics& graphics)
 {
 	m_pipeline.FinishInitialization(graphics);
