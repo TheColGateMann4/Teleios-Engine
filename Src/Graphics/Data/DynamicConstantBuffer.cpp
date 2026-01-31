@@ -90,7 +90,7 @@ const DynamicConstantBuffer::ConstantBufferLayout::LayoutElement& DynamicConstan
 	THROW_OBJECT_STATE_ERROR_IF("Empty name was passed", name == nullptr);
 
 	for (const auto& element : m_elements)
-		if (strcmp(name, element.name) == 0)
+		if (strcmp(name, element.name.c_str()) == 0)
 			return element;
 
 	std::string errorStr = "Failed to find element in layout with name: \"";
@@ -166,13 +166,13 @@ bool DynamicConstantBuffer::ConstantBufferData::DrawImguiProperties()
 				auto imguiIntData = static_cast<ImguiIntData*>(layoutElement.imguiData.get());
 
 				if (imguiIntData->ShouldShow())
-					checkChanged(changed, ImGui::SliderInt(layoutElement.name, reinterpret_cast<int*>(elementData), imguiIntData->min, imguiIntData->max, imguiIntData->format, imguiIntData->flags));
+					checkChanged(changed, ImGui::SliderInt(layoutElement.name.c_str(), reinterpret_cast<int*>(elementData), imguiIntData->min, imguiIntData->max, imguiIntData->format, imguiIntData->flags));
 				break;
 			}
 			case ElementType::Bool:
 			{
 				if (layoutElement.imguiData->ShouldShow())
-					checkChanged(changed, ImGui::Checkbox(layoutElement.name, reinterpret_cast<bool*>(elementData)));
+					checkChanged(changed, ImGui::Checkbox(layoutElement.name.c_str(), reinterpret_cast<bool*>(elementData)));
 				break;
 			}
 			case ElementType::Float:
@@ -180,7 +180,7 @@ bool DynamicConstantBuffer::ConstantBufferData::DrawImguiProperties()
 				auto imguiFloatData = static_cast<ImguiFloatData*>(layoutElement.imguiData.get());
 
 				if (imguiFloatData->ShouldShow())
-					checkChanged(changed, ImGui::SliderFloat(layoutElement.name, reinterpret_cast<float*>(elementData), imguiFloatData->min, imguiFloatData->max, imguiFloatData->format, imguiFloatData->flags));
+					checkChanged(changed, ImGui::SliderFloat(layoutElement.name.c_str(), reinterpret_cast<float*>(elementData), imguiFloatData->min, imguiFloatData->max, imguiFloatData->format, imguiFloatData->flags));
 				break;
 			}
 			case ElementType::Float2:
@@ -188,7 +188,7 @@ bool DynamicConstantBuffer::ConstantBufferData::DrawImguiProperties()
 				auto imguiFloatData = static_cast<ImguiFloatData*>(layoutElement.imguiData.get());
 
 				if (imguiFloatData->ShouldShow())
-					checkChanged(changed, ImGui::SliderFloat2(layoutElement.name, reinterpret_cast<float*>(elementData), imguiFloatData->min, imguiFloatData->max, imguiFloatData->format, imguiFloatData->flags));
+					checkChanged(changed, ImGui::SliderFloat2(layoutElement.name.c_str(), reinterpret_cast<float*>(elementData), imguiFloatData->min, imguiFloatData->max, imguiFloatData->format, imguiFloatData->flags));
 				break;
 			}
 			case ElementType::Float3:
@@ -196,7 +196,7 @@ bool DynamicConstantBuffer::ConstantBufferData::DrawImguiProperties()
 				auto imguiColorData = static_cast<ImguiColorData*>(layoutElement.imguiData.get());
 
 				if (imguiColorData->ShouldShow())
-					checkChanged(changed, ImGui::ColorEdit3(layoutElement.name, reinterpret_cast<float*>(elementData), imguiColorData->flags));
+					checkChanged(changed, ImGui::ColorEdit3(layoutElement.name.c_str(), reinterpret_cast<float*>(elementData), imguiColorData->flags));
 				break;
 			}
 			case ElementType::Float4:
@@ -204,7 +204,7 @@ bool DynamicConstantBuffer::ConstantBufferData::DrawImguiProperties()
 				auto imguiColorData = static_cast<ImguiColorData*>(layoutElement.imguiData.get());
 
 				if (imguiColorData->ShouldShow())
-					checkChanged(changed, ImGui::ColorEdit4(layoutElement.name, reinterpret_cast<float*>(elementData), imguiColorData->flags));
+					checkChanged(changed, ImGui::ColorEdit4(layoutElement.name.c_str(), reinterpret_cast<float*>(elementData), imguiColorData->flags));
 				break;
 			}
 			case ElementType::Matrix:
