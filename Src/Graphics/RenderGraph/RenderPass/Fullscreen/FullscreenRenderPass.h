@@ -10,7 +10,7 @@ public:
 	FullscreenRenderPass(Graphics& graphics, RenderManager& renderManager);
 	virtual ~FullscreenRenderPass() = default;
 
-	virtual void Initialize(Graphics& graphics) override;
+	virtual void Initialize(Graphics& graphics, Scene& scene) override;
 	virtual void InitializePassResources(Graphics& graphics, Pipeline& pipeline, Scene& scene) override;
 	virtual void InitializeFullscreenResources(Graphics& graphics, Pipeline& pipeline, Scene& scene);
 	virtual void Update(Graphics& graphics, Pipeline& pipeline, Scene& scene) override;

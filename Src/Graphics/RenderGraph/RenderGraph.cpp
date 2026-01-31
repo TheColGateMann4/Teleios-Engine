@@ -84,7 +84,7 @@ void RenderGraph::InitializePasses(Graphics& graphics, Pipeline& pipeline, Scene
 {
 	for (auto& renderPass : m_renderPasses)
 	{
-		renderPass->Initialize(graphics);
+		renderPass->Initialize(graphics, scene);
 		renderPass->InitializePassResources(graphics, pipeline, scene);
 	}
 }

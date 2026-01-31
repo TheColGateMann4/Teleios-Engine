@@ -7,7 +7,7 @@ public:
 	LightningPass(Graphics& graphics, RenderManager& renderManager);
 
 public:
-	virtual void Initialize(Graphics& graphics) override;
+	virtual void Initialize(Graphics& graphics, Scene& scene) override;
 	virtual void InitializeFullscreenResources(Graphics& graphics, Pipeline& pipeline, Scene& scene) override;
 
 	virtual void PreDraw(Graphics& graphics, CommandList* commandList) override;

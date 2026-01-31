@@ -2,7 +2,7 @@
 #include "Graphics/Core/CommandList.h"
 #include "Graphics/RenderGraph/RenderJob/RenderJob.h"
 
-void RenderPass::Initialize(Graphics& graphics)
+void RenderPass::Initialize(Graphics& graphics, Scene& scene)
 {
 
 }

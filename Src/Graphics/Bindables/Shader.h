@@ -15,16 +15,22 @@ static std::wstring GetShaderVersion(ShaderType type);
 class Graphics;
 class GraphicsPipelineState;
 
+struct ShaderMacro
+{
+	const wchar_t* macro;
+	const wchar_t* val = nullptr;
+};
+
 class Shader : public Bindable, public PipelineStateBindable
 {
 public:
 	// should think of some cool way to ship the engine
-	Shader(Graphics& graphics, const wchar_t* name, ShaderType type, std::vector<const wchar_t*> shaderMacros = {});
+	Shader(Graphics& graphics, const wchar_t* name, ShaderType type, std::vector<ShaderMacro> shaderMacros = {});
 
 public:
-	static std::shared_ptr<Shader> GetBindableResource(Graphics& graphics, const wchar_t* name, ShaderType type, std::vector<const wchar_t*> shaderMacros = {});
+	static std::shared_ptr<Shader> GetBindableResource(Graphics& graphics, const wchar_t* name, ShaderType type, std::vector<ShaderMacro> shaderMacros = {});
 
-	static std::string GetIdentifier(const wchar_t* name, ShaderType type, std::vector<const wchar_t*> shaderMacros = {});
+	static std::string GetIdentifier(const wchar_t* name, ShaderType type, std::vector<ShaderMacro> shaderMacros = {});
 
 public:
 	void Reload(Graphics& graphics);

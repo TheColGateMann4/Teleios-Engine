@@ -58,7 +58,7 @@ FullscreenRenderPass::FullscreenRenderPass(Graphics& graphics, RenderManager& re
 	m_meshRenderJob = std::make_shared<MeshRenderJob>(RenderJob::JobType::None);
 }
 
-void FullscreenRenderPass::Initialize(Graphics& graphics)
+void FullscreenRenderPass::Initialize(Graphics& graphics, Scene& scene)
 {
 	m_renderTargetSRV = ShaderResourceViewMultiResource::GetBindableResource(graphics, "BackBuffer", graphics.GetBackBuffer().get(), 0);
 	m_depthStencilSRV = ShaderResourceViewMultiResource::GetBindableResource(graphics, "DepthStencil", graphics.GetDepthStencil().get(), 1);

@@ -23,15 +23,20 @@ LightningPass::LightningPass(Graphics& graphics, RenderManager& renderManager)
 	}
 }
 
-void LightningPass::Initialize(Graphics& graphics)
+void LightningPass::Initialize(Graphics& graphics, Scene& scene)
 {
 	StandaloneMesh& mesh = m_meshRenderJob->GetMesh();
 
 	for (const auto& bind : m_bindables)
 		mesh.AddBindable(bind);
 
+	unsigned int numberOfLightsOnScene = scene.GetPointLights().size();
+	std::wstring strNumberOfLightsOnScene = std::to_wstring(numberOfLightsOnScene);
+
+	THROW_INTERNAL_ERROR_IF("There were no lights on the scene", numberOfLightsOnScene == 0);
+
 	mesh.AddStaticBindable("lightBuffer");
-	mesh.AddBindable(Shader::GetBindableResource(graphics, L"PS_Lightning", ShaderType::PixelShader)); // ps
+	mesh.AddBindable(Shader::GetBindableResource(graphics, L"PS_Lightning", ShaderType::PixelShader, { { L"NUM_POINTLIGHTS", strNumberOfLightsOnScene.c_str()} })); // ps
 	mesh.AddBindable(Shader::GetBindableResource(graphics, L"VS_Fullscreen", ShaderType::VertexShader)); // vs
 	mesh.AddBindable(PrimitiveTechnology::GetBindableResource(graphics, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)); // topology
 	mesh.AddBindable(ViewPort::GetBindableResource(graphics)); // vp

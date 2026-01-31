@@ -36,7 +36,7 @@ public:
 
 public: 
 	// resource initialization for passes with their own work
-	virtual void Initialize(Graphics& graphics);
+	virtual void Initialize(Graphics& graphics, Scene& scene);
 	virtual void InitializePassResources(Graphics& graphics, Pipeline& pipeline, Scene& scene);
 
 	virtual void Update(Graphics& graphics, Pipeline& pipeline, Scene& scene);

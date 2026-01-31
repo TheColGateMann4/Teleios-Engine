@@ -144,18 +144,18 @@ Model::Model(Graphics& graphics, Model* pParent, aiNode* node, std::vector<std::
 				step.AddBindable(IndexBuffer::GetBindableResource(graphics, mesh->mName.C_Str(), indices));
 			}
 
-			std::vector<const wchar_t*> shaderMacros = {};
-			shaderMacros.push_back(L"OUTPUT_CAMAERAPOS"); // phong requirement
-			shaderMacros.push_back(L"INPUT_NORMAL"); // model objects will always have normals since we will generate them with assimp if they do not
+			std::vector<ShaderMacro> shaderMacros = {};
+			shaderMacros.push_back({ L"OUTPUT_CAMAERAPOS" }); // phong requirement
+			shaderMacros.push_back({L"INPUT_NORMAL"}); // model objects will always have normals since we will generate them with assimp if they do not
 
 			// handle material
 			{
 				MaterialPropeties materialPropeties = ProcessMaterialPropeties(material);
 
-				shaderMacros.push_back(L"METALNESS_PIPELINE");
+				shaderMacros.push_back({L"METALNESS_PIPELINE" });
 
 				if (materialPropeties.roughnessMetalnessInOneTexture)
-					shaderMacros.push_back(L"METALNESS_ROUGHNESS_ONE_TEXTURE");
+					shaderMacros.push_back({ L"METALNESS_ROUGHNESS_ONE_TEXTURE" });
 
 				// textures
 				if (materialPropeties.hasAnyMap)
@@ -163,25 +163,25 @@ Model::Model(Graphics& graphics, Model* pParent, aiNode* node, std::vector<std::
 					step.AddBindable(StaticSampler::GetBindableResource(graphics, D3D12_FILTER_MIN_MAG_MIP_POINT));
 
 					if (materialPropeties.ignoreDiffseAlpha)
-						shaderMacros.push_back(L"IGNORE_DIFFUSE_ALPHA");
+						shaderMacros.push_back({ L"IGNORE_DIFFUSE_ALPHA" });
 
-					shaderMacros.push_back(L"TEXTURE_ANY");
-					shaderMacros.push_back(L"INPUT_TEXCCORDS"); // since we are handling textures, we will need texcoords argument provided to our shaders
+					shaderMacros.push_back({ L"TEXTURE_ANY" });
+					shaderMacros.push_back({ L"INPUT_TEXCCORDS" }); // since we are handling textures, we will need texcoords argument provided to our shaders
 
 
 					if (materialPropeties.hasDiffuseMap)
 					{
 						step.AddBindable(Texture::GetBindableResource(graphics, (filePath + materialPropeties.diffuseMapPath).c_str(), true, true, true, { {ShaderVisibilityGraphic::PixelShader, 0} }));
-						shaderMacros.push_back(L"TEXTURE_DIFFUSE");
+						shaderMacros.push_back({ L"TEXTURE_DIFFUSE" });
 					}
 
 					if (materialPropeties.hasNormalMap)
 					{
 						step.AddBindable(Texture::GetBindableResource(graphics, (filePath + materialPropeties.normalMapPath).c_str(), false, true, true, { {ShaderVisibilityGraphic::PixelShader, 1} }));
-						shaderMacros.push_back(L"TEXTURE_NORMAL");
+						shaderMacros.push_back({ L"TEXTURE_NORMAL" });
 
-						shaderMacros.push_back(L"INPUT_TANGENT");
-						shaderMacros.push_back(L"INPUT_BITANGENT");
+						shaderMacros.push_back({ L"INPUT_TANGENT" });
+						shaderMacros.push_back({ L"INPUT_BITANGENT" });
 					}
 
 					if (materialPropeties.metalRoughnessSystem)
@@ -191,7 +191,7 @@ Model::Model(Graphics& graphics, Model* pParent, aiNode* node, std::vector<std::
 							std::shared_ptr<Texture> specularTexture = Texture::GetBindableResource(graphics, (filePath + materialPropeties.specularMetalnessMapPath).c_str(), false, true, true, { {ShaderVisibilityGraphic::PixelShader, 3} });
 
 							step.AddBindable(std::move(specularTexture));
-							shaderMacros.push_back(L"TEXTURE_METALNESS");
+							shaderMacros.push_back({ L"TEXTURE_METALNESS" });
 						}
 
 						if (materialPropeties.hasRoughnessMap)
@@ -199,7 +199,7 @@ Model::Model(Graphics& graphics, Model* pParent, aiNode* node, std::vector<std::
 							std::shared_ptr<Texture> specularTexture = Texture::GetBindableResource(graphics, (filePath + materialPropeties.specularMetalnessMapPath).c_str(), false, true, true, { {ShaderVisibilityGraphic::PixelShader, 4} });
 
 							step.AddBindable(std::move(specularTexture));
-							shaderMacros.push_back(L"TEXTURE_ROUGHNESS");
+							shaderMacros.push_back({ L"TEXTURE_ROUGHNESS" });
 						}
 
 						// reflectivity 5
@@ -213,7 +213,7 @@ Model::Model(Graphics& graphics, Model* pParent, aiNode* node, std::vector<std::
 							materialPropeties.specularOneChannelOnly = specularTexture->GetTexture()->GetFormat() == DXGI_FORMAT_R8_UNORM;
 
 							step.AddBindable(std::move(specularTexture));
-							shaderMacros.push_back(L"TEXTURE_SPECULAR");
+							shaderMacros.push_back({ L"TEXTURE_SPECULAR" });
 						}
 					}
 
@@ -222,7 +222,7 @@ Model::Model(Graphics& graphics, Model* pParent, aiNode* node, std::vector<std::
 						std::shared_ptr<Texture> specularTexture = Texture::GetBindableResource(graphics, (filePath + materialPropeties.ambientMapPath).c_str(), false, true, true, { {ShaderVisibilityGraphic::PixelShader, 6} });
 
 						step.AddBindable(std::move(specularTexture));
-						shaderMacros.push_back(L"TEXTURE_AMBIENT");
+						shaderMacros.push_back({ L"TEXTURE_AMBIENT" });
 					}
 
 					// opacity 7

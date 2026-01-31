@@ -56,7 +56,7 @@ std::wstring GetShaderVersion(ShaderType type)
 			Shader Contructor
 */
 
-Shader::Shader(Graphics& graphics, const wchar_t* name, ShaderType type, std::vector<const wchar_t*> shaderMacros)
+Shader::Shader(Graphics& graphics, const wchar_t* name, ShaderType type, std::vector<ShaderMacro> shaderMacros)
 	:
 	m_type(type),
 	m_name(std::wstring(name) + L".hlsl"),
@@ -70,18 +70,18 @@ Shader::Shader(Graphics& graphics, const wchar_t* name, ShaderType type, std::ve
 {
 
 	for (auto shaderMacro : shaderMacros)
-		m_shaderMacros.push_back(DxcDefine{ shaderMacro, nullptr });
+		m_shaderMacros.push_back(DxcDefine{ shaderMacro.macro, shaderMacro.val });
 
 
 	Reload(graphics);
 }
 
-std::shared_ptr<Shader> Shader::GetBindableResource(Graphics& graphics, const wchar_t* name, ShaderType type, std::vector<const wchar_t*> shaderMacros)
+std::shared_ptr<Shader> Shader::GetBindableResource(Graphics& graphics, const wchar_t* name, ShaderType type, std::vector<ShaderMacro> shaderMacros)
 {
 	return BindableResourceList::GetBindableResource<Shader>(graphics, name, type, shaderMacros);
 }
 
-std::string Shader::GetIdentifier(const wchar_t* name, ShaderType type, std::vector<const wchar_t*> shaderMacros)
+std::string Shader::GetIdentifier(const wchar_t* name, ShaderType type, std::vector<ShaderMacro> shaderMacros)
 {
 	std::string resultString = "Shader#";
 
@@ -98,7 +98,12 @@ std::string Shader::GetIdentifier(const wchar_t* name, ShaderType type, std::vec
 		std::wstring allMacros = {};
 
 		for (const auto shaderMacro : shaderMacros)
-			allMacros += shaderMacro;
+		{
+			allMacros += shaderMacro.macro;
+
+			if(shaderMacro.val != nullptr)
+				allMacros += shaderMacro.val;
+		}
 
 		resultString += std::to_string(std::hash<std::wstring>{}(allMacros));
 		resultString += '#';
