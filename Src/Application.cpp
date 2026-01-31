@@ -43,6 +43,8 @@ void Application::InitializeScene()
 
 
 	scene.AddSceneObject(std::make_shared<Camera>(graphics));
+	scene.AddSceneObject(std::make_shared<Camera>(graphics));
+	scene.AddSceneObject(std::make_shared<Camera>(graphics));
 	//scene.AddSceneObject(std::make_shared<Cube>(graphics));
 	//scene.AddSceneObjectFromFile(graphics, "Models/nanosuit/nanosuit.obj");
 	scene.AddSceneObjectFromFile(graphics, "Models/sponza/sponza.obj", 1.0f / 40.0f);

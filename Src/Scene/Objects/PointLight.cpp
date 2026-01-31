@@ -76,7 +76,7 @@ void PointLight::UpdateLight(Graphics& graphics, Scene& scene)
 	}
 }
 
-void PointLight::DrawTransformPropeties()
+void PointLight::DrawTransformPropeties(Scene& scene)
 {
 	auto checkChanged = [](bool& checkValue, bool expressionReturn) mutable
 		{

@@ -42,7 +42,7 @@ void Scene::BeginInitialization(Graphics& graphics)
 
 void Scene::FinishInitialization(Graphics& graphics)
 {
-	m_activeCamera = m_cameras.front();
+	m_SetActiveCamera(m_cameras.front());
 
 	Renderer& renderer = graphics.GetRenderer();
 	Pipeline& pipeline = renderer.GetPipeline();
@@ -122,7 +122,7 @@ void Scene::DrawObjectInspector(Graphics& graphics)
 			{
 				if (m_objectSelectedInHierarchy != nullptr)
 				{
-					m_objectSelectedInHierarchy->DrawTransformPropeties();
+					m_objectSelectedInHierarchy->DrawTransformPropeties(*this);
 
 					ImGui::NewLine();
 
@@ -146,12 +146,12 @@ void Scene::Update(Graphics& graphics, const Input& input, bool isCursorLocked)
 {
 	// updating importatnt data that other objects depend on
 	{
+		// camera position and rotation so all objects can update their matrices in the same frame
+		m_activeCamera->UpdateCamera(input, isCursorLocked);
+
 		// light position and data
 		for (auto& pointlight : m_pointlights)
 			pointlight->UpdateLight(graphics, *this);
-
-		// camera position and rotation so all objects can update their matrices in the same frame
-		m_activeCamera->UpdateCamera(input, isCursorLocked);
 	}
 
 	for (auto& sceneObject : m_sceneObjects)
@@ -174,6 +174,11 @@ Camera* Scene::GetCurrentCamera() const
 	return m_activeCamera;
 }
 
+void Scene::SetActiveCamera(Camera* camera)
+{
+	m_SetActiveCamera(camera);
+}
+
 std::string Scene::GetOriginalName(std::string name)
 {
 	return name; // temporary
@@ -193,4 +198,15 @@ void Scene::UpdateObjectMatrices(Graphics& graphics)
 	// after all matrices are set up, we send them to camera
 	for (auto& sceneObject : m_sceneObjects)
 		sceneObject->UpdateTransformBufferIfNeeded(graphics, *m_activeCamera);
+}
+
+void Scene::m_SetActiveCamera(Camera* camera)
+{
+	THROW_INTERNAL_ERROR_IF("camera was null", camera == nullptr);
+
+	if(m_activeCamera)
+		m_activeCamera->SetActive(false);
+
+	m_activeCamera = camera;
+	m_activeCamera->SetActive(true);
 }

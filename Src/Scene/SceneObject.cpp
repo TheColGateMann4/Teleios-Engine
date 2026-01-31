@@ -105,7 +105,7 @@ void SceneObject::DrawHierarchy(SceneObject** selectedObject)
 	}
 }
 
-void SceneObject::DrawTransformPropeties()
+void SceneObject::DrawTransformPropeties(Scene& scene)
 {
 	auto checkChanged = [](bool& checkValue, bool expressionReturn) mutable
 		{

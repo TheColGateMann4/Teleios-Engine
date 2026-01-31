@@ -5,6 +5,7 @@
 
 class Graphics;
 class Pipeline;
+class Scene;
 class Camera;
 class Renderer;
 
@@ -51,7 +52,7 @@ private:
 public:
 	void DrawHierarchy(SceneObject** selectedObject);
 
-	virtual void DrawTransformPropeties();
+	virtual void DrawTransformPropeties(Scene& scene);
 
 	virtual void DrawAdditionalPropeties(Graphics& graphics, Pipeline& pipeline);
 

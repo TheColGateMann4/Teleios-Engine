@@ -25,7 +25,7 @@ public:
 public:
 	void UpdateCamera(const Input& input, bool cursorLocked);
 
-	virtual void DrawTransformPropeties() override;
+	virtual void DrawTransformPropeties(Scene& scene) override;
 
 	virtual void DrawAdditionalPropeties(Graphics& graphics, Pipeline& pipeline) override;
 
@@ -43,6 +43,11 @@ public:
 	const Settings* GetSettings() const;
 
 	virtual SceneObjectType GetSceneObjectType() override;
+
+public:
+	void SetActive(bool active);
+
+	bool IsActive() const;
 
 private:
 	void UpdatePerspectiveMatrix();
@@ -62,4 +67,6 @@ private:
 
 	bool m_viewChanged;
 	bool m_perspectiveChanged;
+
+	bool m_active = false;
 };

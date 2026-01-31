@@ -3,6 +3,7 @@
 #include "Graphics/Core/Graphics.h"
 #include "Graphics/Core/Pipeline.h"
 #include "System/Input.h"
+#include "Scene/Scene.h"
 
 #include <imgui.h>
 
@@ -32,6 +33,9 @@ Camera::Camera(Graphics& graphics, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3
 
 void Camera::UpdateCamera(const Input& input, bool cursorLocked)
 {
+	if (!m_active)
+		return;
+
 	// rotation
 	if(cursorLocked)
 	{
@@ -56,7 +60,7 @@ void Camera::UpdateCamera(const Input& input, bool cursorLocked)
 	}
 }
 
-void Camera::DrawTransformPropeties()
+void Camera::DrawTransformPropeties(Scene& scene)
 {
 	// we are reseting viewChanged and m_perspectiveChanged values here since its the first function where it can be changed
 	m_viewChanged = false;
@@ -66,6 +70,9 @@ void Camera::DrawTransformPropeties()
 		{
 			checkValue = checkValue || expressionReturn;
 		};
+
+	if (ImGui::Button("Active"))
+		scene.SetActiveCamera(this);
 
 	ImGui::Text("Position");
 	checkChanged(m_viewChanged, ImGui::SliderFloat("x##position", &m_position.x, -100.0f, 100.0f));
@@ -169,6 +176,17 @@ const Camera::Settings* Camera::GetSettings() const
 SceneObjectType Camera::GetSceneObjectType()
 {
 	return SceneObjectType::camera;
+}
+
+void Camera::SetActive(bool active)
+{
+	m_active = active;
+	m_viewChanged = true;
+}
+
+bool Camera::IsActive() const
+{
+	return m_active;
 }
 
 void Camera::UpdatePerspectiveMatrix()

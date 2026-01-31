@@ -41,10 +41,14 @@ public:
 
 	Camera* GetCurrentCamera() const;
 
+	void SetActiveCamera(Camera* camera);
+
 private:
 	std::string GetOriginalName(std::string name);
 
 	void UpdateObjectMatrices(Graphics& graphics);
+
+	void m_SetActiveCamera(Camera* camera);
 
 private:
 	std::vector<std::shared_ptr<SceneObject>> m_sceneObjects = {};

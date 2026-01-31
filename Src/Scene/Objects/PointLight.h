@@ -21,7 +21,7 @@ public:
 
 	void UpdateLight(Graphics& graphics, Scene& scene);
 
-	virtual void DrawTransformPropeties() override;
+	virtual void DrawTransformPropeties(Scene& scene) override;
 
 	virtual void DrawAdditionalPropeties(Graphics& graphics, Pipeline& pipeline) override;
 
