@@ -27,6 +27,8 @@ public:
 	// ends initialization state in pipeline
 	void FinishInitialization(Graphics& graphics);
 
+	void InitializeLightBuffer(Graphics& graphics, Pipeline& pipeline);
+
 	void AssignJobs(Graphics& graphics);
 
 	void InitializeSceneObjects(Graphics& graphics);
@@ -39,6 +41,8 @@ public:
 	void Update(Graphics& graphics, const Input& input, bool isCursorLocked);
 
 	std::vector<std::shared_ptr<SceneObject>>& GetObjects();
+
+	const std::vector<PointLight*>& GetPointLights();
 
 	Camera* GetCurrentCamera() const;
 
@@ -53,14 +57,15 @@ private:
 
 private:
 
+	using NameBucket = std::vector<SceneObject*>;
+	std::unordered_map<std::string, NameBucket> m_nameRegistry;
 	std::vector<std::shared_ptr<SceneObject>> m_sceneObjects = {};
+
+	SceneObject* m_objectSelectedInHierarchy = nullptr;
+
 	std::vector<Camera*> m_cameras;
 	Camera* m_activeCamera = nullptr;
 
 	std::vector<PointLight*> m_pointlights;
-
-	using NameBucket = std::vector<SceneObject*>;
-	std::unordered_map<std::string, NameBucket> m_nameRegistry;
-
-	SceneObject* m_objectSelectedInHierarchy = nullptr;
+	std::shared_ptr<CachedConstantBuffer> m_lightBuffer;
 };

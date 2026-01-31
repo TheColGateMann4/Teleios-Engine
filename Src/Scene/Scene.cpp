@@ -24,7 +24,11 @@ void Scene::AddSceneObject(std::shared_ptr<SceneObject> sceneObject)
 	if (objectType == SceneObjectType::camera)
 		m_cameras.push_back(static_cast<Camera*>(pSceneObject));
 	else if (objectType == SceneObjectType::pointlight)
+	{
 		m_pointlights.push_back(static_cast<PointLight*>(pSceneObject));
+		m_pointlights.back()->SetLightIndex(m_pointlights.size() - 1);
+	}
+
 
 	m_sceneObjects.push_back(sceneObject);
 	m_nameRegistry[sceneObject->GetName()].push_back(pSceneObject);
@@ -47,14 +51,17 @@ void Scene::BeginInitialization(Graphics& graphics)
 
 void Scene::FinishInitialization(Graphics& graphics)
 {
-	m_SetActiveCamera(m_cameras.front());
-
 	Renderer& renderer = graphics.GetRenderer();
 	Pipeline& pipeline = renderer.GetPipeline();
+
+	m_SetActiveCamera(m_cameras.front());
+
+	InitializeLightBuffer(graphics, pipeline);
 
 	InitializeSceneObjects(graphics);
 
 	AssignJobs(graphics);
+
 
 	renderer.GatherJobBindables();
 
@@ -65,6 +72,27 @@ void Scene::FinishInitialization(Graphics& graphics)
 	renderer.FinishInitialization(graphics);
 
 	graphics.WaitForGPU();
+}
+
+void Scene::InitializeLightBuffer(Graphics& graphics, Pipeline& pipeline)
+{
+	DynamicConstantBuffer::ConstantBufferLayout layout;
+	for(int i = 0; i < m_pointlights.size(); i++)
+	{
+		std::string structNumber = "_" + std::to_string(i);
+
+		layout.AddElement<DynamicConstantBuffer::ElementType::Float3>(std::string("lightPosition" + structNumber), DynamicConstantBuffer::ImguiColorData{ false });
+		layout.AddElement<DynamicConstantBuffer::ElementType::Float3>(std::string("diffuseColor" + structNumber));
+		layout.AddElement<DynamicConstantBuffer::ElementType::Float>(std::string("attenuationQuadratic" + structNumber), DynamicConstantBuffer::ImguiFloatData{ true, 0.001f, 1.8f, "%.3f" });
+		layout.AddElement<DynamicConstantBuffer::ElementType::Float>(std::string("attenuationLinear" + structNumber), DynamicConstantBuffer::ImguiFloatData{ true, 0.0001f, 1.0f, "%.5f" });
+		layout.AddElement<DynamicConstantBuffer::ElementType::Float>(std::string("attenuationConstant" + structNumber), DynamicConstantBuffer::ImguiFloatData{ true, 0.000001f, 1.0f, "%.6f" });
+	}
+
+	DynamicConstantBuffer::ConstantBufferData bufferData(layout);
+
+	m_lightBuffer = std::make_shared<CachedConstantBuffer>(graphics, bufferData, std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::PixelShader, 0}}, true);
+
+	pipeline.AddStaticResource("lightBuffer", m_lightBuffer.get());
 }
 
 void Scene::AssignJobs(Graphics& graphics)
@@ -175,6 +203,11 @@ void Scene::Update(Graphics& graphics, const Input& input, bool isCursorLocked)
 std::vector<std::shared_ptr<SceneObject>>& Scene::GetObjects()
 {
 	return m_sceneObjects;
+}
+
+const std::vector<PointLight*>& Scene::GetPointLights()
+{
+	return m_pointlights;
 }
 
 Camera* Scene::GetCurrentCamera() const

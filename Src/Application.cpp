@@ -57,6 +57,9 @@ void Application::InitializeScene()
 	//scene.AddSceneObjectFromFile(graphics, "Models/intel_sponza/pkg_c_trees/NewSponza_CypressTree_glTF.gltf");
 
 	scene.AddSceneObject(std::make_shared<PointLight>(graphics, scene));
+	scene.AddSceneObject(std::make_shared<PointLight>(graphics, scene));
+	scene.AddSceneObject(std::make_shared<PointLight>(graphics, scene));
+	scene.AddSceneObject(std::make_shared<PointLight>(graphics, scene));
 
 	scene.FinishInitialization(graphics);
 }

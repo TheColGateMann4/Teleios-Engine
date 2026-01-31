@@ -100,7 +100,7 @@ void Mesh::CreateDepthTechnique(Graphics& graphics, Pipeline& pipeline)
 			if (hasOpacity)
 			{
 				depthStep.AddBindable(Shader::GetBindableResource(graphics, L"PS_Depth", ShaderType::PixelShader));
-				depthStep.AddBindable(Shader::GetBindableResource(graphics, L"VS", ShaderType::VertexShader, { L"INPUT_TEXCCORDS" }));
+				depthStep.AddBindable(Shader::GetBindableResource(graphics, L"VS", ShaderType::VertexShader, { { L"INPUT_TEXCCORDS" } }));
 
 				// TODO: Handle for opacity texture
 				depthStep.AddBindable(StaticSampler::GetBindableResource(graphics, D3D12_FILTER_MIN_MAG_MIP_POINT));

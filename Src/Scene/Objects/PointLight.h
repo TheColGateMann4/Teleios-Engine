@@ -15,7 +15,7 @@ public:
 	PointLight(Graphics& graphics, Scene& scene, DirectX::XMFLOAT3 position = {-1.5f, 1.0f, -1.5f}, DirectX::XMFLOAT3 color = { 1.0f, 1.0f, 1.0f });
 
 public:
-	virtual void AddStaticResources(Pipeline& pipeline) override;
+	virtual void Initialize(Graphics& graphics, Pipeline& pipeline) override;
 	
 	virtual void Update(Graphics& graphics, Pipeline& pipeline) override;
 
@@ -27,12 +27,16 @@ public:
 
 	virtual SceneObjectType GetSceneObjectType() override;
 
+	void SetLightIndex(unsigned int lightIndex);
+
 private:
 	DirectX::XMFLOAT3 m_position;
 	DirectX::XMFLOAT3 m_color;
 	
-	std::shared_ptr<CachedConstantBuffer> m_lightBuffer;
 	bool m_transformChanged;
 	Sphere* m_pSphereModel;
+
+	CachedConstantBuffer* m_pLightBuffer = nullptr;
+	unsigned int m_lightIndex = 0;
 };
 

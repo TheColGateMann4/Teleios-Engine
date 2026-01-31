@@ -26,27 +26,20 @@ PointLight::PointLight(Graphics& graphics, Scene& scene, DirectX::XMFLOAT3 posit
 
 		scene.AddSceneObject(std::move(sphereModel));
 	}
-
-	DynamicConstantBuffer::ConstantBufferLayout layout;
-	layout.AddElement<DynamicConstantBuffer::ElementType::Float3>("lightPosition", DynamicConstantBuffer::ImguiColorData{false});
-	layout.AddElement<DynamicConstantBuffer::ElementType::Float3>("diffuseColor");
-	layout.AddElement<DynamicConstantBuffer::ElementType::Float>("attenuationQuadratic",DynamicConstantBuffer::ImguiFloatData{ true, 0.001f, 1.8f, "%.3f" });
-	layout.AddElement<DynamicConstantBuffer::ElementType::Float>("attenuationLinear",	DynamicConstantBuffer::ImguiFloatData{ true, 0.0001f, 1.0f, "%.5f" });
-	layout.AddElement<DynamicConstantBuffer::ElementType::Float>("attenuationConstant", DynamicConstantBuffer::ImguiFloatData{ true, 0.000001f, 1.0f, "%.6f" });
-
-	DynamicConstantBuffer::ConstantBufferData bufferData(layout);
-	// *bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float3>("lightPosition") = position; // we don't need to set this value since it will be overriden in Update() call by position in camera space
-	*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float3>("diffuseColor") = color;
-	*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("attenuationQuadratic") = 0.2f;
-	*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("attenuationLinear") = 0.04f;
-	*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("attenuationConstant") = 0.07f;
-
-	m_lightBuffer = std::make_shared<CachedConstantBuffer>(graphics, bufferData, std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::PixelShader, 0}}, true);
 }
 
-void PointLight::AddStaticResources(Pipeline& pipeline)
+void PointLight::Initialize(Graphics& graphics, Pipeline& pipeline)
 {
-	pipeline.AddStaticResource("lightBuffer", m_lightBuffer.get());
+	m_pLightBuffer = static_cast<CachedConstantBuffer*>(pipeline.GetStaticResource("lightBuffer"));
+
+	DynamicConstantBuffer::ConstantBufferData& bufferData = m_pLightBuffer->GetData();
+
+	std::string structIndex = "_" + std::to_string(m_lightIndex);
+
+	*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float3>(std::string("diffuseColor" + structIndex).c_str()) = m_color;
+	*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>(std::string("attenuationQuadratic" + structIndex).c_str()) = 0.2f;
+	*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>(std::string("attenuationLinear" + structIndex).c_str()) = 0.04f;
+	*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>(std::string("attenuationConstant" + structIndex).c_str()) = 0.07f;
 }
 
 void PointLight::Update(Graphics& graphics, Pipeline& pipeline)
@@ -68,9 +61,9 @@ void PointLight::UpdateLight(Graphics& graphics, Scene& scene)
 
 		DirectX::XMStoreFloat3(&resultPosition, vResultPosition);
 
-		*m_lightBuffer->GetData().GetValuePointer<DynamicConstantBuffer::ElementType::Float3>("lightPosition") = resultPosition;
+		*m_pLightBuffer->GetData().GetValuePointer<DynamicConstantBuffer::ElementType::Float3>(std::string("lightPosition_" + std::to_string(m_lightIndex)).c_str()) = resultPosition;
 
-		m_lightBuffer->Update(graphics);
+		m_pLightBuffer->Update(graphics);
 
 		m_transformChanged = false;
 	}
@@ -98,7 +91,7 @@ void PointLight::DrawAdditionalPropeties(Graphics& graphics, Pipeline& pipeline)
 			checkValue = checkValue || expressionReturn;
 		};
 
-	m_lightBuffer->DrawImguiProperties(graphics);
+	m_pLightBuffer->DrawImguiProperties(graphics);
 
 	m_pSphereModel->DrawAdditionalPropeties(graphics, pipeline);
 }
@@ -106,4 +99,9 @@ void PointLight::DrawAdditionalPropeties(Graphics& graphics, Pipeline& pipeline)
 SceneObjectType PointLight::GetSceneObjectType()
 {
 	return SceneObjectType::pointlight;
+}
+
+void PointLight::SetLightIndex(unsigned int lightIndex)
+{
+	m_lightIndex = lightIndex;
 }
