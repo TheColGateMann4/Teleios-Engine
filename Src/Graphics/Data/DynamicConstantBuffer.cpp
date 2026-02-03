@@ -60,7 +60,7 @@ DynamicConstantBuffer::Layout& DynamicConstantBuffer::Layout::GetFinished(bool i
 	return *this;
 }
 
-void DynamicConstantBuffer::Layout::AddArray(std::string name, ArrayDataInfo& arrayData)
+void DynamicConstantBuffer::Layout::AddArray(const char* name, ArrayDataInfo& arrayData)
 {
 	THROW_OBJECT_STATE_ERROR_IF("Layout was unfinished", m_finished);
 	THROW_INTERNAL_ERROR_IF("Array size was not set", arrayData.numElements == -1);
@@ -110,7 +110,7 @@ const DynamicConstantBuffer::Layout::Element& DynamicConstantBuffer::Layout::Get
 	THROW_OBJECT_STATE_ERROR_IF("Empty name was passed", name == nullptr);
 
 	for (const auto& element : m_elements)
-		if (strcmp(name, element.name.c_str()) == 0)
+		if (strcmp(name, element.name) == 0)
 			return element;
 
 	std::string errorStr = "Failed to find element in layout with name: \"";
@@ -182,7 +182,7 @@ bool DynamicConstantBuffer::ArrayData::DrawImguiProperties(unsigned int i, bool 
 		}
 		else
 		{
-			checkChanged(DrawImguiPropety(element, elementData, element.name.c_str()));
+			checkChanged(DrawImguiPropety(element, elementData, element.name));
 		}
 	}
 
@@ -241,7 +241,7 @@ bool DynamicConstantBuffer::Data::DrawImguiProperties()
 
 		if(static_cast<ImguiData*>(element.imguiData.get()));
 
-		checkChanged(DrawImguiPropety(element, elementData, element.name.c_str()));
+		checkChanged(DrawImguiPropety(element, elementData, element.name));
 	}
 
 	return changed;

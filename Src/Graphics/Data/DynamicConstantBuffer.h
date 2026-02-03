@@ -159,7 +159,7 @@ namespace DynamicConstantBuffer
 			ElementType type;
 			unsigned int size;
 			unsigned int offset;
-			std::string name;
+			const char* name;
 
 			std::unique_ptr<ImguiData> imguiData;
 			std::unique_ptr<DataInfo> additionalData;
@@ -175,11 +175,11 @@ namespace DynamicConstantBuffer
 	public:
 		Layout& GetFinished(bool isPartialBuffer = false);
 
-		void AddArray(std::string name, ArrayDataInfo& arrayData);
+		void AddArray(const char* name, ArrayDataInfo& arrayData);
 
 		// Adding layout elements that can be displayed in imgui
 		template<ElementType elementType, typename imguiDataType = ElementMap<elementType>::imguiDataType, ENABLE_IF(elementType != DynamicConstantBuffer::ElementType::List)>
-		void Add(std::string name, imguiDataType imguiData = {})
+		void Add(const char* name, imguiDataType imguiData = {})
 		{
 			THROW_OBJECT_STATE_ERROR_IF("Layout was unfinished", m_finished);
 
