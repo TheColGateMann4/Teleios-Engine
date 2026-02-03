@@ -94,7 +94,11 @@ void SceneObject::DrawHierarchy(SceneObject** selectedObject)
 	const bool nodeExpanded = ImGui::TreeNodeEx(GetDecoratedName().c_str(), flags);
 
 	if (ImGui::IsItemClicked())
+	{
 		*selectedObject = *selectedObject != this ? this : nullptr;
+		(*selectedObject)->m_selected = false;
+		m_selected = true;
+	}
 
 	if (nodeExpanded)
 	{

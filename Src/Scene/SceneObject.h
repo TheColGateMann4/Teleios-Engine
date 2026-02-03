@@ -103,4 +103,5 @@ protected:
 	unsigned int m_nameIndex = 0;
 	bool m_isChild;
 	bool m_hideInHierarchy = false;
+	bool m_selected = false;
 };

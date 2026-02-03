@@ -22,3 +22,11 @@
 //	
 //	//imgui
 //	#include <imgui.h>
+
+static bool IsEqual(const DirectX::XMMATRIX& a, const DirectX::XMMATRIX& b)
+{
+    for (int i = 0; i < 4; ++i)
+        if (!DirectX::XMVector4Equal(a.r[i], b.r[i]))
+            return false;
+    return true;
+}

@@ -1,6 +1,8 @@
 #include "ObjectTransform.h"
 #include "Scene/Objects/Camera.h"
 
+#include "Graphics/Core/Graphics.h"
+
 void ObjectTransform::SetPosition(DirectX::XMFLOAT3 position)
 {
 	m_position = position;
@@ -66,11 +68,11 @@ DirectX::XMMATRIX ObjectTransform::GetWorldTransform() const
 
 void ObjectTransform::SetParentTransform(DirectX::XMMATRIX accumulatedParentTransform)
 {
+	m_parentTransformChanged = !IsEqual(m_accumulatedParentTransform, accumulatedParentTransform);
+
 	m_accumulatedParentTransform = accumulatedParentTransform;
 
 	UpdateWorldTransform();
-
-	m_parentTransformChanged = true;
 }
 
 std::shared_ptr<TransformConstantBuffer> ObjectTransform::GetTransformConstantBuffer() const
@@ -86,7 +88,16 @@ void ObjectTransform::SetTransformConstantBuffer(std::shared_ptr<TransformConsta
 
 void ObjectTransform::UpdateTransformBufferIfNeeded(Graphics& graphics, Camera& camera)
 {
-	if (m_localTransformChanged || m_parentTransformChanged || camera.ViewChanged())
+	bool updateDueToNewData = m_localTransformChanged || m_parentTransformChanged || camera.ViewChanged();
+	bool updateDueToBuffersLeft = m_buffersLeftToChange > 0;
+
+	if (!updateDueToNewData && updateDueToBuffersLeft)
+		m_buffersLeftToChange--;
+
+	if (updateDueToNewData)
+		m_buffersLeftToChange = graphics.GetBufferCount();
+
+	if (updateDueToNewData || updateDueToBuffersLeft)
 	{
 		m_transformConstantBuffer->Update(graphics, camera);
 

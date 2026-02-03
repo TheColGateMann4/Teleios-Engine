@@ -43,7 +43,10 @@ void PointLight::Initialize(Graphics& graphics, Pipeline& pipeline)
 void PointLight::Update(Graphics& graphics, Pipeline& pipeline)
 {
 	// dragging our model with us
-	m_pSphereModel->GetTransform()->SetPosition(m_position);
+	if(m_transformChanged)
+		m_pSphereModel->GetTransform()->SetPosition(m_position);
+
+	m_transformChanged = false;
 }
 
 void PointLight::UpdateLight(Graphics& graphics, Scene& scene)
@@ -64,8 +67,6 @@ void PointLight::UpdateLight(Graphics& graphics, Scene& scene)
 		*array.Get<DynamicConstantBuffer::ElementType::Float3>(m_lightIndex, "lightPosition") = resultPosition;
 
 		m_pLightBuffer->Update(graphics);
-
-		m_transformChanged = false;
 	}
 }
 

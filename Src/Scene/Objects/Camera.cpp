@@ -36,6 +36,12 @@ void Camera::UpdateCamera(const Input& input, bool cursorLocked)
 	if (!m_active)
 		return;
 
+	if (!m_selected)
+	{
+		m_viewChanged = false;
+		m_perspectiveChanged = false;
+	}
+
 	// rotation
 	if(cursorLocked)
 	{
@@ -62,7 +68,6 @@ void Camera::UpdateCamera(const Input& input, bool cursorLocked)
 
 void Camera::DrawTransformPropeties(Scene& scene)
 {
-	// we are reseting viewChanged and m_perspectiveChanged values here since its the first function where it can be changed
 	m_viewChanged = false;
 	m_perspectiveChanged = false;
 

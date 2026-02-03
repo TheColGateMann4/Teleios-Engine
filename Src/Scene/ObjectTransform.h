@@ -54,4 +54,5 @@ private:
 
 	bool m_localTransformChanged = false;
 	bool m_parentTransformChanged = false;
+	uint8_t m_buffersLeftToChange = 0;
 };
