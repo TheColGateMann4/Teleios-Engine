@@ -42,7 +42,7 @@ NonCachedConstantBuffer::NonCachedConstantBuffer(Graphics& graphics, DynamicCons
 	m_layout(std::move(layout))
 {
 	// requesting size on non static heao
-	resourceIndexInHeap = graphics.GetConstantBufferHeap().RequestMoreSpace(graphics, layout.GetSize());
+	resourceIndexInHeap = graphics.GetConstantBufferHeap().RequestMoreSpace(graphics, m_layout.GetSize());
 }
 
 void NonCachedConstantBuffer::Update(Graphics& graphics, void* data, size_t size)
@@ -63,9 +63,9 @@ CachedConstantBuffer::CachedConstantBuffer(Graphics& graphics, DynamicConstantBu
 {
 	// if resource is frequently updated we will keep it in regular buffer
 	if(m_frequentlyUpdated)
-		resourceIndexInHeap = graphics.GetConstantBufferHeap().RequestMoreSpace(graphics, data.GetLayout().GetSize());
+		resourceIndexInHeap = graphics.GetConstantBufferHeap().RequestMoreSpace(graphics, m_data.GetLayout().GetSize());
 	else
-		resourceIndexInHeap = graphics.GetConstantBufferHeap().RequestMoreStaticSpace(data.GetLayout().GetSize());
+		resourceIndexInHeap = graphics.GetConstantBufferHeap().RequestMoreStaticSpace(m_data.GetLayout().GetSize());
 }
 
 void CachedConstantBuffer::Initialize(Graphics& graphics)
@@ -112,7 +112,7 @@ TempConstantBuffer::TempConstantBuffer(Graphics& graphics, DynamicConstantBuffer
 	ConstantBuffer(graphics, data.GetLayout(), targets),
 	m_data(std::move(data))
 {
-	resourceIndexInHeap = graphics.GetConstantBufferHeap().GetNextTempIndex(data.GetLayout().GetSize());
+	resourceIndexInHeap = graphics.GetConstantBufferHeap().GetNextTempIndex(m_data.GetLayout().GetSize());
 
 	Update(graphics);
 }

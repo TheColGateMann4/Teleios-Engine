@@ -10,6 +10,9 @@ class ConstantBufferHeap
 {
 public: // At program initialization
 
+	ConstantBufferHeap() = default;
+	~ConstantBufferHeap();
+
 	// returns index to constat buffer
 	unsigned int GetNextTempIndex(UINT resourceAlignedSize);
 	unsigned int RequestMoreStaticSpace(UINT resourceAlignedSize);
@@ -51,6 +54,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12Resource> pBufferHeap;
 	std::vector<UINT64> m_bufferOffsets = {};
 	UINT64 m_combinedSize = 0;
+	void* pMappedData = nullptr;
 
 	// static resources - on GPU memory
 	Microsoft::WRL::ComPtr<ID3D12Resource> pStaticBufferHeap;

@@ -3,6 +3,12 @@
 #include "Graphics.h"
 #include "CommandList.h"
 
+ConstantBufferHeap::~ConstantBufferHeap()
+{
+	if(pBufferHeap)
+		pBufferHeap->Unmap(0, nullptr);
+}
+
 unsigned int ConstantBufferHeap::GetNextTempIndex(UINT resourceAlignedSize)
 {
 	THROW_INTERNAL_ERROR_IF("Temp buffer size was higher than 256", resourceAlignedSize > 256);
@@ -68,6 +74,12 @@ void ConstantBufferHeap::Finish(Graphics& graphics)
 			D3D12_RESOURCE_STATE_COMMON, //D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER,
 			nullptr,
 			IID_PPV_ARGS(&pBufferHeap)
+		));
+
+		THROW_ERROR(pBufferHeap->Map(
+			0,
+			nullptr,
+			&pMappedData
 		));
 	}
 
@@ -249,30 +261,11 @@ void ConstantBufferHeap::UpdateResource(Graphics& graphics, unsigned int bufferI
 void ConstantBufferHeap::UpdateResource(Graphics& graphics, UINT64 bufferStartingOffset, UINT64 bufferSize, void* data, size_t size)
 {
 	THROW_INTERNAL_ERROR_IF("Tried to update buffer as larger than it is", size > bufferSize);
+	THROW_INTERNAL_ERROR_IF("Passed sizes were larger than buffer itself", size > m_combinedSize || bufferSize > m_combinedSize);
 
-	{
-		HRESULT hr;
+	void* dest = static_cast<char*>(pMappedData) + bufferStartingOffset;
 
-		D3D12_RANGE readRange = {};
-		readRange.Begin = 0;
-		readRange.End = 0;
-
-		D3D12_RANGE writeRange = {};
-		writeRange.Begin = bufferStartingOffset;
-		writeRange.End = bufferStartingOffset + bufferSize;
-
-		void* pMappedData = nullptr;
-
-		THROW_ERROR(pBufferHeap->Map(
-			0,
-			&readRange,
-			&pMappedData
-		));
-
-		memcpy_s(static_cast<char*>(pMappedData) + bufferStartingOffset, bufferSize, data, size);
-
-		THROW_INFO_ERROR(pBufferHeap->Unmap(0, &writeRange));
-	}
+	memcpy_s(dest, bufferSize, data, size);
 }
 
 void ConstantBufferHeap::UpdateStaticResource(Graphics& graphics, unsigned int bufferIndex, void* data, size_t size)
