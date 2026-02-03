@@ -76,19 +76,18 @@ void Scene::FinishInitialization(Graphics& graphics)
 
 void Scene::InitializeLightBuffer(Graphics& graphics, Pipeline& pipeline)
 {
-	DynamicConstantBuffer::ConstantBufferLayout layout;
-	for(int i = 0; i < m_pointlights.size(); i++)
-	{
-		std::string structNumber = "_" + std::to_string(i);
+	DynamicConstantBuffer::ArrayDataInfo array = {};
+	array.numElements = m_pointlights.size();
+	array.layout.Add<DynamicConstantBuffer::ElementType::Float3>("lightPosition", DynamicConstantBuffer::ImguiColorData{ false });
+	array.layout.Add<DynamicConstantBuffer::ElementType::Float3>("diffuseColor");
+	array.layout.Add<DynamicConstantBuffer::ElementType::Float>("attenuationQuadratic", DynamicConstantBuffer::ImguiFloatData{ true, 0.001f, 1.8f, "%.3f" });
+	array.layout.Add<DynamicConstantBuffer::ElementType::Float>("attenuationLinear", DynamicConstantBuffer::ImguiFloatData{ true, 0.0001f, 1.0f, "%.5f" });
+	array.layout.Add<DynamicConstantBuffer::ElementType::Float>("attenuationConstant", DynamicConstantBuffer::ImguiFloatData{ true, 0.000001f, 1.0f, "%.6f" });
 
-		layout.AddElement<DynamicConstantBuffer::ElementType::Float3>(std::string("lightPosition" + structNumber), DynamicConstantBuffer::ImguiColorData{ false });
-		layout.AddElement<DynamicConstantBuffer::ElementType::Float3>(std::string("diffuseColor" + structNumber));
-		layout.AddElement<DynamicConstantBuffer::ElementType::Float>(std::string("attenuationQuadratic" + structNumber), DynamicConstantBuffer::ImguiFloatData{ true, 0.001f, 1.8f, "%.3f" });
-		layout.AddElement<DynamicConstantBuffer::ElementType::Float>(std::string("attenuationLinear" + structNumber), DynamicConstantBuffer::ImguiFloatData{ true, 0.0001f, 1.0f, "%.5f" });
-		layout.AddElement<DynamicConstantBuffer::ElementType::Float>(std::string("attenuationConstant" + structNumber), DynamicConstantBuffer::ImguiFloatData{ true, 0.000001f, 1.0f, "%.6f" });
-	}
+	DynamicConstantBuffer::Layout layout;
+	layout.AddArray("lightBuffers", array);
 
-	DynamicConstantBuffer::ConstantBufferData bufferData(layout);
+	DynamicConstantBuffer::Data bufferData(layout);
 
 	m_lightBuffer = std::make_shared<CachedConstantBuffer>(graphics, bufferData, std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::PixelShader, 0}}, true);
 

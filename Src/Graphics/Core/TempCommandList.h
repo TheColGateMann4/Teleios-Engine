@@ -20,7 +20,7 @@ public:
 public:
 	void Dispatch(Graphics& graphics, unsigned int workToProcessX = 1, unsigned int workToProcessY = 1, unsigned int workToProcessZ = 1);
 
-	template<class T, std::enable_if_t<std::is_base_of_v<Bindable, T>, int> = 0>
+	template<class T, ENABLE_IF((std::is_base_of_v<Bindable, T>))>
 	void Bind(T&& bindable)
 	{
 		m_bindableContainer.AddBindable(std::move(bindable));
@@ -55,7 +55,7 @@ public:
 public:
 	void DrawIndexed(Graphics& graphics);
 
-	template<class T, std::enable_if_t<std::is_base_of_v<Bindable, T>, int> = 0>
+	template<class T, ENABLE_IF((std::is_base_of_v<Bindable, T>))>
 	void Bind(T&& bindable)
 	{
 		m_bindableContainer.AddBindable(std::move(bindable));

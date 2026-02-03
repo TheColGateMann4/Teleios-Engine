@@ -231,46 +231,46 @@ Model::Model(Graphics& graphics, Model* pParent, aiNode* node, std::vector<std::
 
 				//Constant buffer describing model material propeties
 				{
-					DynamicConstantBuffer::ConstantBufferLayout layout;
+					DynamicConstantBuffer::Layout layout;
 					{
-						layout.AddElement<DynamicConstantBuffer::ElementType::Float3>("ambient");
-						layout.AddElement<DynamicConstantBuffer::ElementType::Float3>("diffuse");
+						layout.Add<DynamicConstantBuffer::ElementType::Float3>("ambient");
+						layout.Add<DynamicConstantBuffer::ElementType::Float3>("diffuse");
 
 						if (materialPropeties.metalRoughnessSystem)
 						{
-							layout.AddElement<DynamicConstantBuffer::ElementType::Float3>("reflectivity");
-							layout.AddElement<DynamicConstantBuffer::ElementType::Float>("metalness", DynamicConstantBuffer::ImguiFloatData{ true, 0.0f, 1.0f });
-							layout.AddElement<DynamicConstantBuffer::ElementType::Float>("roughness", DynamicConstantBuffer::ImguiFloatData{ true, 0.0f, 1.0f });
+							layout.Add<DynamicConstantBuffer::ElementType::Float3>("reflectivity");
+							layout.Add<DynamicConstantBuffer::ElementType::Float>("metalness", DynamicConstantBuffer::ImguiFloatData{ true, 0.0f, 1.0f });
+							layout.Add<DynamicConstantBuffer::ElementType::Float>("roughness", DynamicConstantBuffer::ImguiFloatData{ true, 0.0f, 1.0f });
 						}
 						else
 						{
-							layout.AddElement<DynamicConstantBuffer::ElementType::Float3>("defaultSpecularColor");
-							layout.AddElement<DynamicConstantBuffer::ElementType::Bool>("specularOneChannelOnly", DynamicConstantBuffer::ImguiData{ false });
-							layout.AddElement<DynamicConstantBuffer::ElementType::Float>("specular", DynamicConstantBuffer::ImguiFloatData{ true, 0.001f, 150.0f });
-							layout.AddElement<DynamicConstantBuffer::ElementType::Float>("glosiness", DynamicConstantBuffer::ImguiFloatData{ true, 0.001f, 150.0f });
+							layout.Add<DynamicConstantBuffer::ElementType::Float3>("defaultSpecularColor");
+							layout.Add<DynamicConstantBuffer::ElementType::Bool>("specularOneChannelOnly", DynamicConstantBuffer::ImguiData{ false });
+							layout.Add<DynamicConstantBuffer::ElementType::Float>("specular", DynamicConstantBuffer::ImguiFloatData{ true, 0.001f, 150.0f });
+							layout.Add<DynamicConstantBuffer::ElementType::Float>("glosiness", DynamicConstantBuffer::ImguiFloatData{ true, 0.001f, 150.0f });
 						}
-						layout.AddElement<DynamicConstantBuffer::ElementType::Float>("opacity", DynamicConstantBuffer::ImguiFloatData{ true, 0.0f, 1.0f });
+						layout.Add<DynamicConstantBuffer::ElementType::Float>("opacity", DynamicConstantBuffer::ImguiFloatData{ true, 0.0f, 1.0f });
 					}
 
-					DynamicConstantBuffer::ConstantBufferData bufferData(layout);
+					DynamicConstantBuffer::Data bufferData(layout);
 					{
-						*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float3>("ambient") = materialPropeties.ambient;
-						*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float3>("diffuse") = materialPropeties.diffuse;
+						*bufferData.Get<DynamicConstantBuffer::ElementType::Float3>("ambient") = materialPropeties.ambient;
+						*bufferData.Get<DynamicConstantBuffer::ElementType::Float3>("diffuse") = materialPropeties.diffuse;
 
 						if (materialPropeties.metalRoughnessSystem)
 						{
-							*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float3>("reflectivity") = materialPropeties.reflective;
-							*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("metalness") = materialPropeties.metalness;
-							*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("roughness") = materialPropeties.roughness;
+							*bufferData.Get<DynamicConstantBuffer::ElementType::Float3>("reflectivity") = materialPropeties.reflective;
+							*bufferData.Get<DynamicConstantBuffer::ElementType::Float>("metalness") = materialPropeties.metalness;
+							*bufferData.Get<DynamicConstantBuffer::ElementType::Float>("roughness") = materialPropeties.roughness;
 						}
 						else
 						{
-							*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float3>("defaultSpecularColor") = materialPropeties.specularColor;
-							*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Bool>("specularOneChannelOnly") = materialPropeties.specularOneChannelOnly;
-							*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("specular") = materialPropeties.specular;
-							*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("glosiness") = materialPropeties.glosiness;
+							*bufferData.Get<DynamicConstantBuffer::ElementType::Float3>("defaultSpecularColor") = materialPropeties.specularColor;
+							*bufferData.Get<DynamicConstantBuffer::ElementType::Bool>("specularOneChannelOnly") = materialPropeties.specularOneChannelOnly;
+							*bufferData.Get<DynamicConstantBuffer::ElementType::Float>("specular") = materialPropeties.specular;
+							*bufferData.Get<DynamicConstantBuffer::ElementType::Float>("glosiness") = materialPropeties.glosiness;
 						}
-						*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("opacity") = materialPropeties.opacity;
+						*bufferData.Get<DynamicConstantBuffer::ElementType::Float>("opacity") = materialPropeties.opacity;
 					}
 
 					step.AddBindable(std::make_shared<CachedConstantBuffer>(graphics, bufferData, std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::PixelShader, 1}}));

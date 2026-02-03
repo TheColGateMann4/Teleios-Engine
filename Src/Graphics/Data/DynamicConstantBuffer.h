@@ -13,7 +13,8 @@ namespace DynamicConstantBuffer
 		Float2,
 		Float3,
 		Float4,
-		Matrix
+		Matrix,
+		List
 	};
 
 
@@ -138,48 +139,69 @@ namespace DynamicConstantBuffer
 		static constexpr unsigned int size = sizeof(dataType);
 	};
 
-	class ConstantBufferLayout
+	struct DataInfo;
+	struct ArrayDataInfo;
+
+	class Layout
 	{
+		friend class Data;
+
 		static constexpr unsigned int alignment = 16;
 		static constexpr unsigned int bufferSizeAlignment = 256;
 
-		struct LayoutElement
+		struct Element
 		{
+			Element() = default;
+			Element(Element&&) noexcept = default;
+			Element(const Element&) = delete;
+			Element& operator=(Element&&) noexcept = default;
+			Element& operator=(const Element&) = delete;
+
 			ElementType type;
 			unsigned int size;
 			unsigned int offset;
 			std::string name;
 
-			std::shared_ptr<ImguiData> imguiData;
+			std::unique_ptr<ImguiData> imguiData;
+			std::unique_ptr<DataInfo> additionalData;
 		};
 
 	public:
-		ConstantBufferLayout& GetFinished();
+		Layout() = default;
+		Layout(Layout&&) noexcept = default;
+		Layout(const Layout&) = delete;
+		Layout& operator=(Layout&&) noexcept = default;
+		Layout& operator=(const Layout&) = delete;
+
+	public:
+		Layout& GetFinished(bool isPartialBuffer = false);
+
+		void AddArray(std::string name, ArrayDataInfo& arrayData);
 
 		// Adding layout elements that can be displayed in imgui
-		template<ElementType elementType, typename imguiDataType = ElementMap<elementType>::imguiDataType>
-		void AddElement(std::string name, imguiDataType imguiData = {})
+		template<ElementType elementType, typename imguiDataType = ElementMap<elementType>::imguiDataType, ENABLE_IF(elementType != DynamicConstantBuffer::ElementType::List)>
+		void Add(std::string name, imguiDataType imguiData = {})
 		{
 			THROW_OBJECT_STATE_ERROR_IF("Layout was unfinished", m_finished);
 
-			LayoutElement element = {};
+			Element element = {};
 			element.type = elementType;
 			element.size = GetNewElementSize<elementType>();
 			element.offset = GetNewElementOffset<elementType>();
 			element.name = name;
-			element.imguiData = std::make_shared<imguiDataType>(imguiData);
+			element.imguiData = std::make_unique<imguiDataType>(imguiData);
 
 			m_elements.push_back(std::move(element));
 
 			m_size = element.offset + element.size;
 		}
 
-		template<ElementType elementType, std::enable_if_t<(elementType == DynamicConstantBuffer::ElementType::Matrix), int> = 0>
-		void AddElement(const char* name)
+		template<ElementType elementType, ENABLE_IF(elementType == DynamicConstantBuffer::ElementType::Matrix && elementType != DynamicConstantBuffer::ElementType::List)>
+		void Add(const char* name)
 		{
 			THROW_OBJECT_STATE_ERROR_IF("Layout was unfinished", m_finished);
 
-			LayoutElement element = {};
+			Element element = {};
 			element.type = elementType;
 			element.size = GetNewElementSize<elementType>();
 			element.offset = GetNewElementOffset<elementType>();
@@ -197,18 +219,18 @@ namespace DynamicConstantBuffer
 		unsigned int GetNumElements() const;
 
 
-		const LayoutElement& GetElement(unsigned int index) const;
+		const Element& GetElement(unsigned int index) const;
 
-		const LayoutElement& GetElement(const char* name) const;
+		const Element& GetElement(const char* name) const;
 
 	private:
-		template<ElementType elementType>
+		template<ElementType elementType, ENABLE_IF(elementType != DynamicConstantBuffer::ElementType::List)>
 		consteval static unsigned int GetNewElementSize()
 		{
 			return ElementMap<elementType>::size;
 		}
 
-		template<ElementType elementType>
+		template<ElementType elementType, ENABLE_IF(elementType != DynamicConstantBuffer::ElementType::List)>
 		unsigned int GetNewElementOffset() const
 		{
 			float numPacks = float(m_size) / float(alignment); // number of packs so far we went through
@@ -219,53 +241,102 @@ namespace DynamicConstantBuffer
 		}
 
 		unsigned int GetAlignedSize() const;
+		unsigned int GetPackedSize() const;
 
 	private:
-		std::vector<LayoutElement> m_elements = {};
+		std::vector<Element> m_elements = {};
 		unsigned int m_size = 0;
 		unsigned int m_alignedSize = 0;
 		bool m_finished = false;
 	};
 
-	class ConstantBufferData
+	// additional element data
+	struct DataInfo
+	{
+		virtual ~DataInfo() = default;
+	};
+
+	struct ArrayDataInfo : public DataInfo
+	{
+		ArrayDataInfo() = default;
+		ArrayDataInfo(ArrayDataInfo&&) noexcept = default;
+		ArrayDataInfo(const ArrayDataInfo&) = delete;
+		ArrayDataInfo& operator=(ArrayDataInfo&&) noexcept = default;
+		ArrayDataInfo& operator=(const ArrayDataInfo&) = delete;
+
+		virtual ~ArrayDataInfo() = default;
+
+		Layout layout;
+		int numElements = -1;
+	};
+
+	class ArrayData
 	{
 	public:
-		ConstantBufferData(const ConstantBufferData& data);
+		ArrayData(const Layout& layout, char* data, unsigned int numElements);
 
-		ConstantBufferData(ConstantBufferData&& data) noexcept;
+		template<ElementType elementType, ENABLE_IF(ElementMap<elementType>::valid)>
+		ElementMap<elementType>::dataType* Get(unsigned int i, const char* name)
+		{
+			THROW_INTERNAL_ERROR_IF("Tried to access index out of bounds", i >= m_numElements);
+			
+			auto& layoutElement = m_layout.GetElement(name);
 
-		ConstantBufferData(ConstantBufferLayout& layout);
+			THROW_INTERNAL_ERROR_IF("Tried to get value with different type than given layout element type", layoutElement.type != elementType);
+
+			unsigned int offsetInArray = i * m_layout.GetSize();
+			unsigned int offsetOfElementInLayout = layoutElement.offset;
+			return reinterpret_cast<ElementMap<elementType>::dataType*>(m_data + offsetInArray + offsetOfElementInLayout);
+		}
+
+	private:
+		const Layout& m_layout;
+		char* m_data;
+		int m_numElements;
+	};
+
+	class Data
+	{
+	public:
+		Data(Data&& data) noexcept;
+
+		Data(Layout& layout);
 
 	public:
-		template<ElementType elementType, std::enable_if_t<ElementMap<elementType>::valid, int> = 0>
-		ElementMap<elementType>::dataType* GetValuePointer(unsigned int index)
+		template<ElementType elementType, ENABLE_IF(ElementMap<elementType>::valid)>
+		ElementMap<elementType>::dataType* Get(unsigned int index)
 		{
 			auto& layoutElement = m_layout.GetElement(index);
 
 			THROW_INTERNAL_ERROR_IF("Tried to get value with different type than given layout element type", layoutElement.type != elementType);
 
-			return reinterpret_cast<ElementMap<elementType>::dataType*>(m_data.get() + layoutElement.offset);
+			return reinterpret_cast<ElementMap<elementType>::dataType*>(&m_data.at(layoutElement.offset));
 		}
 
-		template<ElementType elementType, std::enable_if_t<ElementMap<elementType>::valid, int> = 0>
-		ElementMap<elementType>::dataType* GetValuePointer(const char* name)
+		template<ElementType elementType, ENABLE_IF(ElementMap<elementType>::valid)>
+		ElementMap<elementType>::dataType* Get(const char* name)
 		{
 			auto& layoutElement = m_layout.GetElement(name);
 
 			THROW_INTERNAL_ERROR_IF("Tried to get value with different type than given layout element type", layoutElement.type != elementType);
 
-			return reinterpret_cast<ElementMap<elementType>::dataType*>(m_data.get() + layoutElement.offset);
+			return reinterpret_cast<ElementMap<elementType>::dataType*>(&m_data.at(layoutElement.offset));
 		}
+
+		ArrayData GetArrayData(const char* name);
 
 	public:
 		void* GetPtr();
 
-		const ConstantBufferLayout& GetLayout() const;
+		const Layout& GetLayout() const;
 
-		bool DrawImguiProperties(); // returns if buffer was updated
+		bool DrawImguiProperties(); // returns true if buffer was updated
 
 	private:
-		std::shared_ptr<char[]> m_data;
-		ConstantBufferLayout m_layout;
+		bool DrawImguiPropety(const DynamicConstantBuffer::Layout::Element& element, void* elementData);
+
+	private:
+		std::vector<char> m_data;
+		Layout m_layout;
 	};
 };

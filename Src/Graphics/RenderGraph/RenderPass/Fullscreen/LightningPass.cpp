@@ -10,11 +10,11 @@ LightningPass::LightningPass(Graphics& graphics, RenderManager& renderManager)
 {
 	// inverse projection matrix constant buffer
 	{
-		DynamicConstantBuffer::ConstantBufferLayout layout;
-		layout.AddElement<DynamicConstantBuffer::ElementType::Matrix>("inverseProjection");
+		DynamicConstantBuffer::Layout layout;
+		layout.Add<DynamicConstantBuffer::ElementType::Matrix>("inverseProjection");
 
-		DynamicConstantBuffer::ConstantBufferData bufferData(layout);
-		*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Matrix>("inverseProjection") = {};
+		DynamicConstantBuffer::Data bufferData(layout);
+		*bufferData.Get<DynamicConstantBuffer::ElementType::Matrix>("inverseProjection") = {};
 
 		std::shared_ptr<CachedConstantBuffer> inverseProjectionBuffer = std::make_shared<CachedConstantBuffer>(graphics, bufferData, std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::PixelShader, 2}});
 
@@ -98,8 +98,8 @@ void LightningPass::UpdateInverseProjectionMatrix(Graphics& graphics, Scene& sce
 
 	DirectX::XMMATRIX inverseProjection = DirectX::XMMatrixInverse(nullptr, currentCamera->GetPerspectiveMatrix());
 
-	DynamicConstantBuffer::ConstantBufferData& cameraData = m_pInverseProjectionBuffer->GetData();
-	*cameraData.GetValuePointer<DynamicConstantBuffer::ElementType::Matrix>("inverseProjection") = inverseProjection;
+	DynamicConstantBuffer::Data& cameraData = m_pInverseProjectionBuffer->GetData();
+	*cameraData.Get<DynamicConstantBuffer::ElementType::Matrix>("inverseProjection") = inverseProjection;
 
 	m_pInverseProjectionBuffer->Update(graphics);
 }

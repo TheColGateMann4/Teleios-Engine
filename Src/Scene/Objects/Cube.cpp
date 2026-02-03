@@ -111,11 +111,11 @@ Cube::Cube(Graphics& graphics, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rot
 		step.AddStaticBindable("lightBuffer");
 
 		{
-			DynamicConstantBuffer::ConstantBufferLayout layout;
-			layout.AddElement<DynamicConstantBuffer::ElementType::Float>("texcoordsScale");
+			DynamicConstantBuffer::Layout layout;
+			layout.Add<DynamicConstantBuffer::ElementType::Float>("texcoordsScale");
 
-			DynamicConstantBuffer::ConstantBufferData bufferData(layout);
-			*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("texcoordsScale") = 1.0f;
+			DynamicConstantBuffer::Data bufferData(layout);
+			*bufferData.Get<DynamicConstantBuffer::ElementType::Float>("texcoordsScale") = 1.0f;
 
 			std::shared_ptr<CachedConstantBuffer> constBuffer = std::make_shared<CachedConstantBuffer>(graphics, bufferData, std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::PixelShader, 2}});
 			m_constantBuffer = constBuffer.get();

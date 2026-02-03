@@ -11,7 +11,7 @@ class CommandList;
 class ConstantBuffer : public Bindable, public CommandListBindable, public RootSignatureBindable
 {
 public:
-	ConstantBuffer(Graphics& graphics, const DynamicConstantBuffer::ConstantBufferLayout& layout, std::vector<TargetSlotAndShader> targets = { {ShaderVisibilityGraphic::PixelShader, 0} });
+	ConstantBuffer(Graphics& graphics, const DynamicConstantBuffer::Layout& layout, std::vector<TargetSlotAndShader> targets = { {ShaderVisibilityGraphic::PixelShader, 0} });
 
 public:
 	virtual void BindToCommandList(Graphics& graphics, CommandList* commandList) override;
@@ -34,20 +34,20 @@ protected:
 class NonCachedConstantBuffer : public ConstantBuffer
 {
 public:
-	NonCachedConstantBuffer(Graphics& graphics, DynamicConstantBuffer::ConstantBufferLayout& layout, std::vector<TargetSlotAndShader> targets = { {ShaderVisibilityGraphic::PixelShader, 0} });
+	NonCachedConstantBuffer(Graphics& graphics, DynamicConstantBuffer::Layout& layout, std::vector<TargetSlotAndShader> targets = { {ShaderVisibilityGraphic::PixelShader, 0} });
 
 	void Update(Graphics& graphics, void* data, size_t size);
 
 	virtual BindableType GetBindableType() const override;
 
 private:
-	DynamicConstantBuffer::ConstantBufferLayout m_layout;
+	DynamicConstantBuffer::Layout m_layout;
 };
 
 class CachedConstantBuffer : public ConstantBuffer
 {
 public:
-	CachedConstantBuffer(Graphics& graphics, DynamicConstantBuffer::ConstantBufferData& data, std::vector<TargetSlotAndShader> targets = { {ShaderVisibilityGraphic::PixelShader, 0} }, bool frequentlyUpdated = false);
+	CachedConstantBuffer(Graphics& graphics, DynamicConstantBuffer::Data& data, std::vector<TargetSlotAndShader> targets = { {ShaderVisibilityGraphic::PixelShader, 0} }, bool frequentlyUpdated = false);
 
 	CachedConstantBuffer(const CachedConstantBuffer&) = delete;
 
@@ -59,12 +59,12 @@ public:
 
 	virtual BindableType GetBindableType() const override;
 
-	DynamicConstantBuffer::ConstantBufferData& GetData();
+	DynamicConstantBuffer::Data& GetData();
 
 	void DrawImguiProperties(Graphics& graphics);
 
 private:
-	DynamicConstantBuffer::ConstantBufferData m_data;
+	DynamicConstantBuffer::Data m_data;
 	bool m_frequentlyUpdated;
 };
 
@@ -72,7 +72,7 @@ private:
 class TempConstantBuffer : public ConstantBuffer
 {
 public:
-	TempConstantBuffer(Graphics& graphics, DynamicConstantBuffer::ConstantBufferData& data, std::vector<TargetSlotAndShader> targets = { {ShaderVisibilityGraphic::PixelShader, 0} }, bool frequentlyUpdated = false);
+	TempConstantBuffer(Graphics& graphics, DynamicConstantBuffer::Data& data, std::vector<TargetSlotAndShader> targets = { {ShaderVisibilityGraphic::PixelShader, 0} }, bool frequentlyUpdated = false);
 
 	TempConstantBuffer(const CachedConstantBuffer&) = delete;
 
@@ -84,8 +84,8 @@ public:
 
 	virtual D3D12_GPU_VIRTUAL_ADDRESS GetGPUAddress(Graphics& graphics) const override;
 
-	DynamicConstantBuffer::ConstantBufferData& GetData();
+	DynamicConstantBuffer::Data& GetData();
 
 private:
-	DynamicConstantBuffer::ConstantBufferData m_data;
+	DynamicConstantBuffer::Data m_data;
 };

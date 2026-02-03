@@ -15,17 +15,17 @@ FogRenderPass::FogRenderPass(Graphics& graphics)
 
 	// fog data
 	{
-		DynamicConstantBuffer::ConstantBufferLayout layout;
-		layout.AddElement<DynamicConstantBuffer::ElementType::Float3>("fogColor", DynamicConstantBuffer::ImguiColorData{ true });
-		layout.AddElement<DynamicConstantBuffer::ElementType::Float>("fogStart", DynamicConstantBuffer::ImguiFloatData{ true, defaultCameraSettings.NearZ, defaultCameraSettings.FarZ, "%.1f" });
-		layout.AddElement<DynamicConstantBuffer::ElementType::Float>("fogEnd", DynamicConstantBuffer::ImguiFloatData{ true, defaultCameraSettings.NearZ, defaultCameraSettings.FarZ, "%.1f" });
-		layout.AddElement<DynamicConstantBuffer::ElementType::Float>("fogDensity", DynamicConstantBuffer::ImguiFloatData{ true, 0.0001f, 1.0f, "%.4f" });
+		DynamicConstantBuffer::Layout layout;
+		layout.Add<DynamicConstantBuffer::ElementType::Float3>("fogColor", DynamicConstantBuffer::ImguiColorData{ true });
+		layout.Add<DynamicConstantBuffer::ElementType::Float>("fogStart", DynamicConstantBuffer::ImguiFloatData{ true, defaultCameraSettings.NearZ, defaultCameraSettings.FarZ, "%.1f" });
+		layout.Add<DynamicConstantBuffer::ElementType::Float>("fogEnd", DynamicConstantBuffer::ImguiFloatData{ true, defaultCameraSettings.NearZ, defaultCameraSettings.FarZ, "%.1f" });
+		layout.Add<DynamicConstantBuffer::ElementType::Float>("fogDensity", DynamicConstantBuffer::ImguiFloatData{ true, 0.0001f, 1.0f, "%.4f" });
 
-		DynamicConstantBuffer::ConstantBufferData bufferData(layout);
-		*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float3>("fogColor") = { 0.45f, 0.55f, 0.65f };
-		*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("fogStart") = 30.0f;
-		*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("fogEnd") = 250.0f;
-		*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("fogDensity") = 0.015f;
+		DynamicConstantBuffer::Data bufferData(layout);
+		*bufferData.Get<DynamicConstantBuffer::ElementType::Float3>("fogColor") = { 0.45f, 0.55f, 0.65f };
+		*bufferData.Get<DynamicConstantBuffer::ElementType::Float>("fogStart") = 30.0f;
+		*bufferData.Get<DynamicConstantBuffer::ElementType::Float>("fogEnd") = 250.0f;
+		*bufferData.Get<DynamicConstantBuffer::ElementType::Float>("fogDensity") = 0.015f;
 
 		m_fogData = std::make_shared<CachedConstantBuffer>(graphics, bufferData, std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::PixelShader, 1}});
 	}

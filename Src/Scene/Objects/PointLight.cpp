@@ -32,14 +32,12 @@ void PointLight::Initialize(Graphics& graphics, Pipeline& pipeline)
 {
 	m_pLightBuffer = static_cast<CachedConstantBuffer*>(pipeline.GetStaticResource("lightBuffer"));
 
-	DynamicConstantBuffer::ConstantBufferData& bufferData = m_pLightBuffer->GetData();
-
-	std::string structIndex = "_" + std::to_string(m_lightIndex);
-
-	*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float3>(std::string("diffuseColor" + structIndex).c_str()) = m_color;
-	*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>(std::string("attenuationQuadratic" + structIndex).c_str()) = 0.2f;
-	*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>(std::string("attenuationLinear" + structIndex).c_str()) = 0.04f;
-	*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>(std::string("attenuationConstant" + structIndex).c_str()) = 0.07f;
+	DynamicConstantBuffer::Data& bufferData = m_pLightBuffer->GetData();
+	DynamicConstantBuffer::ArrayData array = bufferData.GetArrayData("lightBuffers");
+	*array.Get<DynamicConstantBuffer::ElementType::Float3>(m_lightIndex, "diffuseColor") = m_color;
+	*array.Get<DynamicConstantBuffer::ElementType::Float>(m_lightIndex, "attenuationQuadratic") = 0.2f;
+	*array.Get<DynamicConstantBuffer::ElementType::Float>(m_lightIndex, "attenuationLinear") = 0.04f;
+	*array.Get<DynamicConstantBuffer::ElementType::Float>(m_lightIndex, "attenuationConstant") = 0.07f;
 }
 
 void PointLight::Update(Graphics& graphics, Pipeline& pipeline)
@@ -61,7 +59,9 @@ void PointLight::UpdateLight(Graphics& graphics, Scene& scene)
 
 		DirectX::XMStoreFloat3(&resultPosition, vResultPosition);
 
-		*m_pLightBuffer->GetData().GetValuePointer<DynamicConstantBuffer::ElementType::Float3>(std::string("lightPosition_" + std::to_string(m_lightIndex)).c_str()) = resultPosition;
+		DynamicConstantBuffer::Data& bufferData = m_pLightBuffer->GetData();
+		DynamicConstantBuffer::ArrayData array = bufferData.GetArrayData("lightBuffers");
+		*array.Get<DynamicConstantBuffer::ElementType::Float3>(m_lightIndex, "lightPosition") = resultPosition;
 
 		m_pLightBuffer->Update(graphics);
 

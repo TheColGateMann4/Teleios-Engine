@@ -9,10 +9,10 @@ TransformConstantBuffer::TransformConstantBuffer(Graphics& graphics, std::vector
 	:
 	RootSignatureBindable(targets)
 {
-	DynamicConstantBuffer::ConstantBufferLayout layout;
-	layout.AddElement<DynamicConstantBuffer::ElementType::Matrix>("transform");
-	layout.AddElement<DynamicConstantBuffer::ElementType::Matrix>("transformInCameraSpace");
-	layout.AddElement<DynamicConstantBuffer::ElementType::Matrix>("transformInCameraView");
+	DynamicConstantBuffer::Layout layout;
+	layout.Add<DynamicConstantBuffer::ElementType::Matrix>("transform");
+	layout.Add<DynamicConstantBuffer::ElementType::Matrix>("transformInCameraSpace");
+	layout.Add<DynamicConstantBuffer::ElementType::Matrix>("transformInCameraView");
 
 	m_buffer = std::make_shared<NonCachedConstantBuffer>(graphics, layout, targets);
 }

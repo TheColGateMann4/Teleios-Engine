@@ -77,6 +77,9 @@ static constexpr float _pi = 3.14159265358979f;
 	#define CONSOLE_HANDLE
 #endif
 
+// helper macro for SFINAE
+#define ENABLE_IF(statement) std::enable_if_t<statement, int> = 0
+
 // removing macros from windows.h
 #undef AddJob
 #undef UpdateResource

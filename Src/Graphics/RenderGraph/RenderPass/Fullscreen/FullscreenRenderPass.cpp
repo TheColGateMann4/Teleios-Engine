@@ -40,13 +40,13 @@ FullscreenRenderPass::FullscreenRenderPass(Graphics& graphics, RenderManager& re
 
 	// camera data
 	{
-		DynamicConstantBuffer::ConstantBufferLayout layout;
-		layout.AddElement<DynamicConstantBuffer::ElementType::Float>("nearPlane");
-		layout.AddElement<DynamicConstantBuffer::ElementType::Float>("farPlane");
+		DynamicConstantBuffer::Layout layout;
+		layout.Add<DynamicConstantBuffer::ElementType::Float>("nearPlane");
+		layout.Add<DynamicConstantBuffer::ElementType::Float>("farPlane");
 
-		DynamicConstantBuffer::ConstantBufferData bufferData(layout);
-		*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("nearPlane") = defaultCameraSettings.NearZ;
-		*bufferData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("farPlane") = defaultCameraSettings.FarZ;
+		DynamicConstantBuffer::Data bufferData(layout);
+		*bufferData.Get<DynamicConstantBuffer::ElementType::Float>("nearPlane") = defaultCameraSettings.NearZ;
+		*bufferData.Get<DynamicConstantBuffer::ElementType::Float>("farPlane") = defaultCameraSettings.FarZ;
 
 		m_pCameraData = std::make_shared<CachedConstantBuffer>(graphics, bufferData, std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::PixelShader, 0}});
 	}
@@ -89,9 +89,9 @@ void FullscreenRenderPass::InitializePassResources(Graphics& graphics, Pipeline&
 		Camera* currentCamera = scene.GetCurrentCamera();
 		const Camera::Settings* currentCameraSettings = currentCamera->GetSettings();
 
-		DynamicConstantBuffer::ConstantBufferData& cameraData = m_pCameraData->GetData();
-		*cameraData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("nearPlane") = currentCameraSettings->NearZ;
-		*cameraData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("farPlane") = currentCameraSettings->FarZ;
+		DynamicConstantBuffer::Data& cameraData = m_pCameraData->GetData();
+		*cameraData.Get<DynamicConstantBuffer::ElementType::Float>("nearPlane") = currentCameraSettings->NearZ;
+		*cameraData.Get<DynamicConstantBuffer::ElementType::Float>("farPlane") = currentCameraSettings->FarZ;
 
 		m_pCameraData->Update(graphics);
 	}
@@ -161,9 +161,9 @@ void FullscreenRenderPass::UpdateCameraData(Graphics& graphics, Scene& scene)
 
 	const Camera::Settings* currentCameraSettings = currentCamera->GetSettings();
 
-	DynamicConstantBuffer::ConstantBufferData& cameraData = m_pCameraData->GetData();
-	*cameraData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("nearPlane") = currentCameraSettings->NearZ;
-	*cameraData.GetValuePointer<DynamicConstantBuffer::ElementType::Float>("farPlane") = currentCameraSettings->FarZ;
+	DynamicConstantBuffer::Data& cameraData = m_pCameraData->GetData();
+	*cameraData.Get<DynamicConstantBuffer::ElementType::Float>("nearPlane") = currentCameraSettings->NearZ;
+	*cameraData.Get<DynamicConstantBuffer::ElementType::Float>("farPlane") = currentCameraSettings->FarZ;
 
 	m_pCameraData->Update(graphics);
 }

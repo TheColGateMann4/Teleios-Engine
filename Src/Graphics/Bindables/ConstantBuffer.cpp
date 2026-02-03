@@ -4,7 +4,7 @@
 #include "Graphics/Core/CommandList.h"
 #include "Graphics/Core/ConstantBufferHeap.h"
 
-ConstantBuffer::ConstantBuffer(Graphics& graphics, const DynamicConstantBuffer::ConstantBufferLayout& layout, std::vector<TargetSlotAndShader> targets)
+ConstantBuffer::ConstantBuffer(Graphics& graphics, const DynamicConstantBuffer::Layout& layout, std::vector<TargetSlotAndShader> targets)
 	:
 	RootSignatureBindable(targets)
 {
@@ -36,10 +36,10 @@ void ConstantBuffer::InternalUpdate(Graphics& graphics, void* data, size_t size)
 	graphics.GetConstantBufferHeap().UpdateResource(graphics, resourceIndexInHeap, data, size);
 }
 
-NonCachedConstantBuffer::NonCachedConstantBuffer(Graphics& graphics, DynamicConstantBuffer::ConstantBufferLayout& layout, std::vector<TargetSlotAndShader> targets)
+NonCachedConstantBuffer::NonCachedConstantBuffer(Graphics& graphics, DynamicConstantBuffer::Layout& layout, std::vector<TargetSlotAndShader> targets)
 	:
 	ConstantBuffer(graphics, layout.GetFinished(), targets),
-	m_layout(layout)
+	m_layout(std::move(layout))
 {
 	// requesting size on non static heao
 	resourceIndexInHeap = graphics.GetConstantBufferHeap().RequestMoreSpace(graphics, layout.GetSize());
@@ -55,10 +55,10 @@ BindableType NonCachedConstantBuffer::GetBindableType() const
 	return BindableType::bindable_nonCachedConstantBuffer;
 }
 
-CachedConstantBuffer::CachedConstantBuffer(Graphics& graphics, DynamicConstantBuffer::ConstantBufferData& data, std::vector<TargetSlotAndShader> targets, bool frequentlyUpdated)
+CachedConstantBuffer::CachedConstantBuffer(Graphics& graphics, DynamicConstantBuffer::Data& data, std::vector<TargetSlotAndShader> targets, bool frequentlyUpdated)
 	:
 	ConstantBuffer(graphics, data.GetLayout(), targets),
-	m_data(data),
+	m_data(std::move(data)),
 	m_frequentlyUpdated(frequentlyUpdated)
 {
 	// if resource is frequently updated we will keep it in regular buffer
@@ -96,7 +96,7 @@ BindableType CachedConstantBuffer::GetBindableType() const
 	return BindableType::bindable_cachedConstantBuffer;
 }
 
-DynamicConstantBuffer::ConstantBufferData& CachedConstantBuffer::GetData()
+DynamicConstantBuffer::Data& CachedConstantBuffer::GetData()
 {
 	return m_data;
 }
@@ -107,10 +107,10 @@ void CachedConstantBuffer::DrawImguiProperties(Graphics& graphics)
 		Update(graphics);
 }
 
-TempConstantBuffer::TempConstantBuffer(Graphics& graphics, DynamicConstantBuffer::ConstantBufferData& data, std::vector<TargetSlotAndShader> targets, bool frequentlyUpdated)
+TempConstantBuffer::TempConstantBuffer(Graphics& graphics, DynamicConstantBuffer::Data& data, std::vector<TargetSlotAndShader> targets, bool frequentlyUpdated)
 	:
 	ConstantBuffer(graphics, data.GetLayout(), targets),
-	m_data(data)
+	m_data(std::move(data))
 {
 	resourceIndexInHeap = graphics.GetConstantBufferHeap().GetNextTempIndex(data.GetLayout().GetSize());
 
@@ -137,7 +137,7 @@ D3D12_GPU_VIRTUAL_ADDRESS TempConstantBuffer::GetGPUAddress(Graphics& graphics) 
 	return graphics.GetConstantBufferHeap().GetTempBufferAddress(resourceIndexInHeap);
 }
 
-DynamicConstantBuffer::ConstantBufferData& TempConstantBuffer::GetData()
+DynamicConstantBuffer::Data& TempConstantBuffer::GetData()
 {
 	return m_data;
 }

@@ -30,7 +30,7 @@ public:
 	void AddBindable(std::shared_ptr<Bindable> bindable);
 	void AddBindable(Bindable* bindable);
 
-	template<class T, std::enable_if_t<std::is_base_of_v<Bindable, T>, int> = 0>
+	template<class T, ENABLE_IF((std::is_base_of_v<Bindable, T>))>
 	void AddBindable(T&& bindable)
 	{
 		AddBindable(std::make_shared<T>(std::move(bindable)));
