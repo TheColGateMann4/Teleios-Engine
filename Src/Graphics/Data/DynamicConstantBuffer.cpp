@@ -144,6 +144,51 @@ DynamicConstantBuffer::ArrayData::ArrayData(const Layout& layout, char* data, un
 
 }
 
+bool DynamicConstantBuffer::ArrayData::DrawImguiProperties(bool asArray)
+{
+	bool changed = false;
+
+	auto checkChanged = [&changed](bool expressionReturn) mutable
+		{
+			changed = changed || expressionReturn;
+		};
+
+	for (int i = 0; i < m_numElements; i++)
+		DrawImguiProperties(i, asArray);
+
+	return changed;
+}
+
+bool DynamicConstantBuffer::ArrayData::DrawImguiProperties(unsigned int i, bool asArray)
+{
+	bool changed = false;
+
+	auto checkChanged = [&changed](bool expressionReturn) mutable
+		{
+			changed = changed || expressionReturn;
+		};
+
+	unsigned int offsetInArray = i * m_layout.GetSize();
+
+	for (unsigned int itemIndex = 0; itemIndex < m_layout.GetNumElements(); itemIndex++)
+	{
+		auto& element = m_layout.GetElement(itemIndex);
+		void* elementData = m_data + offsetInArray + element.offset;
+
+		if (asArray)
+		{
+			std::string elementName = element.name + '[' + std::to_string(i) + ']';
+			checkChanged(DrawImguiPropety(element, elementData, elementName.c_str()));
+		}
+		else
+		{
+			checkChanged(DrawImguiPropety(element, elementData, element.name.c_str()));
+		}
+	}
+
+	return changed;
+}
+
 DynamicConstantBuffer::Data::Data(Data&& data) noexcept
 	:
 	m_data(std::move(data.m_data)),
@@ -161,7 +206,7 @@ DynamicConstantBuffer::Data::Data(Layout& layout)
 
 DynamicConstantBuffer::ArrayData DynamicConstantBuffer::Data::GetArrayData(const char* name)
 {
-	const DynamicConstantBuffer::Layout::Element& element = m_layout.GetElement(name);
+	const auto& element = m_layout.GetElement(name);
 
 	THROW_INTERNAL_ERROR_IF("Element was not Array type", element.type != ElementType::List);
 
@@ -196,58 +241,66 @@ bool DynamicConstantBuffer::Data::DrawImguiProperties()
 
 		if(static_cast<ImguiData*>(element.imguiData.get()));
 
-		checkChanged(DrawImguiPropety(element, elementData));
+		checkChanged(DrawImguiPropety(element, elementData, element.name.c_str()));
 	}
 
 	return changed;
 }
 
-bool DynamicConstantBuffer::Data::DrawImguiPropety(const DynamicConstantBuffer::Layout::Element& element, void* elementData)
+bool DynamicConstantBuffer::DrawImguiPropety(const DynamicConstantBuffer::Layout::Element& element, void* elementData, const char* elementName)
 {
+	if (element.type == DynamicConstantBuffer::ElementType::List)
+	{
+		const DynamicConstantBuffer::ArrayDataInfo* arrayDataInfo = static_cast<const DynamicConstantBuffer::ArrayDataInfo*>(element.additionalData.get());
+		DynamicConstantBuffer::ArrayData array(arrayDataInfo->layout, static_cast<char*>(elementData) + element.offset, arrayDataInfo->numElements);
+
+		return array.DrawImguiProperties();
+	}
+
 	if (!element.imguiData) // if object doesn't have propeties then we don't handle it for imgui layer
 		return false;
 
-	auto* imguiData = static_cast<ImguiData*>(element.imguiData.get());
+	auto* imguiData = static_cast<DynamicConstantBuffer::ImguiData*>(element.imguiData.get());
 	if (!imguiData->ShouldShow())
 		return false;
 
 	switch (element.type)
 	{
-		case ElementType::Int:
+		case DynamicConstantBuffer::ElementType::Int:
 		{
-			auto* imguiIntData = static_cast<ImguiIntData*>(imguiData);
+			auto* imguiIntData = static_cast<DynamicConstantBuffer::ImguiIntData*>(imguiData);
 		
-			return ImGui::SliderInt(element.name.c_str(), reinterpret_cast<int*>(elementData), imguiIntData->min, imguiIntData->max, imguiIntData->format, imguiIntData->flags);
+			return ImGui::SliderInt(elementName, reinterpret_cast<int*>(elementData), imguiIntData->min, imguiIntData->max, imguiIntData->format, imguiIntData->flags);
 		}
-		case ElementType::Bool:
+		case DynamicConstantBuffer::ElementType::Bool:
 		{
-			return ImGui::Checkbox(element.name.c_str(), reinterpret_cast<bool*>(elementData));
+			return ImGui::Checkbox(elementName, reinterpret_cast<bool*>(elementData));
 		}
-		case ElementType::Float:
+		case DynamicConstantBuffer::ElementType::Float:
 		{
-			auto* imguiFloatData = static_cast<ImguiFloatData*>(imguiData);
+			auto* imguiFloatData = static_cast<DynamicConstantBuffer::ImguiFloatData*>(imguiData);
 		
-			return ImGui::SliderFloat(element.name.c_str(), reinterpret_cast<float*>(elementData), imguiFloatData->min, imguiFloatData->max, imguiFloatData->format, imguiFloatData->flags);
+			return ImGui::SliderFloat(elementName, reinterpret_cast<float*>(elementData), imguiFloatData->min, imguiFloatData->max, imguiFloatData->format, imguiFloatData->flags);
 		}
-		case ElementType::Float2:
+		case DynamicConstantBuffer::ElementType::Float2:
 		{
-			auto* imguiFloatData = static_cast<ImguiFloatData*>(imguiData);
+			auto* imguiFloatData = static_cast<DynamicConstantBuffer::ImguiFloatData*>(imguiData);
 		
-			return ImGui::SliderFloat2(element.name.c_str(), reinterpret_cast<float*>(elementData), imguiFloatData->min, imguiFloatData->max, imguiFloatData->format, imguiFloatData->flags);
+			return ImGui::SliderFloat2(elementName, reinterpret_cast<float*>(elementData), imguiFloatData->min, imguiFloatData->max, imguiFloatData->format, imguiFloatData->flags);
 		}
-		case ElementType::Float3:
+		case DynamicConstantBuffer::ElementType::Float3:
 		{
-			auto* imguiColorData = static_cast<ImguiColorData*>(imguiData);
+			auto* imguiColorData = static_cast<DynamicConstantBuffer::ImguiColorData*>(imguiData);
 		
-			return ImGui::ColorEdit3(element.name.c_str(), reinterpret_cast<float*>(elementData), imguiColorData->flags);
+			return ImGui::ColorEdit3(elementName, reinterpret_cast<float*>(elementData), imguiColorData->flags);
 		}
-		case ElementType::Float4:
+		case DynamicConstantBuffer::ElementType::Float4:
 		{
-			auto* imguiColorData = static_cast<ImguiColorData*>(imguiData);
+			auto* imguiColorData = static_cast<DynamicConstantBuffer::ImguiColorData*>(imguiData);
 		
-			return ImGui::ColorEdit4(element.name.c_str(), reinterpret_cast<float*>(elementData), imguiColorData->flags);
+			return ImGui::ColorEdit4(elementName, reinterpret_cast<float*>(elementData), imguiColorData->flags);
 		}
-		case ElementType::Matrix:
+		case DynamicConstantBuffer::ElementType::Matrix:
 		{
 			THROW_INTERNAL_ERROR("Tried to draw imgui layout for buffer with matrix element");
 		}

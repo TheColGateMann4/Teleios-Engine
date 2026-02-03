@@ -144,11 +144,10 @@ namespace DynamicConstantBuffer
 
 	class Layout
 	{
-		friend class Data;
-
 		static constexpr unsigned int alignment = 16;
 		static constexpr unsigned int bufferSizeAlignment = 256;
 
+	public:
 		struct Element
 		{
 			Element() = default;
@@ -289,6 +288,9 @@ namespace DynamicConstantBuffer
 			return reinterpret_cast<ElementMap<elementType>::dataType*>(m_data + offsetInArray + offsetOfElementInLayout);
 		}
 
+		bool DrawImguiProperties(bool asArray = true);
+		bool DrawImguiProperties(unsigned int i, bool asArray = true);
+
 	private:
 		const Layout& m_layout;
 		char* m_data;
@@ -333,10 +335,9 @@ namespace DynamicConstantBuffer
 		bool DrawImguiProperties(); // returns true if buffer was updated
 
 	private:
-		bool DrawImguiPropety(const DynamicConstantBuffer::Layout::Element& element, void* elementData);
-
-	private:
 		std::vector<char> m_data;
 		Layout m_layout;
 	};
+
+	bool DrawImguiPropety(const DynamicConstantBuffer::Layout::Element& element, void* elementData, const char* elementName);
 };

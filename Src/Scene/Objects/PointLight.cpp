@@ -91,7 +91,14 @@ void PointLight::DrawAdditionalPropeties(Graphics& graphics, Pipeline& pipeline)
 			checkValue = checkValue || expressionReturn;
 		};
 
-	m_pLightBuffer->DrawImguiProperties(graphics);
+	// drawing imgui propeties
+	{
+		DynamicConstantBuffer::Data& bufferData = m_pLightBuffer->GetData();
+		DynamicConstantBuffer::ArrayData array = bufferData.GetArrayData("lightBuffers");
+
+		if (array.DrawImguiProperties(m_lightIndex, false))
+			m_pLightBuffer->Update(graphics);
+	}
 
 	m_pSphereModel->DrawAdditionalPropeties(graphics, pipeline);
 }
