@@ -96,7 +96,10 @@ void SceneObject::DrawHierarchy(SceneObject** selectedObject)
 	if (ImGui::IsItemClicked())
 	{
 		*selectedObject = *selectedObject != this ? this : nullptr;
-		(*selectedObject)->m_selected = false;
+		
+		if(*selectedObject)
+			(*selectedObject)->m_selected = false;
+
 		m_selected = true;
 	}
 
