@@ -3,20 +3,20 @@
 #include "Includes/DirectXIncludes.h"
 #include "Includes/WRLNoWarnings.h"
 #include "Graphics/Data/DynamicConstantBuffer.h"
-#include "Bindable.h"
+#include "Binding.h"
 
 class Graphics;
 class CommandList;
 
-class ConstantBuffer : public Bindable, public CommandListBindable, public RootSignatureBindable
+class ConstantBuffer : public Bindable, public RootParameterBinding
 {
 public:
 	ConstantBuffer(Graphics& graphics, const DynamicConstantBuffer::Layout& layout, std::vector<TargetSlotAndShader> targets = { {ShaderVisibilityGraphic::PixelShader, 0} });
 
 public:
-	virtual void BindToCommandList(Graphics& graphics, CommandList* commandList) override;
+	virtual void BindToCommandList(Graphics& graphics, CommandList* commandList, TargetSlotAndShader& target) override;
 
-	virtual void BindToRootSignature(Graphics& graphics, RootSignature* rootSignature) override;
+	virtual void BindToRootSignature(RootSignature* rootSignature, TargetSlotAndShader& target) override;
 
 	virtual D3D12_GPU_VIRTUAL_ADDRESS GetGPUAddress(Graphics& graphics) const override;
 
@@ -78,9 +78,9 @@ public:
 
 	void Update(Graphics& graphics);
 
-	virtual void BindToComputeCommandList(Graphics& graphics, CommandList* commandList) override;
+	virtual void BindToCommandList(Graphics& graphics, CommandList* commandList, TargetSlotAndShader& target) override;
 
-	virtual void BindToComputeRootSignature(Graphics& graphics, RootSignature* rootSignature) override;
+	virtual void BindToComputeRootSignature(RootSignature* rootSignature, TargetSlotAndShader& target) override;
 
 	virtual D3D12_GPU_VIRTUAL_ADDRESS GetGPUAddress(Graphics& graphics) const override;
 

@@ -47,14 +47,14 @@ std::string StaticSampler::GetIdentifier(D3D12_FILTER filter, D3D12_TEXTURE_ADDR
 	return resultString;
 }
 
-void StaticSampler::BindToRootSignature(Graphics& graphics, RootSignature* rootSignature)
+void StaticSampler::BindToRootSignature(RootSignature* rootSignature)
 {
 	rootSignature->AddStaticSampler(this);
 }
 
-void StaticSampler::BindToComputeRootSignature(Graphics& graphics, RootSignature* rootSignature)
+void StaticSampler::BindToComputeRootSignature(RootSignature* rootSignature)
 {
-	rootSignature->AddComputeStaticSampler(this, { ShaderVisibilityGraphic::AllShaders, 0 });
+	rootSignature->AddComputeStaticSampler(this);
 }
 
 BindableType StaticSampler::GetBindableType() const

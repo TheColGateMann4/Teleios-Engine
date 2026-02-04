@@ -2,7 +2,7 @@
 #include "Includes/DirectXIncludes.h"
 #include "Includes/WRLNoWarnings.h"
 #include "Shaders/TargetShaders.h"
-#include "Bindable.h"
+#include "Binding.h"
 
 #include "Graphics/Core/DescriptorHeap.h"
 
@@ -19,7 +19,7 @@ namespace DirectX
 	class ScratchImage;
 };
 
-class Texture : public Bindable, public CommandListBindable, public RootSignatureBindable
+class Texture : public Bindable, public RootParameterBinding
 {
 private:
 	enum class TextureProcessingStage
@@ -43,13 +43,13 @@ public:
 public:
 	void InitializeGraphicResources(Graphics& graphics, Pipeline& pipeline);
 
-	virtual void BindToCommandList(Graphics& graphics, CommandList* commandList) override;
+	virtual void BindToCommandList(Graphics& graphics, CommandList* commandList, TargetSlotAndShader& target) override;
 
-	virtual void BindToComputeCommandList(Graphics& graphics, CommandList* commandList) override;
+	virtual void BindToComputeCommandList(Graphics& graphics, CommandList* commandList, TargetSlotAndShader& target) override;
 
-	virtual void BindToRootSignature(Graphics& graphics, RootSignature* rootSignature) override;
+	virtual void BindToRootSignature(RootSignature* rootSignature, TargetSlotAndShader& target) override;
 
-	virtual void BindToComputeRootSignature(Graphics& graphics, RootSignature* rootSignature) override;
+	virtual void BindToComputeRootSignature(RootSignature* rootSignature, TargetSlotAndShader& target) override;
 
 	virtual D3D12_GPU_DESCRIPTOR_HANDLE GetDescriptorHeapGPUHandle(Graphics& graphics) const override;
 	

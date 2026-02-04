@@ -39,11 +39,14 @@ public:
 public:
 	virtual void SegregateBindableByClass(Bindable* bindable) = 0;
 	void SegregateBindableBaseFunctionality(Bindable* bindable);
-	void SegregateBindableAtFirstPos(Bindable* bindable);
+
 	
 	const std::vector<CommandListBindable*>& GetCommandListBindables() const;
 	const std::vector<RootSignatureBindable*>& GetRootSignatureBindables() const;
 	const std::vector<PipelineStateBindable*>& GetPipelineStateBindables() const;
+
+private:
+	void AddBindableWrapper(std::shared_ptr<Bindable> wrapper);
 
 protected:
 	// vector owning potentially shared bindables

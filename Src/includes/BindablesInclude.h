@@ -19,3 +19,4 @@
 #include "Graphics/Bindables/DepthStencilView.h"
 #include "Graphics/Bindables/UnorderedAccessView.h"
 #include "Graphics/Bindables/DepthStencilState.h"
+#include "Graphics/Bindables/RootSignatureBindableWrapper.h"

@@ -43,12 +43,12 @@ void GraphicsStepRenderJob::Initialize(Graphics& graphics, Pipeline& pipeline)
 	// initializing root signature
 	{
 		{
-			const auto& rootSignatureBindables = m_bindableContainer.GetRootSignatureBindables();
+			auto& rootSignatureBindables = m_bindableContainer.GetRootSignatureBindables();
 
-			for (auto& pRootSignatureBindable : rootSignatureBindables)
+			for (auto& rootSignatureBindable : rootSignatureBindables)
 			{
-				pRootSignatureBindable->InternalInitialize(graphics);
-				pRootSignatureBindable->BindToRootSignature(graphics, m_rootSignature.get());
+				rootSignatureBindable->Initialize(graphics);
+				rootSignatureBindable->BindToRootSignature(m_rootSignature.get());
 			}
 		}
 

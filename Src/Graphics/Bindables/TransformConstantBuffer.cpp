@@ -7,7 +7,7 @@
 
 TransformConstantBuffer::TransformConstantBuffer(Graphics& graphics, std::vector<TargetSlotAndShader> targets)
 	:
-	RootSignatureBindable(targets)
+	RootParameterBinding(targets)
 {
 	DynamicConstantBuffer::Layout layout;
 	layout.Add<DynamicConstantBuffer::ElementType::Matrix>("transform");
@@ -41,14 +41,14 @@ NonCachedConstantBuffer* TransformConstantBuffer::GetBuffer() const
 	return m_buffer.get();
 }
 
-void TransformConstantBuffer::BindToCommandList(Graphics& graphics, CommandList* commandList)
+void TransformConstantBuffer::BindToCommandList(Graphics& graphics, CommandList* commandList, TargetSlotAndShader& target)
 {
-	commandList->SetGraphicsConstBufferView(graphics, GetBuffer());
+	commandList->SetGraphicsConstBufferView(graphics, GetBuffer(), target);
 }
 
-void TransformConstantBuffer::BindToRootSignature(Graphics& graphics, RootSignature* rootSignature)
+void TransformConstantBuffer::BindToRootSignature(RootSignature* rootSignature, TargetSlotAndShader& target)
 {
-	rootSignature->AddConstBufferViewParameter(m_buffer.get());
+	rootSignature->AddConstBufferViewParameter(m_buffer.get(), target);
 }
 
 BindableType TransformConstantBuffer::GetBindableType() const

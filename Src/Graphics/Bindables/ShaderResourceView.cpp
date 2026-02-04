@@ -12,30 +12,30 @@
 
 ShaderResourceViewBase::ShaderResourceViewBase(unsigned int slot)
 	:
-	RootSignatureBindable(std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::AllShaders, slot}}),
+	RootParameterBinding(std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::AllShaders, slot}}),
 	m_computeRootIndex(0)
 {
 
 }
 
-void ShaderResourceViewBase::BindToCommandList(Graphics& graphics, CommandList* commandList)
+void ShaderResourceViewBase::BindToCommandList(Graphics& graphics, CommandList* commandList, TargetSlotAndShader& target)
 {
-	commandList->SetGraphicsDescriptorTable(graphics, this);
+	commandList->SetGraphicsDescriptorTable(graphics, this, target);
 }
 
-void ShaderResourceViewBase::BindToComputeCommandList(Graphics& graphics, CommandList* commandList)
+void ShaderResourceViewBase::BindToComputeCommandList(Graphics& graphics, CommandList* commandList, TargetSlotAndShader& target)
 {
-	commandList->SetComputeDescriptorTable(graphics, this);
+	commandList->SetComputeDescriptorTable(graphics, this, target);
 }
 
-void ShaderResourceViewBase::BindToRootSignature(Graphics& graphics, RootSignature* rootSignature)
+void ShaderResourceViewBase::BindToRootSignature(RootSignature* rootSignature, TargetSlotAndShader& target)
 {
-	rootSignature->AddDescriptorTableParameter(graphics, this);
+	rootSignature->AddDescriptorTableParameter(this, target);
 }
 
-void ShaderResourceViewBase::BindToComputeRootSignature(Graphics& graphics, RootSignature* rootSignature)
+void ShaderResourceViewBase::BindToComputeRootSignature(RootSignature* rootSignature, TargetSlotAndShader& target)
 {
-	rootSignature->AddComputeDescriptorTableParameter(graphics, this, GetTargets().front());
+	rootSignature->AddComputeDescriptorTableParameter(this, GetTargets().front());
 }
 
 BindableType ShaderResourceViewBase::GetBindableType() const

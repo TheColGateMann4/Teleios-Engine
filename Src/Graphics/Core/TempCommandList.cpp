@@ -67,7 +67,7 @@ void TempComputeCommandList::Finish(Graphics& graphics)
 	// initializing root signature
 	{
 		for (auto rootSignatureBindable : m_bindableContainer.GetRootSignatureBindables())
-			rootSignatureBindable->BindToComputeRootSignature(graphics, &m_rootSignature);
+			rootSignatureBindable->BindToRootSignature(&m_rootSignature);
 
 		m_rootSignature.Initialize(graphics);
 	}
@@ -139,7 +139,7 @@ void TempGraphicsCommandList::Finish(Graphics& graphics)
 	// initializing root signature
 	{
 		for (auto rootSignatureBindable : m_bindableContainer.GetRootSignatureBindables())
-			rootSignatureBindable->BindToRootSignature(graphics, &m_rootSignature);
+			rootSignatureBindable->BindToRootSignature(&m_rootSignature);
 
 		m_rootSignature.Initialize(graphics);
 	}

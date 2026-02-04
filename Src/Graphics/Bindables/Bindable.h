@@ -28,8 +28,6 @@ public:
 	virtual ~Bindable() = default;
 };
 
-
-
 class CommandListBindable
 {
 public:
@@ -40,35 +38,6 @@ public:
 	virtual void BindToComputeCommandList(Graphics& graphics, CommandList* commandList);
 };
 
-class RootSignatureBindable
-{
-public:
-	RootSignatureBindable(std::vector<TargetSlotAndShader> targets);
-
-public:
-	virtual ~RootSignatureBindable() = default;
-
-	void InternalInitialize(Graphics& graphics);
-
-
-	virtual void BindToRootSignature(Graphics& graphics, RootSignature* rootSignature) = 0;
-
-	virtual void BindToComputeRootSignature(Graphics& graphics, RootSignature* rootSignature);
-
-	virtual D3D12_GPU_VIRTUAL_ADDRESS GetGPUAddress(Graphics& graphics) const;
-
-	virtual D3D12_GPU_DESCRIPTOR_HANDLE GetDescriptorHeapGPUHandle(Graphics& graphics) const;
-
-	std::vector<TargetSlotAndShader>& GetTargets();
-
-protected:
-	virtual void Initialize(Graphics& graphics);
-
-private:
-	std::vector<TargetSlotAndShader> m_targets;
-	bool m_initialized = false;
-};
-
 class PipelineStateBindable
 {
 public:
@@ -77,4 +46,22 @@ public:
 	virtual void BindToPipelineState(Graphics& graphics, GraphicsPipelineState* pipelineState) = 0;
 
 	virtual void BindToComputePipelineState(Graphics& graphics, ComputePipelineState* pipelineState);
+};
+
+class RootSignatureBindable
+{
+public:
+	RootSignatureBindable(std::vector<TargetSlotAndShader> targets);
+
+public:
+	virtual void BindToRootSignature(RootSignature* rootSignature) = 0;
+
+	virtual void BindToComputeRootSignature(RootSignature* rootSignature);
+
+	virtual void Initialize(Graphics& graphics);
+
+	std::vector<TargetSlotAndShader>& GetTargets();
+
+private:
+	std::vector<TargetSlotAndShader> m_targets;
 };

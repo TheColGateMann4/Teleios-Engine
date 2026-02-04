@@ -23,7 +23,7 @@
 
 Texture::Texture(Graphics& graphics, const char* path, bool srgb, bool generateMips, bool compress, std::vector<TargetSlotAndShader> targets)
 	:
-	RootSignatureBindable(targets),
+	RootParameterBinding(targets),
 
 #ifdef _DEBUG
 	m_path(std::string("../../") + path),
@@ -140,24 +140,24 @@ void Texture::InitializeGraphicResources(Graphics& graphics, Pipeline& pipeline)
 	m_resourcesInitialized = true;
 }
 
-void Texture::BindToCommandList(Graphics& graphics, CommandList* commandList)
+void Texture::BindToCommandList(Graphics& graphics, CommandList* commandList, TargetSlotAndShader& target)
 {
-	commandList->SetGraphicsDescriptorTable(graphics, this);
+	commandList->SetGraphicsDescriptorTable(graphics, this, target);
 }
 
-void Texture::BindToComputeCommandList(Graphics& graphics, CommandList* commandList)
+void Texture::BindToComputeCommandList(Graphics& graphics, CommandList* commandList, TargetSlotAndShader& target)
 {
-	commandList->SetComputeDescriptorTable(graphics, this);
+	commandList->SetComputeDescriptorTable(graphics, this, target);
 }
 
-void Texture::BindToRootSignature(Graphics& graphics, RootSignature* rootSignature)
+void Texture::BindToRootSignature(RootSignature* rootSignature, TargetSlotAndShader& target)
 {
-	rootSignature->AddDescriptorTableParameter(this);
+	rootSignature->AddDescriptorTableParameter(this, target);
 }
 
-void Texture::BindToComputeRootSignature(Graphics& graphics, RootSignature* rootSignature)
+void Texture::BindToComputeRootSignature(RootSignature* rootSignature, TargetSlotAndShader& target)
 {
-	rootSignature->AddComputeDescriptorTableParameter(this, {ShaderVisibilityGraphic::AllShaders, 0});
+	rootSignature->AddComputeDescriptorTableParameter(this, target);
 }
 
 D3D12_GPU_DESCRIPTOR_HANDLE Texture::GetDescriptorHeapGPUHandle(Graphics& graphics) const

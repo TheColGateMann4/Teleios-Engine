@@ -9,6 +9,7 @@ class ConstantBuffer;
 class Texture;
 class ShaderResourceViewBase;
 class UnorderedAccessView;
+class RootSignatureConstants;
 class StaticSampler;
 
 class RootSignature
@@ -24,26 +25,27 @@ public:
 	void Initialize(Graphics& graphics);
 
 	// returns rootIndex that was used
-	void AddConstBufferViewParameter(ConstantBuffer* constantBuffer);
+	void AddConstBufferViewParameter(ConstantBuffer* constantBuffer, TargetSlotAndShader& target);
 
-	void AddDescriptorTableParameter(Texture* texture);
-	void AddDescriptorTableParameter(Graphics& graphics, ShaderResourceViewBase* srv);
-	void AddComputeDescriptorTableParameter(Texture* texture, TargetSlotAndShader target);
-	void AddComputeDescriptorTableParameter(Graphics& graphics, ShaderResourceViewBase* srv, TargetSlotAndShader target);
+	void AddDescriptorTableParameter(Texture* texture, TargetSlotAndShader& target);
+	void AddDescriptorTableParameter(ShaderResourceViewBase* srv, TargetSlotAndShader& target);
 
-	void AddUnorderedAccessViewParameter(UnorderedAccessView* uav);
+	void AddComputeDescriptorTableParameter(Texture* texture, TargetSlotAndShader& target);
+	void AddComputeDescriptorTableParameter(ShaderResourceViewBase* srv, TargetSlotAndShader& target);
+
+	void AddUnorderedAccessViewParameter(UnorderedAccessView* uav, TargetSlotAndShader& target);
 
 	// constants
 
 	void AddStaticSampler(StaticSampler* staticSampler);
-	void AddComputeStaticSampler(StaticSampler* staticSampler, TargetSlotAndShader target);
+	void AddComputeStaticSampler(StaticSampler* staticSampler);
 
 private:
 	void ConnectDescriptorParametersToRanges();
 
 	// returns root index
-	unsigned int m_AddDescriptorTableParameter(TargetSlotAndShader target, D3D12_DESCRIPTOR_RANGE_TYPE descriptorType);
-	void m_AddStaticSampler(StaticSampler* staticSampler, TargetSlotAndShader target);
+	unsigned int m_AddDescriptorTableParameter(D3D12_DESCRIPTOR_RANGE_TYPE descriptorType, TargetSlotAndShader& target);
+	void m_AddStaticSampler(StaticSampler* staticSampler, TargetSlotAndShader& target);
 
 private:
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> pRootSignature;

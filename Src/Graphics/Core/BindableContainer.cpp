@@ -3,6 +3,7 @@
 #include "Pipeline.h"
 
 #include "Includes/BindablesInclude.h"
+#include "Graphics/Bindables/RootSignatureBindableWrapper.h"
 
 BindableContainer& BindableContainer::operator+=(const BindableContainer& other)
 {
@@ -30,26 +31,22 @@ void BindableContainer::AddBindable(Bindable* bindable)
 
 void BindableContainer::SegregateBindableBaseFunctionality(Bindable* bindable)
 {
-	if (auto* commandListBindable = dynamic_cast<CommandListBindable*>(bindable))
-		m_commandListBindables.push_back(commandListBindable);
+	if (auto* rootParameterBinding = dynamic_cast<RootParameterBinding*>(bindable))
+		AddBindableWrapper(std::make_shared<RootParameterBindableWrapper>(rootParameterBinding));
+	else
+	{
+		if (auto* rootSignatureBinding = dynamic_cast<RootSignatureBinding*>(bindable))
+			AddBindableWrapper(std::make_shared<RootSignatureBindableWrapper>(rootSignatureBinding));
 
-	if (auto* rootSignatureBindable = dynamic_cast<RootSignatureBindable*>(bindable))
-		m_rootSignatureBindables.push_back(rootSignatureBindable);
+		if (auto* rootSignatureBindable = dynamic_cast<RootSignatureBindable*>(bindable))
+			m_rootSignatureBindables.push_back(rootSignatureBindable);
+
+		if (auto* commandListBindable = dynamic_cast<CommandListBindable*>(bindable))
+			m_commandListBindables.push_back(commandListBindable);
+	}
 
 	if (auto* pipelineStateBindable = dynamic_cast<PipelineStateBindable*>(bindable))
 		m_pipelineStateBindables.push_back(pipelineStateBindable);
-}
-
-void BindableContainer::SegregateBindableAtFirstPos(Bindable* bindable)
-{
-	if (auto* commandListBindable = dynamic_cast<CommandListBindable*>(bindable))
-		m_commandListBindables.insert(m_commandListBindables.begin(), commandListBindable);
-
-	if (auto* rootSignatureBindable = dynamic_cast<RootSignatureBindable*>(bindable))
-		m_rootSignatureBindables.insert(m_rootSignatureBindables.begin(), rootSignatureBindable);
-
-	if (auto* pipelineStateBindable = dynamic_cast<PipelineStateBindable*>(bindable))
-		m_pipelineStateBindables.insert(m_pipelineStateBindables.begin(), pipelineStateBindable);
 }
 
 const std::vector<CommandListBindable*>& BindableContainer::GetCommandListBindables() const
@@ -65,6 +62,24 @@ const std::vector<RootSignatureBindable*>& BindableContainer::GetRootSignatureBi
 const std::vector<PipelineStateBindable*>& BindableContainer::GetPipelineStateBindables() const
 {
 	return m_pipelineStateBindables;
+}
+
+void BindableContainer::AddBindableWrapper(std::shared_ptr<Bindable> wrapper)
+{
+	THROW_INTERNAL_ERROR_IF("Passed bindable was not wrapper", wrapper->GetBindableType() != BindableType::bindable_rootSignatureWrapper);
+
+	Bindable* pWrapper = wrapper.get();
+
+	m_bindables.push_back(wrapper);
+
+	if (auto* commandListBindable = dynamic_cast<CommandListBindable*>(pWrapper))
+		m_commandListBindables.push_back(commandListBindable);
+
+	if (auto* rootSignatureBindable = dynamic_cast<RootSignatureBindable*>(pWrapper))
+		m_rootSignatureBindables.push_back(rootSignatureBindable);
+
+	if (auto* pipelineStateBindable = dynamic_cast<PipelineStateBindable*>(pWrapper))
+		m_pipelineStateBindables.push_back(pipelineStateBindable);
 }
 
 MeshBindableContainer& MeshBindableContainer::operator+=(const MeshBindableContainer& other)
@@ -93,7 +108,7 @@ void MeshBindableContainer::AddStaticBindable(const char* bindableName)
 void MeshBindableContainer::Initialize(Pipeline& pipeline)
 {
 	for (auto staticBindableName : m_staticBindableNames)
-		SegregateBindableAtFirstPos(pipeline.GetStaticResource(staticBindableName));
+		SegregateBindableBaseFunctionality(pipeline.GetStaticResource(staticBindableName));
 }
 
 VertexBuffer* MeshBindableContainer::GetVertexBuffer() const
@@ -129,6 +144,8 @@ const std::vector<Texture*>& MeshBindableContainer::GetTextures() const
 void MeshBindableContainer::SegregateBindableByClass(Bindable* bindable)
 {
 	BindableType type = bindable->GetBindableType();
+
+	THROW_INTERNAL_ERROR_IF("Tried to bind RootSignatureBindableWrapper like normal bindable", type == BindableType::bindable_rootSignatureWrapper);
 
 	switch (type)
 	{
@@ -186,6 +203,8 @@ const Shader* ComputeBindableContainer::GetShader() const
 void ComputeBindableContainer::SegregateBindableByClass(Bindable* bindable)
 {
 	BindableType type = bindable->GetBindableType();
+
+	THROW_INTERNAL_ERROR_IF("Tried to bind RootSignatureBindableWrapper like normal bindable", type == BindableType::bindable_rootSignatureWrapper);
 
 	if(type == BindableType::bindable_shader)
 		m_shader = static_cast<Shader*>(bindable);

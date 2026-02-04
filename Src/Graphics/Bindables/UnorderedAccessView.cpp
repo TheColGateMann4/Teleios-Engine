@@ -15,7 +15,7 @@
 
 UnorderedAccessView::UnorderedAccessView(Graphics& graphics, GraphicsTexture* texture, unsigned int targetMip)
 	:
-	RootSignatureBindable({ {ShaderVisibilityGraphic::AllShaders, 0} })
+	RootParameterBinding({ {ShaderVisibilityGraphic::AllShaders, 0} })
 {
 	THROW_INTERNAL_ERROR_IF("GraphicsTexture was NULL", texture == nullptr);
 
@@ -43,7 +43,7 @@ UnorderedAccessView::UnorderedAccessView(Graphics& graphics, GraphicsTexture* te
 
 UnorderedAccessView::UnorderedAccessView(Graphics& graphics, GraphicsBuffer* buffer, UINT slot)
 	:
-	RootSignatureBindable({ {ShaderVisibilityGraphic::AllShaders, slot} })
+	RootParameterBinding({ {ShaderVisibilityGraphic::AllShaders, slot} })
 {
 	THROW_INTERNAL_ERROR_IF("GraphicsBuffer was NULL", buffer == nullptr);
 
@@ -72,24 +72,24 @@ UnorderedAccessView::UnorderedAccessView(Graphics& graphics, GraphicsBuffer* buf
 	}
 }
 
-void UnorderedAccessView::BindToRootSignature(Graphics& graphics, RootSignature* rootSignature)
-{
-	THROW_INTERNAL_ERROR("Tried to bind UAV to graphic root signature");
-}
-
-void UnorderedAccessView::BindToComputeRootSignature(Graphics& graphics, RootSignature* rootSignature)
-{
-	rootSignature->AddUnorderedAccessViewParameter(this);
-}
-
-void UnorderedAccessView::BindToCommandList(Graphics& graphics, CommandList* commandList)
+void UnorderedAccessView::BindToCommandList(Graphics& graphics, CommandList* commandList, TargetSlotAndShader& target)
 {
 	THROW_INTERNAL_ERROR("Tried to bind UAV to graphic command list");
 }
 
-void UnorderedAccessView::BindToComputeCommandList(Graphics& graphics, CommandList* commandList)
+void UnorderedAccessView::BindToComputeCommandList(Graphics& graphics, CommandList* commandList, TargetSlotAndShader& target)
 {
-	commandList->SetComputeDescriptorTable(graphics, this);
+	commandList->SetComputeDescriptorTable(graphics, this, target);
+}
+
+void UnorderedAccessView::BindToRootSignature(RootSignature* rootSignature, TargetSlotAndShader& target)
+{
+	THROW_INTERNAL_ERROR("Tried to bind UAV to graphic root signature");
+}
+
+void UnorderedAccessView::BindToComputeRootSignature(RootSignature* rootSignature, TargetSlotAndShader& target)
+{
+	rootSignature->AddUnorderedAccessViewParameter(this, target);
 }
 
 BindableType UnorderedAccessView::GetBindableType() const

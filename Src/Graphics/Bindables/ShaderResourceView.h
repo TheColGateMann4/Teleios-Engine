@@ -1,5 +1,5 @@
 #pragma once
-#include "Bindable.h"
+#include "Binding.h"
 #include "Graphics/Core/DescriptorHeap.h"
 
 class Graphics;
@@ -12,7 +12,7 @@ class CommandList;
 class BackBufferRenderTarget;
 class DepthStencilViewMultiResource;
 
-class ShaderResourceViewBase : public Bindable, public CommandListBindable, public RootSignatureBindable
+class ShaderResourceViewBase : public Bindable, public RootParameterBinding
 {
 protected:
 	ShaderResourceViewBase(unsigned int slot);
@@ -21,13 +21,13 @@ protected:
 public:
 	virtual unsigned int GetOffsetInDescriptor(Graphics& graphics) const = 0;
 
-	virtual void BindToCommandList(Graphics& graphics, CommandList* commandList) override;
+	virtual void BindToCommandList(Graphics& graphics, CommandList* commandList, TargetSlotAndShader& target) override;
 
-	virtual void BindToComputeCommandList(Graphics& graphics, CommandList* commandList) override;
+	virtual void BindToComputeCommandList(Graphics& graphics, CommandList* commandList, TargetSlotAndShader& target) override;
 
-	virtual void BindToRootSignature(Graphics& graphics, RootSignature* rootSignature) override;
+	virtual void BindToRootSignature(RootSignature* rootSignature, TargetSlotAndShader& target) override;
 
-	virtual void BindToComputeRootSignature(Graphics& graphics, RootSignature* rootSignature) override;
+	virtual void BindToComputeRootSignature(RootSignature* rootSignature, TargetSlotAndShader& target) override;
 
 	virtual BindableType GetBindableType() const override;
 

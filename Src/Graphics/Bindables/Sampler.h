@@ -16,9 +16,9 @@ public:
 	static std::string GetIdentifier(D3D12_FILTER filter, D3D12_TEXTURE_ADDRESS_MODE overlappingMode, std::vector<TargetSlotAndShader> targets);
 
 public:
-	virtual void BindToRootSignature(Graphics& graphics, RootSignature* rootSignature) override;
+	virtual void BindToRootSignature(RootSignature* rootSignature) override;
 
-	virtual void BindToComputeRootSignature(Graphics& graphics, RootSignature* rootSignature) override;
+	virtual void BindToComputeRootSignature(RootSignature* rootSignature) override;
 
 	virtual BindableType GetBindableType() const override;
 
