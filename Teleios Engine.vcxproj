@@ -173,6 +173,7 @@
   <ItemGroup>
     <ClCompile Include="Src\Graphics\Bindables\Binding.cpp" />
     <ClCompile Include="Src\Graphics\Bindables\RootSignatureBindableWrapper.cpp" />
+    <ClCompile Include="Src\Graphics\Bindables\RootSignatureConstants.cpp" />
     <ClCompile Include="Src\Graphics\RenderGraph\RenderPass\Geometry\EmissivePass.cpp" />
     <ClCompile Include="Src\Graphics\RenderGraph\RenderPass\Fullscreen\LightningPass.cpp" />
     <ClCompile Include="Src\Graphics\RenderGraph\RenderPass\Geometry\GBufferPass.cpp" />
@@ -255,6 +256,7 @@
   <ItemGroup>
     <ClInclude Include="Src\Graphics\Bindables\Binding.h" />
     <ClInclude Include="Src\Graphics\Bindables\RootSignatureBindableWrapper.h" />
+    <ClInclude Include="Src\Graphics\Bindables\RootSignatureConstants.h" />
     <ClInclude Include="Src\Graphics\RenderGraph\RenderPass\Geometry\EmissivePass.h" />
     <ClInclude Include="Src\Graphics\RenderGraph\RenderPass\Fullscreen\LightningPass.h" />
     <ClInclude Include="Src\Graphics\RenderGraph\RenderPass\Geometry\GBufferPass.h" />

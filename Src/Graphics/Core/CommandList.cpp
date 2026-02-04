@@ -313,6 +313,14 @@ void CommandList::SetGraphicsDescriptorTable(Graphics& graphics, ShaderResourceV
 	THROW_INFO_ERROR(pCommandList->SetGraphicsRootDescriptorTable(target.rootIndex, gpuDescriptorHandle));
 }
 
+void CommandList::SetRootConstants(Graphics& graphics, RootSignatureConstants* constants, TargetSlotAndShader target)
+{
+	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
+	THROW_OBJECT_STATE_ERROR_IF("Only Direct and Bundle command lists can set graphics constant buffers", m_type != D3D12_COMMAND_LIST_TYPE_DIRECT && m_type != D3D12_COMMAND_LIST_TYPE_BUNDLE);
+
+	THROW_INFO_ERROR(pCommandList->SetGraphicsRoot32BitConstants(target.rootIndex, constants->GetNumValues(), constants->GetDataPtr(), 0));
+}
+
 void CommandList::ExecuteBundle(Graphics& graphics, CommandList* commandList)
 {
 	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);

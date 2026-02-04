@@ -23,5 +23,6 @@ enum class BindableType
 	bindable_unorderedAccessView,
 	bindable_vertexBuffer,
 	bindable_viewPort,
-	bindable_rootSignatureWrapper
+	bindable_rootSignatureWrapper,
+	bindable_rootSignatureConstants
 };

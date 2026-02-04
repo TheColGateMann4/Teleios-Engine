@@ -123,6 +123,25 @@ void RootSignature::AddUnorderedAccessViewParameter(UnorderedAccessView* uav, Ta
 }
 
 
+void RootSignature::SetGraphicsRootConstants(RootSignatureConstants* constants, TargetSlotAndShader& target)
+{
+	target.rootIndex = m_rootSignatureDesc.NumParameters;
+
+	m_rootSignatureDesc.NumParameters++;
+
+	D3D12_ROOT_PARAMETER1 rootParameter = {};
+	rootParameter.ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
+	rootParameter.Constants = {};
+	rootParameter.Constants.ShaderRegister = target.slot;
+	rootParameter.Constants.RegisterSpace = 0;
+	rootParameter.Constants.Num32BitValues = constants->GetNumValues();
+	rootParameter.ShaderVisibility = static_cast<D3D12_SHADER_VISIBILITY>(target.target);
+
+	m_rootParameters.push_back(rootParameter);
+
+	m_rootSignatureDesc.pParameters = m_rootParameters.data();
+}
+
 void RootSignature::AddStaticSampler(StaticSampler* staticSampler)
 {
 	auto& targets = staticSampler->GetTargets();

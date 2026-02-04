@@ -14,6 +14,7 @@ class RootSignature;
 class ConstantBuffer;
 class Texture;
 class ShaderResourceViewBase;
+class RootSignatureConstants;
 class DescriptorHeap;
 class UnorderedAccessView;
 class GraphicsResource;
@@ -100,6 +101,8 @@ public:
 
 	void SetGraphicsDescriptorTable(Graphics& graphics, Texture* texture, TargetSlotAndShader target);
 	void SetGraphicsDescriptorTable(Graphics& graphics, ShaderResourceViewBase* srv, TargetSlotAndShader target);
+
+	void SetRootConstants(Graphics& graphics, RootSignatureConstants* constants, TargetSlotAndShader target);
 
 	void ClearRenderTargetView(Graphics& graphics, RenderTarget* renderTarget);
 

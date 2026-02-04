@@ -35,7 +35,7 @@ public:
 
 	void AddUnorderedAccessViewParameter(UnorderedAccessView* uav, TargetSlotAndShader& target);
 
-	// constants
+	void SetGraphicsRootConstants(RootSignatureConstants* constants, TargetSlotAndShader& target);
 
 	void AddStaticSampler(StaticSampler* staticSampler);
 	void AddComputeStaticSampler(StaticSampler* staticSampler);
