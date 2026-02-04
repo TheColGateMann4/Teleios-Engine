@@ -87,7 +87,8 @@ void Mesh::CreateDepthTechnique(Graphics& graphics, Pipeline& pipeline)
 			depthStep.AddBindable(geometryBindables.GetIndexBuffer());
 
 			depthStep.AddBindable(geometryBindables.GetInputLayout());
-			depthStep.AddBindable(pipeline.GetStaticResource("lightBuffer"));
+			depthStep.AddStaticBindable("lightBuffer");
+			depthStep.AddStaticBindable("cameraBuffer");
 
 			depthStep.AddBindable(geometryBindables.GetTransformConstantBuffer());
 

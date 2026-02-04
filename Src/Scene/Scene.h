@@ -27,6 +27,8 @@ public:
 	// ends initialization state in pipeline
 	void FinishInitialization(Graphics& graphics);
 
+	void InitializeCameraBuffer(Graphics& graphics, Pipeline& pipeline);
+
 	void InitializeLightBuffer(Graphics& graphics, Pipeline& pipeline);
 
 	void AssignJobs(Graphics& graphics);
@@ -39,6 +41,8 @@ public:
 	void DrawObjectInspector(Graphics& graphics);
 
 	void Update(Graphics& graphics, const Input& input, bool isCursorLocked);
+
+	void UpdateBuffersIfNeeded(Graphics& graphics);
 
 	std::vector<std::shared_ptr<SceneObject>>& GetObjects();
 
@@ -68,4 +72,5 @@ private:
 
 	std::vector<PointLight*> m_pointlights;
 	std::shared_ptr<CachedConstantBuffer> m_lightBuffer;
+	std::shared_ptr<CachedConstantBuffer> m_cameraBuffer;
 };

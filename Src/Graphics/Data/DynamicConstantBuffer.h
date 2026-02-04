@@ -165,6 +165,13 @@ namespace DynamicConstantBuffer
 			std::unique_ptr<DataInfo> additionalData;
 		};
 
+		enum class LayoutType
+		{
+			normal, // needs 256 byte alignment
+			partial, // needs 16 byte alignment
+			data // doesn't need alignment after data ends, still has data aligned in-between
+		};
+
 	public:
 		Layout() = default;
 		Layout(Layout&&) noexcept = default;
@@ -173,7 +180,7 @@ namespace DynamicConstantBuffer
 		Layout& operator=(const Layout&) = delete;
 
 	public:
-		Layout& GetFinished(bool isPartialBuffer = false);
+		Layout& GetFinished(LayoutType layoutType = LayoutType::normal);
 
 		void AddArray(const char* name, ArrayDataInfo& arrayData);
 
@@ -239,13 +246,15 @@ namespace DynamicConstantBuffer
 			return lastPackSizeWithNewElement > alignment ? std::ceil(numPacks) * alignment : m_size;
 		}
 
+		unsigned int GetDesiredSize(LayoutType layoutType) const;
+
 		unsigned int GetAlignedSize() const;
 		unsigned int GetPackedSize() const;
 
 	private:
 		std::vector<Element> m_elements = {};
 		unsigned int m_size = 0;
-		unsigned int m_alignedSize = 0;
+		unsigned int m_finalSize = 0;
 		bool m_finished = false;
 	};
 
@@ -328,6 +337,8 @@ namespace DynamicConstantBuffer
 		ArrayData GetArrayData(const char* name);
 
 	public:
+		const void* GetPtr() const;
+
 		void* GetPtr();
 
 		const Layout& GetLayout() const;

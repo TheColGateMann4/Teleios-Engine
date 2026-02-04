@@ -1,9 +1,27 @@
-cbuffer transforms : register(b0)
+cbuffer modelTransforms : register(b0)
 {
-	matrix transform;
-	matrix transformInCameraSpace;
-	matrix transformInCameraView;
+    row_major matrix transform;
 };
+
+#ifndef NUM_CAMERAS
+#define NUM_CAMERAS 10
+#endif
+
+struct CameraData
+{
+    row_major matrix view;
+    row_major matrix projection;
+};
+
+cbuffer cameraTransforms : register(b1)
+{
+	CameraData cameras[NUM_CAMERAS];
+};
+
+cbuffer constants : register(b2)
+{
+    int cameraTransformIndex;
+}
 
 struct VSOut
 {
@@ -52,10 +70,13 @@ VSOut VSMain(
 
 	)
 {
+    matrix transformInCameraSpace = mul(transform, cameras[cameraTransformIndex].view);
+    matrix transformInCameraView = mul(transformInCameraSpace, cameras[cameraTransformIndex].projection);
+    
 	VSOut vsout;
 
 #ifdef OUTPUT_CAMAERAPOS
-	vsout.cameraPosition = (float3)mul(transformInCameraSpace, float4(position, 1.0f));
+	vsout.cameraPosition = (float3)mul(float4(position, 1.0f), transformInCameraSpace);
 #endif
 
 #ifdef INPUT_TEXCCORDS  
@@ -63,20 +84,20 @@ VSOut VSMain(
 #endif
 
 #ifdef INPUT_NORMAL  
-     vsout.normal = mul((float3x3)transformInCameraSpace, normal);
+     vsout.normal = mul(normal, (float3x3)transformInCameraSpace);
 #endif
 
 #ifdef INPUT_TANGENT  
-     vsout.tangent = mul((float3x3)transformInCameraSpace, tangent);
+     vsout.tangent = mul(tangent, (float3x3)transformInCameraSpace);
 #endif
 
 #ifdef INPUT_BITANGENT  
-     vsout.bitangent = mul((float3x3)transformInCameraSpace, bitangent);
+     vsout.bitangent = mul(bitangent, (float3x3)transformInCameraSpace);
 #endif
 
 
 
-	vsout.position = mul(transformInCameraView, float4(position, 1.0f));
+    vsout.position = mul(float4(position, 1.0f), transformInCameraView);
 
 	return vsout;
 }

@@ -1,13 +1,22 @@
+struct PointLightData
+{
+    float3 lightPositionInCameraSpace;
+    float3 lightDiffuseColor;
+    float attenuationQuadratic;
+    float attenuationLinear;
+    float attenuationConstant;
+};
+
+#ifndef NUM_POINTLIGHTS
+#define NUM_POINTLIGHTS 1 
+#endif
+
 cbuffer lightBuffer : register(b0)
 {
-    float3 b_lightPositionInCameraSpace;
-    float3 b_lightDiffuseColor;
-    float b_attenuationQuadratic;
-    float b_attenuationLinear;
-    float b_attenuationConstant;
+    PointLightData b_pointlights[NUM_POINTLIGHTS];
 };
 
 float4 PSMain() : SV_TARGET
 {
-    return float4(b_lightDiffuseColor, 1.0f);
+    return float4(b_pointlights[0].lightDiffuseColor, 1.0f);
 }

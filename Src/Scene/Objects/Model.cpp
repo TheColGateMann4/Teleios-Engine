@@ -288,6 +288,7 @@ Model::Model(Graphics& graphics, Model* pParent, aiNode* node, std::vector<std::
 			step.AddBindable(PrimitiveTechnology::GetBindableResource(graphics, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE));
 
 			step.AddStaticBindable("lightBuffer");
+			step.AddStaticBindable("cameraBuffer");
 		}
 
 		technique.AddStep(std::move(step));

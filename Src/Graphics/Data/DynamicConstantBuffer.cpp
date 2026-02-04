@@ -49,13 +49,16 @@ DynamicConstantBuffer::ImguiColorData::ImguiColorData(bool show_, int flags_)
 
 }
 
-DynamicConstantBuffer::Layout& DynamicConstantBuffer::Layout::GetFinished(bool isPartialBuffer)
+DynamicConstantBuffer::Layout& DynamicConstantBuffer::Layout::GetFinished(LayoutType layoutType)
 {
+	if (m_finished)
+		return *this;
+
 	THROW_OBJECT_STATE_ERROR_IF("Layout was empty", m_elements.empty());
 
 	m_finished = true;
 
-	m_alignedSize = isPartialBuffer ? GetPackedSize() : GetAlignedSize();
+	m_finalSize = GetDesiredSize(layoutType);
 
 	return *this;
 }
@@ -65,7 +68,7 @@ void DynamicConstantBuffer::Layout::AddArray(const char* name, ArrayDataInfo& ar
 	THROW_OBJECT_STATE_ERROR_IF("Layout was unfinished", m_finished);
 	THROW_INTERNAL_ERROR_IF("Array size was not set", arrayData.numElements == -1);
 
-	arrayData.layout.GetFinished(true);
+	arrayData.layout.GetFinished(LayoutType::partial);
 
 	Element element = {};
 	element.type = ElementType::List;
@@ -84,7 +87,7 @@ unsigned int DynamicConstantBuffer::Layout::GetSize() const
 {
 	THROW_OBJECT_STATE_ERROR_IF("Layout was unfinished", !m_finished);
 
-	return m_alignedSize;
+	return m_finalSize;
 }
 
 unsigned int DynamicConstantBuffer::Layout::GetNumElements() const
@@ -118,6 +121,19 @@ const DynamicConstantBuffer::Layout::Element& DynamicConstantBuffer::Layout::Get
 	errorStr += "\".";
 
 	THROW_INTERNAL_ERROR(errorStr.c_str());
+}
+
+unsigned int DynamicConstantBuffer::Layout::GetDesiredSize(LayoutType layoutType) const
+{
+	switch (layoutType)
+	{
+		case LayoutType::normal:
+			return GetAlignedSize();
+		case LayoutType::partial:
+			return GetPackedSize();
+		case LayoutType::data:
+			return m_size;
+	}
 }
 
 unsigned int DynamicConstantBuffer::Layout::GetAlignedSize() const
@@ -213,6 +229,11 @@ DynamicConstantBuffer::ArrayData DynamicConstantBuffer::Data::GetArrayData(const
 	const ArrayDataInfo* arrayDataInfo = static_cast<const ArrayDataInfo*>(element.additionalData.get());
 
 	return ArrayData(arrayDataInfo->layout, &m_data.at(element.offset), arrayDataInfo->numElements);
+}
+
+const void* DynamicConstantBuffer::Data::GetPtr() const
+{
+	return m_data.data();
 }
 
 void* DynamicConstantBuffer::Data::GetPtr()

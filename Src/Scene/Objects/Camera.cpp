@@ -31,8 +31,17 @@ Camera::Camera(Graphics& graphics, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3
 	UpdatePerspectiveMatrix();
 }
 
+void Camera::Initialize(Graphics& graphics, Pipeline& pipeline)
+{
+	THROW_INTERNAL_ERROR_IF("Camera index was not assigned", m_cameraIndex == -1);
+
+	m_pCameraBuffer = static_cast<CachedConstantBuffer*>(pipeline.GetStaticResource("cameraBuffer"));
+}
+
 void Camera::UpdateCamera(const Input& input, bool cursorLocked)
 {
+	UpdateCameraBuffer();
+
 	if (!m_active)
 		return;
 
@@ -64,6 +73,15 @@ void Camera::UpdateCamera(const Input& input, bool cursorLocked)
 
 		Move(direction, input.GetKey(VK_SHIFT));
 	}
+}
+
+void Camera::UpdateCameraBuffer()
+{
+	DynamicConstantBuffer::Data& bufferData = m_pCameraBuffer->GetData();
+	DynamicConstantBuffer::ArrayData array = bufferData.GetArrayData("cameraBuffers");
+
+	*array.Get<DynamicConstantBuffer::ElementType::Matrix>(m_cameraIndex, "view") = GetTransformMatrix();
+	*array.Get<DynamicConstantBuffer::ElementType::Matrix>(m_cameraIndex, "projection") = GetPerspectiveMatrix();
 }
 
 void Camera::DrawTransformPropeties(Scene& scene)
@@ -189,6 +207,16 @@ void Camera::UpdateDecoratedName()
 
 	if (m_active)
 		m_decoratedName += " (Active)";
+}
+
+void Camera::SetCameraIndex(unsigned int cameraIndex)
+{
+	m_cameraIndex = cameraIndex;
+}
+
+unsigned int Camera::GetCameraIndex()
+{
+	return m_cameraIndex;
 }
 
 void Camera::SetActive(bool active)

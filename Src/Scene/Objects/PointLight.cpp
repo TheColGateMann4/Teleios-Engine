@@ -30,6 +30,8 @@ PointLight::PointLight(Graphics& graphics, Scene& scene, DirectX::XMFLOAT3 posit
 
 void PointLight::Initialize(Graphics& graphics, Pipeline& pipeline)
 {
+	THROW_INTERNAL_ERROR_IF("Light index was not assigned", m_lightIndex == -1);
+
 	m_pLightBuffer = static_cast<CachedConstantBuffer*>(pipeline.GetStaticResource("lightBuffer"));
 
 	DynamicConstantBuffer::Data& bufferData = m_pLightBuffer->GetData();
@@ -65,8 +67,6 @@ void PointLight::UpdateLight(Graphics& graphics, Scene& scene)
 		DynamicConstantBuffer::Data& bufferData = m_pLightBuffer->GetData();
 		DynamicConstantBuffer::ArrayData array = bufferData.GetArrayData("lightBuffers");
 		*array.Get<DynamicConstantBuffer::ElementType::Float3>(m_lightIndex, "lightPosition") = resultPosition;
-
-		m_pLightBuffer->Update(graphics);
 	}
 }
 

@@ -23,7 +23,11 @@ public:
 	Camera(Graphics& graphics, DirectX::XMFLOAT3 position = { 0.0f, 0.0f, -5.0f }, DirectX::XMFLOAT3 rotation = { 0.0f, 0.0f, 0.0f }, Settings* settings = nullptr);
 
 public:
+	virtual void Initialize(Graphics& graphics, Pipeline& pipeline) override;
+
 	void UpdateCamera(const Input& input, bool cursorLocked);
+
+	void UpdateCameraBuffer();
 
 	virtual void DrawTransformPropeties(Scene& scene) override;
 
@@ -46,6 +50,9 @@ public:
 
 	virtual void UpdateDecoratedName() override;
 
+	void SetCameraIndex(unsigned int cameraIndex);
+	unsigned int GetCameraIndex();
+
 public:
 	void SetActive(bool active);
 
@@ -58,6 +65,9 @@ private:
 	static constexpr float GetClampedValue(float angle, float minAngle, float maxAngle);
 
 private:
+	CachedConstantBuffer* m_pCameraBuffer = nullptr;
+	unsigned int m_cameraIndex = -1;
+
 	DirectX::XMFLOAT3 m_position;
 	DirectX::XMFLOAT3 m_rotation;
 	DirectX::XMMATRIX m_perspective;

@@ -37,6 +37,6 @@ private:
 	Sphere* m_pSphereModel;
 
 	CachedConstantBuffer* m_pLightBuffer = nullptr;
-	unsigned int m_lightIndex = 0;
+	unsigned int m_lightIndex = -1;
 };
 

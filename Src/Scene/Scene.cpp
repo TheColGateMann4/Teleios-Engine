@@ -22,7 +22,10 @@ void Scene::AddSceneObject(std::shared_ptr<SceneObject> sceneObject)
 	SceneObject* pSceneObject = sceneObject.get();
 
 	if (objectType == SceneObjectType::camera)
+	{
 		m_cameras.push_back(static_cast<Camera*>(pSceneObject));
+		m_cameras.back()->SetCameraIndex(m_cameras.size() - 1);
+	}
 	else if (objectType == SceneObjectType::pointlight)
 	{
 		m_pointlights.push_back(static_cast<PointLight*>(pSceneObject));
@@ -58,6 +61,8 @@ void Scene::FinishInitialization(Graphics& graphics)
 
 	InitializeLightBuffer(graphics, pipeline);
 
+	InitializeCameraBuffer(graphics, pipeline);
+
 	InitializeSceneObjects(graphics);
 
 	AssignJobs(graphics);
@@ -72,6 +77,23 @@ void Scene::FinishInitialization(Graphics& graphics)
 	renderer.FinishInitialization(graphics);
 
 	graphics.WaitForGPU();
+}
+
+void Scene::InitializeCameraBuffer(Graphics& graphics, Pipeline& pipeline)
+{
+	DynamicConstantBuffer::ArrayDataInfo array = {};
+	array.numElements = m_cameras.size();
+	array.layout.Add<DynamicConstantBuffer::ElementType::Matrix>("view");
+	array.layout.Add<DynamicConstantBuffer::ElementType::Matrix>("projection");
+
+	DynamicConstantBuffer::Layout layout;
+	layout.AddArray("cameraBuffers", array);
+
+	DynamicConstantBuffer::Data bufferData(layout);
+
+	m_cameraBuffer = std::make_shared<CachedConstantBuffer>(graphics, bufferData, std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::VertexShader, 1}});
+
+	pipeline.AddStaticResource("cameraBuffer", m_cameraBuffer.get());
 }
 
 void Scene::InitializeLightBuffer(Graphics& graphics, Pipeline& pipeline)
@@ -179,7 +201,8 @@ void Scene::Update(Graphics& graphics, const Input& input, bool isCursorLocked)
 	// updating importatnt data that other objects depend on
 	{
 		// camera position and rotation so all objects can update their matrices in the same frame
-		m_activeCamera->UpdateCamera(input, isCursorLocked);
+		for (auto& camera : m_cameras)
+			camera->UpdateCamera(input, isCursorLocked);
 
 		// light position and data
 		for (auto& pointlight : m_pointlights)
@@ -189,6 +212,8 @@ void Scene::Update(Graphics& graphics, const Input& input, bool isCursorLocked)
 	for (auto& sceneObject : m_sceneObjects)
 		sceneObject->InternalUpdate(graphics, graphics.GetRenderer().GetPipeline());
 
+	UpdateBuffersIfNeeded(graphics);
+
 	// Updating passes
 	graphics.GetRenderer().UpdatePasses(graphics, *this);
 
@@ -197,6 +222,29 @@ void Scene::Update(Graphics& graphics, const Input& input, bool isCursorLocked)
 	UpdateObjectMatrices(graphics);
 
 	UpdateGraphicResources(graphics);
+}
+
+void Scene::UpdateBuffersIfNeeded(Graphics& graphics)
+{
+	{	
+		//bool lightBufferShouldUpdate = false;
+		//for (const auto& light : m_pointlights)
+		//	if (light->BufferChanged();)
+		//		lightBufferShouldUpdate = true;
+		//
+		//if (lightBufferShouldUpdate)
+			m_lightBuffer->Update(graphics);
+	}
+
+	{
+		bool cameraBufferShouldUpdate = false;
+		for (const auto& camera : m_cameras)
+			if (camera->ViewChanged() || camera->PerspectiveChanged())
+				cameraBufferShouldUpdate = true;
+
+		if (cameraBufferShouldUpdate)
+			m_cameraBuffer->Update(graphics);
+	}
 }
 
 std::vector<std::shared_ptr<SceneObject>>& Scene::GetObjects()

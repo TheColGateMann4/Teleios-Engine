@@ -1,8 +1,15 @@
 #pragma once
 #include "Graphics/RenderGraph/RenderPass/RenderPass.h"
 
+class RootSignatureConstants;
+
 class GeometryPass : public RenderPass
 {
+public:
+	GeometryPass();
+
+	virtual void Update(Graphics& graphics, Pipeline& pipeline, Scene& scene) override;
+
 public: // Handling for pass specific bindables
 	void AddBindable(std::shared_ptr<Bindable> bindable);
 	const std::vector<std::shared_ptr<Bindable>>& GetBindables() const;
@@ -22,7 +29,11 @@ protected:
 	virtual void ExecutePass(Graphics& graphics, CommandList* commandList) override;
 
 private:
+	std::shared_ptr<RootSignatureConstants> m_cameraRootConstant;
+
 	std::vector<std::shared_ptr<Bindable>> m_bindables;
 
 	std::vector<std::shared_ptr<RenderJob>> m_pJobs;
+
+	unsigned int m_prevCameraIndex = UINT_MAX;
 };

@@ -11,8 +11,6 @@ TransformConstantBuffer::TransformConstantBuffer(Graphics& graphics, std::vector
 {
 	DynamicConstantBuffer::Layout layout;
 	layout.Add<DynamicConstantBuffer::ElementType::Matrix>("transform");
-	layout.Add<DynamicConstantBuffer::ElementType::Matrix>("transformInCameraSpace");
-	layout.Add<DynamicConstantBuffer::ElementType::Matrix>("transformInCameraView");
 
 	m_buffer = std::make_shared<NonCachedConstantBuffer>(graphics, layout, targets);
 }
@@ -24,16 +22,9 @@ void TransformConstantBuffer::SetParentPtr(ObjectTransform* pObjectTransform)
 
 void TransformConstantBuffer::Update(Graphics& graphics, Camera& camera)
 {
-	// matrices[0] transform
-	// matrices[1] transform in camera space
-	// matrices[2] transform in camera view
-	DirectX::XMMATRIX matrices[3] = {};
+	DirectX::XMMATRIX transform = m_pObjectTransform->GetWorldTransform();
 
-	matrices[0] = m_pObjectTransform->GetWorldTransform();
-	matrices[1] = matrices[0] * camera.GetTransformMatrix();
-	matrices[2] = matrices[1] * camera.GetPerspectiveMatrix();
-
-	m_buffer->Update(graphics, matrices, sizeof(matrices));
+	m_buffer->Update(graphics, &transform, sizeof(transform));
 }
 
 NonCachedConstantBuffer* TransformConstantBuffer::GetBuffer() const
