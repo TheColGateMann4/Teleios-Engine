@@ -46,7 +46,7 @@ void Renderer::AssignJobsToPasses()
 	m_renderGraph.AssignJobsToPasses();
 }
 
-void Renderer::Draw(Graphics& graphics)
+void Renderer::Draw(Graphics& graphics, float deltaTime)
 {
 	{
 		// moved to graphics::BeginFrame(), 
@@ -59,6 +59,8 @@ void Renderer::Draw(Graphics& graphics)
 		m_pipeline.ExecuteCopyCalls(graphics);
 
 		m_renderGraph.Execute(graphics, m_pipeline.GetGraphicCommandList());
+
+		graphics.GetProfiler().SetEndData(graphics, m_pipeline.GetGraphicCommandList(), deltaTime);
 
 		m_pipeline.FinishRender(graphics);
 	}

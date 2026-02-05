@@ -172,6 +172,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Src\Graphics\Resources\QueryHeap.cpp" />
+    <ClCompile Include="Src\Graphics\Profiler\CPUProfiler.cpp" />
+    <ClCompile Include="Src\Graphics\Profiler\GPUProfiler.cpp" />
+    <ClCompile Include="Src\Graphics\Profiler\Profiler.cpp" />
     <ClCompile Include="Src\Graphics\Bindables\Binding.cpp" />
     <ClCompile Include="Src\Graphics\Bindables\RootSignatureBindableWrapper.cpp" />
     <ClCompile Include="Src\Graphics\Bindables\RootSignatureConstants.cpp" />
@@ -256,6 +259,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Src\Graphics\Resources\QueryHeap.h" />
+    <ClInclude Include="Src\Graphics\Profiler\CPUProfiler.h" />
+    <ClInclude Include="Src\Graphics\Profiler\GPUProfiler.h" />
+    <ClInclude Include="Src\Graphics\Profiler\Profiler.h" />
     <ClInclude Include="Src\Graphics\Bindables\Binding.h" />
     <ClInclude Include="Src\Graphics\Bindables\RootSignatureBindableWrapper.h" />
     <ClInclude Include="Src\Graphics\Bindables\RootSignatureConstants.h" />

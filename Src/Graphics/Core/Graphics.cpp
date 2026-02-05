@@ -59,6 +59,7 @@ Graphics::Graphics(HWND hWnd, DXGI_FORMAT renderTargetFormat)
 	}
 
 	renderer.Initialize(*this);
+	profiler.Initialize(*this);
 }
 
 Graphics::~Graphics()
@@ -86,7 +87,7 @@ unsigned int Graphics::GetBufferCount() const
 	return swapChainBufferCount;
 }
 
-void Graphics::BeginFrame()
+void Graphics::BeginFrame(float deltaTime)
 {
 	m_currentBufferIndex = GetCurrentBufferIndexFromSwapchain();
 
@@ -95,6 +96,8 @@ void Graphics::BeginFrame()
 	// For now since we don't have proper synchronization system
 	// We need to push copy events during runtime
 	renderer.GetPipeline().BeginRender(*this);
+
+	profiler.SetBeginData(*this, renderer.GetPipeline().GetGraphicCommandList(), deltaTime);
 }
 
 void Graphics::FinishFrame()
@@ -106,9 +109,9 @@ void Graphics::FinishFrame()
 	CleanupResources();
 }
 
-void Graphics::Render(Scene& scene)
+void Graphics::Render(Scene& scene, float deltaTime)
 {
-	renderer.Draw(*this);
+	renderer.Draw(*this, deltaTime);
 }
 
 void Graphics::PresentFrame()
@@ -138,6 +141,11 @@ void Graphics::WaitForGPUIfNeeded()
 void Graphics::CleanupResources()
 {
 	resourceDeleter.Update(*this);
+}
+
+Profiler& Graphics::GetProfiler()
+{
+	return profiler;
 }
 
 Renderer& Graphics::GetRenderer()

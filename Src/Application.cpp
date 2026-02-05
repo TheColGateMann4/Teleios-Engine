@@ -66,7 +66,7 @@ void Application::InitializeScene()
 
 void Application::Update()
 {
-	graphics.BeginFrame();
+	graphics.BeginFrame(time.Mark());
 
 	ImguiLayer& imguiLayer = graphics.GetRenderer().GetImguiLayer();
 
@@ -90,10 +90,11 @@ void Application::Update()
 	window.input.DrawImguiWindow(imguiLayer.IsVisible());
 	graphics.GetRenderer().DrawImguiWindow(graphics);
 	imguiLayer.DrawDemoWindow();
+	graphics.GetProfiler().Draw();
 
 	scene.Update(graphics, window.input, window.GetCursorLocked());
 
-	graphics.Render(scene);
+	graphics.Render(scene, time.Peek());
 
 	graphics.FinishFrame();
 }

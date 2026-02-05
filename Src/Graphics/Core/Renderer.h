@@ -18,7 +18,7 @@ public:
 	void SubmitPassesJobs();
 	void AssignJobsToPasses();
 
-	void Draw(Graphics& graphics);
+	void Draw(Graphics& graphics, float deltaTime);
 
 	void DrawImguiWindow(Graphics& graphics);
 
