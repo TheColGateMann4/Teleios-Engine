@@ -18,7 +18,7 @@ PointLight::PointLight(Graphics& graphics, Scene& scene, DirectX::XMFLOAT3 posit
 
 	// creating Sphere model
 	{
-		std::shared_ptr<Sphere> sphereModel = std::make_shared<Sphere>(graphics, m_position, DirectX::XMFLOAT3{ 0.0f, 1.0f, 0.0f }, 0.5f, 21);
+		std::shared_ptr<Sphere> sphereModel = std::make_shared<Sphere>(graphics, m_position, 0.5f, 21);
 
 		m_pSphereModel = sphereModel.get();
 		AddChild(m_pSphereModel);
@@ -31,6 +31,8 @@ PointLight::PointLight(Graphics& graphics, Scene& scene, DirectX::XMFLOAT3 posit
 void PointLight::Initialize(Graphics& graphics, Pipeline& pipeline)
 {
 	THROW_INTERNAL_ERROR_IF("Light index was not assigned", m_lightIndex == -1);
+
+	m_pSphereModel->SetLightIndex(m_lightIndex);
 
 	m_pLightBuffer = static_cast<CachedConstantBuffer*>(pipeline.GetStaticResource("lightBuffer"));
 

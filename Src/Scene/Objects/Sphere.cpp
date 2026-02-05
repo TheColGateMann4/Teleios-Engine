@@ -11,13 +11,14 @@
 
 #include <imgui.h>
 
-Sphere::Sphere(Graphics& graphics, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation, float diameter, size_t tesselation)
+Sphere::Sphere(Graphics& graphics, DirectX::XMFLOAT3 position, float diameter, size_t tesselation)
 	:
 	m_initialized(false),
 	m_diameter(diameter),
 	m_tesselation(tesselation)
 {
 	SetName("Sphere");
+	m_transform.SetPosition(position);
 
 	Mesh modelMesh;
 
@@ -44,6 +45,21 @@ Sphere::Sphere(Graphics& graphics, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3
 		step.AddStaticBindable("lightBuffer");
 		step.AddStaticBindable("cameraBuffer");
 		step.AddBindable(m_transform.GetTransformConstantBuffer());
+
+		// adding root signature constant to indicate locally used point light data
+		{
+			DynamicConstantBuffer::Layout layout;
+			layout.Add<DynamicConstantBuffer::ElementType::Int>("pointLightIndex");
+
+			layout.GetFinished(DynamicConstantBuffer::Layout::LayoutType::data);
+
+			DynamicConstantBuffer::Data bufferData(layout);
+			*bufferData.Get<DynamicConstantBuffer::ElementType::Int>("pointLightIndex") = 0;
+
+			m_pointLightIndexConstant = std::make_shared<RootSignatureConstants>(bufferData, std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::PixelShader, 1}});
+
+			step.AddBindable(m_pointLightIndexConstant);
+		}
 	}
 	technique.AddStep(std::move(step));
 	modelMesh.AddTechnique(std::move(technique));
@@ -54,6 +70,13 @@ void Sphere::Initialize(Graphics& graphics, Pipeline& pipeline)
 {
 	// upload mesh data to object
 	UpdateMesh(graphics, pipeline);
+}
+
+void Sphere::SetLightIndex(unsigned int lightIndex)
+{
+	THROW_INTERNAL_ERROR_IF("Tried to call SetLightIndex on sphere that wasn't meant as light source", !m_pointLightIndexConstant);
+
+	*m_pointLightIndexConstant->GetData().Get<DynamicConstantBuffer::ElementType::Int>("pointLightIndex") = lightIndex;
 }
 
 void Sphere::DrawAdditionalPropeties(Graphics& graphics, Pipeline& pipeline)
