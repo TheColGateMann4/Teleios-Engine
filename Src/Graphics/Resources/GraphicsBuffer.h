@@ -21,6 +21,8 @@ public:
 
 	virtual GraphicsResourceType GetResourceType() override;
 
+	void Read(Graphics& graphics, void* data, unsigned int size, unsigned int offset);
+
 	void Update(Graphics& graphics, const void* data, size_t size);
 	void Update(Graphics& graphics, const void* data, size_t rowSize, size_t rows, size_t dataRowPitch, size_t targetRowPitch);
 	void Update(Graphics& graphics, Pipeline& pipeline, const void* data, size_t size);

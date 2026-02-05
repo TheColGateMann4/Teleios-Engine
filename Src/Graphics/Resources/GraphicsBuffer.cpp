@@ -71,6 +71,29 @@ GraphicsResourceType GraphicsBuffer::GetResourceType()
 	return GraphicsResourceType::buffer;
 }
 
+void GraphicsBuffer::Read(Graphics& graphics, void* data, unsigned int size, unsigned int offset)
+{
+	THROW_INTERNAL_ERROR_IF("Tried to read resource without cpu access", m_cpuAccess != CPUAccess::readwrite);
+	THROW_INTERNAL_ERROR_IF("Tried to read out of buffer", m_byteSize < offset + size);
+
+	HRESULT hr;
+	ID3D12Resource* pConstBuffer = GetResource();
+
+	{
+		unsigned char* pMappedData = nullptr;
+
+		THROW_ERROR(pConstBuffer->Map(
+			0,
+			nullptr,
+			reinterpret_cast<void**>(&pMappedData)
+		));
+
+		memcpy_s(data, size, pMappedData + offset, size);
+
+		pConstBuffer->Unmap(0, nullptr);
+	}
+}
+
 void GraphicsBuffer::Update(Graphics& graphics, const void* data, size_t size)
 {
 	Update(graphics, data, size, 1, size, size);
