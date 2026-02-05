@@ -5,6 +5,7 @@
 
 #include "Includes/BindablesInclude.h"
 
+#include "Graphics/Resources/QueryHeap.h"
 #include "Graphics/Resources/GraphicsResource.h"
 #include "Graphics/Resources/GraphicsTexture.h"
 
@@ -163,6 +164,27 @@ void CommandList::EndRenderPass(Graphics& graphics)
 	THROW_INFO_ERROR(pCommandList->EndRenderPass());
 }
 
+void CommandList::Query(Graphics& graphics, QueryHeap* queryHeap, unsigned int entryIndex, D3D12_QUERY_TYPE queryType)
+{
+	THROW_OBJECT_STATE_ERROR_IF("Cannot call Query on non-executive command list", m_type != D3D12_COMMAND_LIST_TYPE_DIRECT && m_type != D3D12_COMMAND_LIST_TYPE_COMPUTE);
+	THROW_INTERNAL_ERROR_IF("Tried to access entries outside of QueryHeap", queryHeap->GetNumElements() < entryIndex + 1);
+
+	THROW_INFO_ERROR(pCommandList->EndQuery(queryHeap->Get(), queryType, entryIndex));
+}
+
+void CommandList::ResolveQuery(Graphics& graphics, QueryHeap* queryHeap, D3D12_QUERY_TYPE queryType, unsigned int entryIndex, unsigned int numEntries, GraphicsBuffer* resultBuffer, unsigned int destOffset)
+{
+	THROW_INTERNAL_ERROR_IF("Tried to access entries outside of QueryHeap", queryHeap->GetNumElements() < entryIndex + numEntries);
+
+	THROW_INFO_ERROR(pCommandList->ResolveQueryData(
+		queryHeap->Get(),
+		queryType,
+		entryIndex,
+		numEntries,
+		resultBuffer->GetResource(),
+		destOffset
+	));
+}
 
 void CommandList::SetResourceToTargetState(Graphics& graphics, GraphicsResource* resource, unsigned int targetSubresource) const
 {

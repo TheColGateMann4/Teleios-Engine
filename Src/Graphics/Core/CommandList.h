@@ -7,6 +7,7 @@ class Graphics;
 class PipelineState;
 
 class RenderTarget;
+class QueryHeap;
 class DepthStencilViewBase;
 class IndexBuffer;
 class VertexBuffer;
@@ -19,6 +20,7 @@ class DescriptorHeap;
 class UnorderedAccessView;
 class GraphicsResource;
 struct ResourceFootprint;
+class GraphicsBuffer;
 class GraphicsTexture;
 class ViewPort;
 class RenderPass;
@@ -69,6 +71,11 @@ public:
 	void EndRenderPass(Graphics& graphics);
 
 public:
+	// statistics
+	void Query(Graphics& graphics, QueryHeap* queryHeap, unsigned int entryIndex, D3D12_QUERY_TYPE queryType);
+
+	void ResolveQuery(Graphics& graphics, QueryHeap* queryHeap, D3D12_QUERY_TYPE queryType, unsigned int entryIndex, unsigned int numEntries, GraphicsBuffer* resultBuffer, unsigned int destOffset);
+
 	// sets resource's previously set target state
 	void SetResourceToTargetState(Graphics& graphics, GraphicsResource* resource, unsigned int targetSubresource = 0) const;
 	void SetResourcesToTargetStates(Graphics& graphics, GraphicsResource* resource) const;

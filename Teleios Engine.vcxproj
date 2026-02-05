@@ -171,6 +171,7 @@
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Src\Graphics\Resources\QueryHeap.cpp" />
     <ClCompile Include="Src\Graphics\Bindables\Binding.cpp" />
     <ClCompile Include="Src\Graphics\Bindables\RootSignatureBindableWrapper.cpp" />
     <ClCompile Include="Src\Graphics\Bindables\RootSignatureConstants.cpp" />
@@ -254,6 +255,7 @@
     <ClCompile Include="Src\Graphics\RenderGraph\RenderJob\StepRenderJob.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Src\Graphics\Resources\QueryHeap.h" />
     <ClInclude Include="Src\Graphics\Bindables\Binding.h" />
     <ClInclude Include="Src\Graphics\Bindables\RootSignatureBindableWrapper.h" />
     <ClInclude Include="Src\Graphics\Bindables\RootSignatureConstants.h" />
