@@ -3,6 +3,8 @@
 #include "Graphics/Core/Pipeline.h"
 #include "Graphics/Imgui/ImguiLayer.h"
 
+#include "Material.h"
+
 class Input;
 class Graphics;
 class SceneObject;
@@ -17,8 +19,7 @@ public:
 
 	void AddSceneObject(std::shared_ptr<SceneObject> sceneObject);
 
-	// called only by ModelImporter
-	void AddSceneObjectFromFile(std::shared_ptr<Model> model, std::string objectName);
+	void AddMaterial(std::string name, std::shared_ptr<Material> material);
 
 public:
 	// starts initialization state in pipeline, allows copying GPU resources and performing GPU operations
@@ -52,6 +53,8 @@ public:
 
 	void SetActiveCamera(Camera* camera);
 
+	std::shared_ptr<Material> GetMaterial(const std::string& name);
+
 private:
 	unsigned int GetOriginalNameIndex(std::string name);
 
@@ -73,4 +76,6 @@ private:
 	std::vector<PointLight*> m_pointlights;
 	std::shared_ptr<CachedConstantBuffer> m_lightBuffer;
 	std::shared_ptr<CachedConstantBuffer> m_cameraBuffer;
+
+	std::unordered_map<std::string, std::shared_ptr<Material>> m_materials;
 };

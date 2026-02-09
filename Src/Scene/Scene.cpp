@@ -15,7 +15,6 @@ void Scene::AddSceneObjectFromFile(Graphics& graphics, const char* path, float s
 	ModelImporter::AddSceneObjectFromFile(graphics, path, scale, *this);
 }
 
-
 void Scene::AddSceneObject(std::shared_ptr<SceneObject> sceneObject)
 {
 	SceneObjectType objectType = sceneObject->GetSceneObjectType();
@@ -39,11 +38,11 @@ void Scene::AddSceneObject(std::shared_ptr<SceneObject> sceneObject)
 	sceneObject->SetNameIndex(GetOriginalNameIndex(sceneObject->GetName()));
 }
 
-void Scene::AddSceneObjectFromFile(std::shared_ptr<Model> model, std::string objectName)
+void Scene::AddMaterial(std::string name, std::shared_ptr<Material> material)
 {
-	model->SetName(objectName);
+	THROW_INTERNAL_ERROR_IF("Tried to add material with the same name", m_materials.find(name) != m_materials.end());
 
-	AddSceneObject(model);
+	m_materials.emplace(name, material);
 }
 
 void Scene::BeginInitialization(Graphics& graphics)
@@ -265,6 +264,15 @@ Camera* Scene::GetCurrentCamera() const
 void Scene::SetActiveCamera(Camera* camera)
 {
 	m_SetActiveCamera(camera);
+}
+
+std::shared_ptr<Material> Scene::GetMaterial(const std::string& name)
+{
+	auto found = m_materials.find(name);
+	
+	THROW_INTERNAL_ERROR_IF("Failed to find material by name", found == m_materials.end());
+
+	return found->second;
 }
 
 unsigned int Scene::GetOriginalNameIndex(std::string name)

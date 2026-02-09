@@ -86,6 +86,7 @@
     <ClCompile Include="Src\Graphics\Bindables\RootSignatureBindableWrapper.cpp" />
     <ClCompile Include="Src\Graphics\Bindables\RootSignatureConstants.cpp" />
     <ClCompile Include="Src\Graphics\Resources\QueryHeap.cpp" />
+    <ClCompile Include="Src\Scene\Material.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Src\Application.h" />
@@ -176,6 +177,7 @@
     <ClInclude Include="Src\Graphics\Bindables\RootSignatureBindableWrapper.h" />
     <ClInclude Include="Src\Graphics\Bindables\RootSignatureConstants.h" />
     <ClInclude Include="Src\Graphics\Resources\QueryHeap.h" />
+    <ClInclude Include="Src\Scene\Material.h" />
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="Dependencies\zlib1.dll" />

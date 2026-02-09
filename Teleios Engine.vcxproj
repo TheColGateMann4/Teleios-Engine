@@ -191,6 +191,7 @@
     <ClCompile Include="Src\Graphics\RenderGraph\RenderPass\RenderPass.cpp" />
     <ClCompile Include="Src\Graphics\RenderGraph\Steps\RenderStep.cpp" />
     <ClCompile Include="Src\Graphics\RenderGraph\RenderJob\RenderJob.cpp" />
+    <ClCompile Include="Src\Scene\Material.cpp" />
     <ClCompile Include="Src\Scene\RenderTechnique.cpp" />
     <ClCompile Include="Src\Graphics\RenderGraph\Steps\RenderGraphicsStep.cpp" />
     <ClCompile Include="Src\Graphics\RenderGraph\RenderGraph.cpp" />
@@ -279,6 +280,7 @@
     <ClInclude Include="Src\Graphics\RenderGraph\RenderPass\RenderPass.h" />
     <ClInclude Include="Src\Graphics\RenderGraph\Steps\RenderStep.h" />
     <ClInclude Include="Src\Graphics\RenderGraph\RenderJob\RenderJob.h" />
+    <ClInclude Include="Src\Scene\Material.h" />
     <ClInclude Include="Src\Scene\RenderTechnique.h" />
     <ClInclude Include="Src\Graphics\RenderGraph\Steps\RenderGraphicsStep.h" />
     <ClInclude Include="Src\Graphics\RenderGraph\RenderGraph.h" />

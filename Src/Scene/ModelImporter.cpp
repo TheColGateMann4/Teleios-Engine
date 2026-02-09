@@ -7,6 +7,8 @@
 
 #include "Scene.h"
 #include "Objects/Model.h"
+#include "Objects/PointLight.h"
+#include "Objects/Camera.h"
 
 #include <assimp/Importer.hpp>      // C++ importer interface
 #include <assimp/scene.h>           // Output data structure
@@ -63,6 +65,10 @@ void ModelImporter::AddSceneObjectFromFile(Graphics& graphics, const char* path,
 
 		THROW_INTERNAL_ERROR_IF(importer.GetErrorString(), modelScene == nullptr);
 
+		ProcessCameras(graphics, scene, *modelScene);
+		ProcessLights(graphics, scene, *modelScene);
+		ProcessMaterials(graphics, scene, *modelScene);
+
 		PushModel(graphics, scene, scale, filePath, modelScene->mRootNode, modelScene->mMeshes, modelScene->mMaterials);
 	}
 	else if (strcmp(fileExtension.c_str(), ".fbx") == 0)
@@ -79,25 +85,207 @@ void ModelImporter::AddSceneObjectFromFile(Graphics& graphics, const char* path,
 	}
 }
 
+void ModelImporter::ProcessLights(Graphics& graphics, Scene& scene, const aiScene& importedScene)
+{
+	if (!importedScene.HasLights())
+		return;
+
+	std::span<aiLight*> importedLights(importedScene.mLights, importedScene.mNumLights);
+
+	for (auto* importedLight : importedLights)
+	{
+		if(importedLight->mType == aiLightSource_POINT)
+		{
+			DirectX::XMFLOAT3 position = { importedLight->mPosition.x, importedLight->mPosition.y, importedLight->mPosition.z };
+			DirectX::XMFLOAT3 color = { importedLight->mColorDiffuse.r, importedLight->mColorDiffuse.g, importedLight->mColorDiffuse.b };
+
+			// mAttenuationConstant
+			// mAttenuationLinear
+			// mAttenuationQuadratic
+
+			scene.AddSceneObject(std::make_shared<PointLight>(graphics, scene, position, color));
+		}
+
+		// mDirection
+		// mAngleInnerCone
+		// mAngleOuterCone
+	}
+}
+
+void ModelImporter::ProcessCameras(Graphics& graphics, Scene& scene, const aiScene& importedScene)
+{
+	if (!importedScene.HasCameras())
+		return;
+
+	std::span<aiCamera*> importedCameras(importedScene.mCameras, importedScene.mNumCameras);
+
+	for (auto* importedCamera : importedCameras)
+	{
+		DirectX::XMFLOAT3 position = { importedCamera->mPosition.x, importedCamera->mPosition.y, importedCamera->mPosition.z };
+		DirectX::XMFLOAT3 rotation = { importedCamera->mLookAt.x, importedCamera->mLookAt.y, importedCamera->mLookAt.z };
+
+		Camera::Settings cameraSettings = {};
+		cameraSettings.FovAngleY = importedCamera->mHorizontalFOV;
+		cameraSettings.AspectRatio = importedCamera->mAspect;
+		cameraSettings.NearZ = importedCamera->mClipPlaneNear;
+		cameraSettings.FarZ = importedCamera->mClipPlaneFar;
+
+		scene.AddSceneObject(std::make_shared<Camera>(graphics, position, rotation, &cameraSettings));
+	}
+}
+
+void ModelImporter::ProcessMaterials(Graphics& graphics, Scene& scene, const aiScene& importedScene)
+{
+	if (!importedScene.HasMaterials())
+		return;
+
+	std::span<aiMaterial*> importedMaterials(importedScene.mMaterials, importedScene.mNumMaterials);
+
+	for (auto* importedMaterial : importedMaterials)
+	{
+		std::string materialName = importedMaterial->GetName().C_Str();
+		std::shared_ptr<Material> material = ProcessMaterial(importedMaterial);
+
+		scene.AddMaterial(materialName, std::move(material));
+	}
+}
+
+std::shared_ptr<Material> ModelImporter::ProcessMaterial(aiMaterial* material)
+{
+	return std::make_shared<Material>(ProcessMaterialProperties(material));
+}
+
+MaterialProperties::MaterialProperties ModelImporter::ProcessMaterialProperties(aiMaterial* material)
+{
+	MaterialProperties::MaterialProperties resultPropeties;
+
+	aiString resultTexturePath = {};
+
+	if (material->GetTexture(aiTextureType_DIFFUSE, 0, &resultTexturePath) == aiReturn_SUCCESS)
+	{
+		resultPropeties.hasAnyMap = true;
+
+		resultPropeties.hasAlbedoMap = true;
+		resultPropeties.albedoMapPath = std::string(resultTexturePath.data, resultTexturePath.length);
+	}
+
+	if (material->GetTexture(aiTextureType_NORMALS, 0, &resultTexturePath) == aiReturn_SUCCESS)
+	{
+		resultPropeties.hasAnyMap = true;
+
+		resultPropeties.hasNormalMap = true;
+		resultPropeties.normalMapPath = std::string(resultTexturePath.data, resultTexturePath.length);
+	}
+
+	if (material->GetTexture(aiTextureType_SPECULAR, 0, &resultTexturePath) == aiReturn_SUCCESS)
+	{
+		if (resultPropeties.hasMetalnessMap || resultPropeties.hasRoughnessMap)
+			THROW_INTERNAL_ERROR("Tried to mix two PBR systems");
+
+		resultPropeties.hasAnyMap = true;
+
+		resultPropeties.hasSpecularMap = true;
+		resultPropeties.specularMetalnessMapPath = std::string(resultTexturePath.data, resultTexturePath.length);
+	}
+
+	if (material->GetTexture(aiTextureType_METALNESS, 0, &resultTexturePath) == aiReturn_SUCCESS)
+	{
+		if (resultPropeties.hasSpecularMap || resultPropeties.hasGlosinessMap)
+			THROW_INTERNAL_ERROR("Tried to mix two PBR systems");
+
+		resultPropeties.hasAnyMap = true;
+
+		resultPropeties.hasMetalnessMap = true;
+		resultPropeties.metalRoughnessSystem = true;
+		resultPropeties.specularMetalnessMapPath = std::string(resultTexturePath.data, resultTexturePath.length);
+	}
+
+	if (material->GetTexture(aiTextureType_DIFFUSE_ROUGHNESS, 0, &resultTexturePath) == aiReturn_SUCCESS)
+	{
+		if (resultPropeties.hasSpecularMap || resultPropeties.hasGlosinessMap)
+			THROW_INTERNAL_ERROR("Tried to mix two PBR systems");
+
+		if (resultPropeties.hasMetalnessMap && strcmp(resultPropeties.specularMetalnessMapPath.c_str(), resultTexturePath.C_Str()) == 0)
+		{
+			resultPropeties.roughnessMetalnessInOneTexture = true;
+		}
+		else
+		{
+			resultPropeties.hasAnyMap = true;
+			resultPropeties.hasRoughnessMap = true;
+			resultPropeties.metalRoughnessSystem = true;
+			resultPropeties.glosinessRoughnessMapPath = std::string(resultTexturePath.data, resultTexturePath.length);
+		}
+	}
+
+	if (material->GetTexture(aiTextureType_AMBIENT, 0, &resultTexturePath) == aiReturn_SUCCESS)
+	{
+		resultPropeties.hasAnyMap = true;
+
+		resultPropeties.hasAmbientMap = true;
+		resultPropeties.ambientMapPath = std::string(resultTexturePath.data, resultTexturePath.length);
+	}
+
+	if (material->GetTexture(aiTextureType_OPACITY, 0, &resultTexturePath) == aiReturn_SUCCESS)
+	{
+		//resultPropeties.hasAnyMap = true;
+		//
+		//resultPropeties.hasOpacityMap = true;
+		//resultPropeties.opacityMapPath = std::string(resultTexturePath.data, resultTexturePath.length);
+	}
+
+
+	(void)material->Get(AI_MATKEY_COLOR_AMBIENT, resultPropeties.ambient); // we can ignore if the function succeded since we have this member initialized
+
+	(void)material->Get(AI_MATKEY_COLOR_DIFFUSE, resultPropeties.albedo);
+
+	(void)material->Get(AI_MATKEY_COLOR_SPECULAR, resultPropeties.specularColor);
+
+	(void)material->Get(AI_MATKEY_COLOR_REFLECTIVE, resultPropeties.reflective);
+
+
+	if (!resultPropeties.metalRoughnessSystem)
+	{
+		if (material->Get(AI_MATKEY_SHININESS, resultPropeties.specular) != aiReturn_SUCCESS || resultPropeties.specular == 0.0f)
+		{
+			resultPropeties.specular = 1.0f;
+		}
+
+		if (material->Get(AI_MATKEY_SHININESS_STRENGTH, resultPropeties.glosiness) != aiReturn_SUCCESS || resultPropeties.glosiness == 0.0f)
+		{
+			resultPropeties.glosiness = 1.0f;
+		}
+	}
+
+	(void)material->Get(AI_MATKEY_TWOSIDED, resultPropeties.twoSided);
+
+	(void)material->Get(AI_MATKEY_OPACITY, resultPropeties.opacity);
+
+	return resultPropeties;
+}
+
 void ModelImporter::PushModel(Graphics& graphics, Scene& scene, float scale, std::string& filePath, aiNode* node, aiMesh** meshes, aiMaterial** materials, Model* pParent)
 {
-	std::vector<std::pair<aiMesh*, aiMaterial*>> modelMeshes;
+	std::vector<std::pair<aiMesh*, std::shared_ptr<Material>>> modelMeshes;
 	modelMeshes.reserve(node->mNumMeshes);
 
 	for (unsigned int meshIndex = 0; meshIndex < node->mNumMeshes; meshIndex++)
 	{
 		aiMesh* targetMesh = meshes[node->mMeshes[meshIndex]];
-		modelMeshes.push_back({ targetMesh, materials[targetMesh->mMaterialIndex] });
+		aiString targetMaterialName = materials[targetMesh->mMaterialIndex]->GetName();
+
+		modelMeshes.push_back({ targetMesh, scene.GetMaterial(targetMaterialName.C_Str())});
 	}
 
-	Model* pLocalModel;
+	Model* pNewParent;
 	{
-		std::shared_ptr<Model> pModel = std::make_shared<Model>(graphics, pParent, node, modelMeshes, filePath, scale);
-		pLocalModel = pModel.get();
+		std::shared_ptr<Model> model = std::make_shared<Model>(graphics, pParent, node, modelMeshes, filePath, scale);
+		pNewParent = model.get();
 
-		scene.AddSceneObjectFromFile(std::move(pModel), std::string(node->mName.data, node->mName.length));
+		model->SetName(std::string(node->mName.data, node->mName.length));
+		scene.AddSceneObject(std::move(model));
 	}
 
 	for (unsigned int childIndex = 0; childIndex < node->mNumChildren; childIndex++)
-		PushModel(graphics, scene, scale, filePath, node->mChildren[childIndex], meshes, materials, pLocalModel);
+		PushModel(graphics, scene, scale, filePath, node->mChildren[childIndex], meshes, materials, pNewParent);
 }
