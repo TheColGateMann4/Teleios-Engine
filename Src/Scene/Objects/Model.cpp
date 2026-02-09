@@ -19,7 +19,7 @@
 #include <assimp/scene.h>           // Output data structure
 #include <assimp/postprocess.h>     // Post processing flags
 
-Model::Model(Graphics& graphics, Model* pParent, aiNode* node, std::vector<std::pair<aiMesh*, std::shared_ptr<Material>>> modelMeshes, std::string filePath, float scale, DirectX::XMFLOAT3 position)
+Model::Model(Graphics& graphics, Model* pParent, aiNode* node, std::vector<std::pair<aiMesh*, std::shared_ptr<Material>>> modelMeshes, float scale, DirectX::XMFLOAT3 position)
 	:
 	SceneObject(pParent)
 {
@@ -37,8 +37,6 @@ Model::Model(Graphics& graphics, Model* pParent, aiNode* node, std::vector<std::
 		aiMesh* mesh = modelMesh.first;
 		std::shared_ptr<Material> material = modelMesh.second;
 		const MaterialProperties::MaterialProperties& materialPropeties = material->GetProperties();
-
-		bool specularOneChannelOnly = false;
 
 		size_t numVertices = mesh->mNumVertices + 1;
 
@@ -113,7 +111,6 @@ Model::Model(Graphics& graphics, Model* pParent, aiNode* node, std::vector<std::
 				step.AddBindable(VertexBuffer::GetBindableResource(graphics, mesh->mName.C_Str(), vertexBuffer));
 			}
 
-
 			//indices
 			{
 				size_t mNumIndices = mesh->mNumFaces * mesh->mFaces->mNumIndices;
@@ -126,138 +123,12 @@ Model::Model(Graphics& graphics, Model* pParent, aiNode* node, std::vector<std::
 				step.AddBindable(IndexBuffer::GetBindableResource(graphics, mesh->mName.C_Str(), indices));
 			}
 
-			std::vector<ShaderMacro> shaderMacros = {};
+			std::vector<ShaderMacro> shaderMacros = material->GetShaderMacros();
 			shaderMacros.push_back({ L"OUTPUT_CAMAERAPOS" }); // phong requirement
 			shaderMacros.push_back({L"INPUT_NORMAL"}); // model objects will always have normals since we will generate them with assimp if they do not
 
-			// handle material
-			{
-				shaderMacros.push_back({L"METALNESS_PIPELINE" });
-
-				if (materialPropeties.roughnessMetalnessInOneTexture)
-					shaderMacros.push_back({ L"METALNESS_ROUGHNESS_ONE_TEXTURE" });
-
-				// textures
-				if (materialPropeties.hasAnyMap)
-				{
-					step.AddBindable(StaticSampler::GetBindableResource(graphics, D3D12_FILTER_MIN_MAG_MIP_POINT));
-
-					if (materialPropeties.ignoreDiffseAlpha)
-						shaderMacros.push_back({ L"IGNORE_DIFFUSE_ALPHA" });
-
-					shaderMacros.push_back({ L"TEXTURE_ANY" });
-					shaderMacros.push_back({ L"INPUT_TEXCCORDS" }); // since we are handling textures, we will need texcoords argument provided to our shaders
-
-
-					if (materialPropeties.hasAlbedoMap)
-					{
-						step.AddBindable(Texture::GetBindableResource(graphics, (filePath + materialPropeties.albedoMapPath).c_str(), true, true, true, { {ShaderVisibilityGraphic::PixelShader, 0} }));
-						shaderMacros.push_back({ L"TEXTURE_DIFFUSE" });
-					}
-
-					if (materialPropeties.hasNormalMap)
-					{
-						step.AddBindable(Texture::GetBindableResource(graphics, (filePath + materialPropeties.normalMapPath).c_str(), false, true, true, { {ShaderVisibilityGraphic::PixelShader, 1} }));
-						shaderMacros.push_back({ L"TEXTURE_NORMAL" });
-
-						shaderMacros.push_back({ L"INPUT_TANGENT" });
-						shaderMacros.push_back({ L"INPUT_BITANGENT" });
-					}
-
-					if (materialPropeties.metalRoughnessSystem)
-					{
-						if (materialPropeties.hasMetalnessMap)
-						{
-							std::shared_ptr<Texture> specularTexture = Texture::GetBindableResource(graphics, (filePath + materialPropeties.specularMetalnessMapPath).c_str(), false, true, true, { {ShaderVisibilityGraphic::PixelShader, 3} });
-
-							step.AddBindable(std::move(specularTexture));
-							shaderMacros.push_back({ L"TEXTURE_METALNESS" });
-						}
-
-						if (materialPropeties.hasRoughnessMap)
-						{
-							std::shared_ptr<Texture> specularTexture = Texture::GetBindableResource(graphics, (filePath + materialPropeties.specularMetalnessMapPath).c_str(), false, true, true, { {ShaderVisibilityGraphic::PixelShader, 4} });
-
-							step.AddBindable(std::move(specularTexture));
-							shaderMacros.push_back({ L"TEXTURE_ROUGHNESS" });
-						}
-
-						// reflectivity 5
-					}
-					else
-					{
-						if (materialPropeties.hasSpecularMap)
-						{
-							std::shared_ptr<Texture> specularTexture = Texture::GetBindableResource(graphics, (filePath + materialPropeties.specularMetalnessMapPath).c_str(), false, true, true, { {ShaderVisibilityGraphic::PixelShader, 2} });
-
-							specularOneChannelOnly = specularTexture->GetTexture()->GetFormat() == DXGI_FORMAT_R8_UNORM;
-
-							step.AddBindable(std::move(specularTexture));
-							shaderMacros.push_back({ L"TEXTURE_SPECULAR" });
-						}
-					}
-
-					if (materialPropeties.hasAmbientMap)
-					{
-						std::shared_ptr<Texture> specularTexture = Texture::GetBindableResource(graphics, (filePath + materialPropeties.ambientMapPath).c_str(), false, true, true, { {ShaderVisibilityGraphic::PixelShader, 6} });
-
-						step.AddBindable(std::move(specularTexture));
-						shaderMacros.push_back({ L"TEXTURE_AMBIENT" });
-					}
-
-					// opacity 7
-
-				}
-
-				//Constant buffer describing model material propeties
-				{
-					DynamicConstantBuffer::Layout layout;
-					{
-						layout.Add<DynamicConstantBuffer::ElementType::Float3>("ambient");
-						layout.Add<DynamicConstantBuffer::ElementType::Float3>("diffuse");
-
-						if (materialPropeties.metalRoughnessSystem)
-						{
-							layout.Add<DynamicConstantBuffer::ElementType::Float3>("reflectivity");
-							layout.Add<DynamicConstantBuffer::ElementType::Float>("metalness", DynamicConstantBuffer::ImguiFloatData{ true, 0.0f, 1.0f });
-							layout.Add<DynamicConstantBuffer::ElementType::Float>("roughness", DynamicConstantBuffer::ImguiFloatData{ true, 0.0f, 1.0f });
-						}
-						else
-						{
-							layout.Add<DynamicConstantBuffer::ElementType::Float3>("defaultSpecularColor");
-							layout.Add<DynamicConstantBuffer::ElementType::Bool>("specularOneChannelOnly", DynamicConstantBuffer::ImguiData{ false });
-							layout.Add<DynamicConstantBuffer::ElementType::Float>("specular", DynamicConstantBuffer::ImguiFloatData{ true, 0.001f, 150.0f });
-							layout.Add<DynamicConstantBuffer::ElementType::Float>("glosiness", DynamicConstantBuffer::ImguiFloatData{ true, 0.001f, 150.0f });
-						}
-						layout.Add<DynamicConstantBuffer::ElementType::Float>("opacity", DynamicConstantBuffer::ImguiFloatData{ true, 0.0f, 1.0f });
-					}
-
-					DynamicConstantBuffer::Data bufferData(layout);
-					{
-						*bufferData.Get<DynamicConstantBuffer::ElementType::Float3>("ambient") = materialPropeties.ambient;
-						*bufferData.Get<DynamicConstantBuffer::ElementType::Float3>("diffuse") = materialPropeties.albedo;
-
-						if (materialPropeties.metalRoughnessSystem)
-						{
-							*bufferData.Get<DynamicConstantBuffer::ElementType::Float3>("reflectivity") = materialPropeties.reflective;
-							*bufferData.Get<DynamicConstantBuffer::ElementType::Float>("metalness") = materialPropeties.metalness;
-							*bufferData.Get<DynamicConstantBuffer::ElementType::Float>("roughness") = materialPropeties.roughness;
-						}
-						else
-						{
-							*bufferData.Get<DynamicConstantBuffer::ElementType::Float3>("defaultSpecularColor") = materialPropeties.specularColor;
-							*bufferData.Get<DynamicConstantBuffer::ElementType::Bool>("specularOneChannelOnly") = specularOneChannelOnly;
-							*bufferData.Get<DynamicConstantBuffer::ElementType::Float>("specular") = materialPropeties.specular;
-							*bufferData.Get<DynamicConstantBuffer::ElementType::Float>("glosiness") = materialPropeties.glosiness;
-						}
-						*bufferData.Get<DynamicConstantBuffer::ElementType::Float>("opacity") = materialPropeties.opacity;
-					}
-
-					step.AddBindable(std::make_shared<CachedConstantBuffer>(graphics, bufferData, std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::PixelShader, 1}}));
-				}
-
-				step.AddBindable(RasterizerState::GetBindableResource(graphics, materialPropeties.twoSided));
-			}
+			for (auto materialBind : material->GetBindables())
+				step.AddBindable(materialBind);
 
 			step.AddBindable(Shader::GetBindableResource(graphics, L"PS_GBuffer", ShaderType::PixelShader, shaderMacros));
 			step.AddBindable(Shader::GetBindableResource(graphics, L"VS", ShaderType::VertexShader, shaderMacros));

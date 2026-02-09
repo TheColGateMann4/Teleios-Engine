@@ -1,5 +1,8 @@
 #pragma once
 #include "Includes/DirectXIncludes.h"
+#include "Graphics/Bindables/Shader.h"
+
+class Bindable;
 
 namespace MaterialProperties
 {
@@ -49,11 +52,15 @@ class Material
 	friend class ModelImporter;
 
 public:
-	Material(MaterialProperties::MaterialProperties properties);
+	Material(Graphics& graphics, std::string filePath, MaterialProperties::MaterialProperties properties);
 
 public:
 	const MaterialProperties::MaterialProperties& GetProperties() const;
+	std::vector<ShaderMacro> GetShaderMacros() const;
+	const std::vector<std::shared_ptr<Bindable>>& GetBindables() const;
 
 private:
+	std::vector<std::shared_ptr<Bindable>> m_bindables;
+	std::vector<ShaderMacro> m_shaderMacros;
 	MaterialProperties::MaterialProperties m_properties = {};
 };
