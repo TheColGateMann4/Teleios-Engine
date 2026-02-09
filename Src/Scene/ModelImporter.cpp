@@ -126,7 +126,7 @@ void ModelImporter::ProcessCameras(Graphics& graphics, Scene& scene, const aiSce
 
 		Camera::Settings cameraSettings = {};
 		cameraSettings.FovAngleY = importedCamera->mHorizontalFOV;
-		cameraSettings.AspectRatio = importedCamera->mAspect;
+		cameraSettings.AspectRatio = importedCamera->mAspect == 0.0f ? 1.0f : importedCamera->mAspect;
 		cameraSettings.NearZ = importedCamera->mClipPlaneNear;
 		cameraSettings.FarZ = importedCamera->mClipPlaneFar;
 
