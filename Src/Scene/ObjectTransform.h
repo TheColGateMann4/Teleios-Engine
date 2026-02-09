@@ -13,6 +13,7 @@ public:
 	void SetQuaternionRotation(DirectX::XMVECTOR rotation);
 	void SetEulerAnglesRotation(DirectX::XMFLOAT3 rotation);
 	void SetScale(DirectX::XMFLOAT3 scale);
+	void SetFromMatrix(DirectX::XMMATRIX transform, DirectX::XMFLOAT3 basePosition, float scale);
 
 	DirectX::XMFLOAT3 GetPosition() const;
 	DirectX::XMVECTOR GetRotation() const;

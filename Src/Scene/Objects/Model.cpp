@@ -22,33 +22,10 @@ Model::Model(Graphics& graphics, Model* pParent, aiNode* node, std::vector<std::
 	SceneObject(pParent)
 {
 
-	std::string fileName = std::string(node->mName.data, node->mName.length);
-
 	// getting transfrom from assimp node
 	{
-		{
-			DirectX::XMMATRIX nodeMatrix = DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4(reinterpret_cast<DirectX::XMFLOAT4X4*>(&node->mTransformation)));
-			DirectX::XMVECTOR vecPos, vecRotQuat, vecScale;
-
-			bool retVal = DirectX::XMMatrixDecompose(&vecScale, &vecRotQuat, &vecPos, nodeMatrix);
-
-			THROW_INTERNAL_ERROR_IF("Couldn't decompose node matrix", !retVal);
-
-			// 'float scale' is used to scale vertices and positions of objects, used "externally"
-			// 'float3 modelScale' is internal model scale which is needed to preserve scene look
-			DirectX::XMFLOAT3 modelScale;
-
-			DirectX::XMStoreFloat3(&position, vecPos);
-			DirectX::XMStoreFloat3(&modelScale, vecScale);
-
-			position.x *= scale;
-			position.y *= scale;
-			position.z *= scale;
-
-			m_transform.SetPosition(position);
-			m_transform.SetQuaternionRotation(vecRotQuat);
-			m_transform.SetScale(modelScale);
-		}
+		DirectX::XMMATRIX nodeTransform = DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4(reinterpret_cast<DirectX::XMFLOAT4X4*>(&node->mTransformation)));
+		m_transform.SetFromMatrix(nodeTransform, position, scale);
 	}
 
 	m_transform.SetTransformConstantBuffer(std::make_shared<TransformConstantBuffer>(graphics));

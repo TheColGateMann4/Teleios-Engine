@@ -31,6 +31,30 @@ void ObjectTransform::SetScale(DirectX::XMFLOAT3 scale)
 	m_localTransformChanged = true;
 }
 
+void ObjectTransform::SetFromMatrix(DirectX::XMMATRIX transform, DirectX::XMFLOAT3 basePosition, float scale)
+{
+	DirectX::XMVECTOR vecPos, vecRotQuat, vecScale;
+
+	bool result = DirectX::XMMatrixDecompose(&vecScale, &vecRotQuat, &vecPos, transform);
+
+	THROW_INTERNAL_ERROR_IF("Couldn't decompose node matrix", !result);
+
+	// 'float scale' is used to scale vertices and positions of objects, used "externally"
+	// 'float3 modelScale' is internal model scale which is needed to preserve scene look
+	DirectX::XMFLOAT3 modelScale;
+
+	DirectX::XMStoreFloat3(&basePosition, vecPos);
+	DirectX::XMStoreFloat3(&modelScale, vecScale);
+
+	basePosition.x *= scale;
+	basePosition.y *= scale;
+	basePosition.z *= scale;
+
+	SetPosition(basePosition);
+	SetQuaternionRotation(vecRotQuat);
+	SetScale(modelScale);
+}
+
 DirectX::XMFLOAT3 ObjectTransform::GetPosition() const
 {
 	return m_position;
