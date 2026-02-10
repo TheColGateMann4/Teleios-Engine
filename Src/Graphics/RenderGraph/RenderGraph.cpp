@@ -24,7 +24,7 @@ void RenderGraph::Initialize(Graphics& graphics)
 	std::shared_ptr<BackBufferRenderTarget> rt2 = std::make_shared<BackBufferRenderTarget>(graphics, backBufferFormat);
 
 	{
-		std::shared_ptr<GBufferPass> geometryPass = std::make_shared<GBufferPass>();
+		std::shared_ptr<GBufferPass> geometryPass = std::make_shared<GBufferPass>(graphics);
 		geometryPass->AddRenderTarget(rt0, ResourceDataOperation::clear);
 		geometryPass->AddRenderTarget(rt1, ResourceDataOperation::clear);
 		geometryPass->AddRenderTarget(rt2, ResourceDataOperation::clear);

@@ -126,9 +126,6 @@ Model::Model(Graphics& graphics, Model* pParent, aiNode* node, std::vector<std::
 			step.SetMaterial(material);
 
 			step.AddBindable(InputLayout::GetBindableResource(graphics, vertexLayout));
-
-			step.AddBindable(BlendState::GetBindableResource(graphics, false));
-			step.AddBindable(DepthStencilState::GetBindableResource(graphics, DepthStencilState::DepthComparisonFunc::Equal));
 			step.AddBindable(PrimitiveTechnology::GetBindableResource(graphics, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE));
 
 			step.AddStaticBindable("lightBuffer");
