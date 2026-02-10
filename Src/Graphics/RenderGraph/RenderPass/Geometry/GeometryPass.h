@@ -1,6 +1,10 @@
 #pragma once
 #include "Graphics/RenderGraph/RenderPass/RenderPass.h"
 
+class RenderJob;
+class GraphicsStepRenderJob;
+class Material;
+
 class RootSignatureConstants;
 
 class GeometryPass : public RenderPass
@@ -33,7 +37,9 @@ private:
 
 	std::vector<std::shared_ptr<Bindable>> m_bindables;
 
-	std::vector<std::shared_ptr<RenderJob>> m_pJobs;
+	std::vector<std::shared_ptr<GraphicsStepRenderJob>> m_pJobs;
 
 	unsigned int m_prevCameraIndex = UINT_MAX;
+
+	Material* currentlyBoundMaterial = nullptr;
 };

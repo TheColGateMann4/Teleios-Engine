@@ -21,6 +21,8 @@ public:
 
 	virtual JobGroup GetGroup() const override;
 
+	RenderGraphicsStep* GetStep() const;
+
 private:
 	RenderGraphicsStep* m_step;
 

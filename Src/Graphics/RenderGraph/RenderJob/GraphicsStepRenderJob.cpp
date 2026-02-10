@@ -10,6 +10,8 @@
 #include "Graphics/Bindables/IndexBuffer.h"
 #include "Graphics/Bindables/Texture.h"
 
+#include "Scene/Material.h"
+
 GraphicsStepRenderJob::GraphicsStepRenderJob(RenderJob::JobType m_type, RenderGraphicsStep* step)
 	:
 	StepRenderJob(m_type),
@@ -118,4 +120,9 @@ void GraphicsStepRenderJob::Execute(Graphics& graphics, CommandList* commandList
 RenderJob::JobGroup GraphicsStepRenderJob::GetGroup() const
 {
 	return JobGroup::Geometry;
+}
+
+RenderGraphicsStep* GraphicsStepRenderJob::GetStep() const
+{
+	return m_step;
 }

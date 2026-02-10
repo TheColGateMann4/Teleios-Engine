@@ -5,6 +5,8 @@
 
 #include "Graphics/Bindables/RootSignatureConstants.h"
 
+#include "Graphics/RenderGraph/RenderJob/GraphicsStepRenderJob.h"
+
 GeometryPass::GeometryPass()
 {
 	DynamicConstantBuffer::Layout layout;
@@ -43,7 +45,14 @@ const std::vector<std::shared_ptr<Bindable>>& GeometryPass::GetBindables() const
 
 void GeometryPass::SortJobs()
 {
-	// TODO: sort jobs by their PSO
+	std::sort(
+		m_pJobs.begin(), m_pJobs.end(),
+		[](const std::shared_ptr<GraphicsStepRenderJob>& a, const std::shared_ptr<GraphicsStepRenderJob>& b)
+		{
+			// currently sorting by pointers, our only goal for now is just grouping the same-material render jobs together
+			return a->GetStep()->GetMaterial() < b->GetStep()->GetMaterial();
+		}
+	);
 }
 
 RenderJob::JobType GeometryPass::GetWantedJob() const
@@ -53,11 +62,25 @@ RenderJob::JobType GeometryPass::GetWantedJob() const
 
 void GeometryPass::AssignJob(std::shared_ptr<RenderJob> pJob)
 {
-	m_pJobs.push_back(pJob);
+	THROW_INTERNAL_ERROR_IF("Tried to push non-geometry render job to GeometryPass", pJob->GetGroup() != RenderJob::JobGroup::Geometry);
+
+	std::shared_ptr<GraphicsStepRenderJob> graphicsJob = std::static_pointer_cast<GraphicsStepRenderJob>(pJob);
+
+	m_pJobs.push_back(graphicsJob);
 }
 
 void GeometryPass::ExecutePass(Graphics& graphics, CommandList* commandList)
 {
 	for (auto pJob : m_pJobs)
+	{
+		Material* jobMaterial = pJob->GetStep()->GetMaterial();
+
+		if (jobMaterial != currentlyBoundMaterial)
+		{
+			jobMaterial->Bind(graphics, commandList);
+			currentlyBoundMaterial = jobMaterial;
+		}
+
 		pJob->Execute(graphics, commandList);
+	}
 }
