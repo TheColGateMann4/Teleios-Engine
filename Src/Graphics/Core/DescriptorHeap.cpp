@@ -56,6 +56,7 @@ DescriptorHeap::DescriptorInfo DescriptorHeap::GetNextHandle()
 	descriptorInfo.descriptorCpuHandle.ptr += resourceOffset;
 
 	descriptorInfo.descriptorHeapGpuHandle = pDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
+	descriptorInfo.descriptorHeapGpuHandle.ptr += resourceOffset;
 
 	descriptorInfo.offsetInDescriptorFromStart = m_nextHandleIndex;
 
