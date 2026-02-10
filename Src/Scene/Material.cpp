@@ -133,7 +133,6 @@ Material::Material(Graphics& graphics, std::string filePath, MaterialProperties:
 		m_bindableContainer.AddBindable(RasterizerState::GetBindableResource(graphics, m_properties.twoSided));
 	}
 
-	m_shaderMacros.push_back({ L"OUTPUT_CAMAERAPOS" });
 	m_shaderMacros.push_back({ L"INPUT_NORMAL" }); // model objects will always have normals since we will generate them with assimp if they do not
 
 	m_bindableContainer.AddBindable(Shader::GetBindableResource(graphics, L"PS_GBuffer", ShaderType::PixelShader, m_shaderMacros));

@@ -71,25 +71,23 @@ struct PSOut
 };
 
 PSOut PSMain(
-    float3 positionInCameraSpace : CAMERAPOSITION
-
 #ifdef INPUT_TEXCCORDS  
-    , float2 textureCoords : TEXCOORDS
+    float2 textureCoords : TEXCOORDS,
 #endif
 
 #ifdef INPUT_NORMAL  
-    , float3 normal : NORMAL
+    float3 normal : NORMAL,
 #endif
 
 #ifdef INPUT_TANGENT  
-    , float3 tangent : TANGENT
+    float3 tangent : TANGENT,
 #endif
 
 #ifdef INPUT_BITANGENT  
-    , float3 bitangent : BITANGENT
+    float3 bitangent : BITANGENT,
 #endif
-    , bool isFrontFace : SV_IsFrontFace
 
+    bool isFrontFace : SV_IsFrontFace
 )
 {
     

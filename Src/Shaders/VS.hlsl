@@ -25,7 +25,6 @@ cbuffer constants : register(b2)
 
 struct VSOut
 {
-
 #ifdef OUTPUT_CAMAERAPOS
 	float3 cameraPosition : CAMERAPOSITION;
 #endif
