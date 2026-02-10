@@ -16,12 +16,13 @@ public:
 
 public: // At program initialization
 	void RequestMoreSpace(unsigned int space = 1);
-
+	
 	void Finish(Graphics& graphics);
 
 	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUHandle(unsigned int descriptorOffset) const;
 
 public:	// At runtime
+	std::vector<DescriptorInfo> GetNextHandles(unsigned int numEntries);
 	DescriptorInfo GetNextHandle();
 
 	ID3D12DescriptorHeap* Get();

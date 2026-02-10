@@ -43,6 +43,19 @@ D3D12_GPU_DESCRIPTOR_HANDLE DescriptorHeap::GetGPUHandle(unsigned int descriptor
 	return result;
 }
 
+std::vector<DescriptorHeap::DescriptorInfo> DescriptorHeap::GetNextHandles(unsigned int numEntries)
+{
+	THROW_INTERNAL_ERROR_IF("Tried to get zero descriptor handles", numEntries == 0);
+
+	std::vector<DescriptorHeap::DescriptorInfo> result = {};
+	result.reserve(numEntries);
+
+	for (int i = 0; i < numEntries; i++)
+		result.push_back(GetNextHandle());
+
+	return result;
+}
+
 DescriptorHeap::DescriptorInfo DescriptorHeap::GetNextHandle()
 {
 	THROW_OBJECT_STATE_ERROR_IF("Tried to get GPU handle when DescriptorHeap object wasn't finished yet", !m_finished);
