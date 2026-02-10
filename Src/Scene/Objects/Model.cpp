@@ -123,15 +123,8 @@ Model::Model(Graphics& graphics, Model* pParent, aiNode* node, std::vector<std::
 				step.AddBindable(IndexBuffer::GetBindableResource(graphics, mesh->mName.C_Str(), indices));
 			}
 
-			std::vector<ShaderMacro> shaderMacros = material->GetShaderMacros();
-			shaderMacros.push_back({ L"OUTPUT_CAMAERAPOS" }); // phong requirement
-			shaderMacros.push_back({L"INPUT_NORMAL"}); // model objects will always have normals since we will generate them with assimp if they do not
+			step.SetMaterial(material);
 
-			for (auto materialBind : material->GetBindables())
-				step.AddBindable(materialBind);
-
-			step.AddBindable(Shader::GetBindableResource(graphics, L"PS_GBuffer", ShaderType::PixelShader, shaderMacros));
-			step.AddBindable(Shader::GetBindableResource(graphics, L"VS", ShaderType::VertexShader, shaderMacros));
 			step.AddBindable(InputLayout::GetBindableResource(graphics, vertexLayout));
 
 			step.AddBindable(BlendState::GetBindableResource(graphics, false));

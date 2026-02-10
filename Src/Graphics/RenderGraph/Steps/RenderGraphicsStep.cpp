@@ -40,6 +40,11 @@ void RenderGraphicsStep::AddBindable(std::shared_ptr<Bindable> bindable)
 	m_bindableContainer.AddBindable(bindable);
 }
 
+void RenderGraphicsStep::SetMaterial(std::shared_ptr<Material> material)
+{
+	m_material = material;
+}
+
 void RenderGraphicsStep::AddBindable(Bindable* bindable)
 {
 	m_bindableContainer.AddBindable(bindable);
@@ -48,4 +53,9 @@ void RenderGraphicsStep::AddBindable(Bindable* bindable)
 const MeshBindableContainer& RenderGraphicsStep::GetBindableContainter() const
 {
 	return m_bindableContainer;
+}
+
+Material* RenderGraphicsStep::GetMaterial() const
+{
+	return m_material.get();
 }

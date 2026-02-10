@@ -7,6 +7,8 @@
 #include "Graphics/Core/RootSignature.h"
 #include "Graphics/Core/BindableContainer.h"
 
+class Material;
+
 class RenderGraphicsStep : public RenderStep
 {
 public:
@@ -23,10 +25,15 @@ public: // bindable container functions
 
 	void AddBindable(std::shared_ptr<Bindable> bindable);
 
+	void SetMaterial(std::shared_ptr<Material> material);
+
 	void AddBindable(Bindable* bindable);
 
 	const MeshBindableContainer& GetBindableContainter() const;
 
+	Material* GetMaterial() const;
+
 private:
 	MeshBindableContainer m_bindableContainer;
+	std::shared_ptr<Material> m_material;
 };

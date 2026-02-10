@@ -127,7 +127,17 @@ Material::Material(Graphics& graphics, std::string filePath, MaterialProperties:
 				*bufferData.Get<DynamicConstantBuffer::ElementType::Float>("opacity") = m_properties.opacity;
 			}
 
-			m_bindables.push_back(std::make_shared<CachedConstantBuffer>(graphics, bufferData, std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::PixelShader, 1}}));
+			m_bindableContainer.AddBindable(std::make_shared<CachedConstantBuffer>(graphics, bufferData, std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::PixelShader, 1}}));
+		}
+
+		m_bindableContainer.AddBindable(RasterizerState::GetBindableResource(graphics, m_properties.twoSided));
+	}
+
+	m_shaderMacros.push_back({ L"OUTPUT_CAMAERAPOS" });
+	m_shaderMacros.push_back({ L"INPUT_NORMAL" }); // model objects will always have normals since we will generate them with assimp if they do not
+
+	m_bindableContainer.AddBindable(Shader::GetBindableResource(graphics, L"PS_GBuffer", ShaderType::PixelShader, m_shaderMacros));
+	m_bindableContainer.AddBindable(Shader::GetBindableResource(graphics, L"VS", ShaderType::VertexShader, m_shaderMacros));
 		}
 
 		m_bindables.push_back(RasterizerState::GetBindableResource(graphics, m_properties.twoSided));
