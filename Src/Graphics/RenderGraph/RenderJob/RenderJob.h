@@ -17,6 +17,14 @@ public:
 
 		Count
 	};
+	enum class JobGroup
+	{
+		None = -1,
+		Geometry,
+		StandaloneGeometry,
+
+		Count
+	};
 
 public:
 	RenderJob(JobType m_type);
@@ -31,6 +39,7 @@ public:
 	virtual void Execute(Graphics& graphics, CommandList* commandList) const = 0;
 
 	JobType GetType() const;
+	virtual JobGroup GetGroup() const = 0;
 
 private:
 	JobType m_type;

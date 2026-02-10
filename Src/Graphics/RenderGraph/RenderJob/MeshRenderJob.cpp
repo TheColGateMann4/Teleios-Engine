@@ -21,3 +21,8 @@ StandaloneMesh& MeshRenderJob::GetMesh()
 {
 	return m_mesh;
 }
+
+RenderJob::JobGroup MeshRenderJob::GetGroup() const
+{
+	return JobGroup::StandaloneGeometry;
+}

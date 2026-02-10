@@ -15,6 +15,8 @@ public:
 
 	StandaloneMesh& GetMesh();
 
+	virtual JobGroup GetGroup() const override;
+
 private:
 	StandaloneMesh m_mesh;
 };

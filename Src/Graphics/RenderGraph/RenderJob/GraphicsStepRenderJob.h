@@ -19,6 +19,8 @@ public:
 
 	virtual void Execute(Graphics& graphics, CommandList* commandList) const override;
 
+	virtual JobGroup GetGroup() const override;
+
 private:
 	RenderGraphicsStep* m_step;
 

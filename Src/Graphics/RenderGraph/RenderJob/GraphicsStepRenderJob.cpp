@@ -114,3 +114,8 @@ void GraphicsStepRenderJob::Execute(Graphics& graphics, CommandList* commandList
 
 	commandList->DrawIndexed(graphics, m_bindableContainer.GetIndexBuffer()->GetIndexCount());
 }
+
+RenderJob::JobGroup GraphicsStepRenderJob::GetGroup() const
+{
+	return JobGroup::Geometry;
+}
