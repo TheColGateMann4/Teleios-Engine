@@ -7,6 +7,8 @@
 
 #include "Graphics/RenderGraph/RenderJob/GraphicsStepRenderJob.h"
 
+#include "Graphics/Core/Graphics.h"
+
 GeometryPass::GeometryPass()
 {
 	DynamicConstantBuffer::Layout layout;
@@ -20,6 +22,17 @@ GeometryPass::GeometryPass()
 	m_cameraRootConstant = std::make_shared<RootSignatureConstants>(bufferData, std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::VertexShader, 2}});
 
 	AddBindable(m_cameraRootConstant);
+}
+
+void GeometryPass::Initialize(Graphics& graphics, Scene& scene)
+{
+	Pipeline& pipeline = graphics.GetRenderer().GetPipeline();
+
+	for(const auto* staticBindableName : m_staticBindables)
+	{
+		std::shared_ptr<Bindable> resolvedBindable = pipeline.GetStaticResource(staticBindableName);
+		AddBindable(resolvedBindable);
+	}
 }
 
 void GeometryPass::Update(Graphics& graphics, Pipeline& pipeline, Scene& scene)
@@ -36,6 +49,11 @@ void GeometryPass::Update(Graphics& graphics, Pipeline& pipeline, Scene& scene)
 void GeometryPass::AddBindable(std::shared_ptr<Bindable> bindable)
 {
 	m_bindables.push_back(bindable);
+}
+
+void GeometryPass::AddStaticBindable(const char* staticBindableName)
+{
+	m_staticBindables.push_back(staticBindableName);
 }
 
 const std::vector<std::shared_ptr<Bindable>>& GeometryPass::GetBindables() const

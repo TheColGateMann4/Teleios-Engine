@@ -4,6 +4,9 @@
 
 GBufferPass::GBufferPass(Graphics& graphics)
 {
+	AddStaticBindable("lightBuffer");
+	AddStaticBindable("cameraBuffer");
+
 	AddBindable(BlendState::GetBindableResource(graphics, false));
 	AddBindable(DepthStencilState::GetBindableResource(graphics, DepthStencilState::DepthComparisonFunc::Equal));
 }

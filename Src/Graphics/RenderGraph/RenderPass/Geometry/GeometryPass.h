@@ -12,10 +12,13 @@ class GeometryPass : public RenderPass
 public:
 	GeometryPass();
 
+	virtual void Initialize(Graphics& graphics, Scene& scene);
+
 	virtual void Update(Graphics& graphics, Pipeline& pipeline, Scene& scene) override;
 
 public: // Handling for pass specific bindables
 	void AddBindable(std::shared_ptr<Bindable> bindable);
+	void AddStaticBindable(const char* staticBindableName);
 	const std::vector<std::shared_ptr<Bindable>>& GetBindables() const;
 
 public: // job handling
@@ -36,6 +39,8 @@ private:
 	std::shared_ptr<RootSignatureConstants> m_cameraRootConstant;
 
 	std::vector<std::shared_ptr<Bindable>> m_bindables;
+
+	std::vector<const char*> m_staticBindables;
 
 	std::vector<std::shared_ptr<GraphicsStepRenderJob>> m_pJobs;
 
