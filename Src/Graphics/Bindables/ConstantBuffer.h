@@ -51,8 +51,6 @@ public:
 
 	CachedConstantBuffer(const CachedConstantBuffer&) = delete;
 
-	virtual void Initialize(Graphics& graphics) override;
-
 	void Update(Graphics& graphics);
 
 	virtual D3D12_GPU_VIRTUAL_ADDRESS GetGPUAddress(Graphics& graphics) const override;

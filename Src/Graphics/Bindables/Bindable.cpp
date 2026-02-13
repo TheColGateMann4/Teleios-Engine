@@ -25,11 +25,6 @@ void RootSignatureBindable::BindToComputeRootSignature(RootSignature* rootSignat
 
 }
 
-void RootSignatureBindable::Initialize(Graphics& graphics)
-{
-	
-}
-
 std::vector<TargetSlotAndShader>& RootSignatureBindable::GetTargets()
 {
 	return m_targets;

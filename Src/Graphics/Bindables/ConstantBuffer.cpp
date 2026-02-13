@@ -68,12 +68,6 @@ CachedConstantBuffer::CachedConstantBuffer(Graphics& graphics, DynamicConstantBu
 		resourceIndexInHeap = graphics.GetConstantBufferHeap().RequestMoreStaticSpace(m_data.GetLayout().GetSize());
 }
 
-void CachedConstantBuffer::Initialize(Graphics& graphics)
-{
-	// since we already pass the data to cached constant buffer, we surely want it updated on gpu side
-	Update(graphics);
-}
-
 void CachedConstantBuffer::Update(Graphics& graphics)
 {
 	if (m_frequentlyUpdated)

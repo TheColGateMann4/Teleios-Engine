@@ -43,6 +43,11 @@ BindableType ShaderResourceViewBase::GetBindableType() const
 	return BindableType::bindable_shaderResourceView;
 }
 
+DescriptorType ShaderResourceViewBase::GetDescriptorType() const
+{
+	return DescriptorType::descriptor_SRV;
+}
+
 void ShaderResourceViewBase::SetComputeRootIndex(unsigned int rootIndex)
 {
 	m_computeRootIndex = rootIndex;
@@ -56,8 +61,6 @@ unsigned int ShaderResourceViewBase::GetComputeRootIndex() const
 void ShaderResourceViewBase::InitializeTextureSRV(Graphics& graphics, unsigned int targetMip, DescriptorHeap::DescriptorInfo& descriptor, const GraphicsTexture* texture)
 {
 	THROW_INTERNAL_ERROR_IF("GraphicsTexture was NULL", texture == nullptr);
-
-	descriptor = graphics.GetDescriptorHeap().GetNextHandle();
 
 	// creating UAV
 	{
@@ -82,8 +85,6 @@ void ShaderResourceViewBase::InitializeTextureSRV(Graphics& graphics, unsigned i
 void ShaderResourceViewBase::InitializeBufferSRV(Graphics& graphics, DescriptorHeap::DescriptorInfo& descriptor, const GraphicsBuffer* buffer)
 {
 	THROW_INTERNAL_ERROR_IF("GraphicsBuffer was NULL", buffer == nullptr);
-
-	descriptor = graphics.GetDescriptorHeap().GetNextHandle();
 
 	// creating UAV
 	{
@@ -132,20 +133,27 @@ UINT ShaderResourceView::GetOffsetInDescriptor(Graphics& graphics) const
 	return m_descriptor.offsetInDescriptorFromStart;
 }
 
-void ShaderResourceView::Initialize(Graphics& graphics)
+void ShaderResourceView::Initialize(Graphics& graphics, DescriptorHeap::DescriptorInfo descriptorInfo, unsigned int descriptorNum)
 {
 	GraphicsResourceType resourceType = m_resource->GetResourceType();
 
-	if(resourceType == GraphicsResourceType::texture)
+	if (resourceType == GraphicsResourceType::texture)
 	{
 		const GraphicsTexture* texture = static_cast<const GraphicsTexture*>(m_resource);
 		InitializeTextureSRV(graphics, m_targetSubresource, m_descriptor, texture);
 	}
-	else if(resourceType == GraphicsResourceType::buffer)
+	else if (resourceType == GraphicsResourceType::buffer)
 	{
 		const GraphicsBuffer* buffer = static_cast<const GraphicsBuffer*>(m_resource);
 		InitializeBufferSRV(graphics, m_descriptor, buffer);
 	}
+}
+
+void ShaderResourceView::Initialize(Graphics& graphics)
+{
+	m_descriptor = graphics.GetDescriptorHeap().GetNextHandle();
+
+	Initialize(graphics, m_descriptor, 0);
 }
 
 ShaderResourceViewMultiResource::ShaderResourceViewMultiResource(Graphics& graphics, BackBufferRenderTarget* renderTarget, UINT slot)
@@ -198,6 +206,11 @@ unsigned int ShaderResourceViewMultiResource::GetOffsetInDescriptor(Graphics& gr
 	return m_descriptors.at(graphics.GetCurrentBufferIndex()).offsetInDescriptorFromStart;
 }
 
+void ShaderResourceViewMultiResource::Initialize(Graphics& graphics, DescriptorHeap::DescriptorInfo descriptorInfo, unsigned int descriptorNum)
+{
+	THROW_INTERNAL_ERROR("Explicit Initialization of multi-descriptor bindables hasn't been implemented yet");
+}
+
 void ShaderResourceViewMultiResource::Initialize(Graphics& graphics)
 {
 	unsigned int numResources = static_cast<unsigned int>(m_resources.size());
@@ -214,7 +227,11 @@ void ShaderResourceViewMultiResource::Initialize(Graphics& graphics)
 
 		const GraphicsTexture* texture = static_cast<const GraphicsTexture*>(targetResource);
 
-		InitializeTextureSRV(graphics, 0, m_descriptors.at(i), texture);
+		DescriptorHeap::DescriptorInfo& descriptor = m_descriptors.at(i);
+
+		descriptor = graphics.GetDescriptorHeap().GetNextHandle();
+
+		InitializeTextureSRV(graphics, 0, descriptor, texture);
 	}
 }
 

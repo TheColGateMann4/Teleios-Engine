@@ -97,6 +97,11 @@ BindableType UnorderedAccessView::GetBindableType() const
 	return BindableType::bindable_unorderedAccessView;
 }
 
+DescriptorType UnorderedAccessView::GetDescriptorType() const
+{
+	return DescriptorType::descriptor_UAV;
+}
+
 UINT UnorderedAccessView::GetOffsetInDescriptor() const
 {
 	return m_descriptor.offsetInDescriptorFromStart;

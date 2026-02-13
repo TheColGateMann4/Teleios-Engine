@@ -20,9 +20,6 @@ public:
 public:
 	virtual ~RootSignatureBinding() = default;
 
-	void InternalInitialize(Graphics& graphics);
-
-
 	virtual void BindToRootSignature(RootSignature* rootSignature, TargetSlotAndShader& target) = 0;
 
 	virtual void BindToComputeRootSignature(RootSignature* rootSignature, TargetSlotAndShader& target);

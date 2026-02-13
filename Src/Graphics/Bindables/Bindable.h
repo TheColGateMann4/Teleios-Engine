@@ -2,6 +2,8 @@
 #include "Shaders/TargetShaders.h"
 #include "BindableTypes.h"
 
+#include "Graphics/Core/DescriptorHeap.h"
+
 class Graphics;
 class CommandList;
 class RootSignature;
@@ -58,10 +60,29 @@ public:
 
 	virtual void BindToComputeRootSignature(RootSignature* rootSignature);
 
-	virtual void Initialize(Graphics& graphics);
-
 	std::vector<TargetSlotAndShader>& GetTargets();
 
 private:
 	std::vector<TargetSlotAndShader> m_targets;
+};
+
+
+enum class DescriptorType
+{
+	descriptor_none = -1,
+	descriptor_SRV,
+	descriptor_UAV,
+	descriptor_CBV,
+	descriptor_SAMPLER,
+};
+
+class DescriptorBindable
+{
+public:
+	virtual void Initialize(Graphics& graphics, DescriptorHeap::DescriptorInfo descriptorInfo, unsigned int descriptorNum) = 0;
+
+	virtual void Initialize(Graphics& graphics) = 0;
+
+public:
+	virtual DescriptorType GetDescriptorType() const = 0;
 };

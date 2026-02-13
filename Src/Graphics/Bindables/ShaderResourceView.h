@@ -12,7 +12,7 @@ class CommandList;
 class BackBufferRenderTarget;
 class DepthStencilViewMultiResource;
 
-class ShaderResourceViewBase : public Bindable, public RootParameterBinding
+class ShaderResourceViewBase : public Bindable, public RootParameterBinding, public DescriptorBindable
 {
 protected:
 	ShaderResourceViewBase(unsigned int slot);
@@ -30,6 +30,8 @@ public:
 	virtual void BindToComputeRootSignature(RootSignature* rootSignature, TargetSlotAndShader& target) override;
 
 	virtual BindableType GetBindableType() const override;
+
+	virtual DescriptorType GetDescriptorType() const override;
 
 public:
 	void SetComputeRootIndex(unsigned int rootIndex);
@@ -56,6 +58,8 @@ public:
 
 	virtual unsigned int GetOffsetInDescriptor(Graphics& graphics) const override;
 
+	virtual void Initialize(Graphics& graphics, DescriptorHeap::DescriptorInfo descriptorInfo, unsigned int descriptorNum) override;
+
 	virtual void Initialize(Graphics& graphics) override;
 
 private:
@@ -75,6 +79,8 @@ public:
 	virtual D3D12_GPU_DESCRIPTOR_HANDLE GetDescriptorHeapGPUHandle(Graphics& graphics) const override;
 
 	virtual unsigned int GetOffsetInDescriptor(Graphics& graphics) const override;
+
+	virtual void Initialize(Graphics& graphics, DescriptorHeap::DescriptorInfo descriptorInfo, unsigned int descriptorNum) override;
 
 	virtual void Initialize(Graphics& graphics) override;
 

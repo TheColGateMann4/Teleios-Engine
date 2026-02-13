@@ -13,11 +13,6 @@ RootSignatureBindableWrapper::RootSignatureBindableWrapper(RootSignatureBinding*
 
 }
 
-void RootSignatureBindableWrapper::Initialize(Graphics& graphics)
-{
-	m_rootbind->InternalInitialize(graphics);
-}
-
 void RootSignatureBindableWrapper::BindToRootSignature(RootSignature* rootSignature)
 {
 	auto& targets = GetTargets();
@@ -37,11 +32,6 @@ RootParameterBindableWrapper::RootParameterBindableWrapper(RootParameterBinding*
 	m_paramBind(bind)
 {
 	
-}
-
-void RootParameterBindableWrapper::Initialize(Graphics& graphics)
-{
-	m_paramBind->InternalInitialize(graphics);
 }
 
 void RootParameterBindableWrapper::BindToRootSignature(RootSignature* rootSignature)

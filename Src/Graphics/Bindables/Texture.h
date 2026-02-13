@@ -19,7 +19,7 @@ namespace DirectX
 	class ScratchImage;
 };
 
-class Texture : public Bindable, public RootParameterBinding
+class Texture : public Bindable, public RootParameterBinding, public DescriptorBindable
 {
 private:
 	enum class TextureProcessingStage
@@ -31,6 +31,9 @@ private:
 
 public:
 	Texture(Graphics& graphics, const char* path, bool allowSRGB = false, bool generateMips = true, bool compress = true, std::vector<TargetSlotAndShader> targets = { {ShaderVisibilityGraphic::PixelShader, 0} });
+
+public:
+	virtual void Initialize(Graphics& graphics, DescriptorHeap::DescriptorInfo descriptorInfo, unsigned int descriptorNum) override;
 
 protected:
 	virtual void Initialize(Graphics& graphics) override;
@@ -54,6 +57,8 @@ public:
 	virtual D3D12_GPU_DESCRIPTOR_HANDLE GetDescriptorHeapGPUHandle(Graphics& graphics) const override;
 	
 	virtual BindableType GetBindableType() const override;
+
+	virtual DescriptorType GetDescriptorType() const override;
 
 	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUDescriptor(Graphics& graphics) const;
 

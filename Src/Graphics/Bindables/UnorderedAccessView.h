@@ -10,7 +10,7 @@ class CommandList;
 class GraphicsTexture;
 class GraphicsBuffer;
 
-class UnorderedAccessView : public Bindable, public RootParameterBinding
+class UnorderedAccessView : public Bindable, public RootParameterBinding, public DescriptorBindable
 {
 public:
 	UnorderedAccessView(Graphics& graphics, GraphicsTexture* texture, unsigned int targetMip);
@@ -26,6 +26,8 @@ public:
 	virtual void BindToComputeRootSignature(RootSignature* rootSignature, TargetSlotAndShader& target) override;
 
 	virtual BindableType GetBindableType() const override;
+
+	virtual DescriptorType GetDescriptorType() const override;
 
 	UINT GetOffsetInDescriptor() const;
 

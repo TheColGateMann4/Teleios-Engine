@@ -70,7 +70,7 @@ Texture::Texture(Graphics& graphics, const char* path, bool srgb, bool generateM
 	}
 }
 
-void Texture::Initialize(Graphics& graphics)
+void Texture::Initialize(Graphics& graphics, DescriptorHeap::DescriptorInfo descriptorInfo, unsigned int descriptorNum)
 {
 	D3D12_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc = {};
 	shaderResourceViewDesc.Format = m_gpuTexture->GetFormat();
@@ -83,7 +83,7 @@ void Texture::Initialize(Graphics& graphics)
 
 	// creating SRV for texture resource on GPU memory
 	{
-		m_textureDescriptor = graphics.GetDescriptorHeap().GetNextHandle();
+		m_textureDescriptor = descriptorInfo;
 
 		THROW_INFO_ERROR(graphics.GetDeviceResources().GetDevice()->CreateShaderResourceView(
 			m_gpuTexture->GetResource(),
@@ -91,6 +91,13 @@ void Texture::Initialize(Graphics& graphics)
 			m_textureDescriptor.descriptorCpuHandle
 		));
 	}
+}
+
+void Texture::Initialize(Graphics& graphics)
+{
+	DescriptorHeap::DescriptorInfo descriptorInfo = graphics.GetDescriptorHeap().GetNextHandle();
+
+	Initialize(graphics, descriptorInfo, 0);
 }
 
 std::shared_ptr<Texture> Texture::GetBindableResource(Graphics& graphics, const char* path, bool srgb, bool generateMips, bool compress, std::vector<TargetSlotAndShader> targets)
@@ -168,6 +175,11 @@ D3D12_GPU_DESCRIPTOR_HANDLE Texture::GetDescriptorHeapGPUHandle(Graphics& graphi
 BindableType Texture::GetBindableType() const
 {
 	return BindableType::bindable_texture;
+}
+
+DescriptorType Texture::GetDescriptorType() const
+{
+	return DescriptorType::descriptor_SRV;
 }
 
 D3D12_CPU_DESCRIPTOR_HANDLE Texture::GetCPUDescriptor(Graphics& graphics) const

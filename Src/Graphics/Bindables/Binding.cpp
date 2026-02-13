@@ -14,16 +14,6 @@ RootSignatureBinding::RootSignatureBinding(std::vector<TargetSlotAndShader> targ
 
 }
 
-void RootSignatureBinding::InternalInitialize(Graphics& graphics)
-{
-	if (m_initialized)
-		return;
-
-	Initialize(graphics);
-
-	m_initialized = true;
-}
-
 void RootSignatureBinding::BindToComputeRootSignature(RootSignature* rootSignature, TargetSlotAndShader& target)
 {
 
