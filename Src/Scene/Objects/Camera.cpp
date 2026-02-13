@@ -35,7 +35,7 @@ void Camera::Initialize(Graphics& graphics, Pipeline& pipeline)
 {
 	THROW_INTERNAL_ERROR_IF("Camera index was not assigned", m_cameraIndex == -1);
 
-	m_pCameraBuffer = static_cast<CachedConstantBuffer*>(pipeline.GetStaticResource("cameraBuffer"));
+	m_pCameraBuffer = static_cast<CachedConstantBuffer*>(pipeline.GetStaticResource("cameraBuffer").get());
 }
 
 void Camera::UpdateCamera(const Input& input, bool cursorLocked)

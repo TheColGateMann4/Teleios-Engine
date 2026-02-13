@@ -34,7 +34,7 @@ void PointLight::Initialize(Graphics& graphics, Pipeline& pipeline)
 
 	m_pSphereModel->SetLightIndex(m_lightIndex);
 
-	m_pLightBuffer = static_cast<CachedConstantBuffer*>(pipeline.GetStaticResource("lightBuffer"));
+	m_pLightBuffer = static_cast<CachedConstantBuffer*>(pipeline.GetStaticResource("lightBuffer").get());
 
 	DynamicConstantBuffer::Data& bufferData = m_pLightBuffer->GetData();
 	DynamicConstantBuffer::ArrayData array = bufferData.GetArrayData("lightBuffers");

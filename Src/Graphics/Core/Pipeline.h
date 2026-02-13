@@ -17,9 +17,9 @@ public:
 
 	CommandList* GetGraphicCommandList() const;
 
-	Bindable* GetStaticResource(const char* resourceName) const;
+	std::shared_ptr<Bindable> GetStaticResource(const char* resourceName) const;
 
-	void AddStaticResource(const char* resourceName, Bindable* bindable);
+	void AddStaticResource(const char* resourceName, std::shared_ptr<Bindable> bindable);
 
 public:
 	void AddBufferToCopyPipeline(GraphicsResource* dst, GraphicsResource* src);
@@ -32,7 +32,7 @@ public:
 public:
 	std::shared_ptr<CommandList> m_graphicsCommandList;
 
-	std::vector<std::pair<const char*, Bindable*>> m_staticResources;
+	std::vector<std::pair<const char*, std::shared_ptr<Bindable>>> m_staticResources;
 
 	struct CopyData
 	{

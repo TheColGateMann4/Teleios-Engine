@@ -39,7 +39,7 @@ CommandList* Pipeline::GetGraphicCommandList() const
 	return m_graphicsCommandList.get();
 }
 
-Bindable* Pipeline::GetStaticResource(const char* resourceName) const
+std::shared_ptr<Bindable> Pipeline::GetStaticResource(const char* resourceName) const
 {
 	for (auto& typedResource : m_staticResources)
 		if (strcmp(resourceName, typedResource.first) == 0)
@@ -48,10 +48,10 @@ Bindable* Pipeline::GetStaticResource(const char* resourceName) const
 	THROW_INTERNAL_ERROR("Could not find resource with given name");
 }
 
-void Pipeline::AddStaticResource(const char* resourceName, Bindable* bindable)
+void Pipeline::AddStaticResource(const char* resourceName, std::shared_ptr<Bindable> bindable)
 {
 	THROW_OBJECT_STATE_ERROR_IF("Cannot add object with nullptr name", resourceName == nullptr);
-	THROW_OBJECT_STATE_ERROR_IF("Cannot add typedObject without object itself", bindable == nullptr);
+	THROW_OBJECT_STATE_ERROR_IF("Bindable data was empty while adding it as static resource", !bindable);
 
 	m_staticResources.push_back({ resourceName, bindable });
 }

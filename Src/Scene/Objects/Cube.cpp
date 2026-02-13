@@ -108,8 +108,6 @@ Cube::Cube(Graphics& graphics, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rot
 		step.AddBindable(std::make_shared<InputLayout>(graphics, vertexLayout));
 		step.AddBindable(std::make_shared<PrimitiveTechnology>(graphics, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE));
 
-		step.AddStaticBindable("lightBuffer");
-
 		{
 			DynamicConstantBuffer::Layout layout;
 			layout.Add<DynamicConstantBuffer::ElementType::Float>("texcoordsScale");
