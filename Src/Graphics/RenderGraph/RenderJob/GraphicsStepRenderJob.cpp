@@ -97,6 +97,9 @@ void GraphicsStepRenderJob::InitializeGraphicResources(Graphics& graphics, Pipel
 
 	for (auto texture : m_bindableContainer.GetTextures())
 		texture->InitializeGraphicResources(graphics, pipeline);
+
+	for (auto* cachedBuffer : m_bindableContainer.GetCachedBuffers())
+		cachedBuffer->Update(graphics);
 }
 
 void GraphicsStepRenderJob::Execute(Graphics& graphics, CommandList* commandList) const

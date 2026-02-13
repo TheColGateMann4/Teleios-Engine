@@ -53,6 +53,9 @@ void StandaloneMesh::Initialize(Graphics& graphics, Pipeline& pipeline)
 
 		m_pipelineState->Finish(graphics); // Finish() call gets object from desc it made up
 	}
+
+	for (auto* cachedBuffer : m_bindableContainer.GetCachedBuffers())
+		cachedBuffer->Update(graphics);
 }
 
 void StandaloneMesh::Draw(Graphics& graphics, CommandList* commandList) const
