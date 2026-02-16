@@ -13,13 +13,11 @@ void StandaloneMesh::Initialize(Graphics& graphics, Pipeline& pipeline)
 	// initializing root signature
 	{
 		{
-			auto& rootSignatureBindables = m_bindableContainer.GetRootSignatureBindables();
+			for (auto& descriptorBindable : m_bindableContainer.GetDescriptorBindables())
+				descriptorBindable->Initialize(graphics);
 
-			for (auto& rootSignatureBindable : rootSignatureBindables)
-			{
-				rootSignatureBindable->Initialize(graphics);
+			for (auto& rootSignatureBindable : m_bindableContainer.GetRootSignatureBindables())
 				rootSignatureBindable->BindToRootSignature(m_rootSignature.get());
-			}
 		}
 
 		m_rootSignature->Initialize(graphics);

@@ -42,6 +42,7 @@ public:
 
 	
 	const std::vector<CommandListBindable*>& GetCommandListBindables() const;
+	const std::vector<DescriptorBindable*>& GetDescriptorBindables() const;
 	const std::vector<RootSignatureBindable*>& GetRootSignatureBindables() const;
 	const std::vector<PipelineStateBindable*>& GetPipelineStateBindables() const;
 
@@ -53,6 +54,7 @@ protected:
 	std::vector<std::shared_ptr<Bindable>> m_bindables;
 
 	std::vector<CommandListBindable*> m_commandListBindables;
+	std::vector<DescriptorBindable*> m_descriptorBindables;
 	std::vector<RootSignatureBindable*> m_rootSignatureBindables;
 	std::vector<PipelineStateBindable*> m_pipelineStateBindables;
 };

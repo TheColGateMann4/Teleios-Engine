@@ -45,6 +45,9 @@ void BindableContainer::SegregateBindableBaseFunctionality(Bindable* bindable)
 			m_commandListBindables.push_back(commandListBindable);
 	}
 
+	if (auto* descriptorBindable = dynamic_cast<DescriptorBindable*>(bindable))
+		m_descriptorBindables.push_back(descriptorBindable);
+
 	if (auto* pipelineStateBindable = dynamic_cast<PipelineStateBindable*>(bindable))
 		m_pipelineStateBindables.push_back(pipelineStateBindable);
 }
@@ -52,6 +55,11 @@ void BindableContainer::SegregateBindableBaseFunctionality(Bindable* bindable)
 const std::vector<CommandListBindable*>& BindableContainer::GetCommandListBindables() const
 {
 	return m_commandListBindables;
+}
+
+const std::vector<DescriptorBindable*>& BindableContainer::GetDescriptorBindables() const
+{
+	return m_descriptorBindables;
 }
 
 const std::vector<RootSignatureBindable*>& BindableContainer::GetRootSignatureBindables() const
@@ -108,7 +116,7 @@ void MeshBindableContainer::AddStaticBindable(const char* bindableName)
 void MeshBindableContainer::Initialize(Pipeline& pipeline)
 {
 	for (auto staticBindableName : m_staticBindableNames)
-		SegregateBindableBaseFunctionality(pipeline.GetStaticResource(staticBindableName));
+		SegregateBindableBaseFunctionality(pipeline.GetStaticResource(staticBindableName).get());
 }
 
 VertexBuffer* MeshBindableContainer::GetVertexBuffer() const
