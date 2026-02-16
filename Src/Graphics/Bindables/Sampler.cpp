@@ -62,6 +62,11 @@ BindableType StaticSampler::GetBindableType() const
 	return BindableType::bindable_staticSampler;
 }
 
+RootSignatureBindableType StaticSampler::GetRootSignatureBindableType() const
+{
+	return RootSignatureBindableType::rootSignature_StaticSampler;
+}
+
 D3D12_STATIC_SAMPLER_DESC StaticSampler::Get() const
 {
 	return m_staticSamplerDesc;

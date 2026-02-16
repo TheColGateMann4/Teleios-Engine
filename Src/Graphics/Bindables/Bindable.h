@@ -50,6 +50,17 @@ public:
 	virtual void BindToComputePipelineState(Graphics& graphics, ComputePipelineState* pipelineState);
 };
 
+enum class RootSignatureBindableType
+{
+	rootSignature_none = -1,
+	rootSignature_DescriptorTable,
+	rootSignature_Constants,
+	rootSignature_CBV,
+	rootSignature_BufferSRV,
+	rootSignature_BufferUAV,
+	rootSignature_StaticSampler,
+};
+
 class RootSignatureBindable
 {
 public:
@@ -61,6 +72,8 @@ public:
 	virtual void BindToComputeRootSignature(RootSignature* rootSignature);
 
 	std::vector<TargetSlotAndShader>& GetTargets();
+
+	virtual RootSignatureBindableType GetRootSignatureBindableType() const = 0;
 
 private:
 	std::vector<TargetSlotAndShader> m_targets;

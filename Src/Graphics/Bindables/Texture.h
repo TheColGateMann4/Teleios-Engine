@@ -60,6 +60,9 @@ public:
 
 	virtual DescriptorType GetDescriptorType() const override;
 
+
+	virtual RootSignatureBindableType GetRootSignatureBindableType() const override;
+
 	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUDescriptor(Graphics& graphics) const;
 
 	UINT GetOffsetInDescriptor() const;

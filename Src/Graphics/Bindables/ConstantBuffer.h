@@ -22,6 +22,8 @@ public:
 
 	virtual BindableType GetBindableType() const override;
 
+	virtual RootSignatureBindableType GetRootSignatureBindableType() const override;
+
 protected:
 	void InternalUpdate(Graphics& graphics, void* data, size_t size);
 

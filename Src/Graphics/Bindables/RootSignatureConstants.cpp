@@ -40,3 +40,8 @@ BindableType RootSignatureConstants::GetBindableType() const
 {
 	return BindableType::bindable_rootSignatureConstants;
 }
+
+RootSignatureBindableType RootSignatureConstants::GetRootSignatureBindableType() const
+{
+	return RootSignatureBindableType::rootSignature_Constants;
+}

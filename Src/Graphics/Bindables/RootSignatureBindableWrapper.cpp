@@ -5,6 +5,8 @@
 #include "Graphics/Core/RootSignature.h"
 #include "Graphics/Core/CommandList.h"
 
+#include "Macros/ErrorMacros.h"
+
 RootSignatureBindableWrapper::RootSignatureBindableWrapper(RootSignatureBinding* bind)
 	:
 	RootSignatureBindable(bind->GetTargets()),
@@ -24,6 +26,13 @@ void RootSignatureBindableWrapper::BindToRootSignature(RootSignature* rootSignat
 BindableType RootSignatureBindableWrapper::GetBindableType() const
 {
 	return BindableType::bindable_rootSignatureWrapper;
+}
+
+RootSignatureBindableType RootSignatureBindableWrapper::GetRootSignatureBindableType() const
+{
+	THROW_INTERNAL_ERROR_IF("Resource type was not set", m_rootbind == nullptr);
+
+	return m_rootbind->GetRootSignatureBindableType();
 }
 
 RootParameterBindableWrapper::RootParameterBindableWrapper(RootParameterBinding* bind)
@@ -53,6 +62,13 @@ void RootParameterBindableWrapper::BindToCommandList(Graphics& graphics, Command
 BindableType RootParameterBindableWrapper::GetBindableType() const
 {
 	return BindableType::bindable_rootSignatureWrapper;
+}
+
+RootSignatureBindableType RootParameterBindableWrapper::GetRootSignatureBindableType() const
+{
+	THROW_INTERNAL_ERROR_IF("Resource type was not set", m_paramBind == nullptr);
+
+	return m_paramBind->GetRootSignatureBindableType();
 }
 
 RootParameterBinding* RootParameterBindableWrapper::GetParameterBind() const

@@ -15,6 +15,8 @@ public:
 
 	virtual BindableType GetBindableType() const override;
 
+	virtual RootSignatureBindableType GetRootSignatureBindableType() const override;
+
 public:
 	unsigned int GetNumValues() const;
 	const void* GetDataPtr() const;

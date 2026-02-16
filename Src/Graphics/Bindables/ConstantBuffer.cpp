@@ -31,6 +31,11 @@ BindableType ConstantBuffer::GetBindableType() const
 	return BindableType::bindable_constantBuffer;
 }
 
+RootSignatureBindableType ConstantBuffer::GetRootSignatureBindableType() const
+{
+	return RootSignatureBindableType::rootSignature_CBV;
+}
+
 void ConstantBuffer::InternalUpdate(Graphics& graphics, void* data, size_t size)
 {
 	graphics.GetConstantBufferHeap().UpdateResource(graphics, resourceIndexInHeap, data, size);

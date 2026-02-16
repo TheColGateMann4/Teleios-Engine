@@ -19,6 +19,8 @@ public:
 
 	virtual BindableType GetBindableType() const override;
 
+	virtual RootSignatureBindableType GetRootSignatureBindableType() const override;
+
 private:
 	RootSignatureBinding* m_rootbind;
 };
@@ -34,6 +36,8 @@ public:
 	virtual void BindToCommandList(Graphics& graphics, CommandList* commandList) override;
 
 	virtual BindableType GetBindableType() const override;
+
+	virtual RootSignatureBindableType GetRootSignatureBindableType() const override;
 
 	RootParameterBinding* GetParameterBind() const;
 

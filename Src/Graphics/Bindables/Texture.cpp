@@ -182,6 +182,11 @@ DescriptorType Texture::GetDescriptorType() const
 	return DescriptorType::descriptor_SRV;
 }
 
+RootSignatureBindableType Texture::GetRootSignatureBindableType() const
+{
+	return RootSignatureBindableType::rootSignature_DescriptorTable;
+}
+
 D3D12_CPU_DESCRIPTOR_HANDLE Texture::GetCPUDescriptor(Graphics& graphics) const
 {
 	return m_textureDescriptor.descriptorCpuHandle;

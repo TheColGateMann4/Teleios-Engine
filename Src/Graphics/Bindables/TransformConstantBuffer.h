@@ -25,6 +25,8 @@ public:
 
 	virtual BindableType GetBindableType() const override;
 
+	virtual RootSignatureBindableType GetRootSignatureBindableType() const override;
+
 private:
 	std::shared_ptr<NonCachedConstantBuffer> m_buffer;
 	ObjectTransform* m_pObjectTransform = nullptr;

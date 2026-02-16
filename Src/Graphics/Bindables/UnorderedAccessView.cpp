@@ -102,6 +102,11 @@ DescriptorType UnorderedAccessView::GetDescriptorType() const
 	return DescriptorType::descriptor_UAV;
 }
 
+RootSignatureBindableType UnorderedAccessView::GetRootSignatureBindableType() const
+{
+	return RootSignatureBindableType::rootSignature_DescriptorTable;
+}
+
 UINT UnorderedAccessView::GetOffsetInDescriptor() const
 {
 	return m_descriptor.offsetInDescriptorFromStart;

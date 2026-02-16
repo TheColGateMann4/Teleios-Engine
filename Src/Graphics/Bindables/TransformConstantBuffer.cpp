@@ -46,3 +46,8 @@ BindableType TransformConstantBuffer::GetBindableType() const
 {
 	return BindableType::bindable_transformConstantBuffer;
 }
+
+RootSignatureBindableType TransformConstantBuffer::GetRootSignatureBindableType() const
+{
+	return RootSignatureBindableType::rootSignature_CBV;
+}

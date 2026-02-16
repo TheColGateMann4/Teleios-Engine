@@ -48,6 +48,11 @@ DescriptorType ShaderResourceViewBase::GetDescriptorType() const
 	return DescriptorType::descriptor_SRV;
 }
 
+RootSignatureBindableType ShaderResourceViewBase::GetRootSignatureBindableType() const
+{
+	return RootSignatureBindableType::rootSignature_DescriptorTable;
+}
+
 void ShaderResourceViewBase::SetComputeRootIndex(unsigned int rootIndex)
 {
 	m_computeRootIndex = rootIndex;

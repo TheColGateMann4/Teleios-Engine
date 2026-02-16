@@ -33,6 +33,8 @@ public:
 
 	virtual DescriptorType GetDescriptorType() const override;
 
+	virtual RootSignatureBindableType GetRootSignatureBindableType() const override;
+
 public:
 	void SetComputeRootIndex(unsigned int rootIndex);
 

@@ -30,6 +30,8 @@ public:
 
 	std::vector<TargetSlotAndShader>& GetTargets();
 
+	virtual RootSignatureBindableType GetRootSignatureBindableType() const = 0;
+
 protected:
 	virtual void Initialize(Graphics& graphics);
 

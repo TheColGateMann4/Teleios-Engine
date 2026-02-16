@@ -22,6 +22,8 @@ public:
 
 	virtual BindableType GetBindableType() const override;
 
+	virtual RootSignatureBindableType GetRootSignatureBindableType() const override;
+
 	D3D12_STATIC_SAMPLER_DESC Get() const;
 
 private:

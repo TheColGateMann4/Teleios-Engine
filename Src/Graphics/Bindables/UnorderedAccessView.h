@@ -29,6 +29,9 @@ public:
 
 	virtual DescriptorType GetDescriptorType() const override;
 
+
+	virtual RootSignatureBindableType GetRootSignatureBindableType() const override;
+
 	UINT GetOffsetInDescriptor() const;
 
 	virtual D3D12_GPU_DESCRIPTOR_HANDLE GetDescriptorHeapGPUHandle(Graphics& graphics) const override;
