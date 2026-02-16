@@ -11,7 +11,7 @@
 void RenderGraph::Initialize(Graphics& graphics)
 {
 	{
-		std::shared_ptr<PreDepthPass> preDepthPass = std::make_shared<PreDepthPass>();
+		std::shared_ptr<PreDepthPass> preDepthPass = std::make_shared<PreDepthPass>(graphics);
 		preDepthPass->SetDepthStencilView(graphics.GetDepthStencil(), ResourceDataOperation::clear);
 
 		AddRenderPass(preDepthPass);
