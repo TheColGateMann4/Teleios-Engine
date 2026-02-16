@@ -138,6 +138,15 @@ void Graphics::WaitForGPUIfNeeded()
 	m_graphicFences.at(GetNextBufferIndex()).WaitForValue(*this);
 }
 
+void Graphics::FinishInitialization()
+{
+	// after every object was firstly initialized, we create descriptor heap with space for each one
+	descriptorHeap.Finish(*this);
+
+	// we are creating one big constant buffer that will hold every constant buffer on scene
+	constantBufferHeap.Finish(*this);
+}
+
 void Graphics::CleanupResources()
 {
 	resourceDeleter.Update(*this);

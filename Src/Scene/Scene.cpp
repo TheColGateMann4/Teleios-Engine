@@ -62,20 +62,32 @@ void Scene::FinishInitialization(Graphics& graphics)
 
 	InitializeCameraBuffer(graphics, pipeline);
 
+	graphics.FinishInitialization();
+
+	InitializeMaterials(graphics);
+
+	ResolveStaticBindables(graphics);
+
 	InitializeSceneObjects(graphics);
 
 	AssignJobs(graphics);
 
+	 
+	renderer.InitializePasses(graphics, *this);
 
 	renderer.GatherJobBindables();
 
 	renderer.InitializeJobs(graphics);
 
-	renderer.InitializePasses(graphics, *this);
-
 	renderer.FinishInitialization(graphics);
 
 	graphics.WaitForGPU();
+}
+
+void Scene::InitializeMaterials(Graphics& graphics)
+{
+	for (auto& [key, material] : m_materials)
+		material->Initialize(graphics);
 }
 
 void Scene::InitializeCameraBuffer(Graphics& graphics, Pipeline& pipeline)
@@ -125,19 +137,18 @@ void Scene::AssignJobs(Graphics& graphics)
 	graphics.GetRenderer().AssignJobsToPasses();
 }
 
-void Scene::InitializeSceneObjects(Graphics& graphics)
+void Scene::ResolveStaticBindables(Graphics& graphics)
 {
 	Pipeline& pipeline = graphics.GetRenderer().GetPipeline();
 
 	// adding static resources to scene first
 	for (auto& sceneObject : m_sceneObjects)
 		sceneObject->InternalAddStaticResources(pipeline);
+}
 
-	// after every object was firstly initialized, we create descriptor heap with space for each one
-	graphics.GetDescriptorHeap().Finish(graphics);
-
-	// we are creating one big constant buffer that will hold every constant buffer on scene
-	graphics.GetConstantBufferHeap().Finish(graphics);
+void Scene::InitializeSceneObjects(Graphics& graphics)
+{
+	Pipeline& pipeline = graphics.GetRenderer().GetPipeline();
 
 	// after we created descriptor heap we are making objects use this to make SRV's
 	for (auto& sceneObject : m_sceneObjects)

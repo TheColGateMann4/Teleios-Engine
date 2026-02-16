@@ -38,6 +38,8 @@ public:
 	void WaitForGPU();
 	void WaitForGPUIfNeeded(); // sets fence value for frame pushed to gpu, and waits for next buffer to be free to start drawing
 
+	void FinishInitialization();
+
 private:
 	void PresentFrame();
 	void CleanupResources();
