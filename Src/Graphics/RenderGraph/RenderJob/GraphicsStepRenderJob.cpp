@@ -6,9 +6,7 @@
 #include "Graphics/Core/Graphics.h"
 #include "Graphics/Core/CommandList.h"
 
-#include "Graphics/Bindables/VertexBuffer.h"
-#include "Graphics/Bindables/IndexBuffer.h"
-#include "Graphics/Bindables/Texture.h"
+#include "Includes/BindablesInclude.h"
 
 #include "Scene/Material.h"
 
@@ -42,6 +40,8 @@ void GraphicsStepRenderJob::Initialize(Graphics& graphics, Pipeline& pipeline)
 	const std::vector<RenderPass::RenderTargetData>& renderTargets = m_pass->GetRenderTargets();
 	RenderPass::DepthStencilData depthStencilView = m_pass->GetDepthStencilView();
 
+	Material* material = m_step->GetMaterial();
+
 	// initializing root signature
 	{
 		{
@@ -51,6 +51,8 @@ void GraphicsStepRenderJob::Initialize(Graphics& graphics, Pipeline& pipeline)
 			for (auto& rootSignatureBindable : m_bindableContainer.GetRootSignatureBindables())
 				rootSignatureBindable->BindToRootSignature(m_rootSignature.get());
 
+			if(material)
+				material->BindToRootSignature(m_rootSignature.get());
 		}
 
 		m_rootSignature->Initialize(graphics);
@@ -63,10 +65,12 @@ void GraphicsStepRenderJob::Initialize(Graphics& graphics, Pipeline& pipeline)
 		// initializing pipeline state desc
 		{
 			{
-				const auto& pipelineStateBindables = m_bindableContainer.GetPipelineStateBindables();
-
-				for (auto& pPipelineStateBindable : pipelineStateBindables)
+				for (auto& pPipelineStateBindable : m_bindableContainer.GetPipelineStateBindables())
 					pPipelineStateBindable->BindToPipelineState(graphics, m_pipelineState.get());
+				
+				if (material)
+					for (auto& pPipelineStateBindable : material->GetBindableContainer().GetPipelineStateBindables())
+						pPipelineStateBindable->BindToPipelineState(graphics, m_pipelineState.get());
 			}
 
 			m_pipelineState->SetRootSignature(m_rootSignature.get());

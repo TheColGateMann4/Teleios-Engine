@@ -6,6 +6,7 @@
 
 class Graphics;
 class ConstantBuffer;
+class Material;
 class Texture;
 class ShaderResourceViewBase;
 class UnorderedAccessView;
@@ -27,6 +28,7 @@ public:
 	// returns rootIndex that was used
 	void AddConstBufferViewParameter(ConstantBuffer* constantBuffer, TargetSlotAndShader& target);
 
+	void AddDescriptorTableParameter(Material* material, TargetSlotAndShader& target);
 	void AddDescriptorTableParameter(Texture* texture, TargetSlotAndShader& target);
 	void AddDescriptorTableParameter(ShaderResourceViewBase* srv, TargetSlotAndShader& target);
 
@@ -44,7 +46,7 @@ private:
 	void ConnectDescriptorParametersToRanges();
 
 	// returns root index
-	unsigned int m_AddDescriptorTableParameter(D3D12_DESCRIPTOR_RANGE_TYPE descriptorType, TargetSlotAndShader& target);
+	unsigned int m_AddDescriptorTableParameter(D3D12_DESCRIPTOR_RANGE_TYPE descriptorType, TargetSlotAndShader& target, unsigned int numDescriptors = 1);
 	void m_AddStaticSampler(StaticSampler* staticSampler, TargetSlotAndShader& target);
 
 private:

@@ -5,6 +5,8 @@
 
 #include "Includes/BindablesInclude.h"
 
+#include "Scene/Material.h"
+
 #include "Graphics/Resources/QueryHeap.h"
 #include "Graphics/Resources/GraphicsResource.h"
 #include "Graphics/Resources/GraphicsTexture.h"
@@ -315,10 +317,18 @@ void CommandList::SetDescriptorHeap(Graphics& graphics, DescriptorHeap* descript
 	THROW_INFO_ERROR(pCommandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps));
 }
 
+void CommandList::SetGraphicsDescriptorTable(Graphics& graphics, Material* material, TargetSlotAndShader target)
+{
+	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
+	THROW_OBJECT_STATE_ERROR_IF("Only Direct and Bundle command lists can set graphics Descriptor Tables", m_type != D3D12_COMMAND_LIST_TYPE_DIRECT && m_type != D3D12_COMMAND_LIST_TYPE_BUNDLE);
+
+	THROW_INFO_ERROR(pCommandList->SetGraphicsRootDescriptorTable(target.rootIndex, material->GetDescriptorHeapGPUHandle(graphics)));
+}
+
 void CommandList::SetGraphicsDescriptorTable(Graphics& graphics, Texture* texture, TargetSlotAndShader target)
 {
 	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
-	THROW_OBJECT_STATE_ERROR_IF("Only Direct and Bundle command lists can set graphics constant buffers", m_type != D3D12_COMMAND_LIST_TYPE_DIRECT && m_type != D3D12_COMMAND_LIST_TYPE_BUNDLE);
+	THROW_OBJECT_STATE_ERROR_IF("Only Direct and Bundle command lists can set graphics Descriptor Tables", m_type != D3D12_COMMAND_LIST_TYPE_DIRECT && m_type != D3D12_COMMAND_LIST_TYPE_BUNDLE);
 
 	THROW_INFO_ERROR(pCommandList->SetGraphicsRootDescriptorTable(target.rootIndex, texture->GetDescriptorHeapGPUHandle(graphics)));
 }
@@ -326,7 +336,7 @@ void CommandList::SetGraphicsDescriptorTable(Graphics& graphics, Texture* textur
 void CommandList::SetGraphicsDescriptorTable(Graphics& graphics, ShaderResourceViewBase* srv, TargetSlotAndShader target)
 {
 	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
-	THROW_OBJECT_STATE_ERROR_IF("Only Direct and Bundle command lists can set graphics constant buffers", m_type != D3D12_COMMAND_LIST_TYPE_DIRECT && m_type != D3D12_COMMAND_LIST_TYPE_BUNDLE);
+	THROW_OBJECT_STATE_ERROR_IF("Only Direct and Bundle command lists can set graphics Descriptor Tables", m_type != D3D12_COMMAND_LIST_TYPE_DIRECT && m_type != D3D12_COMMAND_LIST_TYPE_BUNDLE);
 
 	THROW_INFO_ERROR(pCommandList->SetGraphicsRootDescriptorTable(target.rootIndex, srv->GetDescriptorHeapGPUHandle(graphics)));
 }

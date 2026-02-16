@@ -4,6 +4,8 @@
 
 #include "Includes/BindablesInclude.h"
 
+#include "Scene/Material.h"
+
 RootSignature::RootSignature()
 	:
 	m_finished(),
@@ -96,6 +98,33 @@ void RootSignature::AddConstBufferViewParameter(ConstantBuffer* constantBuffer, 
 	m_rootSignatureDesc.pParameters = m_rootParameters.data();
 }
 
+void RootSignature::AddDescriptorTableParameter(Material* material, TargetSlotAndShader& target)
+{
+	const std::vector<RootSignatureBindable*>& rootSignatureBindables = material->GetBindableContainer().GetRootSignatureBindables();
+
+	unsigned int numSRVs = 0;
+
+	for (auto* rootSignatureBindable : rootSignatureBindables)
+	{
+		auto type = rootSignatureBindable->GetRootSignatureBindableType();
+
+		if (type == RootSignatureBindableType::rootSignature_DescriptorTable)
+			numSRVs++;
+		else if (type == RootSignatureBindableType::rootSignature_CBV ||
+			type == RootSignatureBindableType::rootSignature_StaticSampler)
+			rootSignatureBindable->BindToRootSignature(this);
+		else
+		{
+			THROW_INTERNAL_ERROR("Unhandled Root Signature bindable type in Material");
+		}
+	}
+
+	if (numSRVs == 0)
+		return;
+
+	target.rootIndex = m_AddDescriptorTableParameter(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, target, numSRVs);
+}
+
 void RootSignature::AddDescriptorTableParameter(Texture* texture, TargetSlotAndShader& target)
 {
 	target.rootIndex = m_AddDescriptorTableParameter( D3D12_DESCRIPTOR_RANGE_TYPE_SRV, target);
@@ -170,7 +199,7 @@ void RootSignature::ConnectDescriptorParametersToRanges()
 		}
 }
 
-unsigned int RootSignature::m_AddDescriptorTableParameter(D3D12_DESCRIPTOR_RANGE_TYPE descriptorType, TargetSlotAndShader& target)
+unsigned int RootSignature::m_AddDescriptorTableParameter(D3D12_DESCRIPTOR_RANGE_TYPE descriptorType, TargetSlotAndShader& target, unsigned int numDescriptors)
 {
 	unsigned int resultRootIndex = m_rootSignatureDesc.NumParameters;
 
@@ -179,7 +208,7 @@ unsigned int RootSignature::m_AddDescriptorTableParameter(D3D12_DESCRIPTOR_RANGE
 
 		D3D12_DESCRIPTOR_RANGE1 descriptorRange = {};
 		descriptorRange.RangeType = descriptorType;
-		descriptorRange.NumDescriptors = 1;
+		descriptorRange.NumDescriptors = numDescriptors;
 		descriptorRange.BaseShaderRegister = target.slot;
 		descriptorRange.RegisterSpace = 0;
 		descriptorRange.Flags = D3D12_DESCRIPTOR_RANGE_FLAG_NONE;

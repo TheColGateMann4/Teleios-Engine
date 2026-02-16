@@ -24,5 +24,6 @@ enum class BindableType
 	bindable_vertexBuffer,
 	bindable_viewPort,
 	bindable_rootSignatureWrapper,
-	bindable_rootSignatureConstants
+	bindable_rootSignatureConstants,
+	bindable_material
 };

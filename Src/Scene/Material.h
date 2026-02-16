@@ -1,6 +1,7 @@
 #pragma once
 #include "Includes/DirectXIncludes.h"
 #include "Graphics/Bindables/Shader.h"
+#include "Graphics/Core/BindableContainer.h"
 
 class Bindable;
 
@@ -47,20 +48,34 @@ namespace MaterialProperties
 	};
 };
 
-class Material
+class Material : public Bindable, public RootSignatureBindable, public DescriptorBindable
 {
 	friend class ModelImporter;
 
 public:
 	Material(Graphics& graphics, std::string filePath, MaterialProperties::MaterialProperties properties);
 
-public:
+public:	
 	const MaterialProperties::MaterialProperties& GetProperties() const;
-	std::vector<ShaderMacro> GetShaderMacros() const;
-	const std::vector<std::shared_ptr<Bindable>>& GetBindables() const;
+	const MeshBindableContainer& GetBindableContainer() const;
+
+	void Bind(Graphics& graphics, CommandList* commandList);
+
+	virtual void BindToRootSignature(RootSignature* rootSignature) override;
+	virtual void Initialize(Graphics& graphics, DescriptorHeap::DescriptorInfo descriptorInfo, unsigned int descriptorNum) override;
+	virtual void Initialize(Graphics& graphics) override;
+
+	D3D12_GPU_DESCRIPTOR_HANDLE GetDescriptorHeapGPUHandle(Graphics& graphics) const;
+
+	virtual BindableType GetBindableType() const;
+
+	virtual DescriptorType GetDescriptorType() const override;
+
+	virtual RootSignatureBindableType GetRootSignatureBindableType() const override;
 
 private:
-	std::vector<std::shared_ptr<Bindable>> m_bindables;
-	std::vector<ShaderMacro> m_shaderMacros;
+	MeshBindableContainer m_bindableContainer;
 	MaterialProperties::MaterialProperties m_properties = {};
+	DescriptorHeap::DescriptorInfo m_descriptorInfo = {};
+	bool m_hasDescriptorBindables = false;
 };
