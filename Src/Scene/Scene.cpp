@@ -104,7 +104,7 @@ void Scene::InitializeCameraBuffer(Graphics& graphics, Pipeline& pipeline)
 
 	m_cameraBuffer = std::make_shared<CachedConstantBuffer>(graphics, bufferData, std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::VertexShader, 1}});
 
-	pipeline.AddStaticResource("cameraBuffer", m_cameraBuffer.get());
+	pipeline.AddStaticResource("cameraBuffer", m_cameraBuffer);
 }
 
 void Scene::InitializeLightBuffer(Graphics& graphics, Pipeline& pipeline)
@@ -124,7 +124,7 @@ void Scene::InitializeLightBuffer(Graphics& graphics, Pipeline& pipeline)
 
 	m_lightBuffer = std::make_shared<CachedConstantBuffer>(graphics, bufferData, std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::PixelShader, 0}}, true);
 
-	pipeline.AddStaticResource("lightBuffer", m_lightBuffer.get());
+	pipeline.AddStaticResource("lightBuffer", m_lightBuffer);
 }
 
 void Scene::AssignJobs(Graphics& graphics)
