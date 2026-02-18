@@ -19,7 +19,22 @@ namespace DirectX
 	class ScratchImage;
 };
 
-class Texture : public Bindable, public RootParameterBinding, public DescriptorBindable
+enum class TextureType : int
+{
+	texture_none = -1,
+	texture_albedo,
+	texture_normal,
+	texture_metalness_roughness,
+	texture_metalness,
+	texture_roughness,
+	texture_reflectivity,
+	texture_ambient,
+	texture_opacity,
+
+	texture_types_num
+};
+
+class Texture : public Bindable, public DescriptorBindable
 {
 private:
 	enum class TextureProcessingStage
@@ -30,7 +45,7 @@ private:
 	};
 
 public:
-	Texture(Graphics& graphics, const char* path, bool allowSRGB = false, bool generateMips = true, bool compress = true, std::vector<TargetSlotAndShader> targets = { {ShaderVisibilityGraphic::PixelShader, 0} });
+	Texture(Graphics& graphics, const char* path, TextureType type);
 
 public:
 	virtual void Initialize(Graphics& graphics, DescriptorHeap::DescriptorInfo descriptorInfo, unsigned int descriptorNum) override;
@@ -39,31 +54,20 @@ protected:
 	virtual void Initialize(Graphics& graphics) override;
 
 public:
-	static std::shared_ptr<Texture> GetBindableResource(Graphics& graphics, const char* path, bool srgb = false, bool generateMips = true, bool compress = true,  std::vector<TargetSlotAndShader> targets = { {ShaderVisibilityGraphic::PixelShader, 0} });
+	static std::shared_ptr<Texture> GetBindableResource(Graphics& graphics, const char* path, TextureType type);
 
-	static std::string GetIdentifier(const char* path, bool srgb, bool generateMips, bool compress, std::vector<TargetSlotAndShader> targets);
+	static std::string GetIdentifier(const char* path, TextureType type);
 
 public:
 	void InitializeGraphicResources(Graphics& graphics, Pipeline& pipeline);
-
-	virtual void BindToCommandList(Graphics& graphics, CommandList* commandList, TargetSlotAndShader& target) override;
-
-	virtual void BindToComputeCommandList(Graphics& graphics, CommandList* commandList, TargetSlotAndShader& target) override;
-
-	virtual void BindToRootSignature(RootSignature* rootSignature, TargetSlotAndShader& target) override;
-
-	virtual void BindToComputeRootSignature(RootSignature* rootSignature, TargetSlotAndShader& target) override;
-
-	virtual D3D12_GPU_DESCRIPTOR_HANDLE GetDescriptorHeapGPUHandle(Graphics& graphics) const override;
 	
 	virtual BindableType GetBindableType() const override;
 
 	virtual DescriptorType GetDescriptorType() const override;
 
-
-	virtual RootSignatureBindableType GetRootSignatureBindableType() const override;
-
 	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUDescriptor(Graphics& graphics) const;
+
+	TextureType GetTextureType() const;
 
 	UINT GetOffsetInDescriptor() const;
 
@@ -79,6 +83,8 @@ public:
 	static DXGI_FORMAT GetLinearFormat(DXGI_FORMAT format);
 	static DXGI_FORMAT GetSRGBFormat(DXGI_FORMAT format);
 	static DXGI_FORMAT GetCompressedFormat(DXGI_FORMAT format);
+
+	static bool IsSRGBTypeTexture(TextureType type);
 
 private:
 	static unsigned int GetMipLevels(unsigned int textureWidth);
@@ -107,6 +113,7 @@ private:
 	std::shared_ptr<GraphicsTexture> m_gpuTexture;
 
 	std::string m_path;
+	TextureType m_type;
 	bool m_isAlphaOpaque = false;
 	bool m_srgb = false;
 	unsigned int m_mipmapLevels = 1;

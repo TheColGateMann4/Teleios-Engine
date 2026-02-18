@@ -30,13 +30,13 @@ Material::Material(Graphics& graphics, std::string filePath, MaterialProperties:
 
 			if (m_properties.hasAlbedoMap)
 			{
-				m_bindableContainer.AddBindable(Texture::GetBindableResource(graphics, (filePath + m_properties.albedoMapPath).c_str(), true, true, true, { {ShaderVisibilityGraphic::PixelShader, 0} }));
+				m_bindableContainer.AddBindable(Texture::GetBindableResource(graphics, (filePath + m_properties.albedoMapPath).c_str(), TextureType::texture_albedo));
 				shaderMacros.push_back({ L"TEXTURE_DIFFUSE" });
 			}
 
 			if (m_properties.hasNormalMap)
 			{
-				m_bindableContainer.AddBindable(Texture::GetBindableResource(graphics, (filePath + m_properties.normalMapPath).c_str(), false, true, true, { {ShaderVisibilityGraphic::PixelShader, 1} }));
+				m_bindableContainer.AddBindable(Texture::GetBindableResource(graphics, (filePath + m_properties.normalMapPath).c_str(), TextureType::texture_normal));
 				shaderMacros.push_back({ L"TEXTURE_NORMAL" });
 
 				shaderMacros.push_back({ L"INPUT_TANGENT" });
@@ -45,40 +45,37 @@ Material::Material(Graphics& graphics, std::string filePath, MaterialProperties:
 
 			if (m_properties.metalRoughnessSystem)
 			{
+				if (m_properties.roughnessMetalnessInOneTexture)
+				{
+					std::shared_ptr<Texture> metalnessRoughnessTexture = Texture::GetBindableResource(graphics, (filePath + m_properties.specularMetalnessMapPath).c_str(), TextureType::texture_metalness_roughness);
+
+					m_bindableContainer.AddBindable(std::move(metalnessRoughnessTexture));
+				}
+				else
+				{
 				if (m_properties.hasMetalnessMap)
 				{
-					std::shared_ptr<Texture> specularTexture = Texture::GetBindableResource(graphics, (filePath + m_properties.specularMetalnessMapPath).c_str(), false, true, true, { {ShaderVisibilityGraphic::PixelShader, 3} });
+						std::shared_ptr<Texture> metalnessTexture = Texture::GetBindableResource(graphics, (filePath + m_properties.specularMetalnessMapPath).c_str(), TextureType::texture_metalness);
 
-					m_bindableContainer.AddBindable(std::move(specularTexture));
+						m_bindableContainer.AddBindable(std::move(metalnessTexture));
 					shaderMacros.push_back({ L"TEXTURE_METALNESS" });
 				}
 
 				if (m_properties.hasRoughnessMap)
 				{
-					std::shared_ptr<Texture> specularTexture = Texture::GetBindableResource(graphics, (filePath + m_properties.specularMetalnessMapPath).c_str(), false, true, true, { {ShaderVisibilityGraphic::PixelShader, 4} });
+						std::shared_ptr<Texture> roughnessTexture = Texture::GetBindableResource(graphics, (filePath + m_properties.glosinessRoughnessMapPath).c_str(), TextureType::texture_roughness);
 
-					m_bindableContainer.AddBindable(std::move(specularTexture));
+						m_bindableContainer.AddBindable(std::move(roughnessTexture));
 					shaderMacros.push_back({ L"TEXTURE_ROUGHNESS" });
+				}
 				}
 
 				// reflectivity 5
 			}
-			else
-			{
-				if (m_properties.hasSpecularMap)
-				{
-					std::shared_ptr<Texture> specularTexture = Texture::GetBindableResource(graphics, (filePath + m_properties.specularMetalnessMapPath).c_str(), false, true, true, { {ShaderVisibilityGraphic::PixelShader, 2} });
-
-					m_properties.specularOneChannelOnly = specularTexture->GetTexture()->GetFormat() == DXGI_FORMAT_R8_UNORM;
-
-					m_bindableContainer.AddBindable(std::move(specularTexture));
-					shaderMacros.push_back({ L"TEXTURE_SPECULAR" });
-				}
-			}
 
 			if (m_properties.hasAmbientMap)
 			{
-				std::shared_ptr<Texture> specularTexture = Texture::GetBindableResource(graphics, (filePath + m_properties.ambientMapPath).c_str(), false, true, true, { {ShaderVisibilityGraphic::PixelShader, 6} });
+				std::shared_ptr<Texture> specularTexture = Texture::GetBindableResource(graphics, (filePath + m_properties.ambientMapPath).c_str(), TextureType::texture_ambient);
 
 				m_bindableContainer.AddBindable(std::move(specularTexture));
 				shaderMacros.push_back({ L"TEXTURE_AMBIENT" });

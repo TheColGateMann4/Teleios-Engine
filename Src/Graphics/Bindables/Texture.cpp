@@ -21,18 +21,17 @@
 
 #include "Graphics/Resources/GraphicsTexture.h"
 
-Texture::Texture(Graphics& graphics, const char* path, bool srgb, bool generateMips, bool compress, std::vector<TargetSlotAndShader> targets)
+Texture::Texture(Graphics& graphics, const char* path, TextureType type)
 	:
-	RootParameterBinding(targets),
-
 #ifdef _DEBUG
 	m_path(std::string("../../") + path),
 #else
 	m_path(path),
 #endif
-	m_srgb(srgb),
-	m_generateMipMaps(generateMips),
-	m_compressImage(compress)
+	m_type(type),
+	m_srgb(IsSRGBTypeTexture(m_type)),
+	m_generateMipMaps(true),
+	m_compressImage(true)
 {
 	graphics.GetDescriptorHeap().RequestMoreSpace();
 
@@ -41,13 +40,6 @@ Texture::Texture(Graphics& graphics, const char* path, bool srgb, bool generateM
 		std::wstring wPath = std::wstring(m_path.begin(), m_path.end());
 		DirectX::WIC_FLAGS flags = m_srgb ? DirectX::WIC_FLAGS_FORCE_SRGB : DirectX::WIC_FLAGS_IGNORE_SRGB;
 		DirectX::TexMetadata metaData = {};
-		D3D12_RESOURCE_STATES targetResourceState = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
-
-		const auto& targetSlots = GetTargets();
-
-		for (const auto& targetShader : targetSlots)
-			if (targetShader.target != ShaderVisibilityGraphic::PixelShader)
-				targetResourceState = D3D12_RESOURCE_STATE_ALL_SHADER_RESOURCE;
 
 		HRESULT hr;
 
@@ -66,7 +58,7 @@ Texture::Texture(Graphics& graphics, const char* path, bool srgb, bool generateM
 		m_isAlphaOpaque = metaData.GetAlphaMode() == DirectX::TEX_ALPHA_MODE_OPAQUE;
 		m_mipmapLevels = m_generateMipMaps ? GetMipLevels(metaData.width) : 1;
 
-		m_gpuTexture = std::make_shared<GraphicsTexture>(graphics, metaData.width, metaData.height, m_mipmapLevels, format, GraphicsTexture::CPUAccess::notavailable, targetResourceState, D3D12_RESOURCE_FLAG_NONE);
+		m_gpuTexture = std::make_shared<GraphicsTexture>(graphics, metaData.width, metaData.height, m_mipmapLevels, format, GraphicsTexture::CPUAccess::notavailable, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_FLAG_NONE);
 	}
 }
 
@@ -100,35 +92,19 @@ void Texture::Initialize(Graphics& graphics)
 	Initialize(graphics, descriptorInfo, 0);
 }
 
-std::shared_ptr<Texture> Texture::GetBindableResource(Graphics& graphics, const char* path, bool srgb, bool generateMips, bool compress, std::vector<TargetSlotAndShader> targets)
+std::shared_ptr<Texture> Texture::GetBindableResource(Graphics& graphics, const char* path, TextureType type)
 {
-	return BindableResourceList::GetBindableResource<Texture>(graphics, path, srgb, generateMips, compress, targets);
+	return BindableResourceList::GetBindableResource<Texture>(graphics, path, type);
 }
 
-std::string Texture::GetIdentifier(const char* path, bool allowSRGB, bool generateMips, bool compress, std::vector<TargetSlotAndShader> targets)
+std::string Texture::GetIdentifier(const char* path, TextureType type)
 {
 	std::string resultString = "Texture#";
 
 	resultString += path;
 	resultString += '#';
 
-	resultString += std::to_string(generateMips);
-	resultString += '#';
-
-	resultString += std::to_string(compress);
-	resultString += '#';
-
-	resultString += std::to_string(allowSRGB);
-	resultString += '#';
-
-	for (const auto target : targets)
-	{
-		resultString += target.slot;
-		resultString += '#';
-
-		resultString += std::to_string(size_t(target.target));
-		resultString += '#';
-	}
+	resultString += std::to_string(static_cast<int>(type));
 
 	return resultString;
 }
@@ -147,31 +123,6 @@ void Texture::InitializeGraphicResources(Graphics& graphics, Pipeline& pipeline)
 	m_resourcesInitialized = true;
 }
 
-void Texture::BindToCommandList(Graphics& graphics, CommandList* commandList, TargetSlotAndShader& target)
-{
-	commandList->SetGraphicsDescriptorTable(graphics, this, target);
-}
-
-void Texture::BindToComputeCommandList(Graphics& graphics, CommandList* commandList, TargetSlotAndShader& target)
-{
-	commandList->SetComputeDescriptorTable(graphics, this, target);
-}
-
-void Texture::BindToRootSignature(RootSignature* rootSignature, TargetSlotAndShader& target)
-{
-	rootSignature->AddDescriptorTableParameter(this, target);
-}
-
-void Texture::BindToComputeRootSignature(RootSignature* rootSignature, TargetSlotAndShader& target)
-{
-	rootSignature->AddComputeDescriptorTableParameter(this, target);
-}
-
-D3D12_GPU_DESCRIPTOR_HANDLE Texture::GetDescriptorHeapGPUHandle(Graphics& graphics) const
-{
-	return m_textureDescriptor.descriptorHeapGpuHandle;
-}
-
 BindableType Texture::GetBindableType() const
 {
 	return BindableType::bindable_texture;
@@ -182,14 +133,14 @@ DescriptorType Texture::GetDescriptorType() const
 	return DescriptorType::descriptor_SRV;
 }
 
-RootSignatureBindableType Texture::GetRootSignatureBindableType() const
-{
-	return RootSignatureBindableType::rootSignature_DescriptorTable;
-}
-
 D3D12_CPU_DESCRIPTOR_HANDLE Texture::GetCPUDescriptor(Graphics& graphics) const
 {
 	return m_textureDescriptor.descriptorCpuHandle;
+}
+
+TextureType Texture::GetTextureType() const
+{
+	return m_type;
 }
 
 UINT Texture::GetOffsetInDescriptor() const
@@ -215,6 +166,18 @@ void Texture::SetComputeRootIndex(unsigned int rootIndex)
 bool Texture::IsAlphaOpaque() const
 {
 	return m_isAlphaOpaque;
+}
+
+bool Texture::IsSRGBTypeTexture(TextureType type)
+{
+	switch (type)
+	{
+	case TextureType::texture_albedo:
+		return true;
+
+	default:
+		return false;
+	}
 }
 
 unsigned int Texture::GetMipLevels(unsigned int textureWidth)

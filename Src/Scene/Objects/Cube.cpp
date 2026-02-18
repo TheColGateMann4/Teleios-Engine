@@ -121,7 +121,7 @@ Cube::Cube(Graphics& graphics, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rot
 			step.AddBindable(constBuffer);
 		}
 
-		step.AddBindable(std::make_shared<Texture>(graphics, "Images/brickwall.jpg"));
+		step.AddBindable(std::make_shared<Texture>(graphics, "Images/brickwall.jpg", TextureType::texture_albedo));
 
 		step.AddBindable(std::make_shared<StaticSampler>(graphics, D3D12_FILTER_MIN_MAG_MIP_POINT));
 	}
