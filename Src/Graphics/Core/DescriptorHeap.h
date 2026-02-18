@@ -19,7 +19,7 @@ public: // At program initialization
 	
 	void Finish(Graphics& graphics);
 
-	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUHandle(unsigned int descriptorOffset) const;
+	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUHandle(unsigned int descriptorOffset = 0) const;
 
 public:	// At runtime
 	std::vector<DescriptorInfo> GetNextHandles(unsigned int numEntries);
