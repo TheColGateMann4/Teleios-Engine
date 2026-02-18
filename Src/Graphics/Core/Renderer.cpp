@@ -58,9 +58,13 @@ void Renderer::Draw(Graphics& graphics, float deltaTime)
 
 		m_pipeline.ExecuteCopyCalls(graphics);
 
-		m_renderGraph.Execute(graphics, m_pipeline.GetGraphicCommandList());
+		auto* graphicsCommandList = m_pipeline.GetGraphicCommandList();
 
-		graphics.GetProfiler().SetEndData(graphics, m_pipeline.GetGraphicCommandList(), deltaTime);
+		graphicsCommandList->SetDescriptorHeap(graphics, &graphics.GetDescriptorHeap());
+
+		m_renderGraph.Execute(graphics, graphicsCommandList);
+
+		graphics.GetProfiler().SetEndData(graphics, graphicsCommandList, deltaTime);
 
 		m_pipeline.FinishRender(graphics);
 	}

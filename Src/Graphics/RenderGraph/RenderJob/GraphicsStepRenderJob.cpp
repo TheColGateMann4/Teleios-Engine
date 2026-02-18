@@ -111,7 +111,6 @@ void GraphicsStepRenderJob::Execute(Graphics& graphics, CommandList* commandList
 
 	commandList->SetGraphicsRootSignature(graphics, m_rootSignature.get());
 
-	commandList->SetDescriptorHeap(graphics, &graphics.GetDescriptorHeap());
 
 	{
 		const auto& commandListBindables = m_bindableContainer.GetCommandListBindables();
