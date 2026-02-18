@@ -1,6 +1,6 @@
 # 🔥Teleios Engine — DirectX 12 Engine
 <div align="center"> 
-  <img src="Showcase/sponzaFog1.png" alt="Engine banner"> 
+  <img src="Showcase/deferred.png" alt="Engine banner"> 
   <br>
   <br>
   <b>Futuristic DirectX 12 engine optimized for performance, modern rendering techniques, and advanced visual effects.</b> 
@@ -19,15 +19,24 @@ This engine is designed for:
 ## 🚀 Properties:
 
 - **Scalable Structure** - Engine is carefully organized for clarity and maintainability, making it easy to extend and scale.  
+- **Bindless Binding System** - Uses global descriptor table, with per-material root constants to get given texture by index.
+- **Deferred Rendering System** - Outputs material data to GBuffers, then lightning pass computes final result.
 - **Modern & Physically Based Rendering** - Fully supports metalness-roughness PBR, and handles complex scenes like Intel Sponza.
 - **Dynamic Shader System** - Shaders are generated on-the-fly using macros, allowing flexible “one-shader-fits-all” workflows.
 - **Global Bindable List** - Every Bindable has its own ID and is assigned to global table, which allows us to share them between objects.
 - **Post-Processing** - Editable effects like Depth of Field and Fog.
 - **Shader Model 6.8 Ready** - Supports the latest DX12 features including wave operations, typed UAV loads, and advanced root signatures.
 - **Compute Shaders** - Leveraging compute shaders to perform advanced GPU-side calculations.
+- **Multi-Camera and Multi-Light support** - Allows multiple cameras and lights on scene. Which are also read from model files.
 
 ## 📸 Gallery:
 
+
+<div align="center"> 
+   Deferred Rendering System<br>
+   <img src="Showcase/deferred.png" width="45%" alt="Deferred lights"> 
+   <img src="Showcase/deferred1.png" width="45%" alt="Deferred colored lights"> 
+</div>
 
 <div align="center"> 
    Old Sponza with Fog<br>
