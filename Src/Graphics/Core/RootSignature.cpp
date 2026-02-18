@@ -6,6 +6,8 @@
 
 #include "Scene/Material.h"
 
+#include "Graphics/Bindables/DescriptorHeapBindable.h"
+
 RootSignature::RootSignature()
 	:
 	m_finished(),
@@ -98,31 +100,16 @@ void RootSignature::AddConstBufferViewParameter(ConstantBuffer* constantBuffer, 
 	m_rootSignatureDesc.pParameters = m_rootParameters.data();
 }
 
-void RootSignature::AddDescriptorTableParameter(Material* material, TargetSlotAndShader& target)
+void RootSignature::AddDescriptorTableParameter(DescriptorHeapBindable* descriptorHeapBindable)
 {
-	const std::vector<RootSignatureBindable*>& rootSignatureBindables = material->GetBindableContainer().GetRootSignatureBindables();
+	TargetSlotAndShader& target = descriptorHeapBindable->GetTargets().front();
 
-	unsigned int numSRVs = 0;
-
-	for (auto* rootSignatureBindable : rootSignatureBindables)
-	{
-		auto type = rootSignatureBindable->GetRootSignatureBindableType();
-
-		if (type == RootSignatureBindableType::rootSignature_DescriptorTable)
-			numSRVs++;
-		else if (type == RootSignatureBindableType::rootSignature_CBV ||
-			type == RootSignatureBindableType::rootSignature_StaticSampler)
-			rootSignatureBindable->BindToRootSignature(this);
-		else
-		{
-			THROW_INTERNAL_ERROR("Unhandled Root Signature bindable type in Material");
-		}
-	}
-
-	if (numSRVs == 0)
-		return;
-
-	target.rootIndex = m_AddDescriptorTableParameter(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, target, numSRVs);
+	target.rootIndex = m_AddDescriptorTableParameter(
+		D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 
+		target, 
+		UINT_MAX, // UINT_MAX for unbounded size (bindless system)
+		D3D12_DESCRIPTOR_RANGE_FLAG_DESCRIPTORS_VOLATILE // GPU won't assume the descriptors are static
+	); 
 }
 
 void RootSignature::AddDescriptorTableParameter(Texture* texture, TargetSlotAndShader& target)
@@ -199,7 +186,7 @@ void RootSignature::ConnectDescriptorParametersToRanges()
 		}
 }
 
-unsigned int RootSignature::m_AddDescriptorTableParameter(D3D12_DESCRIPTOR_RANGE_TYPE descriptorType, TargetSlotAndShader& target, unsigned int numDescriptors)
+unsigned int RootSignature::m_AddDescriptorTableParameter(D3D12_DESCRIPTOR_RANGE_TYPE descriptorType, TargetSlotAndShader& target, unsigned int numDescriptors, D3D12_DESCRIPTOR_RANGE_FLAGS flags)
 {
 	unsigned int resultRootIndex = m_rootSignatureDesc.NumParameters;
 
@@ -211,7 +198,7 @@ unsigned int RootSignature::m_AddDescriptorTableParameter(D3D12_DESCRIPTOR_RANGE
 		descriptorRange.NumDescriptors = numDescriptors;
 		descriptorRange.BaseShaderRegister = target.slot;
 		descriptorRange.RegisterSpace = 0;
-		descriptorRange.Flags = D3D12_DESCRIPTOR_RANGE_FLAG_NONE;
+		descriptorRange.Flags = flags;
 		descriptorRange.OffsetInDescriptorsFromTableStart = 0;
 
 		m_descriptorTableRanges.push_back(descriptorRange);

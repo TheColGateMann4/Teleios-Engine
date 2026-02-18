@@ -87,6 +87,8 @@
     <ClCompile Include="Src\Graphics\Bindables\RootSignatureConstants.cpp" />
     <ClCompile Include="Src\Graphics\Resources\QueryHeap.cpp" />
     <ClCompile Include="Src\Scene\Material.cpp" />
+    <ClCompile Include="Src\Graphics\Bindables\MaterialBindings.cpp" />
+    <ClCompile Include="Src\Graphics\Bindables\DescriptorHeapBindable.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Src\Application.h" />
@@ -178,6 +180,8 @@
     <ClInclude Include="Src\Graphics\Bindables\RootSignatureConstants.h" />
     <ClInclude Include="Src\Graphics\Resources\QueryHeap.h" />
     <ClInclude Include="Src\Scene\Material.h" />
+    <ClInclude Include="Src\Graphics\Bindables\MaterialBindings.h" />
+    <ClInclude Include="Src\Graphics\Bindables\DescriptorHeapBindable.h" />
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="Dependencies\zlib1.dll" />
@@ -194,7 +198,6 @@
     <CopyFileToFolders Include="Src\Shaders\PS_Fog.hlsl" />
     <CopyFileToFolders Include="Src\Shaders\PS_Fullscreen.hlsl" />
     <CopyFileToFolders Include="Src\Shaders\PS_LightSource.hlsl" />
-    <CopyFileToFolders Include="Src\Shaders\PS.hlsl" />
     <CopyFileToFolders Include="Src\Shaders\PS_Texture.hlsl" />
     <CopyFileToFolders Include="Src\Shaders\PS_Solid.hlsl" />
     <CopyFileToFolders Include="Src\Shaders\VS.hlsl" />

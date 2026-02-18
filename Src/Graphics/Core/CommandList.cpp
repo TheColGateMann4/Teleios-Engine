@@ -13,6 +13,8 @@
 
 #include "Graphics/Core/DescriptorHeap.h"
 
+#include "Graphics/Bindables/DescriptorHeapBindable.h"
+
 #ifdef _DEBUG
 	#include <pix3.h>
 	#pragma comment(lib, "WinPixEventRuntime.lib")
@@ -317,12 +319,14 @@ void CommandList::SetDescriptorHeap(Graphics& graphics, DescriptorHeap* descript
 	THROW_INFO_ERROR(pCommandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps));
 }
 
-void CommandList::SetGraphicsDescriptorTable(Graphics& graphics, Material* material, TargetSlotAndShader target)
+void CommandList::SetGraphicsDescriptorTable(Graphics& graphics, DescriptorHeapBindable* descriptorHeapBindable)
 {
 	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
 	THROW_OBJECT_STATE_ERROR_IF("Only Direct and Bundle command lists can set graphics Descriptor Tables", m_type != D3D12_COMMAND_LIST_TYPE_DIRECT && m_type != D3D12_COMMAND_LIST_TYPE_BUNDLE);
 
-	THROW_INFO_ERROR(pCommandList->SetGraphicsRootDescriptorTable(target.rootIndex, material->GetDescriptorHeapGPUHandle(graphics)));
+	TargetSlotAndShader& target = descriptorHeapBindable->GetTargets().front();
+
+	THROW_INFO_ERROR(pCommandList->SetGraphicsRootDescriptorTable(target.rootIndex, descriptorHeapBindable->GetDescriptorHeapGPUHandle(graphics)));
 }
 
 void CommandList::SetGraphicsDescriptorTable(Graphics& graphics, Texture* texture, TargetSlotAndShader target)
