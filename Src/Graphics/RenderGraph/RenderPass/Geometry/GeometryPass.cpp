@@ -91,14 +91,6 @@ void GeometryPass::ExecutePass(Graphics& graphics, CommandList* commandList)
 {
 	for (auto pJob : m_pJobs)
 	{
-		Material* jobMaterial = pJob->GetStep()->GetMaterial();
-
-		if (jobMaterial != currentlyBoundMaterial)
-		{
-			jobMaterial->Bind(graphics, commandList);
-			currentlyBoundMaterial = jobMaterial;
-		}
-
 		pJob->Execute(graphics, commandList);
 	}
 }

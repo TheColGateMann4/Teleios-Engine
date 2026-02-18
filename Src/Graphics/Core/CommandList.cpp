@@ -326,15 +326,7 @@ void CommandList::SetGraphicsDescriptorTable(Graphics& graphics, DescriptorHeapB
 
 	TargetSlotAndShader& target = descriptorHeapBindable->GetTargets().front();
 
-	THROW_INFO_ERROR(pCommandList->SetGraphicsRootDescriptorTable(target.rootIndex, descriptorHeapBindable->GetDescriptorHeapGPUHandle(graphics)));
-}
-
-void CommandList::SetGraphicsDescriptorTable(Graphics& graphics, Texture* texture, TargetSlotAndShader target)
-{
-	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
-	THROW_OBJECT_STATE_ERROR_IF("Only Direct and Bundle command lists can set graphics Descriptor Tables", m_type != D3D12_COMMAND_LIST_TYPE_DIRECT && m_type != D3D12_COMMAND_LIST_TYPE_BUNDLE);
-
-	THROW_INFO_ERROR(pCommandList->SetGraphicsRootDescriptorTable(target.rootIndex, texture->GetDescriptorHeapGPUHandle(graphics)));
+	THROW_INFO_ERROR(pCommandList->SetGraphicsRootDescriptorTable(target.rootIndex, descriptorHeapBindable->GetDescriptorHeapGPUHandle()));
 }
 
 void CommandList::SetGraphicsDescriptorTable(Graphics& graphics, ShaderResourceViewBase* srv, TargetSlotAndShader target)
@@ -412,14 +404,6 @@ void CommandList::SetComputeConstBufferView(Graphics& graphics, ConstantBuffer* 
 	THROW_OBJECT_STATE_ERROR_IF("Only Compute and Direct command lists can set compute constant buffer view", m_type != D3D12_COMMAND_LIST_TYPE_COMPUTE && m_type != D3D12_COMMAND_LIST_TYPE_DIRECT);
 
 	THROW_INFO_ERROR(pCommandList->SetComputeRootConstantBufferView(target.rootIndex, constBuffer->GetGPUAddress(graphics)));
-}
-
-void CommandList::SetComputeDescriptorTable(Graphics& graphics, Texture* texture, TargetSlotAndShader target)
-{
-	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
-	THROW_OBJECT_STATE_ERROR_IF("Only Compute and Direct command lists can set compute descriptor table", m_type != D3D12_COMMAND_LIST_TYPE_COMPUTE && m_type != D3D12_COMMAND_LIST_TYPE_DIRECT);
-
-	THROW_INFO_ERROR(pCommandList->SetComputeRootDescriptorTable(target.rootIndex, texture->GetDescriptorHeapGPUHandle(graphics)));
 }
 
 void CommandList::SetComputeDescriptorTable(Graphics& graphics, ShaderResourceViewBase* srv, TargetSlotAndShader target)

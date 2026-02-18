@@ -53,21 +53,21 @@ Material::Material(Graphics& graphics, std::string filePath, MaterialProperties:
 				}
 				else
 				{
-				if (m_properties.hasMetalnessMap)
-				{
+					if (m_properties.hasMetalnessMap)
+					{
 						std::shared_ptr<Texture> metalnessTexture = Texture::GetBindableResource(graphics, (filePath + m_properties.specularMetalnessMapPath).c_str(), TextureType::texture_metalness);
 
 						m_bindableContainer.AddBindable(std::move(metalnessTexture));
-					shaderMacros.push_back({ L"TEXTURE_METALNESS" });
-				}
+						shaderMacros.push_back({ L"TEXTURE_METALNESS" });
+					}
 
-				if (m_properties.hasRoughnessMap)
-				{
+					if (m_properties.hasRoughnessMap)
+					{
 						std::shared_ptr<Texture> roughnessTexture = Texture::GetBindableResource(graphics, (filePath + m_properties.glosinessRoughnessMapPath).c_str(), TextureType::texture_roughness);
 
 						m_bindableContainer.AddBindable(std::move(roughnessTexture));
-					shaderMacros.push_back({ L"TEXTURE_ROUGHNESS" });
-				}
+						shaderMacros.push_back({ L"TEXTURE_ROUGHNESS" });
+					}
 				}
 
 				// reflectivity 5
@@ -141,12 +141,10 @@ Material::Material(Graphics& graphics, std::string filePath, MaterialProperties:
 	m_bindableContainer.AddBindable(Shader::GetBindableResource(graphics, L"VS", ShaderType::VertexShader, shaderMacros));
 
 
-	// Requesting size for descriptor table for this material
+	if(!m_bindableContainer.GetTextures().empty())
 	{
-		const auto& rootSignatureBindables = m_bindableContainer.GetRootSignatureBindables();
-		unsigned int rsBindablesNum = rootSignatureBindables.size();
-
-		graphics.GetDescriptorHeap().RequestMoreSpace(rsBindablesNum);
+		m_materialBindings = std::make_shared<MaterialBindings>();
+		m_bindableContainer.AddBindable(m_materialBindings);
 	}
 }
 
@@ -162,15 +160,14 @@ const MeshBindableContainer& Material::GetBindableContainer() const
 
 void Material::Bind(Graphics& graphics, CommandList* commandList)
 {
-	if (!m_hasDescriptorBindables)
-		return;
-
-	commandList->SetGraphicsDescriptorTable(graphics, this, GetTargets().at(0));
+	for (auto& pCommandListBindable : m_bindableContainer.GetCommandListBindables())
+		pCommandListBindable->BindToCommandList(graphics, commandList);
 }
 
 void Material::BindToRootSignature(RootSignature* rootSignature)
 {
-	rootSignature->AddDescriptorTableParameter(this, GetTargets().at(0));
+	for (auto& pRootSignatureBindable : m_bindableContainer.GetRootSignatureBindables())
+		pRootSignatureBindable->BindToRootSignature(rootSignature);
 }
 
 void Material::Initialize(Graphics& graphics, DescriptorHeap::DescriptorInfo descriptorInfo, unsigned int descriptorNum)
@@ -180,34 +177,28 @@ void Material::Initialize(Graphics& graphics, DescriptorHeap::DescriptorInfo des
 
 void Material::Initialize(Graphics& graphics)
 {
-	const auto& descriptorBindables = m_bindableContainer.GetDescriptorBindables();
-	unsigned int rsBindablesNum = descriptorBindables.size();
+	for (auto& pDescriptorBindable : m_bindableContainer.GetDescriptorBindables())
+		pDescriptorBindable->Initialize(graphics);
 
-	if (rsBindablesNum == 0)
-		return;
 
-	m_hasDescriptorBindables = true;
+	const auto& textures = m_bindableContainer.GetTextures();
 
-	std::vector<DescriptorHeap::DescriptorInfo> descriptorTableInfo = graphics.GetDescriptorHeap().GetNextHandles(rsBindablesNum);
+	if(!textures.empty())
+		m_materialBindings->InitializeTextureIndexesConstants(textures);
+}
 
-	m_descriptorInfo = descriptorTableInfo.front();
+void Material::InitializeGraphicResources(Graphics& graphics, Pipeline& pipeline)
+{
+	for (auto texture : m_bindableContainer.GetTextures())
+		texture->InitializeGraphicResources(graphics, pipeline);
 
-	for (int i = 0; i < rsBindablesNum; i++)
-	{
-		// For now we won't support resources that need many descriptors. But later we will have to make whole table N times if single resource in our table needs N frames. 
-		// For now we just write 0 since we don't use any dynamic resources that are changing in any way
-		descriptorBindables.at(i)->Initialize(graphics, descriptorTableInfo.at(i), 0);
-	}
+	for (auto* cachedBuffer : m_bindableContainer.GetCachedBuffers())
+		cachedBuffer->Update(graphics);
 }
 
 D3D12_GPU_DESCRIPTOR_HANDLE Material::GetDescriptorHeapGPUHandle(Graphics& graphics) const
 {
 	return m_descriptorInfo.descriptorHeapGpuHandle;
-}
-
-BindableType Material::GetBindableType() const
-{
-	return BindableType::bindable_material;
 }
 
 DescriptorType Material::GetDescriptorType() const

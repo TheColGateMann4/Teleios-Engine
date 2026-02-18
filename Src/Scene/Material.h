@@ -2,6 +2,7 @@
 #include "Includes/DirectXIncludes.h"
 #include "Graphics/Bindables/Shader.h"
 #include "Graphics/Core/BindableContainer.h"
+#include "Graphics/Bindables/MaterialBindings.h"
 
 class Bindable;
 
@@ -48,7 +49,7 @@ namespace MaterialProperties
 	};
 };
 
-class Material : public Bindable, public RootSignatureBindable, public DescriptorBindable
+class Material : public RootSignatureBindable, public DescriptorBindable
 {
 	friend class ModelImporter;
 
@@ -65,9 +66,9 @@ public:
 	virtual void Initialize(Graphics& graphics, DescriptorHeap::DescriptorInfo descriptorInfo, unsigned int descriptorNum) override;
 	virtual void Initialize(Graphics& graphics) override;
 
-	D3D12_GPU_DESCRIPTOR_HANDLE GetDescriptorHeapGPUHandle(Graphics& graphics) const;
+	void InitializeGraphicResources(Graphics& graphics, Pipeline& pipeline);
 
-	virtual BindableType GetBindableType() const;
+	D3D12_GPU_DESCRIPTOR_HANDLE GetDescriptorHeapGPUHandle(Graphics& graphics) const;
 
 	virtual DescriptorType GetDescriptorType() const override;
 
@@ -78,4 +79,6 @@ private:
 	MaterialProperties::MaterialProperties m_properties = {};
 	DescriptorHeap::DescriptorInfo m_descriptorInfo = {};
 	bool m_hasDescriptorBindables = false;
+
+	std::shared_ptr<MaterialBindings> m_materialBindings;
 };

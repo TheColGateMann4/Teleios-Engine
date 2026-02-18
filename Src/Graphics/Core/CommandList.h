@@ -108,7 +108,6 @@ public:
 	void SetGraphicsConstBufferView(Graphics& graphics, ConstantBuffer* constBuffer, TargetSlotAndShader target);
 
 	void SetGraphicsDescriptorTable(Graphics& graphics, DescriptorHeapBindable* descriptorHeapBindable);
-	void SetGraphicsDescriptorTable(Graphics& graphics, Texture* texture, TargetSlotAndShader target);
 	void SetGraphicsDescriptorTable(Graphics& graphics, ShaderResourceViewBase* srv, TargetSlotAndShader target);
 
 	void SetRootConstants(Graphics& graphics, RootSignatureConstants* constants, TargetSlotAndShader target);
@@ -124,7 +123,6 @@ public:
 
 	void SetComputeConstBufferView(Graphics& graphics, ConstantBuffer* constBuffer, TargetSlotAndShader target);
 
-	void SetComputeDescriptorTable(Graphics& graphics, Texture* texture, TargetSlotAndShader target);
 	void SetComputeDescriptorTable(Graphics& graphics, ShaderResourceViewBase* srv, TargetSlotAndShader target);
 	void SetComputeDescriptorTable(Graphics& graphics, UnorderedAccessView* uav, TargetSlotAndShader target);
 

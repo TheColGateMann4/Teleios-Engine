@@ -103,6 +103,11 @@ void GraphicsStepRenderJob::InitializeGraphicResources(Graphics& graphics, Pipel
 
 	for (auto* cachedBuffer : m_bindableContainer.GetCachedBuffers())
 		cachedBuffer->Update(graphics);
+
+	auto* material = m_step->GetMaterial();
+
+	if (material)
+		material->InitializeGraphicResources(graphics, pipeline);
 }
 
 void GraphicsStepRenderJob::Execute(Graphics& graphics, CommandList* commandList) const
@@ -111,6 +116,12 @@ void GraphicsStepRenderJob::Execute(Graphics& graphics, CommandList* commandList
 
 	commandList->SetGraphicsRootSignature(graphics, m_rootSignature.get());
 
+	{
+		auto* material = m_step->GetMaterial();
+
+		if (material)
+			material->Bind(graphics, commandList);
+	}
 
 	{
 		const auto& commandListBindables = m_bindableContainer.GetCommandListBindables();
