@@ -18,6 +18,17 @@ bool DynamicConstantBuffer::ImguiData::ShouldShow()
 	return show;
 }
 
+DynamicConstantBuffer::ImguiUintData::ImguiUintData(bool show_, unsigned int min_, unsigned int max_, const char* format_, int flags_)
+	:
+	ImguiData(show_),
+	min(min_),
+	max(max_),
+	format(format_),
+	flags(flags_)
+{
+
+}
+
 DynamicConstantBuffer::ImguiIntData::ImguiIntData(bool show_, int min_, int max_, const char* format_, int flags_)
 	:
 	ImguiData(show_),
@@ -287,6 +298,12 @@ bool DynamicConstantBuffer::DrawImguiPropety(const DynamicConstantBuffer::Layout
 
 	switch (element.type)
 	{
+		case DynamicConstantBuffer::ElementType::Uint:
+		{
+			auto* imguiUintData = static_cast<DynamicConstantBuffer::ImguiUintData*>(imguiData);
+		
+			return ImGui::SliderScalar(elementName, ImGuiDataType_U32, reinterpret_cast<int*>(elementData), &imguiUintData->min, &imguiUintData->max, imguiUintData->format, imguiUintData->flags);
+		}
 		case DynamicConstantBuffer::ElementType::Int:
 		{
 			auto* imguiIntData = static_cast<DynamicConstantBuffer::ImguiIntData*>(imguiData);
