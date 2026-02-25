@@ -1,7 +1,7 @@
 #include "DepthStencilState.h"
 #include "Graphics/Core/PipelineState.h"
 
-#include "Graphics/Core/BindableResourceList.h"
+#include "Graphics/Core/ResourceList.h"
 
 #include "Macros/ErrorMacros.h"
 
@@ -26,7 +26,7 @@ DepthStencilState::DepthStencilState(Graphics& graphics, DepthComparisonFunc dep
 
 std::shared_ptr<DepthStencilState> DepthStencilState::GetBindableResource(Graphics& graphics, DepthComparisonFunc depthComparisonFunc)
 {
-	return BindableResourceList::GetBindableResource<DepthStencilState>(graphics, depthComparisonFunc);
+	return ResourceList::GetResource<DepthStencilState>(graphics, depthComparisonFunc);
 }
 
 std::string DepthStencilState::GetIdentifier(DepthComparisonFunc depthComparisonFunc)

@@ -1,7 +1,7 @@
 #include "BlendState.h"
 #include "Graphics/Core/PipelineState.h"
 
-#include "Graphics/Core/BindableResourceList.h"
+#include "Graphics/Core/ResourceList.h"
 
 BlendState::BlendState(Graphics& graphics, bool alphaToCoverage)
 {
@@ -25,7 +25,7 @@ BlendState::BlendState(Graphics& graphics, bool alphaToCoverage)
 
 std::shared_ptr<BlendState> BlendState::GetBindableResource(Graphics& graphics, bool alphaToCoverage)
 {
-	return BindableResourceList::GetBindableResource<BlendState>(graphics, alphaToCoverage);
+	return ResourceList::GetResource<BlendState>(graphics, alphaToCoverage);
 }
 
 std::string BlendState::GetIdentifier(bool alphaToCoverage)

@@ -5,7 +5,7 @@
 
 #include <d3dcompiler.h>
 
-#include "Graphics/Core/BindableResourceList.h"
+#include "Graphics/Core/ResourceList.h"
 
 constexpr const wchar_t* GetDefaultEntryPointName(ShaderType type)
 {
@@ -78,7 +78,7 @@ Shader::Shader(Graphics& graphics, const wchar_t* name, ShaderType type, std::ve
 
 std::shared_ptr<Shader> Shader::GetBindableResource(Graphics& graphics, const wchar_t* name, ShaderType type, std::vector<ShaderMacro> shaderMacros)
 {
-	return BindableResourceList::GetBindableResource<Shader>(graphics, name, type, shaderMacros);
+	return ResourceList::GetResource<Shader>(graphics, name, type, shaderMacros);
 }
 
 std::string Shader::GetIdentifier(const wchar_t* name, ShaderType type, std::vector<ShaderMacro> shaderMacros)

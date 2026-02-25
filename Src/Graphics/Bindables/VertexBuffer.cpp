@@ -6,7 +6,7 @@
 
 #include "Graphics/Data/DynamicVertex.h"
 
-#include "Graphics/Core/BindableResourceList.h"
+#include "Graphics/Core/ResourceList.h"
 
 VertexBuffer::VertexBuffer(Graphics& graphics, void* pData, size_t numElements, size_t dataStride)
 {
@@ -45,22 +45,22 @@ VertexBuffer::VertexBuffer(Graphics& graphics, void* pData, const DynamicVertex:
 
 std::shared_ptr<VertexBuffer> VertexBuffer::GetBindableResource(Graphics& graphics, std::string identifier, void* pData, size_t numElements, size_t dataStride)
 {
-	return BindableResourceList::GetBindableResourceByID<VertexBuffer>(graphics, "VertexBuffer#" + identifier, pData, numElements, dataStride);
+	return ResourceList::GetResourceByID<VertexBuffer>(graphics, "VertexBuffer#" + identifier, pData, numElements, dataStride);
 }
 
 std::shared_ptr<VertexBuffer> VertexBuffer::GetBindableResource(Graphics& graphics, std::string identifier, DynamicVertex::DynamicVertex& dynamicVertexBuffer)
 {
-	return BindableResourceList::GetBindableResourceByID<VertexBuffer>(graphics, "VertexBuffer#" + identifier, dynamicVertexBuffer);
+	return ResourceList::GetResourceByID<VertexBuffer>(graphics, "VertexBuffer#" + identifier, dynamicVertexBuffer);
 }
 
 std::shared_ptr<VertexBuffer> VertexBuffer::GetBindableResource(Graphics& graphics, std::string identifier, const DynamicVertex::DynamicVertexLayout& layout, size_t numElements)
 {
-	return BindableResourceList::GetBindableResourceByID<VertexBuffer>(graphics, "VertexBuffer#" + identifier, layout, numElements);
+	return ResourceList::GetResourceByID<VertexBuffer>(graphics, "VertexBuffer#" + identifier, layout, numElements);
 }
 
 std::shared_ptr<VertexBuffer> VertexBuffer::GetBindableResource(Graphics& graphics, std::string identifier, void* pData, const DynamicVertex::DynamicVertexLayout& layout, size_t numElements)
 {
-	return BindableResourceList::GetBindableResourceByID<VertexBuffer>(graphics, "VertexBuffer#" + identifier, pData, layout, numElements);
+	return ResourceList::GetResourceByID<VertexBuffer>(graphics, "VertexBuffer#" + identifier, pData, layout, numElements);
 }
 
 void VertexBuffer::BindToCopyPipelineIfNeeded(Graphics& graphics, Pipeline& pipeline)

@@ -1,7 +1,7 @@
 #include "RasterizerState.h"
 #include "Graphics/Core/PipelineState.h"
 
-#include "Graphics/Core//BindableResourceList.h"
+#include "Graphics/Core//ResourceList.h"
 
 RasterizerState::RasterizerState(Graphics& graphics, bool twoSided)
 {
@@ -21,7 +21,7 @@ RasterizerState::RasterizerState(Graphics& graphics, bool twoSided)
 
 std::shared_ptr<RasterizerState> RasterizerState::GetBindableResource(Graphics& graphics, bool twoSided)
 {
-	return BindableResourceList::GetBindableResource<RasterizerState>(graphics, twoSided);
+	return ResourceList::GetResource<RasterizerState>(graphics, twoSided);
 }
 
 std::string RasterizerState::GetIdentifier(bool twoSided)

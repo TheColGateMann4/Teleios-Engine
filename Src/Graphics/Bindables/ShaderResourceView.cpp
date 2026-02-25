@@ -8,7 +8,7 @@
 #include "Graphics/Resources/GraphicsTexture.h"
 #include "Graphics/Resources/GraphicsBuffer.h"
 
-#include "Graphics/Core/BindableResourceList.h"
+#include "Graphics/Core/ResourceList.h"
 
 ShaderResourceViewBase::ShaderResourceViewBase(unsigned int slot)
 	:
@@ -242,12 +242,12 @@ void ShaderResourceViewMultiResource::Initialize(Graphics& graphics)
 
 std::shared_ptr<ShaderResourceViewMultiResource> ShaderResourceViewMultiResource::GetBindableResource(Graphics& graphics, std::string identifier, BackBufferRenderTarget* renderTarget, UINT slot)
 {
-	return BindableResourceList::GetBindableResourceByID<ShaderResourceViewMultiResource>(graphics, identifier, renderTarget, slot);
+	return ResourceList::GetResourceByID<ShaderResourceViewMultiResource>(graphics, identifier, renderTarget, slot);
 }
 
 std::shared_ptr<ShaderResourceViewMultiResource> ShaderResourceViewMultiResource::GetBindableResource(Graphics& graphics, std::string identifier, DepthStencilViewMultiResource* depthStencil, UINT slot)
 {
-	return BindableResourceList::GetBindableResourceByID<ShaderResourceViewMultiResource>(graphics, identifier, depthStencil, slot);
+	return ResourceList::GetResourceByID<ShaderResourceViewMultiResource>(graphics, identifier, depthStencil, slot);
 }
 
 std::string ShaderResourceViewMultiResource::GetIdentifier(std::string identifier)

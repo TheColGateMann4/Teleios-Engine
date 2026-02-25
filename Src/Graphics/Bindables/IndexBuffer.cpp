@@ -3,7 +3,7 @@
 #include "Graphics/Core/Graphics.h"
 #include "Graphics/Core/Pipeline.h"
 
-#include "Graphics/Core/BindableResourceList.h"
+#include "Graphics/Core/ResourceList.h"
 
 IndexBuffer::IndexBuffer(Graphics& graphics, std::vector<unsigned int> indices)
 	:
@@ -41,12 +41,12 @@ IndexBuffer::IndexBuffer(Graphics& graphics, void* pData, size_t indexCount, DXG
 
 std::shared_ptr<IndexBuffer> IndexBuffer::GetBindableResource(Graphics& graphics, std::string identifier, std::vector<unsigned int> indices)
 {
-	return BindableResourceList::GetBindableResourceByID<IndexBuffer>(graphics, "IndexBuffer#" + identifier, indices);
+	return ResourceList::GetResourceByID<IndexBuffer>(graphics, "IndexBuffer#" + identifier, indices);
 }
 
 std::shared_ptr<IndexBuffer> IndexBuffer::GetBindableResource(Graphics& graphics, std::string identifier, std::vector<unsigned short> indices)
 {
-	return BindableResourceList::GetBindableResourceByID<IndexBuffer>(graphics, "IndexBuffer#" + identifier, indices);
+	return ResourceList::GetResourceByID<IndexBuffer>(graphics, "IndexBuffer#" + identifier, indices);
 }
 
 GraphicsBuffer* IndexBuffer::GetBuffer()

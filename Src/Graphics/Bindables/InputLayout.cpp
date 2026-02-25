@@ -3,7 +3,7 @@
 #include "Graphics/Core/PipelineState.h"
 #include "Graphics/Data/DynamicVertex.h"
 
-#include "Graphics/Core/BindableResourceList.h"
+#include "Graphics/Core/ResourceList.h"
 
 InputLayout::InputLayout(Graphics& graphics, const DynamicVertex::DynamicVertexLayout& layout)
 	:
@@ -18,7 +18,7 @@ InputLayout::InputLayout(Graphics& graphics, const DynamicVertex::DynamicVertexL
 
 std::shared_ptr<InputLayout> InputLayout::GetBindableResource(Graphics& graphics, const DynamicVertex::DynamicVertexLayout& layout)
 {
-	return BindableResourceList::GetBindableResource<InputLayout>(graphics, layout);
+	return ResourceList::GetResource<InputLayout>(graphics, layout);
 }
 
 std::string InputLayout::GetIdentifier(const DynamicVertex::DynamicVertexLayout& layout)

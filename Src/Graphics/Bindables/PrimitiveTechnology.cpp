@@ -3,7 +3,7 @@
 #include "Graphics/Core/PipelineState.h"
 #include "Macros/ErrorMacros.h"
 
-#include "Graphics/Core/BindableResourceList.h"
+#include "Graphics/Core/ResourceList.h"
 
 PrimitiveTechnology::PrimitiveTechnology(Graphics& graphics, D3D12_PRIMITIVE_TOPOLOGY_TYPE type)
 	:
@@ -15,7 +15,7 @@ PrimitiveTechnology::PrimitiveTechnology(Graphics& graphics, D3D12_PRIMITIVE_TOP
 
 std::shared_ptr<PrimitiveTechnology> PrimitiveTechnology::GetBindableResource(Graphics& graphics, D3D12_PRIMITIVE_TOPOLOGY_TYPE type)
 {
-	return BindableResourceList::GetBindableResource<PrimitiveTechnology>(graphics, type);
+	return ResourceList::GetResource<PrimitiveTechnology>(graphics, type);
 }
 
 std::string PrimitiveTechnology::GetIdentifier(D3D12_PRIMITIVE_TOPOLOGY_TYPE type)

@@ -261,6 +261,7 @@
     <ClCompile Include="Src\Graphics\RenderGraph\RenderJob\StepRenderJob.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Src\Graphics\Core\ResourceList.h" />
     <ClInclude Include="Src\Graphics\Bindables\DescriptorHeapBindable.h" />
     <ClInclude Include="Src\Graphics\Bindables\MaterialBindings.h" />
     <ClInclude Include="Src\Graphics\Resources\QueryHeap.h" />
@@ -292,7 +293,6 @@
     <ClInclude Include="Src\Application.h" />
     <ClInclude Include="Src\Graphics\Bindables\Bindable.h" />
     <ClInclude Include="Src\Graphics\Core\BindableContainer.h" />
-    <ClInclude Include="Src\Graphics\Core\BindableResourceList.h" />
     <ClInclude Include="Src\Graphics\Bindables\BlendState.h" />
     <ClInclude Include="Src\Graphics\RenderGraph\RenderPass\Fullscreen\DepthOfFieldRenderPass.h" />
     <ClInclude Include="Src\Graphics\RenderGraph\RenderPass\Fullscreen\FogRenderPass.h" />

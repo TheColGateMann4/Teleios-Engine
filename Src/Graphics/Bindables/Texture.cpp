@@ -7,7 +7,7 @@
 
 #include <DirectXTex/DirectXTex.h>
 
-#include "Graphics/Core/BindableResourceList.h"
+#include "Graphics/Core/ResourceList.h"
 
 #include "Graphics/Core/PipelineState.h"
 #include "Graphics/Core/CommandList.h"
@@ -94,7 +94,7 @@ void Texture::Initialize(Graphics& graphics)
 
 std::shared_ptr<Texture> Texture::GetBindableResource(Graphics& graphics, const char* path, TextureType type)
 {
-	return BindableResourceList::GetBindableResource<Texture>(graphics, path, type);
+	return ResourceList::GetResource<Texture>(graphics, path, type);
 }
 
 std::string Texture::GetIdentifier(const char* path, TextureType type)

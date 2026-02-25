@@ -4,7 +4,7 @@
 #include "Graphics/Core/Pipeline.h"
 #include "Graphics/Core/CommandList.h"
 
-#include "Graphics/Core/BindableResourceList.h"
+#include "Graphics/Core/ResourceList.h"
 
 ViewPort::ViewPort(Graphics& graphics)
 {
@@ -42,7 +42,7 @@ BindableType ViewPort::GetBindableType() const
 
 std::shared_ptr<ViewPort> ViewPort::GetBindableResource(Graphics& graphics)
 {
-	return BindableResourceList::GetBindableResource<ViewPort>(graphics);
+	return ResourceList::GetResource<ViewPort>(graphics);
 }
 
 std::string ViewPort::GetIdentifier()
