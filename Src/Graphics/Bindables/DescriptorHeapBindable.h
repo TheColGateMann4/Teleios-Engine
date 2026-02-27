@@ -11,7 +11,7 @@ public:
 	DescriptorHeapBindable(std::vector<TargetSlotAndShader> targets = std::vector<TargetSlotAndShader>{ {ShaderVisibilityGraphic::PixelShader, 0}});
 
 public:
-	virtual void BindToRootSignature(RootSignature* rootSignature) override;
+	virtual void BindToRootSignature(RootSignatureParams* rootSignatureParams) override;
 
 	virtual void BindToCommandList(Graphics& graphics, CommandList* commandList) override;
 

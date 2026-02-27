@@ -8,19 +8,18 @@ void StandaloneMesh::Initialize(Graphics& graphics, Pipeline& pipeline)
 {
 	m_bindableContainer.Initialize(pipeline);
 
-	m_rootSignature = std::make_unique<RootSignature>();
-
 	// initializing root signature
 	{
+		RootSignatureParams rootParams = {};
 		{
 			for (auto& descriptorBindable : m_bindableContainer.GetDescriptorBindables())
 				descriptorBindable->Initialize(graphics);
 
 			for (auto& rootSignatureBindable : m_bindableContainer.GetRootSignatureBindables())
-				rootSignatureBindable->BindToRootSignature(m_rootSignature.get());
+				rootSignatureBindable->BindToRootSignature(&rootParams);
 		}
 
-		m_rootSignature->Initialize(graphics);
+		m_rootSignature = RootSignature::GetResource(graphics, std::move(rootParams));
 	}
 
 	// initialize pipeline state object

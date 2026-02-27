@@ -35,7 +35,7 @@ void TempComputeCommandList::Dispatch(Graphics& graphics, unsigned int workToPro
 
 	m_commandList->SetPipelineState(graphics, &m_pipelineState);
 
-	m_commandList->SetComputeRootSignature(graphics, &m_rootSignature);
+	m_commandList->SetComputeRootSignature(graphics, m_rootSignature.get());
 
 	m_commandList->SetDescriptorHeap(graphics, &graphics.GetDescriptorHeap());
 
@@ -66,10 +66,12 @@ void TempComputeCommandList::Finish(Graphics& graphics)
 
 	// initializing root signature
 	{
-		for (auto rootSignatureBindable : m_bindableContainer.GetRootSignatureBindables())
-			rootSignatureBindable->BindToRootSignature(&m_rootSignature);
+		RootSignatureParams rootParams = {};
 
-		m_rootSignature.Initialize(graphics);
+		for (auto rootSignatureBindable : m_bindableContainer.GetRootSignatureBindables())
+			rootSignatureBindable->BindToRootSignature(&rootParams);
+
+		m_rootSignature = RootSignature::GetResource(graphics, std::move(rootParams));
 	}
 
 	// initizalizing pipeline state
@@ -77,7 +79,7 @@ void TempComputeCommandList::Finish(Graphics& graphics)
 		for (auto pipelineStateBindable : m_bindableContainer.GetPipelineStateBindables())
 			pipelineStateBindable->BindToComputePipelineState(graphics, &m_pipelineState);
 
-		m_pipelineState.SetRootSignature(&m_rootSignature);
+		m_pipelineState.SetRootSignature(m_rootSignature.get());
 
 		m_pipelineState.Finish(graphics);
 	}
@@ -112,7 +114,7 @@ void TempGraphicsCommandList::DrawIndexed(Graphics& graphics)
 
 	m_commandList->SetPipelineState(graphics, &m_pipelineState);
 
-	m_commandList->SetGraphicsRootSignature(graphics, &m_rootSignature);
+	m_commandList->SetGraphicsRootSignature(graphics, m_rootSignature.get());
 
 	m_commandList->SetDescriptorHeap(graphics, &graphics.GetDescriptorHeap());
 
@@ -138,10 +140,12 @@ void TempGraphicsCommandList::Finish(Graphics& graphics)
 
 	// initializing root signature
 	{
-		for (auto rootSignatureBindable : m_bindableContainer.GetRootSignatureBindables())
-			rootSignatureBindable->BindToRootSignature(&m_rootSignature);
+		RootSignatureParams rootParams = {};
 
-		m_rootSignature.Initialize(graphics);
+		for (auto rootSignatureBindable : m_bindableContainer.GetRootSignatureBindables())
+			rootSignatureBindable->BindToRootSignature(&rootParams);
+
+		m_rootSignature = RootSignature::GetResource(graphics, std::move(rootParams));
 	}
 
 	// initizalizing pipeline state
@@ -149,7 +153,7 @@ void TempGraphicsCommandList::Finish(Graphics& graphics)
 		for (auto pipelineStateBindable : m_bindableContainer.GetPipelineStateBindables())
 			pipelineStateBindable->BindToPipelineState(graphics, &m_pipelineState);
 
-		m_pipelineState.SetRootSignature(&m_rootSignature);
+		m_pipelineState.SetRootSignature(m_rootSignature.get());
 
 		m_pipelineState.SetSampleMask(0xffffffff);
 					   

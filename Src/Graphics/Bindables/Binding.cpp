@@ -14,7 +14,7 @@ RootSignatureBinding::RootSignatureBinding(std::vector<TargetSlotAndShader> targ
 
 }
 
-void RootSignatureBinding::BindToComputeRootSignature(RootSignature* rootSignature, TargetSlotAndShader& target)
+void RootSignatureBinding::AddComputeRootSignatureParam(RootSignatureParams* rootSignatureParams, TargetSlotAndShader& target)
 {
 
 }

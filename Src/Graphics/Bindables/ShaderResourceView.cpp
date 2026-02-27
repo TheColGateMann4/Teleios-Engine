@@ -28,14 +28,14 @@ void ShaderResourceViewBase::BindToComputeCommandList(Graphics& graphics, Comman
 	commandList->SetComputeDescriptorTable(graphics, this, target);
 }
 
-void ShaderResourceViewBase::BindToRootSignature(RootSignature* rootSignature, TargetSlotAndShader& target)
+void ShaderResourceViewBase::BindToRootSignature(RootSignatureParams* rootSignatureParams, TargetSlotAndShader& target)
 {
-	rootSignature->AddDescriptorTableParameter(this, target);
+	rootSignatureParams->AddDescriptorTableParameter(this, target);
 }
 
-void ShaderResourceViewBase::BindToComputeRootSignature(RootSignature* rootSignature, TargetSlotAndShader& target)
+void ShaderResourceViewBase::AddComputeRootSignatureParam(RootSignatureParams* rootSignatureParams, TargetSlotAndShader& target)
 {
-	rootSignature->AddComputeDescriptorTableParameter(this, GetTargets().front());
+	rootSignatureParams->AddComputeDescriptorTableParameter(this, GetTargets().front());
 }
 
 BindableType ShaderResourceViewBase::GetBindableType() const
@@ -240,12 +240,12 @@ void ShaderResourceViewMultiResource::Initialize(Graphics& graphics)
 	}
 }
 
-std::shared_ptr<ShaderResourceViewMultiResource> ShaderResourceViewMultiResource::GetBindableResource(Graphics& graphics, std::string identifier, BackBufferRenderTarget* renderTarget, UINT slot)
+std::shared_ptr<ShaderResourceViewMultiResource> ShaderResourceViewMultiResource::GetResource(Graphics& graphics, std::string identifier, BackBufferRenderTarget* renderTarget, UINT slot)
 {
 	return ResourceList::GetResourceByID<ShaderResourceViewMultiResource>(graphics, identifier, renderTarget, slot);
 }
 
-std::shared_ptr<ShaderResourceViewMultiResource> ShaderResourceViewMultiResource::GetBindableResource(Graphics& graphics, std::string identifier, DepthStencilViewMultiResource* depthStencil, UINT slot)
+std::shared_ptr<ShaderResourceViewMultiResource> ShaderResourceViewMultiResource::GetResource(Graphics& graphics, std::string identifier, DepthStencilViewMultiResource* depthStencil, UINT slot)
 {
 	return ResourceList::GetResourceByID<ShaderResourceViewMultiResource>(graphics, identifier, depthStencil, slot);
 }

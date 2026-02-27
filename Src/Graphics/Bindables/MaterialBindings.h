@@ -14,7 +14,7 @@ public:
 	MaterialBindings();
 
 public:
-	virtual void BindToRootSignature(RootSignature* rootSignature) override;
+	virtual void BindToRootSignature(RootSignatureParams* rootSignatureParams) override;
 
 	virtual void BindToCommandList(Graphics& graphics, CommandList* commandList) override;
 

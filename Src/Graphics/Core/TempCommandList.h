@@ -36,7 +36,7 @@ private:
 	ComputeBindableContainer m_bindableContainer;
 	CommandList* m_commandList;
 
-	RootSignature m_rootSignature;
+	std::shared_ptr<RootSignature> m_rootSignature;
 	ComputePipelineState m_pipelineState;
 };
 
@@ -71,6 +71,6 @@ private:
 	MeshBindableContainer m_bindableContainer;
 	CommandList* m_commandList;
 
-	RootSignature m_rootSignature;
+	std::shared_ptr<RootSignature> m_rootSignature;
 	GraphicsPipelineState m_pipelineState;
 };

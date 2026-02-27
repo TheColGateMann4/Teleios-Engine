@@ -9,11 +9,11 @@ MaterialBindings::MaterialBindings()
 	m_descriptorHeapBindable = std::make_shared<DescriptorHeapBindable>();
 }
 
-void MaterialBindings::BindToRootSignature(RootSignature* rootSignature)
+void MaterialBindings::BindToRootSignature(RootSignatureParams* rootSignatureParams)
 {
-	m_descriptorHeapBindable->BindToRootSignature(rootSignature);
+	m_descriptorHeapBindable->BindToRootSignature(rootSignatureParams);
 
-	m_textureIndexesConstants->BindToRootSignature(rootSignature, m_textureIndexesConstants->GetTargets().front());
+	m_textureIndexesConstants->BindToRootSignature(rootSignatureParams, m_textureIndexesConstants->GetTargets().front());
 }
 
 void MaterialBindings::BindToCommandList(Graphics& graphics, CommandList* commandList)

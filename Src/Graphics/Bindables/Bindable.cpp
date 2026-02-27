@@ -20,7 +20,7 @@ RootSignatureBindable::RootSignatureBindable(std::vector<TargetSlotAndShader> ta
 
 }
 
-void RootSignatureBindable::BindToComputeRootSignature(RootSignature* rootSignature)
+void RootSignatureBindable::AddComputeRootSignatureParam(RootSignatureParams* rootSignatureParams)
 {
 
 }

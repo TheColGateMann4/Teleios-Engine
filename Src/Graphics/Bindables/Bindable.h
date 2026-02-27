@@ -6,7 +6,7 @@
 
 class Graphics;
 class CommandList;
-class RootSignature;
+class RootSignatureParams;
 class GraphicsPipelineState;
 class ComputePipelineState;
 
@@ -67,9 +67,9 @@ public:
 	RootSignatureBindable(std::vector<TargetSlotAndShader> targets);
 
 public:
-	virtual void BindToRootSignature(RootSignature* rootSignature) = 0;
+	virtual void BindToRootSignature(RootSignatureParams* rootSignatureParams) = 0;
 
-	virtual void BindToComputeRootSignature(RootSignature* rootSignature);
+	virtual void AddComputeRootSignatureParam(RootSignatureParams* rootSignatureParams);
 
 	std::vector<TargetSlotAndShader>& GetTargets();
 

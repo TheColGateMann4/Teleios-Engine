@@ -28,6 +28,7 @@ static constexpr float _pi = 3.14159265358979f;
 #include <filesystem>
 #include <span>
 #include <typeindex>
+#include <bitset>
 
 // stripping windows.h not needed stuff
 #define NOGDICAPMASKS

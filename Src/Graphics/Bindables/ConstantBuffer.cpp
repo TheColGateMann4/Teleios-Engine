@@ -16,9 +16,9 @@ void ConstantBuffer::BindToCommandList(Graphics& graphics, CommandList* commandL
 	commandList->SetGraphicsConstBufferView(graphics, this, target);
 }
 
-void ConstantBuffer::BindToRootSignature(RootSignature* rootSignature, TargetSlotAndShader& target)
+void ConstantBuffer::BindToRootSignature(RootSignatureParams* rootSignatureParams, TargetSlotAndShader& target)
 {
-	rootSignature->AddConstBufferViewParameter(this, target);
+	rootSignatureParams->AddConstBufferViewParameter(this, target);
 }
 
 D3D12_GPU_VIRTUAL_ADDRESS ConstantBuffer::GetGPUAddress(Graphics& graphics) const
@@ -126,9 +126,9 @@ void TempConstantBuffer::BindToCommandList(Graphics& graphics, CommandList* comm
 	commandList->SetComputeConstBufferView(graphics, this, target);
 }
 
-void TempConstantBuffer::BindToComputeRootSignature(RootSignature* rootSignature, TargetSlotAndShader& target)
+void TempConstantBuffer::AddComputeRootSignatureParam(RootSignatureParams* rootSignatureParams, TargetSlotAndShader& target)
 {
-	rootSignature->AddConstBufferViewParameter(this, target);
+	rootSignatureParams->AddConstBufferViewParameter(this, target);
 }
 
 D3D12_GPU_VIRTUAL_ADDRESS TempConstantBuffer::GetGPUAddress(Graphics& graphics) const

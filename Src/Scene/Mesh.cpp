@@ -90,23 +90,23 @@ void Mesh::CreateDepthTechnique(Graphics& graphics, Pipeline& pipeline)
 
 			depthStep.AddBindable(geometryBindables.GetTransformConstantBuffer());
 
-			depthStep.AddBindable(RasterizerState::GetBindableResource(graphics, false));
-			depthStep.AddBindable(DepthStencilState::GetBindableResource(graphics, DepthStencilState::DepthComparisonFunc::Less));
-			depthStep.AddBindable(BlendState::GetBindableResource(graphics));
-			depthStep.AddBindable(PrimitiveTechnology::GetBindableResource(graphics, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE));
+			depthStep.AddBindable(RasterizerState::GetResource(graphics, false));
+			depthStep.AddBindable(DepthStencilState::GetResource(graphics, DepthStencilState::DepthComparisonFunc::Less));
+			depthStep.AddBindable(BlendState::GetResource(graphics));
+			depthStep.AddBindable(PrimitiveTechnology::GetResource(graphics, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE));
 
 			// if object has differing opacity then we need pixel shader to determine if we should clip individual pixels
 			if (hasOpacity)
 			{
-				depthStep.AddBindable(Shader::GetBindableResource(graphics, L"PS_Depth", ShaderType::PixelShader));
-				depthStep.AddBindable(Shader::GetBindableResource(graphics, L"VS", ShaderType::VertexShader, { { L"INPUT_TEXCCORDS" } }));
+				depthStep.AddBindable(Shader::GetResource(graphics, L"PS_Depth", ShaderType::PixelShader));
+				depthStep.AddBindable(Shader::GetResource(graphics, L"VS", ShaderType::VertexShader, { { L"INPUT_TEXCCORDS" } }));
 
 				// TODO: Handle for opacity texture
-				depthStep.AddBindable(StaticSampler::GetBindableResource(graphics, D3D12_FILTER_MIN_MAG_MIP_POINT));
+				depthStep.AddBindable(StaticSampler::GetResource(graphics, D3D12_FILTER_MIN_MAG_MIP_POINT));
 				depthStep.AddBindable(geometryStep.GetBindableContainter().GetTextures().front());
 			}
 			else
-				depthStep.AddBindable(Shader::GetBindableResource(graphics, L"VS", ShaderType::VertexShader));
+				depthStep.AddBindable(Shader::GetResource(graphics, L"VS", ShaderType::VertexShader));
 
 			depthTechnique.AddStep(std::move(depthStep));
 		}

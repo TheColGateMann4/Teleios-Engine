@@ -16,9 +16,9 @@ void RootSignatureConstants::BindToCommandList(Graphics& graphics, CommandList* 
 	commandList->SetRootConstants(graphics, this, target);
 }
 
-void RootSignatureConstants::BindToRootSignature(RootSignature* rootSignature, TargetSlotAndShader& target)
+void RootSignatureConstants::BindToRootSignature(RootSignatureParams* rootSignatureParams, TargetSlotAndShader& target)
 {
-	rootSignature->SetGraphicsRootConstants(this, target);
+	rootSignatureParams->SetGraphicsRootConstants(this, target);
 }
 
 unsigned int RootSignatureConstants::GetNumValues() const

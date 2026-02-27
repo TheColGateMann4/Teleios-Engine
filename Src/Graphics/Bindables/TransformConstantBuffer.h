@@ -21,7 +21,7 @@ public:
 
 	virtual void BindToCommandList(Graphics& graphics, CommandList* commandList, TargetSlotAndShader& target) override;
 
-	virtual void BindToRootSignature(RootSignature* rootSignature, TargetSlotAndShader& target) override;
+	virtual void BindToRootSignature(RootSignatureParams* rootSignatureParams, TargetSlotAndShader& target) override;
 
 	virtual BindableType GetBindableType() const override;
 

@@ -15,12 +15,12 @@ RootSignatureBindableWrapper::RootSignatureBindableWrapper(RootSignatureBinding*
 
 }
 
-void RootSignatureBindableWrapper::BindToRootSignature(RootSignature* rootSignature)
+void RootSignatureBindableWrapper::BindToRootSignature(RootSignatureParams* rootSignatureParams)
 {
 	auto& targets = GetTargets();
 
 	for (auto& target : targets)
-		m_rootbind->BindToRootSignature(rootSignature, target);
+		m_rootbind->BindToRootSignature(rootSignatureParams, target);
 }
 
 BindableType RootSignatureBindableWrapper::GetBindableType() const
@@ -43,12 +43,12 @@ RootParameterBindableWrapper::RootParameterBindableWrapper(RootParameterBinding*
 	
 }
 
-void RootParameterBindableWrapper::BindToRootSignature(RootSignature* rootSignature)
+void RootParameterBindableWrapper::BindToRootSignature(RootSignatureParams* rootSignatureParams)
 {
 	auto& targets = GetTargets();
 
 	for (auto& target : targets)
-		m_paramBind->BindToRootSignature(rootSignature, target);
+		m_paramBind->BindToRootSignature(rootSignatureParams, target);
 }
 
 void RootParameterBindableWrapper::BindToCommandList(Graphics& graphics, CommandList* commandList)

@@ -20,9 +20,9 @@ public:
 public:
 	virtual ~RootSignatureBinding() = default;
 
-	virtual void BindToRootSignature(RootSignature* rootSignature, TargetSlotAndShader& target) = 0;
+	virtual void BindToRootSignature(RootSignatureParams* rootSignatureParams, TargetSlotAndShader& target) = 0;
 
-	virtual void BindToComputeRootSignature(RootSignature* rootSignature, TargetSlotAndShader& target);
+	virtual void AddComputeRootSignatureParam(RootSignatureParams* rootSignatureParams, TargetSlotAndShader& target);
 
 	virtual D3D12_GPU_VIRTUAL_ADDRESS GetGPUAddress(Graphics& graphics) const;
 

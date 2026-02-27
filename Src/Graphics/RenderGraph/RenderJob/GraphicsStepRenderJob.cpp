@@ -35,8 +35,6 @@ void GraphicsStepRenderJob::Initialize(Graphics& graphics, Pipeline& pipeline)
 {
 	m_bindableContainer.Initialize(pipeline);
 
-	m_rootSignature = std::make_unique<RootSignature>();
-
 	const std::vector<RenderPass::RenderTargetData>& renderTargets = m_pass->GetRenderTargets();
 	RenderPass::DepthStencilData depthStencilView = m_pass->GetDepthStencilView();
 
@@ -44,18 +42,19 @@ void GraphicsStepRenderJob::Initialize(Graphics& graphics, Pipeline& pipeline)
 
 	// initializing root signature
 	{
+		RootSignatureParams rootParams = {};
 		{
 			for (auto& descriptorBindable : m_bindableContainer.GetDescriptorBindables())
 				descriptorBindable->Initialize(graphics);
 
 			for (auto& rootSignatureBindable : m_bindableContainer.GetRootSignatureBindables())
-				rootSignatureBindable->BindToRootSignature(m_rootSignature.get());
+				rootSignatureBindable->BindToRootSignature(&rootParams);
 
 			if(material)
-				material->BindToRootSignature(m_rootSignature.get());
+				material->BindToRootSignature(&rootParams);
 		}
 
-		m_rootSignature->Initialize(graphics);
+		m_rootSignature = RootSignature::GetResource(graphics, std::move(rootParams));
 	}
 
 	// initialize pipeline state object

@@ -11,9 +11,9 @@ DescriptorHeapBindable::DescriptorHeapBindable(std::vector<TargetSlotAndShader> 
 
 }
 
-void DescriptorHeapBindable::BindToRootSignature(RootSignature* rootSignature)
+void DescriptorHeapBindable::BindToRootSignature(RootSignatureParams* rootSignatureParams)
 {
-	rootSignature->AddDescriptorTableParameter(this);
+	rootSignatureParams->AddDescriptorTableParameter(this);
 }
 
 void DescriptorHeapBindable::BindToCommandList(Graphics& graphics, CommandList* commandList)

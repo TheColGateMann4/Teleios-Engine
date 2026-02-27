@@ -82,14 +82,14 @@ void UnorderedAccessView::BindToComputeCommandList(Graphics& graphics, CommandLi
 	commandList->SetComputeDescriptorTable(graphics, this, target);
 }
 
-void UnorderedAccessView::BindToRootSignature(RootSignature* rootSignature, TargetSlotAndShader& target)
+void UnorderedAccessView::BindToRootSignature(RootSignatureParams* rootSignatureParams, TargetSlotAndShader& target)
 {
 	THROW_INTERNAL_ERROR("Tried to bind UAV to graphic root signature");
 }
 
-void UnorderedAccessView::BindToComputeRootSignature(RootSignature* rootSignature, TargetSlotAndShader& target)
+void UnorderedAccessView::AddComputeRootSignatureParam(RootSignatureParams* rootSignatureParams, TargetSlotAndShader& target)
 {
-	rootSignature->AddUnorderedAccessViewParameter(this, target);
+	rootSignatureParams->AddUnorderedAccessViewParameter(this, target);
 }
 
 BindableType UnorderedAccessView::GetBindableType() const

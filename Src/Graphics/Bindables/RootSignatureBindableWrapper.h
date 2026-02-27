@@ -15,7 +15,7 @@ class RootSignatureBindableWrapper : public Bindable, public RootSignatureBindab
 public:
 	RootSignatureBindableWrapper(RootSignatureBinding* bind);
 
-	virtual void BindToRootSignature(RootSignature* rootSignature) override;
+	virtual void BindToRootSignature(RootSignatureParams* rootSignatureParams) override;
 
 	virtual BindableType GetBindableType() const override;
 
@@ -31,7 +31,7 @@ public:
 	RootParameterBindableWrapper(RootParameterBinding* bind);
 
 public:
-	virtual void BindToRootSignature(RootSignature* rootSignature) override;
+	virtual void BindToRootSignature(RootSignatureParams* rootSignatureParams) override;
 
 	virtual void BindToCommandList(Graphics& graphics, CommandList* commandList) override;
 

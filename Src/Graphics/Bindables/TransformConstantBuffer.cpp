@@ -37,9 +37,9 @@ void TransformConstantBuffer::BindToCommandList(Graphics& graphics, CommandList*
 	commandList->SetGraphicsConstBufferView(graphics, GetBuffer(), target);
 }
 
-void TransformConstantBuffer::BindToRootSignature(RootSignature* rootSignature, TargetSlotAndShader& target)
+void TransformConstantBuffer::BindToRootSignature(RootSignatureParams* rootSignatureParams, TargetSlotAndShader& target)
 {
-	rootSignature->AddConstBufferViewParameter(m_buffer.get(), target);
+	rootSignatureParams->AddConstBufferViewParameter(m_buffer.get(), target);
 }
 
 BindableType TransformConstantBuffer::GetBindableType() const
