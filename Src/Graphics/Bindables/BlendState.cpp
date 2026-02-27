@@ -23,7 +23,7 @@ BlendState::BlendState(Graphics& graphics, bool alphaToCoverage)
 	m_desc.RenderTarget[0] = renderTargetBlendDesc;
 }
 
-std::shared_ptr<BlendState> BlendState::GetBindableResource(Graphics& graphics, bool alphaToCoverage)
+std::shared_ptr<BlendState> BlendState::GetResource(Graphics& graphics, bool alphaToCoverage)
 {
 	return ResourceList::GetResource<BlendState>(graphics, alphaToCoverage);
 }

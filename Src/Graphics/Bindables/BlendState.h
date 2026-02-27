@@ -11,7 +11,7 @@ public:
 	BlendState(Graphics& graphics, bool alphaToCoverage = true);
 
 public:
-	static std::shared_ptr<BlendState> GetBindableResource(Graphics& graphics, bool alphaToCoverage = true);
+	static std::shared_ptr<BlendState> GetResource(Graphics& graphics, bool alphaToCoverage = true);
 
 	static std::string GetIdentifier(bool alphaToCoverage);
 

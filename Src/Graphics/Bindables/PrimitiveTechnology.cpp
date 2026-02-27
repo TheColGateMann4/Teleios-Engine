@@ -13,7 +13,7 @@ PrimitiveTechnology::PrimitiveTechnology(Graphics& graphics, D3D12_PRIMITIVE_TOP
 
 }
 
-std::shared_ptr<PrimitiveTechnology> PrimitiveTechnology::GetBindableResource(Graphics& graphics, D3D12_PRIMITIVE_TOPOLOGY_TYPE type)
+std::shared_ptr<PrimitiveTechnology> PrimitiveTechnology::GetResource(Graphics& graphics, D3D12_PRIMITIVE_TOPOLOGY_TYPE type)
 {
 	return ResourceList::GetResource<PrimitiveTechnology>(graphics, type);
 }

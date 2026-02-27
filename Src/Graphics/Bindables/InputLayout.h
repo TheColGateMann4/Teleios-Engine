@@ -17,7 +17,7 @@ public:
 	InputLayout(Graphics& graphics, const DynamicVertex::DynamicVertexLayout& layout);
 
 public:
-	static std::shared_ptr<InputLayout> GetBindableResource(Graphics& graphics, const DynamicVertex::DynamicVertexLayout& layout);
+	static std::shared_ptr<InputLayout> GetResource(Graphics& graphics, const DynamicVertex::DynamicVertexLayout& layout);
 
 	static std::string GetIdentifier(const DynamicVertex::DynamicVertexLayout& layout);
 

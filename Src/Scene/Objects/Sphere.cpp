@@ -33,15 +33,15 @@ Sphere::Sphere(Graphics& graphics, DirectX::XMFLOAT3 position, float diameter, s
 		vertexLayout.AddElement<DynamicVertex::ElementType::Normal>();
 		vertexLayout.AddElement<DynamicVertex::ElementType::TextureCoords>();
 
-		step.AddBindable(InputLayout::GetBindableResource(graphics, vertexLayout));
+		step.AddBindable(InputLayout::GetResource(graphics, vertexLayout));
 
-		step.AddBindable(Shader::GetBindableResource(graphics, L"PS_LightSource", ShaderType::PixelShader));
+		step.AddBindable(Shader::GetResource(graphics, L"PS_LightSource", ShaderType::PixelShader));
 		std::vector<const char*> macros = {"NORMAL", "TEXCOORDS"};
-		step.AddBindable(Shader::GetBindableResource(graphics, L"VS", ShaderType::VertexShader));
-		step.AddBindable(BlendState::GetBindableResource(graphics));
-		step.AddBindable(RasterizerState::GetBindableResource(graphics));
-		step.AddBindable(DepthStencilState::GetBindableResource(graphics, DepthStencilState::DepthComparisonFunc::Less));
-		step.AddBindable(PrimitiveTechnology::GetBindableResource(graphics, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE));
+		step.AddBindable(Shader::GetResource(graphics, L"VS", ShaderType::VertexShader));
+		step.AddBindable(BlendState::GetResource(graphics));
+		step.AddBindable(RasterizerState::GetResource(graphics));
+		step.AddBindable(DepthStencilState::GetResource(graphics, DepthStencilState::DepthComparisonFunc::Less));
+		step.AddBindable(PrimitiveTechnology::GetResource(graphics, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE));
 		step.AddStaticBindable("lightBuffer");
 		step.AddStaticBindable("cameraBuffer");
 		step.AddBindable(m_transform.GetTransformConstantBuffer());
@@ -119,8 +119,8 @@ void Sphere::UpdateMesh(Graphics& graphics, Pipeline& pipeline)
 
 	if (!m_initialized)
 	{
-		albedoStep.AddBindable(VertexBuffer::GetBindableResource(graphics, "Sphere", vertices.data(), vertexLayout, vertices.size()));
-		albedoStep.AddBindable(IndexBuffer::GetBindableResource(graphics, "Sphere", indices));
+		albedoStep.AddBindable(VertexBuffer::GetResource(graphics, "Sphere", vertices.data(), vertexLayout, vertices.size()));
+		albedoStep.AddBindable(IndexBuffer::GetResource(graphics, "Sphere", indices));
 
 		m_initialized = true;
 	}

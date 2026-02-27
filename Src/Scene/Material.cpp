@@ -19,7 +19,7 @@ Material::Material(Graphics& graphics, std::string filePath, MaterialProperties:
 		// textures
 		if (m_properties.hasAnyMap)
 		{
-			m_bindableContainer.AddBindable(StaticSampler::GetBindableResource(graphics, D3D12_FILTER_MIN_MAG_MIP_POINT));
+			m_bindableContainer.AddBindable(StaticSampler::GetResource(graphics, D3D12_FILTER_MIN_MAG_MIP_POINT));
 
 			if (m_properties.ignoreDiffseAlpha)
 				shaderMacros.push_back({ L"IGNORE_DIFFUSE_ALPHA" });
@@ -30,13 +30,13 @@ Material::Material(Graphics& graphics, std::string filePath, MaterialProperties:
 
 			if (m_properties.hasAlbedoMap)
 			{
-				m_bindableContainer.AddBindable(Texture::GetBindableResource(graphics, (filePath + m_properties.albedoMapPath).c_str(), TextureType::texture_albedo));
+				m_bindableContainer.AddBindable(Texture::GetResource(graphics, (filePath + m_properties.albedoMapPath).c_str(), TextureType::texture_albedo));
 				shaderMacros.push_back({ L"TEXTURE_DIFFUSE" });
 			}
 
 			if (m_properties.hasNormalMap)
 			{
-				m_bindableContainer.AddBindable(Texture::GetBindableResource(graphics, (filePath + m_properties.normalMapPath).c_str(), TextureType::texture_normal));
+				m_bindableContainer.AddBindable(Texture::GetResource(graphics, (filePath + m_properties.normalMapPath).c_str(), TextureType::texture_normal));
 				shaderMacros.push_back({ L"TEXTURE_NORMAL" });
 
 				shaderMacros.push_back({ L"INPUT_TANGENT" });
@@ -47,7 +47,7 @@ Material::Material(Graphics& graphics, std::string filePath, MaterialProperties:
 			{
 				if (m_properties.roughnessMetalnessInOneTexture)
 				{
-					std::shared_ptr<Texture> metalnessRoughnessTexture = Texture::GetBindableResource(graphics, (filePath + m_properties.specularMetalnessMapPath).c_str(), TextureType::texture_metalness_roughness);
+					std::shared_ptr<Texture> metalnessRoughnessTexture = Texture::GetResource(graphics, (filePath + m_properties.specularMetalnessMapPath).c_str(), TextureType::texture_metalness_roughness);
 
 					m_bindableContainer.AddBindable(std::move(metalnessRoughnessTexture));
 				}
@@ -55,7 +55,7 @@ Material::Material(Graphics& graphics, std::string filePath, MaterialProperties:
 				{
 					if (m_properties.hasMetalnessMap)
 					{
-						std::shared_ptr<Texture> metalnessTexture = Texture::GetBindableResource(graphics, (filePath + m_properties.specularMetalnessMapPath).c_str(), TextureType::texture_metalness);
+						std::shared_ptr<Texture> metalnessTexture = Texture::GetResource(graphics, (filePath + m_properties.specularMetalnessMapPath).c_str(), TextureType::texture_metalness);
 
 						m_bindableContainer.AddBindable(std::move(metalnessTexture));
 						shaderMacros.push_back({ L"TEXTURE_METALNESS" });
@@ -63,7 +63,7 @@ Material::Material(Graphics& graphics, std::string filePath, MaterialProperties:
 
 					if (m_properties.hasRoughnessMap)
 					{
-						std::shared_ptr<Texture> roughnessTexture = Texture::GetBindableResource(graphics, (filePath + m_properties.glosinessRoughnessMapPath).c_str(), TextureType::texture_roughness);
+						std::shared_ptr<Texture> roughnessTexture = Texture::GetResource(graphics, (filePath + m_properties.glosinessRoughnessMapPath).c_str(), TextureType::texture_roughness);
 
 						m_bindableContainer.AddBindable(std::move(roughnessTexture));
 						shaderMacros.push_back({ L"TEXTURE_ROUGHNESS" });
@@ -75,7 +75,7 @@ Material::Material(Graphics& graphics, std::string filePath, MaterialProperties:
 
 			if (m_properties.hasAmbientMap)
 			{
-				std::shared_ptr<Texture> specularTexture = Texture::GetBindableResource(graphics, (filePath + m_properties.ambientMapPath).c_str(), TextureType::texture_ambient);
+				std::shared_ptr<Texture> specularTexture = Texture::GetResource(graphics, (filePath + m_properties.ambientMapPath).c_str(), TextureType::texture_ambient);
 
 				m_bindableContainer.AddBindable(std::move(specularTexture));
 				shaderMacros.push_back({ L"TEXTURE_AMBIENT" });
@@ -132,13 +132,13 @@ Material::Material(Graphics& graphics, std::string filePath, MaterialProperties:
 			m_bindableContainer.AddBindable(std::make_shared<CachedConstantBuffer>(graphics, bufferData, std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::PixelShader, 1}}));
 		}
 
-		m_bindableContainer.AddBindable(RasterizerState::GetBindableResource(graphics, m_properties.twoSided));
+		m_bindableContainer.AddBindable(RasterizerState::GetResource(graphics, m_properties.twoSided));
 	}
 
 	shaderMacros.push_back({ L"INPUT_NORMAL" }); // model objects will always have normals since we will generate them with assimp if they do not
 
-	m_bindableContainer.AddBindable(Shader::GetBindableResource(graphics, L"PS_GBuffer", ShaderType::PixelShader, shaderMacros));
-	m_bindableContainer.AddBindable(Shader::GetBindableResource(graphics, L"VS", ShaderType::VertexShader, shaderMacros));
+	m_bindableContainer.AddBindable(Shader::GetResource(graphics, L"PS_GBuffer", ShaderType::PixelShader, shaderMacros));
+	m_bindableContainer.AddBindable(Shader::GetResource(graphics, L"VS", ShaderType::VertexShader, shaderMacros));
 
 
 	if(!m_bindableContainer.GetTextures().empty())
@@ -164,10 +164,10 @@ void Material::Bind(Graphics& graphics, CommandList* commandList)
 		pCommandListBindable->BindToCommandList(graphics, commandList);
 }
 
-void Material::BindToRootSignature(RootSignature* rootSignature)
+void Material::BindToRootSignature(RootSignatureParams* rootSignatureParams)
 {
 	for (auto& pRootSignatureBindable : m_bindableContainer.GetRootSignatureBindables())
-		pRootSignatureBindable->BindToRootSignature(rootSignature);
+		pRootSignatureBindable->BindToRootSignature(rootSignatureParams);
 }
 
 void Material::Initialize(Graphics& graphics, DescriptorHeap::DescriptorInfo descriptorInfo, unsigned int descriptorNum)

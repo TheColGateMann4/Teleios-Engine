@@ -18,7 +18,7 @@ public:
 	virtual BindableType GetBindableType() const override;
 
 public:
-	static std::shared_ptr<ViewPort> GetBindableResource(Graphics& graphics);
+	static std::shared_ptr<ViewPort> GetResource(Graphics& graphics);
 
 	static std::string GetIdentifier();
 

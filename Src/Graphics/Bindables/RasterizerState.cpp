@@ -19,7 +19,7 @@ RasterizerState::RasterizerState(Graphics& graphics, bool twoSided)
 	m_desc.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
 }
 
-std::shared_ptr<RasterizerState> RasterizerState::GetBindableResource(Graphics& graphics, bool twoSided)
+std::shared_ptr<RasterizerState> RasterizerState::GetResource(Graphics& graphics, bool twoSided)
 {
 	return ResourceList::GetResource<RasterizerState>(graphics, twoSided);
 }

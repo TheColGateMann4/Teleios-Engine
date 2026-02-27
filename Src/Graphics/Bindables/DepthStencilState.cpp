@@ -24,7 +24,7 @@ DepthStencilState::DepthStencilState(Graphics& graphics, DepthComparisonFunc dep
 	m_desc.BackFace = frontFaceStencil;
 }
 
-std::shared_ptr<DepthStencilState> DepthStencilState::GetBindableResource(Graphics& graphics, DepthComparisonFunc depthComparisonFunc)
+std::shared_ptr<DepthStencilState> DepthStencilState::GetResource(Graphics& graphics, DepthComparisonFunc depthComparisonFunc)
 {
 	return ResourceList::GetResource<DepthStencilState>(graphics, depthComparisonFunc);
 }

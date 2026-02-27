@@ -19,7 +19,7 @@ public:
 	DepthStencilState(Graphics& graphics, DepthComparisonFunc depthComparisonFunc = DepthComparisonFunc::Less);
 
 public:
-	static std::shared_ptr<DepthStencilState> GetBindableResource(Graphics& graphics, DepthComparisonFunc depthComparisonFunc = DepthComparisonFunc::Less);
+	static std::shared_ptr<DepthStencilState> GetResource(Graphics& graphics, DepthComparisonFunc depthComparisonFunc = DepthComparisonFunc::Less);
 
 	static std::string GetIdentifier(DepthComparisonFunc depthComparisonFunc);
 

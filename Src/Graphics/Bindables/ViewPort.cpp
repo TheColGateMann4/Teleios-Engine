@@ -40,7 +40,7 @@ BindableType ViewPort::GetBindableType() const
 	return BindableType::bindable_viewPort;
 }
 
-std::shared_ptr<ViewPort> ViewPort::GetBindableResource(Graphics& graphics)
+std::shared_ptr<ViewPort> ViewPort::GetResource(Graphics& graphics)
 {
 	return ResourceList::GetResource<ViewPort>(graphics);
 }

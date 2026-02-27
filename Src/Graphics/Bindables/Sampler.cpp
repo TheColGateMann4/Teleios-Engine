@@ -20,7 +20,7 @@ StaticSampler::StaticSampler(Graphics& graphics, D3D12_FILTER filter, D3D12_TEXT
 	m_staticSamplerDesc.RegisterSpace = 0;
 }
 
-std::shared_ptr<StaticSampler> StaticSampler::GetBindableResource(Graphics& graphics, D3D12_FILTER filter, D3D12_TEXTURE_ADDRESS_MODE overlappingMode, std::vector<TargetSlotAndShader> targets)
+std::shared_ptr<StaticSampler> StaticSampler::GetResource(Graphics& graphics, D3D12_FILTER filter, D3D12_TEXTURE_ADDRESS_MODE overlappingMode, std::vector<TargetSlotAndShader> targets)
 {
 	return ResourceList::GetResource<StaticSampler>(graphics, filter, overlappingMode, targets);
 }

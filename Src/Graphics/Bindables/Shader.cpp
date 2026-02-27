@@ -76,7 +76,7 @@ Shader::Shader(Graphics& graphics, const wchar_t* name, ShaderType type, std::ve
 	Reload(graphics);
 }
 
-std::shared_ptr<Shader> Shader::GetBindableResource(Graphics& graphics, const wchar_t* name, ShaderType type, std::vector<ShaderMacro> shaderMacros)
+std::shared_ptr<Shader> Shader::GetResource(Graphics& graphics, const wchar_t* name, ShaderType type, std::vector<ShaderMacro> shaderMacros)
 {
 	return ResourceList::GetResource<Shader>(graphics, name, type, shaderMacros);
 }

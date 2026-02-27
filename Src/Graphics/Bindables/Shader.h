@@ -28,7 +28,7 @@ public:
 	Shader(Graphics& graphics, const wchar_t* name, ShaderType type, std::vector<ShaderMacro> shaderMacros = {});
 
 public:
-	static std::shared_ptr<Shader> GetBindableResource(Graphics& graphics, const wchar_t* name, ShaderType type, std::vector<ShaderMacro> shaderMacros = {});
+	static std::shared_ptr<Shader> GetResource(Graphics& graphics, const wchar_t* name, ShaderType type, std::vector<ShaderMacro> shaderMacros = {});
 
 	static std::string GetIdentifier(const wchar_t* name, ShaderType type, std::vector<ShaderMacro> shaderMacros = {});
 

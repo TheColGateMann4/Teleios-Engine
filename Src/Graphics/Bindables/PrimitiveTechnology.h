@@ -12,7 +12,7 @@ public:
 	PrimitiveTechnology(Graphics& graphics, D3D12_PRIMITIVE_TOPOLOGY_TYPE type);
 
 public:
-	static std::shared_ptr<PrimitiveTechnology> GetBindableResource(Graphics& graphics, D3D12_PRIMITIVE_TOPOLOGY_TYPE type);
+	static std::shared_ptr<PrimitiveTechnology> GetResource(Graphics& graphics, D3D12_PRIMITIVE_TOPOLOGY_TYPE type);
 
 	static std::string GetIdentifier(D3D12_PRIMITIVE_TOPOLOGY_TYPE type);
 

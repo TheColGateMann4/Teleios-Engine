@@ -92,7 +92,7 @@ void Texture::Initialize(Graphics& graphics)
 	Initialize(graphics, descriptorInfo, 0);
 }
 
-std::shared_ptr<Texture> Texture::GetBindableResource(Graphics& graphics, const char* path, TextureType type)
+std::shared_ptr<Texture> Texture::GetResource(Graphics& graphics, const char* path, TextureType type)
 {
 	return ResourceList::GetResource<Texture>(graphics, path, type);
 }

@@ -16,7 +16,7 @@ InputLayout::InputLayout(Graphics& graphics, const DynamicVertex::DynamicVertexL
 	m_desc.NumElements = m_layoutElements.size();
 }
 
-std::shared_ptr<InputLayout> InputLayout::GetBindableResource(Graphics& graphics, const DynamicVertex::DynamicVertexLayout& layout)
+std::shared_ptr<InputLayout> InputLayout::GetResource(Graphics& graphics, const DynamicVertex::DynamicVertexLayout& layout)
 {
 	return ResourceList::GetResource<InputLayout>(graphics, layout);
 }

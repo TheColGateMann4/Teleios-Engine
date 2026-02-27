@@ -9,7 +9,7 @@
 
 FullscreenRenderPass::FullscreenRenderPass(Graphics& graphics, RenderManager& renderManager)
 {
-	std::shared_ptr<IndexBuffer> indexBuffer = IndexBuffer::GetBindableResource(graphics, "FullscreenMesh", std::vector<unsigned int>{0, 1, 3, 0, 3, 2});
+	std::shared_ptr<IndexBuffer> indexBuffer = IndexBuffer::GetResource(graphics, "FullscreenMesh", std::vector<unsigned int>{0, 1, 3, 0, 3, 2});
 	m_pIndexBuffer = indexBuffer.get();
 	m_bindables.push_back(std::move(indexBuffer));
 
@@ -30,11 +30,11 @@ FullscreenRenderPass::FullscreenRenderPass(Graphics& graphics, RenderManager& re
 		{{ 1.0f, -1.0f, 0.0f }, { 1.0f, 1.0f }}
 	};
 
-	std::shared_ptr<VertexBuffer> vertexBuffer = VertexBuffer::GetBindableResource(graphics, "FullscreenMesh", vertices.data(), vertices.size(), sizeof(vertices.at(0)));
+	std::shared_ptr<VertexBuffer> vertexBuffer = VertexBuffer::GetResource(graphics, "FullscreenMesh", vertices.data(), vertices.size(), sizeof(vertices.at(0)));
 	m_pVertexBuffer = vertexBuffer.get();
 	m_bindables.push_back(std::move(vertexBuffer));
 
-	m_bindables.push_back(InputLayout::GetBindableResource(graphics, layout));
+	m_bindables.push_back(InputLayout::GetResource(graphics, layout));
 
 	const Camera::Settings defaultCameraSettings = Camera::Settings{};
 
@@ -51,17 +51,17 @@ FullscreenRenderPass::FullscreenRenderPass(Graphics& graphics, RenderManager& re
 		m_pCameraData = std::make_shared<CachedConstantBuffer>(graphics, bufferData, std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::PixelShader, 0}});
 	}
 
-	m_bindables.push_back(StaticSampler::GetBindableResource(graphics));
-	m_bindables.push_back(BlendState::GetBindableResource(graphics));
-	m_bindables.push_back(RasterizerState::GetBindableResource(graphics));
+	m_bindables.push_back(StaticSampler::GetResource(graphics));
+	m_bindables.push_back(BlendState::GetResource(graphics));
+	m_bindables.push_back(RasterizerState::GetResource(graphics));
 
 	m_meshRenderJob = std::make_shared<MeshRenderJob>(RenderJob::JobType::None);
 }
 
 void FullscreenRenderPass::Initialize(Graphics& graphics, Scene& scene)
 {
-	m_renderTargetSRV = ShaderResourceViewMultiResource::GetBindableResource(graphics, "BackBuffer", graphics.GetBackBuffer().get(), 0);
-	m_depthStencilSRV = ShaderResourceViewMultiResource::GetBindableResource(graphics, "DepthStencil", graphics.GetDepthStencil().get(), 1);
+	m_renderTargetSRV = ShaderResourceViewMultiResource::GetResource(graphics, "BackBuffer", graphics.GetBackBuffer().get(), 0);
+	m_depthStencilSRV = ShaderResourceViewMultiResource::GetResource(graphics, "DepthStencil", graphics.GetDepthStencil().get(), 1);
 
 	{
 		StandaloneMesh& mesh = m_meshRenderJob->GetMesh();
@@ -71,10 +71,10 @@ void FullscreenRenderPass::Initialize(Graphics& graphics, Scene& scene)
 
 		mesh.AddBindable(m_pCameraData); // b0
 		mesh.AddBindable(m_renderTargetSRV); // t0
-		mesh.AddBindable(Shader::GetBindableResource(graphics, L"PS_Fullscreen", ShaderType::PixelShader)); // ps
-		mesh.AddBindable(Shader::GetBindableResource(graphics, L"VS_Fullscreen", ShaderType::VertexShader)); // vs
-		mesh.AddBindable(PrimitiveTechnology::GetBindableResource(graphics, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)); // topology
-		mesh.AddBindable(ViewPort::GetBindableResource(graphics)); // vp
+		mesh.AddBindable(Shader::GetResource(graphics, L"PS_Fullscreen", ShaderType::PixelShader)); // ps
+		mesh.AddBindable(Shader::GetResource(graphics, L"VS_Fullscreen", ShaderType::VertexShader)); // vs
+		mesh.AddBindable(PrimitiveTechnology::GetResource(graphics, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)); // topology
+		mesh.AddBindable(ViewPort::GetResource(graphics)); // vp
 	}
 }
 

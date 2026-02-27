@@ -54,7 +54,7 @@ protected:
 	virtual void Initialize(Graphics& graphics) override;
 
 public:
-	static std::shared_ptr<Texture> GetBindableResource(Graphics& graphics, const char* path, TextureType type);
+	static std::shared_ptr<Texture> GetResource(Graphics& graphics, const char* path, TextureType type);
 
 	static std::string GetIdentifier(const char* path, TextureType type);
 

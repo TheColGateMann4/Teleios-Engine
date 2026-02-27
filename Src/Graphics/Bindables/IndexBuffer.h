@@ -23,9 +23,9 @@ public:
     IndexBuffer& operator=(IndexBuffer&&) noexcept = default;
 
 public:
-    static std::shared_ptr<IndexBuffer> GetBindableResource(Graphics& graphics, std::string identifier, std::vector<unsigned int> indices);
+    static std::shared_ptr<IndexBuffer> GetResource(Graphics& graphics, std::string identifier, std::vector<unsigned int> indices);
 
-    static std::shared_ptr<IndexBuffer> GetBindableResource(Graphics& graphics, std::string identifier, std::vector<unsigned short> indices);
+    static std::shared_ptr<IndexBuffer> GetResource(Graphics& graphics, std::string identifier, std::vector<unsigned short> indices);
 
     GraphicsBuffer* GetBuffer();
 

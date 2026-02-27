@@ -108,7 +108,7 @@ Model::Model(Graphics& graphics, Model* pParent, aiNode* node, std::vector<std::
 						vertexBuffer.Back().GetPropety<DynamicVertex::ElementType::Color4>() = *reinterpret_cast<DirectX::XMFLOAT4*>(&mesh->mColors[0][vertexIndex]);
 				}
 
-				step.AddBindable(VertexBuffer::GetBindableResource(graphics, mesh->mName.C_Str(), vertexBuffer));
+				step.AddBindable(VertexBuffer::GetResource(graphics, mesh->mName.C_Str(), vertexBuffer));
 			}
 
 			//indices
@@ -120,13 +120,13 @@ Model::Model(Graphics& graphics, Model* pParent, aiNode* node, std::vector<std::
 					for (size_t indiceIndex = 0; indiceIndex < mesh->mFaces[faceIndex].mNumIndices; indiceIndex++)
 						indices.at(faceIndex * 3 + indiceIndex) = mesh->mFaces[faceIndex].mIndices[indiceIndex];
 
-				step.AddBindable(IndexBuffer::GetBindableResource(graphics, mesh->mName.C_Str(), indices));
+				step.AddBindable(IndexBuffer::GetResource(graphics, mesh->mName.C_Str(), indices));
 			}
 
 			step.SetMaterial(material);
 
-			step.AddBindable(InputLayout::GetBindableResource(graphics, vertexLayout));
-			step.AddBindable(PrimitiveTechnology::GetBindableResource(graphics, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE));
+			step.AddBindable(InputLayout::GetResource(graphics, vertexLayout));
+			step.AddBindable(PrimitiveTechnology::GetResource(graphics, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE));
 		}
 
 		technique.AddStep(std::move(step));

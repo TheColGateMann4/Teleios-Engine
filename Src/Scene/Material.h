@@ -62,7 +62,7 @@ public:
 
 	void Bind(Graphics& graphics, CommandList* commandList);
 
-	virtual void BindToRootSignature(RootSignature* rootSignature) override;
+	virtual void BindToRootSignature(RootSignatureParams* rootSignatureParams) override;
 	virtual void Initialize(Graphics& graphics, DescriptorHeap::DescriptorInfo descriptorInfo, unsigned int descriptorNum) override;
 	virtual void Initialize(Graphics& graphics) override;
 

@@ -13,7 +13,7 @@ DepthOfFieldRenderPass::DepthOfFieldRenderPass(Graphics& graphics)
 	FullscreenRenderPass(graphics)
 {
 	m_depthOfFieldPS = std::make_shared<Shader>(graphics, L"PS_DepthOfField", ShaderType::PixelShader);
-	m_depthFromScreenCS = Shader::GetBindableResource(graphics, L"CS_GetMiddleDepth", ShaderType::ComputeShader);
+	m_depthFromScreenCS = Shader::GetResource(graphics, L"CS_GetMiddleDepth", ShaderType::ComputeShader);
 
 	const Camera::Settings defaultCameraSettings = Camera::Settings{};
 

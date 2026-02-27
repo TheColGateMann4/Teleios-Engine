@@ -11,7 +11,7 @@ public:
 	RasterizerState(Graphics& graphics, bool twoSided = false);
 
 public:
-	static std::shared_ptr<RasterizerState> GetBindableResource(Graphics& graphics, bool twoSided = false);
+	static std::shared_ptr<RasterizerState> GetResource(Graphics& graphics, bool twoSided = false);
 
 	static std::string GetIdentifier(bool twoSided);
 

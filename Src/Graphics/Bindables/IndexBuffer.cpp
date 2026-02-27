@@ -39,12 +39,12 @@ IndexBuffer::IndexBuffer(Graphics& graphics, void* pData, size_t indexCount, DXG
 		UpdateBufferData(graphics, pData);
 }
 
-std::shared_ptr<IndexBuffer> IndexBuffer::GetBindableResource(Graphics& graphics, std::string identifier, std::vector<unsigned int> indices)
+std::shared_ptr<IndexBuffer> IndexBuffer::GetResource(Graphics& graphics, std::string identifier, std::vector<unsigned int> indices)
 {
 	return ResourceList::GetResourceByID<IndexBuffer>(graphics, "IndexBuffer#" + identifier, indices);
 }
 
-std::shared_ptr<IndexBuffer> IndexBuffer::GetBindableResource(Graphics& graphics, std::string identifier, std::vector<unsigned short> indices)
+std::shared_ptr<IndexBuffer> IndexBuffer::GetResource(Graphics& graphics, std::string identifier, std::vector<unsigned short> indices)
 {
 	return ResourceList::GetResourceByID<IndexBuffer>(graphics, "IndexBuffer#" + identifier, indices);
 }

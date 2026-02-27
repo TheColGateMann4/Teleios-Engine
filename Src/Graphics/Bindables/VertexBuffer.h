@@ -23,13 +23,13 @@ public:
 	VertexBuffer& operator=(VertexBuffer&&) noexcept = default;
 
 public:
-	static std::shared_ptr<VertexBuffer> GetBindableResource(Graphics& graphics, std::string identifier, void* pData, size_t numElements, size_t dataStride);
+	static std::shared_ptr<VertexBuffer> GetResource(Graphics& graphics, std::string identifier, void* pData, size_t numElements, size_t dataStride);
 
-	static std::shared_ptr<VertexBuffer> GetBindableResource(Graphics& graphics, std::string identifier, DynamicVertex::DynamicVertex& dynamicVertexBuffer);
+	static std::shared_ptr<VertexBuffer> GetResource(Graphics& graphics, std::string identifier, DynamicVertex::DynamicVertex& dynamicVertexBuffer);
 
-	static std::shared_ptr<VertexBuffer> GetBindableResource(Graphics& graphics, std::string identifier, const DynamicVertex::DynamicVertexLayout& layout, size_t numElements);
+	static std::shared_ptr<VertexBuffer> GetResource(Graphics& graphics, std::string identifier, const DynamicVertex::DynamicVertexLayout& layout, size_t numElements);
 
-	static std::shared_ptr<VertexBuffer> GetBindableResource(Graphics& graphics, std::string identifier, void* pData, const DynamicVertex::DynamicVertexLayout& layout, size_t numElements);
+	static std::shared_ptr<VertexBuffer> GetResource(Graphics& graphics, std::string identifier, void* pData, const DynamicVertex::DynamicVertexLayout& layout, size_t numElements);
 
 public:
 	void BindToCopyPipelineIfNeeded(Graphics& graphics, Pipeline& pipeline);
