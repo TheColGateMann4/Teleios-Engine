@@ -13,18 +13,23 @@ class UnorderedAccessView;
 class RootSignatureConstants;
 class StaticSampler;
 
-class RootSignature
+class RootSignatureParams
 {
 public:
-	RootSignature();
-	RootSignature(RootSignature&& moved) noexcept;
-	RootSignature(const RootSignature& copied);
+	RootSignatureParams();
+	RootSignatureParams(RootSignatureParams&& moved) noexcept = default;
+	RootSignatureParams(const RootSignatureParams& copied);
 
 public:
-	ID3D12RootSignature* Get() const;
+	D3D12_ROOT_SIGNATURE_DESC1 GetDesc() const;
 
-	void Initialize(Graphics& graphics);
+	void Finish();
 
+	bool isFinished() const;
+
+	std::string GetIdentifier() const;
+
+public:
 	// returns rootIndex that was used
 	void AddConstBufferViewParameter(ConstantBuffer* constantBuffer, TargetSlotAndShader& target);
 
@@ -50,12 +55,42 @@ private:
 	void m_AddStaticSampler(StaticSampler* staticSampler, TargetSlotAndShader& target);
 
 private:
-	Microsoft::WRL::ComPtr<ID3D12RootSignature> pRootSignature;
+	std::string GetParamsIdentifier() const;
+	std::string GetStaticSamplersIdentifier() const;
+	std::string GetFlagsIdentifier() const;
+
+	std::string GetParamIdentifier(const D3D12_ROOT_PARAMETER1& param) const;
+
+	std::string GetParamIdentifierByType(const D3D12_ROOT_PARAMETER1& param) const;
+
+	std::string GetDescriptorTableIdentifier(const D3D12_ROOT_DESCRIPTOR_TABLE1& descriptorTable) const;
+	std::string GetConstantsIdentifier(const D3D12_ROOT_CONSTANTS& constants) const;
+	std::string GetDescriptorIdentifier(const D3D12_ROOT_DESCRIPTOR1& descriptor) const;
+	std::string GetStaticSamplerIdentifier(const D3D12_STATIC_SAMPLER_DESC& staticSampler) const;
+
+private:
 	bool m_finished;
 
 	D3D12_ROOT_SIGNATURE_DESC1 m_rootSignatureDesc;
 	std::vector<D3D12_ROOT_PARAMETER1> m_rootParameters;
 	std::vector<D3D12_STATIC_SAMPLER_DESC> m_staticSamplers;
 	std::vector<D3D12_DESCRIPTOR_RANGE1> m_descriptorTableRanges;
+};
+
+class RootSignature
+{
+public:
+	RootSignature(Graphics& graphics, RootSignatureParams&& params);
+
+	static std::shared_ptr<RootSignature> GetResource(Graphics& graphics, RootSignatureParams&& params);
+
+public:
+	ID3D12RootSignature* Get() const;
+
+	static std::string GetIdentifier(const RootSignatureParams& params);
+
+private:
+	Microsoft::WRL::ComPtr<ID3D12RootSignature> pRootSignature;
+	RootSignatureParams m_params;
 };
 
