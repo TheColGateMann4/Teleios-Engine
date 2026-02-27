@@ -1,11 +1,6 @@
 #include "FrameResourceDeleter.h"
 #include "Graphics.h"
 
-void FrameResourceDeleter::DeleteResource(Graphics& graphics, std::any&& pResource)
-{
-	m_resources.push_back(FrameResourceForDeletion{ std::move(pResource), graphics.GetCurrentBufferIndex() });
-}
-
 void FrameResourceDeleter::Update(Graphics& graphics)
 {
 	for (size_t resourceIndex = 0; resourceIndex < m_resources.size(); resourceIndex++)
@@ -24,4 +19,9 @@ void FrameResourceDeleter::Update(Graphics& graphics)
 			}
 		}
 	}
+}
+
+unsigned int FrameResourceDeleter::GetFrameIndex(Graphics& graphics)
+{
+	return graphics.GetCurrentBufferIndex();
 }

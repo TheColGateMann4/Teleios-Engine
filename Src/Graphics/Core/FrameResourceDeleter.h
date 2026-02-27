@@ -1,6 +1,5 @@
 #pragma once
 #include "Includes/CppIncludes.h"
-#include <any>
 
 class Graphics;
 
@@ -10,15 +9,27 @@ class FrameResourceDeleter
 	// structure for resource scheduled for deletion
 	struct FrameResourceForDeletion
 	{
-		std::any pResource;
+		std::function<void()> destroy;
 		unsigned int frameIndex;
 		bool firstIteration = true;
 	};
 
 public:
-	void DeleteResource(Graphics& graphics, std::any&& pResource);
+	template<class T>
+	void DeleteResource(Graphics& graphics, T&& resource)
+	{
+		static_assert(!std::is_trivial<T>());
+
+		m_resources.push_back(FrameResourceForDeletion{
+			[res = std::move(resource)]() mutable {}, // creating lambda that owns the resource
+			GetFrameIndex(graphics)
+		});
+	};
 
 	void Update(Graphics& graphics);
+
+private:
+	static unsigned int GetFrameIndex(Graphics& graphics);
 
 private:
 	std::vector<FrameResourceForDeletion> m_resources;
