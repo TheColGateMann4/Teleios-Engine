@@ -59,15 +59,6 @@ private:
 	std::string GetStaticSamplersIdentifier() const;
 	std::string GetFlagsIdentifier() const;
 
-	std::string GetParamIdentifier(const D3D12_ROOT_PARAMETER1& param) const;
-
-	std::string GetParamIdentifierByType(const D3D12_ROOT_PARAMETER1& param) const;
-
-	std::string GetDescriptorTableIdentifier(const D3D12_ROOT_DESCRIPTOR_TABLE1& descriptorTable) const;
-	std::string GetConstantsIdentifier(const D3D12_ROOT_CONSTANTS& constants) const;
-	std::string GetDescriptorIdentifier(const D3D12_ROOT_DESCRIPTOR1& descriptor) const;
-	std::string GetStaticSamplerIdentifier(const D3D12_STATIC_SAMPLER_DESC& staticSampler) const;
-
 private:
 	bool m_finished;
 
@@ -88,6 +79,7 @@ public:
 	ID3D12RootSignature* Get() const;
 
 	static std::string GetIdentifier(const RootSignatureParams& params);
+	std::string GetIdentifier();
 
 private:
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> pRootSignature;

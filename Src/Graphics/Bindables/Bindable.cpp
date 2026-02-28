@@ -8,7 +8,7 @@ void CommandListBindable::BindToComputeCommandList(Graphics& graphics, CommandLi
 
 }
 
-void PipelineStateBindable::BindToComputePipelineState(Graphics& graphics, ComputePipelineState* pipelineState)
+void PipelineStateBindable::AddComputePipelineStateParam(Graphics& graphics, ComputePipelineStateParams* params)
 {
 
 }

@@ -33,7 +33,7 @@ void TempComputeCommandList::Dispatch(Graphics& graphics, unsigned int workToPro
 {
 	Finish(graphics);
 
-	m_commandList->SetPipelineState(graphics, &m_pipelineState);
+	m_commandList->SetPipelineState(graphics, m_pipelineState.get());
 
 	m_commandList->SetComputeRootSignature(graphics, m_rootSignature.get());
 
@@ -76,12 +76,16 @@ void TempComputeCommandList::Finish(Graphics& graphics)
 
 	// initizalizing pipeline state
 	{
-		for (auto pipelineStateBindable : m_bindableContainer.GetPipelineStateBindables())
-			pipelineStateBindable->BindToComputePipelineState(graphics, &m_pipelineState);
+		ComputePipelineStateParams pipelineStateParams = {};
 
-		m_pipelineState.SetRootSignature(m_rootSignature.get());
+		{
+			for (auto pipelineStateBindable : m_bindableContainer.GetPipelineStateBindables())
+				pipelineStateBindable->AddComputePipelineStateParam(graphics, &pipelineStateParams);
 
-		m_pipelineState.Finish(graphics);
+			pipelineStateParams.SetRootSignature(m_rootSignature.get());
+		}
+
+		m_pipelineState = ComputePipelineState::GetResource(graphics, std::move(pipelineStateParams));
 	}
 }
 
@@ -112,7 +116,7 @@ void TempGraphicsCommandList::DrawIndexed(Graphics& graphics)
 {
 	Finish(graphics);
 
-	m_commandList->SetPipelineState(graphics, &m_pipelineState);
+	m_commandList->SetPipelineState(graphics, m_pipelineState.get());
 
 	m_commandList->SetGraphicsRootSignature(graphics, m_rootSignature.get());
 
@@ -150,21 +154,24 @@ void TempGraphicsCommandList::Finish(Graphics& graphics)
 
 	// initizalizing pipeline state
 	{
-		for (auto pipelineStateBindable : m_bindableContainer.GetPipelineStateBindables())
-			pipelineStateBindable->BindToPipelineState(graphics, &m_pipelineState);
+		GraphicsPipelineStateParams pipelineStateParams = {};
+		{
+			for (auto pipelineStateBindable : m_bindableContainer.GetPipelineStateBindables())
+				pipelineStateBindable->AddPipelineStateParam(graphics, &pipelineStateParams);
 
-		m_pipelineState.SetRootSignature(m_rootSignature.get());
+			pipelineStateParams.SetRootSignature(m_rootSignature.get());
 
-		m_pipelineState.SetSampleMask(0xffffffff);
-					   
-		m_pipelineState.SetSampleDesc(1, 0);
-					   
-		m_pipelineState.SetNumRenderTargets(1);
-					   
-		m_pipelineState.SetRenderTargetFormat(0, graphics.GetBackBuffer()->GetFormat());
-					   
-		m_pipelineState.SetDepthStencilFormat(graphics.GetDepthStencil()->GetResource(graphics)->GetFormat());
+			pipelineStateParams.SetSampleMask(0xffffffff);
 
-		m_pipelineState.Finish(graphics);
+			pipelineStateParams.SetSampleDesc(1, 0);
+
+			pipelineStateParams.SetNumRenderTargets(1);
+
+			pipelineStateParams.SetRenderTargetFormat(0, graphics.GetBackBuffer()->GetFormat());
+
+			pipelineStateParams.SetDepthStencilFormat(graphics.GetDepthStencil()->GetResource(graphics)->GetFormat());
+		}
+
+		m_pipelineState = GraphicsPipelineState::GetResource(graphics, std::move(pipelineStateParams));
 	}
 }

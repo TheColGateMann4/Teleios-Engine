@@ -42,9 +42,9 @@ D3D12_BLEND_DESC BlendState::Get()
 	return m_desc;
 }
 
-void BlendState::BindToPipelineState(Graphics& graphics, GraphicsPipelineState* pipelineState)
+void BlendState::AddPipelineStateParam(Graphics& graphics, GraphicsPipelineStateParams* params)
 {
-	pipelineState->SetBlendState(this);
+	params->SetBlendState(this);
 }
 
 BindableType BlendState::GetBindableType() const

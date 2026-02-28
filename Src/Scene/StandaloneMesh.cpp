@@ -24,31 +24,29 @@ void StandaloneMesh::Initialize(Graphics& graphics, Pipeline& pipeline)
 
 	// initialize pipeline state object
 	{
-		m_pipelineState = std::make_unique<GraphicsPipelineState>();
-
-		// initializing pipeline state desc
+		GraphicsPipelineStateParams pipelineStateParams = {};
 		{
 			{
 				const auto& pipelineStateBindables = m_bindableContainer.GetPipelineStateBindables();
 
 				for (auto& pPipelineStateBindable : pipelineStateBindables)
-					pPipelineStateBindable->BindToPipelineState(graphics, m_pipelineState.get());
+					pPipelineStateBindable->AddPipelineStateParam(graphics, &pipelineStateParams);
 			}
 
-			m_pipelineState->SetRootSignature(m_rootSignature.get());
+			pipelineStateParams.SetRootSignature(m_rootSignature.get());
 
-			m_pipelineState->SetSampleMask(0xffffffff);
+			pipelineStateParams.SetSampleMask(0xffffffff);
 
-			m_pipelineState->SetSampleDesc(1, 0);
+			pipelineStateParams.SetSampleDesc(1, 0);
 
-			m_pipelineState->SetNumRenderTargets(1);
+			pipelineStateParams.SetNumRenderTargets(1);
 
-			m_pipelineState->SetRenderTargetFormat(0, graphics.GetBackBuffer()->GetFormat());
+			pipelineStateParams.SetRenderTargetFormat(0, graphics.GetBackBuffer()->GetFormat());
 
-			m_pipelineState->SetDepthStencilFormat(graphics.GetDepthStencil()->GetResource(graphics)->GetFormat());
+			pipelineStateParams.SetDepthStencilFormat(graphics.GetDepthStencil()->GetResource(graphics)->GetFormat());
 		}
 
-		m_pipelineState->Finish(graphics); // Finish() call gets object from desc it made up
+		m_pipelineState = GraphicsPipelineState::GetResource(graphics, std::move(pipelineStateParams));
 	}
 
 	for (auto* cachedBuffer : m_bindableContainer.GetCachedBuffers())

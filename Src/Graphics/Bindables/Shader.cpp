@@ -215,14 +215,14 @@ D3D12_SHADER_BYTECODE Shader::GetShaderByteCode() const
 	return shaderBytecode;
 }
 
-void Shader::BindToPipelineState(Graphics& graphics, GraphicsPipelineState* pipelineState)
+void Shader::AddPipelineStateParam(Graphics& graphics, GraphicsPipelineStateParams* params)
 {
-	pipelineState->SetShader(this);
+	params->SetShader(this);
 }
 
-void Shader::BindToComputePipelineState(Graphics& graphics, ComputePipelineState* pipelineState)
+void Shader::AddComputePipelineStateParam(Graphics& graphics, ComputePipelineStateParams* params)
 {
-	pipelineState->SetShader(this);
+	params->SetShader(this);
 }
 
 BindableType Shader::GetBindableType() const
@@ -244,6 +244,11 @@ DirectX::XMUINT3 Shader::GetNumThreads() const
 	pReflectionData->GetThreadGroupSize(&result.x, &result.y, &result.z);
 
 	return result;
+}
+
+const std::wstring& Shader::GetPath() const
+{
+	return m_path;
 }
 
 void Shader::GetReflection(IDxcUtils* dxUtils, Microsoft::WRL::ComPtr<ID3DBlob>&& pReflectionBlob)

@@ -10,6 +10,39 @@
 
 #include "Graphics/Core/ResourceList.h"
 
+namespace
+{
+	template<class T>
+	std::string GetStringFromEnum(T val)
+	{
+		static_assert(std::is_enum_v<T>);
+
+		return std::to_string(static_cast<std::underlying_type_t<T>>(val));
+	}
+
+	template<class T>
+	std::string GetStringFromFlags(T val)
+	{
+		static_assert(std::is_enum_v<T>);
+
+		using UnderlyingType = std::underlying_type_t<T>;
+		constexpr size_t bitCount = sizeof(UnderlyingType) * 8;
+
+		auto underlyingValue = static_cast<UnderlyingType>(val);
+		return std::bitset<bitCount>(underlyingValue).to_string();
+	}
+
+	std::string GetStringFromFloat(FLOAT val)
+	{
+		if (val == 0.0f)
+			return "FLT_ZERO";
+		else if (val == D3D12_FLOAT32_MAX)
+			return "FLT_MAX";
+
+		THROW_INTERNAL_ERROR("Unhandled floating point value");
+	}
+};
+
 RootSignatureParams::RootSignatureParams()
 	:
 	m_finished(),
@@ -224,38 +257,102 @@ void RootSignatureParams::m_AddStaticSampler(StaticSampler* staticSampler, Targe
 	m_rootSignatureDesc.pStaticSamplers = m_staticSamplers.data();
 }
 
-namespace
+std::string GetDescriptorTableIdentifier(const D3D12_ROOT_DESCRIPTOR_TABLE1& descriptorTable)
 {
-	template<class T>
-	std::string GetStringFromEnum(T val)
-	{
-		static_assert(std::is_enum_v<T>);
+	std::string result = {};
 
-		return std::to_string(static_cast<std::underlying_type_t<T>>(val));
+	result += std::to_string(descriptorTable.NumDescriptorRanges);
+
+	for (int i = 0; i < descriptorTable.NumDescriptorRanges; i++)
+	{
+		const auto& range = descriptorTable.pDescriptorRanges[i];
+
+		result += GetStringFromEnum(range.RangeType);
+		result += std::to_string(range.NumDescriptors);
+		result += std::to_string(range.BaseShaderRegister);
+		result += std::to_string(range.RegisterSpace);
+		result += GetStringFromFlags(range.Flags);
+		result += std::to_string(range.OffsetInDescriptorsFromTableStart);
 	}
 
-	template<class T>
-	std::string GetStringFromFlags(T val)
+	return result;
+}
+
+std::string GetConstantsIdentifier(const D3D12_ROOT_CONSTANTS& constants)
+{
+	std::string result = {};
+
+	result += std::to_string(constants.ShaderRegister);
+	result += std::to_string(constants.RegisterSpace);
+	result += std::to_string(constants.Num32BitValues);
+
+	return result;
+}
+
+std::string GetDescriptorIdentifier(const D3D12_ROOT_DESCRIPTOR1& descriptor)
+{
+	std::string result = {};
+
+	result += std::to_string(descriptor.ShaderRegister);
+	result += std::to_string(descriptor.RegisterSpace);
+	result += GetStringFromFlags(descriptor.Flags);
+
+	return result;
+}
+
+std::string GetParamIdentifierByType(const D3D12_ROOT_PARAMETER1& param)
+{
+	switch (param.ParameterType)
 	{
-		static_assert(std::is_enum_v<T>);
+	case D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE:
+		return GetDescriptorTableIdentifier(param.DescriptorTable);
 
-		using UnderlyingType = std::underlying_type_t<T>;
-		constexpr size_t bitCount = sizeof(UnderlyingType) * 8;
+	case D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS:
+		return GetConstantsIdentifier(param.Constants);
 
-		auto underlyingValue = static_cast<UnderlyingType>(val);
-		return std::bitset<bitCount>(underlyingValue).to_string();
+	case D3D12_ROOT_PARAMETER_TYPE_CBV:
+	case D3D12_ROOT_PARAMETER_TYPE_SRV:
+	case D3D12_ROOT_PARAMETER_TYPE_UAV:
+		return GetDescriptorIdentifier(param.Descriptor);
+
+	default:
+		THROW_INTERNAL_ERROR("Failed to map root parameter type");
 	}
+}
 
-	std::string GetStringFromFloat(FLOAT val)
-	{
-		if (val == 0.0f)
-			return "FLT_ZERO";
-		else if(val == D3D12_FLOAT32_MAX)
-			return "FLT_MAX";
+std::string GetStaticSamplerIdentifier(const D3D12_STATIC_SAMPLER_DESC& staticSampler)
+{
+	std::string result = {};
 
-		THROW_INTERNAL_ERROR("Unhandled floating point value");
-	}
-};
+	result += GetStringFromEnum(staticSampler.Filter);
+	result += GetStringFromEnum(staticSampler.AddressU);
+	result += GetStringFromEnum(staticSampler.AddressV);
+	result += GetStringFromEnum(staticSampler.AddressW);
+	result += GetStringFromFloat(staticSampler.MipLODBias);
+	result += std::to_string(staticSampler.MaxAnisotropy);
+	result += GetStringFromEnum(staticSampler.ComparisonFunc);
+	result += GetStringFromEnum(staticSampler.BorderColor);
+	result += GetStringFromFloat(staticSampler.MinLOD);
+	result += GetStringFromFloat(staticSampler.MaxLOD);
+	result += std::to_string(staticSampler.ShaderRegister);
+	result += std::to_string(staticSampler.RegisterSpace);
+	result += GetStringFromEnum(staticSampler.ShaderVisibility);
+
+	return result;
+}
+
+std::string GetParamIdentifier(const D3D12_ROOT_PARAMETER1& param)
+{
+	std::string result = {};
+
+	result += GetStringFromEnum(param.ParameterType);
+
+	result += GetParamIdentifierByType(param);
+
+	result += GetStringFromEnum(param.ShaderVisibility);
+
+	return result;
+}
 
 std::string RootSignatureParams::GetParamsIdentifier() const
 {
@@ -300,103 +397,6 @@ std::string RootSignatureParams::GetStaticSamplersIdentifier() const
 std::string RootSignatureParams::GetFlagsIdentifier() const
 {
 	return GetStringFromFlags(m_rootSignatureDesc.Flags);
-}
-
-std::string RootSignatureParams::GetParamIdentifier(const D3D12_ROOT_PARAMETER1& param) const
-{
-	std::string result = {};
-
-	result += GetStringFromEnum(param.ParameterType);
-
-	result += GetParamIdentifierByType(param);
-
-	result += GetStringFromEnum(param.ShaderVisibility);
-
-	return result;
-}
-
-std::string RootSignatureParams::GetParamIdentifierByType(const D3D12_ROOT_PARAMETER1& param) const
-{
-	switch (param.ParameterType)
-	{
-	case D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE:
-		return GetDescriptorTableIdentifier(param.DescriptorTable);
-
-	case D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS:
-		return GetConstantsIdentifier(param.Constants);
-
-	case D3D12_ROOT_PARAMETER_TYPE_CBV:
-	case D3D12_ROOT_PARAMETER_TYPE_SRV:
-	case D3D12_ROOT_PARAMETER_TYPE_UAV:
-		return GetDescriptorIdentifier(param.Descriptor);
-
-	default:
-		THROW_INTERNAL_ERROR("Failed to map root parameter type");
-	}
-}
-
-std::string RootSignatureParams::GetDescriptorTableIdentifier(const D3D12_ROOT_DESCRIPTOR_TABLE1& descriptorTable) const
-{
-	std::string result = {};
-
-	result += std::to_string(descriptorTable.NumDescriptorRanges);
-
-	for (int i = 0; i < descriptorTable.NumDescriptorRanges; i++)
-	{
-		const auto& range = descriptorTable.pDescriptorRanges[i];
-
-		result += GetStringFromEnum(range.RangeType);
-		result += std::to_string(range.NumDescriptors);
-		result += std::to_string(range.BaseShaderRegister);
-		result += std::to_string(range.RegisterSpace);
-		result += GetStringFromFlags(range.Flags);
-		result += std::to_string(range.OffsetInDescriptorsFromTableStart);
-	}
-
-	return result;
-}
-
-std::string RootSignatureParams::GetConstantsIdentifier(const D3D12_ROOT_CONSTANTS& constants) const
-{
-	std::string result = {};
-
-	result += std::to_string(constants.ShaderRegister);
-	result += std::to_string(constants.RegisterSpace);
-	result += std::to_string(constants.Num32BitValues);
-
-	return result;
-}
-
-std::string RootSignatureParams::GetDescriptorIdentifier(const D3D12_ROOT_DESCRIPTOR1& descriptor) const
-{
-	std::string result = {};
-
-	result += std::to_string(descriptor.ShaderRegister);
-	result += std::to_string(descriptor.RegisterSpace);
-	result += GetStringFromFlags(descriptor.Flags);
-
-	return result;
-}
-
-std::string RootSignatureParams::GetStaticSamplerIdentifier(const D3D12_STATIC_SAMPLER_DESC& staticSampler) const
-{
-	std::string result = {};
-
-	result += GetStringFromEnum(staticSampler.Filter);
-	result += GetStringFromEnum(staticSampler.AddressU);
-	result += GetStringFromEnum(staticSampler.AddressV);
-	result += GetStringFromEnum(staticSampler.AddressW);
-	result += GetStringFromFloat(staticSampler.MipLODBias);
-	result += std::to_string(staticSampler.MaxAnisotropy);
-	result += GetStringFromEnum(staticSampler.ComparisonFunc);
-	result += GetStringFromEnum(staticSampler.BorderColor);
-	result += GetStringFromFloat(staticSampler.MinLOD);
-	result += GetStringFromFloat(staticSampler.MaxLOD);
-	result += std::to_string(staticSampler.ShaderRegister);
-	result += std::to_string(staticSampler.RegisterSpace);
-	result += GetStringFromEnum(staticSampler.ShaderVisibility);
-
-	return result;
 }
 
 
@@ -446,4 +446,9 @@ ID3D12RootSignature* RootSignature::Get() const
 std::string RootSignature::GetIdentifier(const RootSignatureParams& params)
 {
 	return params.GetIdentifier();
+}
+
+std::string RootSignature::GetIdentifier()
+{
+	return m_params.GetIdentifier();
 }

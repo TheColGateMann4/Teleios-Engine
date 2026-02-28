@@ -59,34 +59,31 @@ void GraphicsStepRenderJob::Initialize(Graphics& graphics, Pipeline& pipeline)
 
 	// initialize pipeline state object
 	{
-		m_pipelineState = std::make_unique<GraphicsPipelineState>();
-
-		// initializing pipeline state desc
+		GraphicsPipelineStateParams pipelineStateParams = {};
+		
 		{
-			{
-				for (auto& pPipelineStateBindable : m_bindableContainer.GetPipelineStateBindables())
-					pPipelineStateBindable->BindToPipelineState(graphics, m_pipelineState.get());
-				
-				if (material)
-					for (auto& pPipelineStateBindable : material->GetBindableContainer().GetPipelineStateBindables())
-						pPipelineStateBindable->BindToPipelineState(graphics, m_pipelineState.get());
-			}
+			for (auto& pPipelineStateBindable : m_bindableContainer.GetPipelineStateBindables())
+				pPipelineStateBindable->AddPipelineStateParam(graphics, &pipelineStateParams);
 
-			m_pipelineState->SetRootSignature(m_rootSignature.get());
+			if (material)
+				for (auto& pPipelineStateBindable : material->GetBindableContainer().GetPipelineStateBindables())
+					pPipelineStateBindable->AddPipelineStateParam(graphics, &pipelineStateParams);
 
-			m_pipelineState->SetSampleMask(0xffffffff);
+			pipelineStateParams.SetRootSignature(m_rootSignature.get());
 
-			m_pipelineState->SetSampleDesc(1, 0);
+			pipelineStateParams.SetSampleMask(0xffffffff);
 
-			m_pipelineState->SetNumRenderTargets(renderTargets.size());
+			pipelineStateParams.SetSampleDesc(1, 0);
+
+			pipelineStateParams.SetNumRenderTargets(renderTargets.size());
 
 			for(int i = 0; i < renderTargets.size(); i++)
-				m_pipelineState->SetRenderTargetFormat(i, renderTargets.at(i).resource->GetFormat());
+				pipelineStateParams.SetRenderTargetFormat(i, renderTargets.at(i).resource->GetFormat());
 
-			m_pipelineState->SetDepthStencilFormat(depthStencilView.resource ? depthStencilView.resource->GetResource(graphics)->GetFormat() : DXGI_FORMAT_UNKNOWN);
+			pipelineStateParams.SetDepthStencilFormat(depthStencilView.resource ? depthStencilView.resource->GetResource(graphics)->GetFormat() : DXGI_FORMAT_UNKNOWN);
 		}
 
-		m_pipelineState->Finish(graphics); // Finish() call gets object from desc it made up
+		m_pipelineState = GraphicsPipelineState::GetResource(graphics, std::move(pipelineStateParams));
 	}
 
 	InitializeGraphicResources(graphics, pipeline);

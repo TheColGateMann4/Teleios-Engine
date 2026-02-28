@@ -37,15 +37,17 @@ public:
 
 	D3D12_SHADER_BYTECODE GetShaderByteCode() const;
 
-	virtual void BindToPipelineState(Graphics& graphics, GraphicsPipelineState* pipelineState) override;
+	virtual void AddPipelineStateParam(Graphics& graphics, GraphicsPipelineStateParams* params) override;
 
-	virtual void BindToComputePipelineState(Graphics& graphics, ComputePipelineState* pipelineState) override;
+	virtual void AddComputePipelineStateParam(Graphics& graphics, ComputePipelineStateParams* params) override;
 
 	virtual BindableType GetBindableType() const override;
 
 	ShaderType GetShaderType() const;
 
 	DirectX::XMUINT3 GetNumThreads() const;
+
+	const std::wstring& GetPath() const;
 
 private:
 	void GetReflection(IDxcUtils* dxUtils, Microsoft::WRL::ComPtr<ID3DBlob>&& pReflectionBlob);

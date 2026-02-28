@@ -28,5 +28,5 @@ private:
 
 	MeshBindableContainer m_bindableContainer;
 	
-	std::unique_ptr<GraphicsPipelineState> m_pipelineState;
+	std::shared_ptr<GraphicsPipelineState> m_pipelineState;
 };

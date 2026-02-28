@@ -7,8 +7,8 @@
 class Graphics;
 class CommandList;
 class RootSignatureParams;
-class GraphicsPipelineState;
-class ComputePipelineState;
+class GraphicsPipelineStateParams;
+class ComputePipelineStateParams;
 
 
 struct TargetSlotAndShader
@@ -45,9 +45,9 @@ class PipelineStateBindable
 public:
 	virtual ~PipelineStateBindable() = default;
 
-	virtual void BindToPipelineState(Graphics& graphics, GraphicsPipelineState* pipelineState) = 0;
+	virtual void AddPipelineStateParam(Graphics& graphics, GraphicsPipelineStateParams* params) = 0;
 
-	virtual void BindToComputePipelineState(Graphics& graphics, ComputePipelineState* pipelineState);
+	virtual void AddComputePipelineStateParam(Graphics& graphics, ComputePipelineStateParams* params);
 };
 
 enum class RootSignatureBindableType

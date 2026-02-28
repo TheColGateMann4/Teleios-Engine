@@ -38,9 +38,9 @@ D3D12_RASTERIZER_DESC RasterizerState::Get()
 	return m_desc;
 }
 
-void RasterizerState::BindToPipelineState(Graphics& graphics, GraphicsPipelineState* pipelineState)
+void RasterizerState::AddPipelineStateParam(Graphics& graphics, GraphicsPipelineStateParams* params)
 {
-	pipelineState->SetRasterizerState(this);
+	params->SetRasterizerState(this);
 }
 
 BindableType RasterizerState::GetBindableType() const

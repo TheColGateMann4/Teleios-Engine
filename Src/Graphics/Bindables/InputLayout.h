@@ -24,7 +24,7 @@ public:
 public:
 	D3D12_INPUT_LAYOUT_DESC Get();
 
-	virtual void BindToPipelineState(Graphics& graphics, GraphicsPipelineState* pipelineState) override;
+	virtual void AddPipelineStateParam(Graphics& graphics, GraphicsPipelineStateParams* params) override;
 
 	virtual BindableType GetBindableType() const override;
 

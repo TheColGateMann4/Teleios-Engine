@@ -37,7 +37,7 @@ private:
 	CommandList* m_commandList;
 
 	std::shared_ptr<RootSignature> m_rootSignature;
-	ComputePipelineState m_pipelineState;
+	std::shared_ptr<ComputePipelineState> m_pipelineState;
 };
 
 class TempGraphicsCommandList
@@ -72,5 +72,5 @@ private:
 	CommandList* m_commandList;
 
 	std::shared_ptr<RootSignature> m_rootSignature;
-	GraphicsPipelineState m_pipelineState;
+	std::shared_ptr<GraphicsPipelineState> m_pipelineState;
 };
