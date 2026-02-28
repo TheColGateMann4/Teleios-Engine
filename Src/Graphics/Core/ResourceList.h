@@ -8,11 +8,18 @@ public:
 	static std::shared_ptr<T> GetResource(Graphics& graphics, Params&& ...creationParams)
 	{
 		std::string identifier = T::GetIdentifier(creationParams...);
-		return GetResourceByID<T>(graphics, identifier, std::forward<Params>(creationParams)...);
+		return GetResourceByID<T>(identifier, graphics, std::forward<Params>(creationParams)...);
 	}
 
 	template<class T, class ...Params>
-	static std::shared_ptr<T> GetResourceByID(Graphics& graphics, const std::string& identifier, Params&& ...creationParams)
+	static std::shared_ptr<T> GetResource(Params&& ...creationParams)
+	{
+		std::string identifier = T::GetIdentifier(creationParams...);
+		return GetResourceByID<T>(identifier, std::forward<Params>(creationParams)...);
+	}
+
+	template<class T, class ...Params>
+	static std::shared_ptr<T> GetResourceByID(const std::string& identifier, Params&& ...creationParams)
 	{
 		auto& map = GetMap();
 
@@ -21,7 +28,7 @@ public:
 		auto [iterator, inserted] = map.try_emplace(key);
 
 		if (inserted)
-			iterator->second = std::make_shared<T>(graphics, std::forward<Params>(creationParams)...);
+			iterator->second = std::make_shared<T>(std::forward<Params>(creationParams)...);
 
 		return std::static_pointer_cast<T>(iterator->second);
 	}
