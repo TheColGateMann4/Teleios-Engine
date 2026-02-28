@@ -10,7 +10,11 @@ class DescriptorHeapBindable : public Bindable, public RootSignatureBindable, pu
 public:
 	DescriptorHeapBindable(std::vector<TargetSlotAndShader> targets = std::vector<TargetSlotAndShader>{ {ShaderVisibilityGraphic::PixelShader, 0}});
 
+	static std::shared_ptr<DescriptorHeapBindable> GetResource(std::vector<TargetSlotAndShader> targets = std::vector<TargetSlotAndShader>{ {ShaderVisibilityGraphic::PixelShader, 0} });
+
 public:
+	static std::string GetIdentifier(std::vector<TargetSlotAndShader> targets);
+
 	virtual void BindToRootSignature(RootSignatureParams* rootSignatureParams) override;
 
 	virtual void BindToCommandList(Graphics& graphics, CommandList* commandList) override;

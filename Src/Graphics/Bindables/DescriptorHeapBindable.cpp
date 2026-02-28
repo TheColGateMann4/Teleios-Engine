@@ -4,11 +4,32 @@
 #include"Graphics/Core/CommandList.h"
 #include"Graphics/Core/RootSignature.h"
 
+#include "Graphics/Core/ResourceList.h"
+
 DescriptorHeapBindable::DescriptorHeapBindable(std::vector<TargetSlotAndShader> targets)
 	:
 	RootSignatureBindable(std::move(targets))
 {
 
+}
+
+std::shared_ptr<DescriptorHeapBindable> DescriptorHeapBindable::GetResource(std::vector<TargetSlotAndShader> targets)
+{
+	return ResourceList::GetResource<DescriptorHeapBindable>(std::move(targets));
+}
+
+std::string DescriptorHeapBindable::GetIdentifier(std::vector<TargetSlotAndShader> targets)
+{
+	std::string result = {};
+
+	for (const auto& target : targets)
+	{
+		result += std::to_string(target.slot);
+		result += std::to_string(static_cast<unsigned int>(target.target));
+		result += "#";
+	}
+
+	return result;
 }
 
 void DescriptorHeapBindable::BindToRootSignature(RootSignatureParams* rootSignatureParams)

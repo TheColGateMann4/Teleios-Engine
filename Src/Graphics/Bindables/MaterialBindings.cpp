@@ -6,7 +6,7 @@ MaterialBindings::MaterialBindings()
 	:
 	RootSignatureBindable({})
 {
-	m_descriptorHeapBindable = std::make_shared<DescriptorHeapBindable>();
+	m_descriptorHeapBindable = DescriptorHeapBindable::GetResource();
 }
 
 void MaterialBindings::BindToRootSignature(RootSignatureParams* rootSignatureParams)
