@@ -79,6 +79,8 @@ void RootSignatureParams::Finish()
 	ConnectDescriptorParametersToRanges();
 
 	m_finished = true;
+
+	CreateIdentifier();
 }
 
 bool RootSignatureParams::isFinished() const
@@ -86,19 +88,11 @@ bool RootSignatureParams::isFinished() const
 	return m_finished;
 }
 
-std::string RootSignatureParams::GetIdentifier() const
+const std::string& RootSignatureParams::GetIdentifier() const
 {
-	THROW_INTERNAL_ERROR_IF("RootSignatureParams didn't have any parameters", m_rootParameters.empty());
+	THROW_INTERNAL_ERROR_IF("RootSignatureParams were not finished", !m_finished);
 
-	std::string result = {};
-
-	result += GetParamsIdentifier();
-
-	result += GetStaticSamplersIdentifier();
-
-	result += GetFlagsIdentifier();
-
-	return result;
+	return m_cachedIdentifier;
 }
 
 void RootSignatureParams::AddConstBufferViewParameter(ConstantBuffer* constantBuffer, TargetSlotAndShader& target)
@@ -352,6 +346,21 @@ std::string GetParamIdentifier(const D3D12_ROOT_PARAMETER1& param)
 	result += GetStringFromEnum(param.ShaderVisibility);
 
 	return result;
+}
+
+void RootSignatureParams::CreateIdentifier()
+{
+	THROW_INTERNAL_ERROR_IF("RootSignatureParams didn't have any parameters", m_rootParameters.empty());
+
+	std::string result = {};
+
+	result += GetParamsIdentifier();
+
+	result += GetStaticSamplersIdentifier();
+
+	result += GetFlagsIdentifier();
+
+	m_cachedIdentifier = result;
 }
 
 std::string RootSignatureParams::GetParamsIdentifier() const

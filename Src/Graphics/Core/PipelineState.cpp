@@ -10,11 +10,6 @@
 
 #include "Graphics/Core/ResourceList.h"
 
-const D3D12_GRAPHICS_PIPELINE_STATE_DESC* GraphicsPipelineStateParams::GetDesc() const
-{
-	return &m_desc;
-}
-
 
 namespace
 {
@@ -68,6 +63,107 @@ namespace
 		THROW_INTERNAL_ERROR("Unhandled floating point value");
 	}
 };
+
+const D3D12_GRAPHICS_PIPELINE_STATE_DESC* GraphicsPipelineStateParams::GetDesc() const
+{
+	return &m_desc;
+}
+
+std::string GraphicsPipelineStateParams::GetIdentifier() const
+{
+	THROW_INTERNAL_ERROR_IF("GraphicsPipelineStateParams were not finished", !m_finished);
+
+	return m_cachedIdentifier;
+}
+
+void GraphicsPipelineStateParams::Finish()
+{
+	CreateIdentifier();
+
+	m_finished = true;
+}
+
+bool GraphicsPipelineStateParams::isFinished() const
+{
+	return m_finished;
+}
+
+void GraphicsPipelineStateParams::SetRootSignature(RootSignature* rootSignature)
+{
+	m_rootSignature = rootSignature;
+
+	m_desc.pRootSignature = rootSignature->Get();
+}
+
+void GraphicsPipelineStateParams::SetShader(Shader* shader)
+{
+	ShaderType shaderType = shader->GetShaderType();
+
+	THROW_INTERNAL_ERROR_IF("Graphic pipeline does not support compute shaders", shaderType == ShaderType::ComputeShader);
+
+	m_shaders.push_back(shader);
+
+	D3D12_SHADER_BYTECODE* descShaderByteCode = GetShaderPointerValue(m_desc, shaderType);
+	D3D12_SHADER_BYTECODE shaderByteCode = shader->GetShaderByteCode();
+
+	descShaderByteCode->BytecodeLength = shaderByteCode.BytecodeLength;
+	descShaderByteCode->pShaderBytecode = shaderByteCode.pShaderBytecode;
+}
+
+void GraphicsPipelineStateParams::SetBlendState(BlendState* blendState)
+{
+	m_desc.BlendState = blendState->Get();
+}
+
+void GraphicsPipelineStateParams::SetSampleMask(UINT sampleMask)
+{
+	m_desc.SampleMask = sampleMask;
+}
+
+void GraphicsPipelineStateParams::SetRasterizerState(RasterizerState* rasterizerState)
+{
+	m_desc.RasterizerState = rasterizerState->Get();
+}
+
+void GraphicsPipelineStateParams::SetDepthStencilState(DepthStencilState* depthStencilState)
+{
+	m_desc.DepthStencilState = depthStencilState->Get();
+}
+
+void GraphicsPipelineStateParams::SetInputLayout(InputLayout* inputLayout)
+{
+	m_desc.InputLayout = inputLayout->Get();
+}
+
+void GraphicsPipelineStateParams::SetPrimitiveTechnologyType(D3D12_PRIMITIVE_TOPOLOGY_TYPE technologyType)
+{
+	m_desc.PrimitiveTopologyType = technologyType;
+}
+
+void GraphicsPipelineStateParams::SetNumRenderTargets(UINT numRenderTargets)
+{
+	m_desc.NumRenderTargets = numRenderTargets;
+}
+
+void GraphicsPipelineStateParams::SetRenderTargetFormat(UINT index, DXGI_FORMAT renderTargetFormat)
+{
+	THROW_OBJECT_STATE_ERROR_IF("Index of render target formats exceeded", index > 7);
+	THROW_OBJECT_STATE_ERROR_IF("Didn't set number of render targets", m_desc.NumRenderTargets == 0);
+	THROW_OBJECT_STATE_ERROR_IF("Index of defined render targets exceeded", index > m_desc.NumRenderTargets - 1);
+
+	m_desc.RTVFormats[index] = renderTargetFormat;
+}
+
+void GraphicsPipelineStateParams::SetDepthStencilFormat(DXGI_FORMAT depthStencilFormat)
+{
+	m_desc.DSVFormat = depthStencilFormat;
+}
+
+void GraphicsPipelineStateParams::SetSampleDesc(UINT count, UINT quality)
+{
+	m_desc.SampleDesc.Count = count;
+	m_desc.SampleDesc.Quality = quality;
+}
 
 std::string GetRenderTargetBlendIdentifier(const D3D12_RENDER_TARGET_BLEND_DESC& rtblend)
 {
@@ -184,7 +280,7 @@ std::string GetSampleIdentifier(const DXGI_SAMPLE_DESC& sample)
 	return result;
 }
 
-std::string GraphicsPipelineStateParams::GetIdentifier() const
+void GraphicsPipelineStateParams::CreateIdentifier()
 {
 	THROW_INTERNAL_ERROR_IF("GraphicsPipelineStateParams were not properly initialized", m_shaders.empty() || m_rootSignature == nullptr);
 
@@ -192,7 +288,7 @@ std::string GraphicsPipelineStateParams::GetIdentifier() const
 
 	result += std::to_string(std::hash<std::string>{}(m_rootSignature->GetIdentifier()));
 
-	for(const auto* shader : m_shaders)
+	for (const auto* shader : m_shaders)
 		result += std::to_string(std::hash<std::wstring>{}(shader->GetPath()));
 
 	result += GetBlendIdentifier(m_desc.BlendState);
@@ -208,84 +304,7 @@ std::string GraphicsPipelineStateParams::GetIdentifier() const
 	result += GetSampleIdentifier(m_desc.SampleDesc);
 	result += GetStringFromFlags(m_desc.Flags);
 
-	return result;
-}
-
-void GraphicsPipelineStateParams::SetRootSignature(RootSignature* rootSignature)
-{
-	m_rootSignature = rootSignature;
-
-	m_desc.pRootSignature = rootSignature->Get();
-}
-
-void GraphicsPipelineStateParams::SetShader(Shader* shader)
-{
-	ShaderType shaderType = shader->GetShaderType();
-
-	THROW_INTERNAL_ERROR_IF("Graphic pipeline does not support compute shaders", shaderType == ShaderType::ComputeShader);
-
-	m_shaders.push_back(shader);
-
-	D3D12_SHADER_BYTECODE* descShaderByteCode = GetShaderPointerValue(m_desc, shaderType);
-	D3D12_SHADER_BYTECODE shaderByteCode = shader->GetShaderByteCode();
-
-	descShaderByteCode->BytecodeLength = shaderByteCode.BytecodeLength;
-	descShaderByteCode->pShaderBytecode = shaderByteCode.pShaderBytecode;
-}
-
-void GraphicsPipelineStateParams::SetBlendState(BlendState* blendState)
-{
-	m_desc.BlendState = blendState->Get();
-}
-
-void GraphicsPipelineStateParams::SetSampleMask(UINT sampleMask)
-{
-	m_desc.SampleMask = sampleMask;
-}
-
-void GraphicsPipelineStateParams::SetRasterizerState(RasterizerState* rasterizerState)
-{
-	m_desc.RasterizerState = rasterizerState->Get();
-}
-
-void GraphicsPipelineStateParams::SetDepthStencilState(DepthStencilState* depthStencilState)
-{
-	m_desc.DepthStencilState = depthStencilState->Get();
-}
-
-void GraphicsPipelineStateParams::SetInputLayout(InputLayout* inputLayout)
-{
-	m_desc.InputLayout = inputLayout->Get();
-}
-
-void GraphicsPipelineStateParams::SetPrimitiveTechnologyType(D3D12_PRIMITIVE_TOPOLOGY_TYPE technologyType)
-{
-	m_desc.PrimitiveTopologyType = technologyType;
-}
-
-void GraphicsPipelineStateParams::SetNumRenderTargets(UINT numRenderTargets)
-{
-	m_desc.NumRenderTargets = numRenderTargets;
-}
-
-void GraphicsPipelineStateParams::SetRenderTargetFormat(UINT index, DXGI_FORMAT renderTargetFormat)
-{
-	THROW_OBJECT_STATE_ERROR_IF("Index of render target formats exceeded", index > 7);
-	THROW_OBJECT_STATE_ERROR_IF("Didn't set number of render targets", m_desc.NumRenderTargets == 0);
-	THROW_OBJECT_STATE_ERROR_IF("Index of defined render targets exceeded", index > m_desc.NumRenderTargets - 1);
-
-	m_desc.RTVFormats[index] = renderTargetFormat;
-}
-
-void GraphicsPipelineStateParams::SetDepthStencilFormat(DXGI_FORMAT depthStencilFormat)
-{
-	m_desc.DSVFormat = depthStencilFormat;
-}
-
-void GraphicsPipelineStateParams::SetSampleDesc(UINT count, UINT quality)
-{
-	m_desc.SampleDesc.Count = count;
-	m_desc.SampleDesc.Quality = quality;
+	m_cachedIdentifier = result;
 }
 
 const D3D12_COMPUTE_PIPELINE_STATE_DESC* ComputePipelineStateParams::GetDesc() const
@@ -295,14 +314,21 @@ const D3D12_COMPUTE_PIPELINE_STATE_DESC* ComputePipelineStateParams::GetDesc() c
 
 std::string ComputePipelineStateParams::GetIdentifier() const
 {
-	THROW_INTERNAL_ERROR_IF("ComputePipelineStateParams were not properly initialized", m_rootSignature == nullptr || m_computeShader == nullptr);
+	THROW_INTERNAL_ERROR_IF("ComputePipelineStateParams were not finished", !m_finished);
 
-	std::string result = {};
+	return m_cachedIdentifier;
+}
 
-	result += std::to_string(std::hash<std::string>{}(m_rootSignature->GetIdentifier()));
-	result += std::to_string(std::hash<std::wstring>{}(m_computeShader->GetPath()));
+void ComputePipelineStateParams::Finish()
+{
+	CreateIdentifier();
 
-	return result;
+	m_finished = true;
+}
+
+bool ComputePipelineStateParams::isFinished() const
+{
+	return m_finished;
 }
 
 void ComputePipelineStateParams::SetRootSignature(RootSignature* rootSignature)
@@ -320,6 +346,18 @@ void ComputePipelineStateParams::SetShader(Shader* shader)
 	m_desc.CS = shader->GetShaderByteCode();
 }
 
+void ComputePipelineStateParams::CreateIdentifier()
+{
+	THROW_INTERNAL_ERROR_IF("ComputePipelineStateParams were not properly initialized", m_rootSignature == nullptr || m_computeShader == nullptr);
+
+	std::string result = {};
+
+	result += std::to_string(std::hash<std::string>{}(m_rootSignature->GetIdentifier()));
+	result += std::to_string(std::hash<std::wstring>{}(m_computeShader->GetPath()));
+
+	m_cachedIdentifier = result;
+}
+
 ID3D12PipelineState* PipelineState::Get() const
 {
 	return pPipelineState.Get();
@@ -329,9 +367,8 @@ GraphicsPipelineState::GraphicsPipelineState(Graphics& graphics, GraphicsPipelin
 	:
 	m_params(std::move(params))
 {
-	static int i = 0;
-	i++;
-	std::cout << i << "\n";
+	if (!m_params.isFinished())
+		m_params.Finish();
 
 	HRESULT hr;
 
@@ -340,6 +377,9 @@ GraphicsPipelineState::GraphicsPipelineState(Graphics& graphics, GraphicsPipelin
 
 std::shared_ptr<GraphicsPipelineState> GraphicsPipelineState::GetResource(Graphics& graphics, GraphicsPipelineStateParams&& params)
 {
+	if (!params.isFinished())
+		params.Finish();
+
 	return ResourceList::GetResource<GraphicsPipelineState>(graphics, std::move(params));
 }
 
@@ -352,6 +392,9 @@ ComputePipelineState::ComputePipelineState(Graphics& graphics, ComputePipelineSt
 	:
 	m_params(std::move(params))
 {
+	if (!m_params.isFinished())
+		m_params.Finish();
+
 	HRESULT hr;
 
 	THROW_ERROR(graphics.GetDeviceResources().GetDevice()->CreateComputePipelineState(m_params.GetDesc(), IID_PPV_ARGS(&pPipelineState)));
@@ -359,6 +402,9 @@ ComputePipelineState::ComputePipelineState(Graphics& graphics, ComputePipelineSt
 
 std::shared_ptr<ComputePipelineState> ComputePipelineState::GetResource(Graphics& graphics, ComputePipelineStateParams&& params)
 {
+	if (!params.isFinished())
+		params.Finish();
+
 	return ResourceList::GetResource<ComputePipelineState>(graphics, std::move(params));
 }
 

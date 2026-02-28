@@ -19,6 +19,10 @@ public:
 
 	std::string GetIdentifier() const;
 
+	void Finish();
+
+	bool isFinished() const;
+
 public:
 	void SetRootSignature(RootSignature* rootSignature);
 	void SetShader(Shader* shader);
@@ -39,9 +43,16 @@ public:
 	// Flags
 
 private:
+	void CreateIdentifier();
+
+private:
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC m_desc = {};
 	std::vector<Shader*> m_shaders = {};
 	RootSignature* m_rootSignature = nullptr;
+
+	std::string m_cachedIdentifier = {};
+
+	bool m_finished = false;
 };
 
 class ComputePipelineStateParams
@@ -51,6 +62,10 @@ public:
 
 	std::string GetIdentifier() const;
 
+	void Finish();
+
+	bool isFinished() const;
+
 public:
 	void SetRootSignature(RootSignature* rootSignature);
 	void SetShader(Shader* shader);
@@ -59,9 +74,16 @@ public:
 	// Flags;
 
 private:
+	void CreateIdentifier();
+
+private:
 	D3D12_COMPUTE_PIPELINE_STATE_DESC m_desc = {};
 	Shader* m_computeShader;
 	RootSignature* m_rootSignature = nullptr;
+
+	std::string m_cachedIdentifier = {};
+
+	bool m_finished = false;
 };
 
 class PipelineState

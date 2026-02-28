@@ -27,7 +27,7 @@ public:
 
 	bool isFinished() const;
 
-	std::string GetIdentifier() const;
+	const std::string& GetIdentifier() const;
 
 public:
 	// returns rootIndex that was used
@@ -55,6 +55,8 @@ private:
 	void m_AddStaticSampler(StaticSampler* staticSampler, TargetSlotAndShader& target);
 
 private:
+	void CreateIdentifier();
+
 	std::string GetParamsIdentifier() const;
 	std::string GetStaticSamplersIdentifier() const;
 	std::string GetFlagsIdentifier() const;
@@ -66,6 +68,8 @@ private:
 	std::vector<D3D12_ROOT_PARAMETER1> m_rootParameters;
 	std::vector<D3D12_STATIC_SAMPLER_DESC> m_staticSamplers;
 	std::vector<D3D12_DESCRIPTOR_RANGE1> m_descriptorTableRanges;
+
+	std::string m_cachedIdentifier = {};
 };
 
 class RootSignature
