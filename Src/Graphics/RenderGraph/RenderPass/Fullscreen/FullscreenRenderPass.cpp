@@ -48,7 +48,7 @@ FullscreenRenderPass::FullscreenRenderPass(Graphics& graphics, RenderManager& re
 		*bufferData.Get<DynamicConstantBuffer::ElementType::Float>("nearPlane") = defaultCameraSettings.NearZ;
 		*bufferData.Get<DynamicConstantBuffer::ElementType::Float>("farPlane") = defaultCameraSettings.FarZ;
 
-		m_pCameraData = std::make_shared<CachedConstantBuffer>(graphics, bufferData, std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::PixelShader, 0}});
+		m_pCameraData = std::make_shared<CachedConstantBuffer>(graphics, bufferData, std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::PixelShader, 0}}, true);
 	}
 
 	m_bindables.push_back(StaticSampler::GetResource(graphics));
