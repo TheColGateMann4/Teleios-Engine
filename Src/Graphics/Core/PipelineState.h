@@ -44,6 +44,8 @@ public:
 
 private:
 	void CreateIdentifier();
+	
+	void SortShaders();
 
 private:
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC m_desc = {};

@@ -78,6 +78,8 @@ std::string GraphicsPipelineStateParams::GetIdentifier() const
 
 void GraphicsPipelineStateParams::Finish()
 {
+	SortShaders();
+
 	CreateIdentifier();
 
 	m_finished = true;
@@ -305,6 +307,14 @@ void GraphicsPipelineStateParams::CreateIdentifier()
 	result += GetStringFromFlags(m_desc.Flags);
 
 	m_cachedIdentifier = result;
+}
+
+void GraphicsPipelineStateParams::SortShaders()
+{
+	std::sort(m_shaders.begin(), m_shaders.end(), [](const Shader* a, const Shader* b)
+		{
+			return static_cast<unsigned int>(a->GetShaderType()) < static_cast<unsigned int>(b->GetShaderType());
+		});
 }
 
 const D3D12_COMPUTE_PIPELINE_STATE_DESC* ComputePipelineStateParams::GetDesc() const
