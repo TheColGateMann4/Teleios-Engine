@@ -242,12 +242,12 @@ void ShaderResourceViewMultiResource::Initialize(Graphics& graphics)
 
 std::shared_ptr<ShaderResourceViewMultiResource> ShaderResourceViewMultiResource::GetResource(Graphics& graphics, std::string identifier, BackBufferRenderTarget* renderTarget, UINT slot)
 {
-	return ResourceList::GetResourceByID<ShaderResourceViewMultiResource>(graphics, identifier, renderTarget, slot);
+	return ResourceList::GetResourceByID<ShaderResourceViewMultiResource>(identifier, graphics, renderTarget, slot);
 }
 
 std::shared_ptr<ShaderResourceViewMultiResource> ShaderResourceViewMultiResource::GetResource(Graphics& graphics, std::string identifier, DepthStencilViewMultiResource* depthStencil, UINT slot)
 {
-	return ResourceList::GetResourceByID<ShaderResourceViewMultiResource>(graphics, identifier, depthStencil, slot);
+	return ResourceList::GetResourceByID<ShaderResourceViewMultiResource>(identifier, graphics, depthStencil, slot);
 }
 
 std::string ShaderResourceViewMultiResource::GetIdentifier(std::string identifier)
