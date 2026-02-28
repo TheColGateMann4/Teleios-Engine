@@ -12,25 +12,12 @@ class DepthStencilState;
 class InputLayout;
 enum class ShaderType;
 
-class PipelineState
+class GraphicsPipelineStateParams
 {
 public:
-	virtual ~PipelineState() = default;
+	const D3D12_GRAPHICS_PIPELINE_STATE_DESC* GetDesc() const;
 
-public:
-	virtual void Finish(Graphics& graphics) = 0;
-
-	ID3D12PipelineState* Get() const;
-
-protected:
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> pPipelineState;
-	bool m_finished = false;
-};
-
-class GraphicsPipelineState : public PipelineState
-{
-public:
-	virtual ~GraphicsPipelineState() = default;
+	std::string GetIdentifier() const;
 
 public:
 	void SetRootSignature(RootSignature* rootSignature);
@@ -51,19 +38,18 @@ public:
 	// CachedPSO
 	// Flags
 
-	virtual void Finish(Graphics& graphics) override;
-
-private:
-	static D3D12_SHADER_BYTECODE* GetShaderPointerValue(D3D12_GRAPHICS_PIPELINE_STATE_DESC& desc, ShaderType type);
-
 private:
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC m_desc = {};
+	std::vector<Shader*> m_shaders = {};
+	RootSignature* m_rootSignature = nullptr;
 };
 
-class ComputePipelineState : public PipelineState
+class ComputePipelineStateParams
 {
 public:
-	virtual ~ComputePipelineState() = default;
+	const D3D12_COMPUTE_PIPELINE_STATE_DESC* GetDesc() const;
+
+	std::string GetIdentifier() const;
 
 public:
 	void SetRootSignature(RootSignature* rootSignature);
@@ -72,9 +58,49 @@ public:
 	// CachedPSO;
 	// Flags;
 
-public:
-	virtual void Finish(Graphics& graphics) override;
-
 private:
 	D3D12_COMPUTE_PIPELINE_STATE_DESC m_desc = {};
+	Shader* m_computeShader;
+	RootSignature* m_rootSignature = nullptr;
+};
+
+class PipelineState
+{
+public:
+	virtual ~PipelineState() = default;
+
+	ID3D12PipelineState* Get() const;
+
+protected:
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> pPipelineState;
+};
+
+class GraphicsPipelineState : public PipelineState
+{
+public:
+	GraphicsPipelineState(Graphics& graphics, GraphicsPipelineStateParams&& params);
+	virtual ~GraphicsPipelineState() = default;
+
+	static std::shared_ptr<GraphicsPipelineState> GetResource(Graphics& graphics, GraphicsPipelineStateParams&& params);
+
+public:
+	static std::string GetIdentifier(const GraphicsPipelineStateParams& params);
+
+private:
+	GraphicsPipelineStateParams m_params;
+};
+
+class ComputePipelineState : public PipelineState
+{
+public:
+	ComputePipelineState(Graphics& graphics, ComputePipelineStateParams&& params);
+	virtual ~ComputePipelineState() = default;
+
+	static std::shared_ptr<ComputePipelineState> GetResource(Graphics& graphics, ComputePipelineStateParams&& params);
+
+public:
+	static std::string GetIdentifier(const ComputePipelineStateParams& params);
+
+private:
+	ComputePipelineStateParams m_params;
 };
