@@ -461,3 +461,8 @@ std::string RootSignature::GetIdentifier()
 {
 	return m_params.GetIdentifier();
 }
+
+unsigned int RootSignature::GetNumParams() const
+{
+	return m_params.GetDesc().NumParameters;
+}

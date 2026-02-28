@@ -84,6 +84,7 @@ public:
 
 	static std::string GetIdentifier(const RootSignatureParams& params);
 	std::string GetIdentifier();
+	unsigned int GetNumParams() const;
 
 private:
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> pRootSignature;

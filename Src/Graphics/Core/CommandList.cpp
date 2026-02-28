@@ -20,6 +20,66 @@
 	#pragma comment(lib, "WinPixEventRuntime.lib")
 #endif
 
+bool CommandListState::SetRootSignature(RootSignature* _rootSignature)
+{
+	THROW_INTERNAL_ERROR_IF("Passed RootSignature was null", _rootSignature == nullptr);
+
+	if (rootSignature == _rootSignature)
+		return false;
+
+	rootSignature = _rootSignature;
+	rootBindables.resize(rootSignature->GetNumParams());
+
+	return true;
+}
+
+bool CommandListState::SetPipelineState(PipelineState* _pipelineState)
+{
+	THROW_INTERNAL_ERROR_IF("Passed PipelineState was null", _pipelineState == nullptr);
+
+	if (pipelineState == _pipelineState)
+		return false;
+
+	pipelineState = _pipelineState;
+	return true;
+}
+
+bool CommandListState::SetRootSignatureParam(unsigned int paramIndex, Bindable* rootBindable)
+{
+	THROW_INTERNAL_ERROR_IF("Passed RootSignatureBindable was null", rootBindable == nullptr);
+	THROW_INTERNAL_ERROR_IF("Root parameter index exceeded current number of root params", paramIndex > rootBindables.size());
+
+	auto& currentRootBind = rootBindables.at(paramIndex);
+
+	if (currentRootBind == rootBindable)
+		return false;
+
+	currentRootBind = rootBindable;
+	return true;
+}
+
+bool CommandListState::SetVertexBuffer(VertexBuffer* _vertexBuffer)
+{
+	THROW_INTERNAL_ERROR_IF("Passed VertexBuffer was null", _vertexBuffer == nullptr);
+
+	if (vertexBuffer == _vertexBuffer)
+		return false;
+
+	vertexBuffer = _vertexBuffer;
+	return true;
+}
+
+bool CommandListState::SetIndexBuffer(IndexBuffer* _indexBuffer)
+{
+	THROW_INTERNAL_ERROR_IF("Passed IndexBuffer was null", _indexBuffer == nullptr);
+
+	if (indexBuffer == _indexBuffer)
+		return false;
+
+	indexBuffer = _indexBuffer;
+	return true;
+}
+
 CommandList::CommandList(Graphics& graphics, D3D12_COMMAND_LIST_TYPE type, PipelineState* pPipelineState)
 	:
 	m_pCommandAllocators(graphics.GetBufferCount()),
@@ -265,6 +325,9 @@ void CommandList::SetVertexBuffer(Graphics& graphics, VertexBuffer* vertexBuffer
 	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
 	THROW_OBJECT_STATE_ERROR_IF("Only Direct and Bundle command lists can set vertex buffers", m_type != D3D12_COMMAND_LIST_TYPE_DIRECT && m_type != D3D12_COMMAND_LIST_TYPE_BUNDLE);
 
+	if (!m_state.SetVertexBuffer(vertexBuffer))
+		return;
+
 	THROW_INFO_ERROR(pCommandList->IASetVertexBuffers(0, 1, vertexBuffer->Get()));
 }
 
@@ -272,6 +335,9 @@ void CommandList::SetIndexBuffer(Graphics& graphics, IndexBuffer* indexBuffer)
 {
 	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
 	THROW_OBJECT_STATE_ERROR_IF("Only Direct and Bundle command lists can set index buffers", m_type != D3D12_COMMAND_LIST_TYPE_DIRECT && m_type != D3D12_COMMAND_LIST_TYPE_BUNDLE);
+
+	if (!m_state.SetIndexBuffer(indexBuffer))
+		return;
 
 	THROW_INFO_ERROR(pCommandList->IASetIndexBuffer(indexBuffer->Get()));
 }
@@ -298,6 +364,9 @@ void CommandList::SetGraphicsRootSignature(Graphics& graphics, RootSignature* ro
 	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
 	THROW_OBJECT_STATE_ERROR_IF("Only Direct and Bundle command lists can set graphics root signature", m_type != D3D12_COMMAND_LIST_TYPE_DIRECT && m_type != D3D12_COMMAND_LIST_TYPE_BUNDLE);
 
+	if (!m_state.SetRootSignature(rootSignature))
+		return;
+
 	THROW_INFO_ERROR(pCommandList->SetGraphicsRootSignature(rootSignature->Get()));
 }
 
@@ -305,6 +374,9 @@ void CommandList::SetGraphicsConstBufferView(Graphics& graphics, ConstantBuffer*
 {
 	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
 	THROW_OBJECT_STATE_ERROR_IF("Only Direct and Bundle command lists can set graphics constant buffers", m_type != D3D12_COMMAND_LIST_TYPE_DIRECT && m_type != D3D12_COMMAND_LIST_TYPE_BUNDLE);
+
+	if (!m_state.SetRootSignatureParam(target.rootIndex, constBuffer))
+		return;
 
 	THROW_INFO_ERROR(pCommandList->SetGraphicsRootConstantBufferView(target.rootIndex, constBuffer->GetGPUAddress(graphics)));
 }
@@ -326,6 +398,9 @@ void CommandList::SetGraphicsDescriptorTable(Graphics& graphics, DescriptorHeapB
 
 	TargetSlotAndShader& target = descriptorHeapBindable->GetTargets().front();
 
+	if (!m_state.SetRootSignatureParam(target.rootIndex, descriptorHeapBindable))
+		return;
+
 	THROW_INFO_ERROR(pCommandList->SetGraphicsRootDescriptorTable(target.rootIndex, descriptorHeapBindable->GetDescriptorHeapGPUHandle()));
 }
 
@@ -334,6 +409,9 @@ void CommandList::SetGraphicsDescriptorTable(Graphics& graphics, ShaderResourceV
 	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
 	THROW_OBJECT_STATE_ERROR_IF("Only Direct and Bundle command lists can set graphics Descriptor Tables", m_type != D3D12_COMMAND_LIST_TYPE_DIRECT && m_type != D3D12_COMMAND_LIST_TYPE_BUNDLE);
 
+	if (!m_state.SetRootSignatureParam(target.rootIndex, srv))
+		return;
+
 	THROW_INFO_ERROR(pCommandList->SetGraphicsRootDescriptorTable(target.rootIndex, srv->GetDescriptorHeapGPUHandle(graphics)));
 }
 
@@ -341,6 +419,9 @@ void CommandList::SetRootConstants(Graphics& graphics, RootSignatureConstants* c
 {
 	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
 	THROW_OBJECT_STATE_ERROR_IF("Only Direct and Bundle command lists can set graphics constant buffers", m_type != D3D12_COMMAND_LIST_TYPE_DIRECT && m_type != D3D12_COMMAND_LIST_TYPE_BUNDLE);
+
+	if (!m_state.SetRootSignatureParam(target.rootIndex, constants))
+		return;
 
 	THROW_INFO_ERROR(pCommandList->SetGraphicsRoot32BitConstants(target.rootIndex, constants->GetNumValues(), constants->GetDataPtr(), 0));
 }
@@ -386,6 +467,9 @@ void CommandList::ClearDepthStencilView(Graphics& graphics, DepthStencilViewBase
 void CommandList::SetPipelineState(Graphics& graphics, PipelineState* pPipelineState)
 {
 	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
+
+	if (!m_state.SetPipelineState(pPipelineState))
+		return;
 
 	THROW_INFO_ERROR(pCommandList->SetPipelineState(pPipelineState->Get()));
 }

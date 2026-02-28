@@ -30,6 +30,23 @@ enum class ResourceDataOperation : uint8_t;
 
 struct ID3D12Resource;
 
+class CommandListState
+{
+public:
+	bool SetRootSignature(RootSignature* _rootSignature);
+	bool SetPipelineState(PipelineState* _pipelineState);
+	bool SetRootSignatureParam(unsigned int paramIndex, Bindable* rootBindable);
+	bool SetVertexBuffer(VertexBuffer* _vertexBuffer);
+	bool SetIndexBuffer(IndexBuffer* _indexBuffer);
+
+private:
+	RootSignature* rootSignature;
+	PipelineState* pipelineState;
+	std::vector<Bindable*> rootBindables;
+	VertexBuffer* vertexBuffer;
+	IndexBuffer* indexBuffer;
+};
+
 #ifdef _DEBUG
 	#define SET_COMMAND_LIST_MARKER(CommandList, Str) CommandList->SetMarker(Str)
 	#define BEGIN_COMMAND_LIST_EVENT(CommandList, Str) CommandList->BeginEvent(Str)
@@ -150,6 +167,8 @@ private: // helpers
 	D3D12_RENDER_PASS_ENDING_ACCESS CreateEndingAccess(ResourceDataOperation op);
 
 private:
+	CommandListState m_state;
+
 	std::vector<Microsoft::WRL::ComPtr<ID3D12CommandAllocator>> m_pCommandAllocators;
 	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> pCommandList;
 	D3D12_COMMAND_LIST_TYPE m_type;
