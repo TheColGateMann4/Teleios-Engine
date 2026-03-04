@@ -39,5 +39,5 @@ protected:
 
 	std::shared_ptr<CachedConstantBuffer> m_pCameraData;
 	IndexBuffer* m_pIndexBuffer;
-	VertexBuffer* m_pVertexBuffer;
+	VertexBufferEntry* m_vertexBufferEntry;
 };

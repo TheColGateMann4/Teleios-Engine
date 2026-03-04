@@ -91,7 +91,7 @@ void GraphicsStepRenderJob::Initialize(Graphics& graphics, Pipeline& pipeline)
 
 void GraphicsStepRenderJob::InitializeGraphicResources(Graphics& graphics, Pipeline& pipeline)
 {
-	m_bindableContainer.GetVertexBuffer()->BindToCopyPipelineIfNeeded(graphics, pipeline);
+	m_bindableContainer.GetVertexBufferEntry()->GetVertexBuffer()->BindToCopyPipelineIfNeeded(graphics, pipeline);
 	m_bindableContainer.GetIndexBuffer()->BindToCopyPipelineIfNeeded(graphics, pipeline);
 
 	for (auto texture : m_bindableContainer.GetTextures())
@@ -126,7 +126,10 @@ void GraphicsStepRenderJob::Execute(Graphics& graphics, CommandList* commandList
 			pCommandListBindable->BindToCommandList(graphics, commandList);
 	}
 
-	commandList->DrawIndexed(graphics, m_bindableContainer.GetIndexBuffer()->GetIndexCount());
+	unsigned int indexCount = m_bindableContainer.GetIndexBuffer()->GetIndexCount();
+	unsigned int baseVertexOffset = m_bindableContainer.GetVertexBufferEntry()->GetEntryInfo().offset;
+
+	commandList->DrawIndexed(graphics, indexCount, baseVertexOffset);
 }
 
 RenderJob::JobGroup GraphicsStepRenderJob::GetGroup() const

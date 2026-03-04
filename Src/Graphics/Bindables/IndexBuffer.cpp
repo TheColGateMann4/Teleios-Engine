@@ -59,7 +59,7 @@ void IndexBuffer::BindToCopyPipelineIfNeeded(Graphics& graphics, Pipeline& pipel
 	if (!m_uploadBuffer) // if uploadResource ptr is not holding value then we don't want to update
 		return;
 
-	pipeline.AddBufferToCopyPipeline(m_buffer.get(), m_uploadBuffer.get());
+	pipeline.AddResourceToCopyPipeline(m_buffer.get(), m_uploadBuffer.get());
 
 	graphics.GetFrameResourceDeleter()->DeleteResource(graphics, std::move(m_uploadBuffer));
 }

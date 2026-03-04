@@ -30,9 +30,9 @@ FullscreenRenderPass::FullscreenRenderPass(Graphics& graphics, RenderManager& re
 		{{ 1.0f, -1.0f, 0.0f }, { 1.0f, 1.0f }}
 	};
 
-	std::shared_ptr<VertexBuffer> vertexBuffer = VertexBuffer::GetResource(graphics, "FullscreenMesh", vertices.data(), vertices.size(), sizeof(vertices.at(0)));
-	m_pVertexBuffer = vertexBuffer.get();
-	m_bindables.push_back(std::move(vertexBuffer));
+	std::shared_ptr<VertexBufferEntry> vertexBufferEntry = VertexBufferEntry::GetResource(graphics, "FullscreenMesh", vertices.data(), layout, vertices.size());
+	m_vertexBufferEntry = vertexBufferEntry.get();
+	m_bindables.push_back(std::move(vertexBufferEntry));
 
 	m_bindables.push_back(InputLayout::GetResource(graphics, layout));
 
@@ -81,7 +81,7 @@ void FullscreenRenderPass::Initialize(Graphics& graphics, Scene& scene)
 void FullscreenRenderPass::InitializePassResources(Graphics& graphics, Pipeline& pipeline, Scene& scene)
 {
 	// copy index and vertex buffers to gpu
-	m_pVertexBuffer->BindToCopyPipelineIfNeeded(graphics, pipeline);
+	m_vertexBufferEntry->GetVertexBuffer()->BindToCopyPipelineIfNeeded(graphics, pipeline);
 	m_pIndexBuffer->BindToCopyPipelineIfNeeded(graphics, pipeline);
 
 	// Updating camera data

@@ -131,12 +131,12 @@ void CommandList::Close(Graphics& graphics)
 	m_open = false;
 }
 
-void CommandList::DrawIndexed(Graphics& graphics, unsigned int indices)
+void CommandList::DrawIndexed(Graphics& graphics, unsigned int indices, unsigned int baseVertexOffset)
 {
 	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
 	THROW_OBJECT_STATE_ERROR_IF("Only Direct and Bundle command lists can DrawIndexed", m_type != D3D12_COMMAND_LIST_TYPE_DIRECT && m_type != D3D12_COMMAND_LIST_TYPE_BUNDLE);
 
-	THROW_INFO_ERROR(pCommandList->DrawIndexedInstanced(indices, 1, 0, 0, 0));
+	THROW_INFO_ERROR(pCommandList->DrawIndexedInstanced(indices, 1, 0, baseVertexOffset, 0));
 }
 
 void CommandList::Dispatch(Graphics& graphics, unsigned int workToProcessX, unsigned int workToProcessY, unsigned int workToProcessZ)
@@ -367,8 +367,6 @@ void CommandList::SetGraphicsRootSignature(Graphics& graphics, RootSignature* ro
 	if (!m_state.SetRootSignature(rootSignature))
 		return;
 
-	std::cout << "Chaned RootSignature to: " << std::hex << std::to_string(reinterpret_cast<uintptr_t>(rootSignature)) << "\n";
-
 	THROW_INFO_ERROR(pCommandList->SetGraphicsRootSignature(rootSignature->Get()));
 }
 
@@ -379,8 +377,6 @@ void CommandList::SetGraphicsConstBufferView(Graphics& graphics, ConstantBuffer*
 
 	if (!m_state.SetRootSignatureParam(target.rootIndex, constBuffer))
 		return;
-
-	std::cout << "Chaned CBV at slot " << std::to_string(target.rootIndex) << " to: " << std::hex << std::to_string(reinterpret_cast<uintptr_t>(constBuffer)) << "\n";
 
 	THROW_INFO_ERROR(pCommandList->SetGraphicsRootConstantBufferView(target.rootIndex, constBuffer->GetGPUAddress(graphics)));
 }
@@ -405,8 +401,6 @@ void CommandList::SetGraphicsDescriptorTable(Graphics& graphics, DescriptorHeapB
 	if (!m_state.SetRootSignatureParam(target.rootIndex, descriptorHeapBindable))
 		return;
 
-	std::cout << "Chaned DescriptorHeapBindable at slot " << std::to_string(target.rootIndex) << " to: " << std::hex << std::to_string(reinterpret_cast<uintptr_t>(descriptorHeapBindable)) << "\n";
-
 	THROW_INFO_ERROR(pCommandList->SetGraphicsRootDescriptorTable(target.rootIndex, descriptorHeapBindable->GetDescriptorHeapGPUHandle()));
 }
 
@@ -418,8 +412,6 @@ void CommandList::SetGraphicsDescriptorTable(Graphics& graphics, ShaderResourceV
 	if (!m_state.SetRootSignatureParam(target.rootIndex, srv))
 		return;
 
-	std::cout << "Chaned SRV at slot " << std::to_string(target.rootIndex) << " to: " << std::hex << std::to_string(reinterpret_cast<uintptr_t>(srv)) << "\n";
-
 	THROW_INFO_ERROR(pCommandList->SetGraphicsRootDescriptorTable(target.rootIndex, srv->GetDescriptorHeapGPUHandle(graphics)));
 }
 
@@ -430,8 +422,6 @@ void CommandList::SetRootConstants(Graphics& graphics, RootSignatureConstants* c
 
 	if (!m_state.SetRootSignatureParam(target.rootIndex, constants))
 		return;
-
-	std::cout << "Chaned RootConstants at slot " << std::to_string(target.rootIndex) << " to: " << std::hex << std::to_string(reinterpret_cast<uintptr_t>(constants)) << "\n";
 
 	THROW_INFO_ERROR(pCommandList->SetGraphicsRoot32BitConstants(target.rootIndex, constants->GetNumValues(), constants->GetDataPtr(), 0));
 }
@@ -480,8 +470,6 @@ void CommandList::SetPipelineState(Graphics& graphics, PipelineState* pPipelineS
 
 	if (!m_state.SetPipelineState(pPipelineState))
 		return;
-
-	std::cout << "Chaned PSO to: " << std::hex << std::to_string(reinterpret_cast<uintptr_t>(pPipelineState)) << "\n";
 
 	THROW_INFO_ERROR(pCommandList->SetPipelineState(pPipelineState->Get()));
 }

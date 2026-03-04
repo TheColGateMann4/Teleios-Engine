@@ -68,7 +68,7 @@ public:
 
 	void Close(Graphics& graphics);
 
-	void DrawIndexed(Graphics& graphics, unsigned int indices);
+	void DrawIndexed(Graphics& graphics, unsigned int indices, unsigned int baseVertexOffset = 0);
 
 	void Dispatch(Graphics& graphics, unsigned int workToProcessX = 1, unsigned int workToProcessY = 1, unsigned int workToProcessZ = 1);
 	

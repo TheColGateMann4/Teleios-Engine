@@ -4,7 +4,7 @@
 
 class Pipeline;
 
-class VertexBuffer;
+class VertexBufferEntry;
 class IndexBuffer;
 class InputLayout;
 class TransformConstantBuffer;
@@ -70,7 +70,7 @@ public:
 	void Initialize(Pipeline& pipeline);
 
 public:
-	VertexBuffer* GetVertexBuffer() const;
+	VertexBufferEntry* GetVertexBufferEntry() const;
 	IndexBuffer* GetIndexBuffer() const;
 	InputLayout* GetInputLayout() const;
 	TransformConstantBuffer* GetTransformConstantBuffer() const;
@@ -84,7 +84,7 @@ private:
 	// vector with names of static scene resources
 	std::vector<const char*> m_staticBindableNames;
 
-	VertexBuffer* m_vertexBuffer = nullptr;
+	VertexBufferEntry* m_vertexBufferEntry = nullptr;
 	IndexBuffer* m_indexBuffer = nullptr;
 	InputLayout* m_inputLayout = nullptr;
 	TransformConstantBuffer* m_transformConstantBuffer = nullptr;

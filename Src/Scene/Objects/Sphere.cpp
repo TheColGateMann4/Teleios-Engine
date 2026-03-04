@@ -119,20 +119,21 @@ void Sphere::UpdateMesh(Graphics& graphics, Pipeline& pipeline)
 
 	if (!m_initialized)
 	{
-		albedoStep.AddBindable(VertexBuffer::GetResource(graphics, "Sphere", vertices.data(), vertexLayout, vertices.size()));
+		albedoStep.AddBindable(VertexBufferEntry::GetResource(graphics, "Sphere", vertices.data(), vertexLayout, vertices.size()));
+
 		albedoStep.AddBindable(IndexBuffer::GetResource(graphics, "Sphere", indices));
 
 		m_initialized = true;
 	}
 	else
 	{
-		VertexBuffer* vbuffer = albedoStep.GetBindableContainter().GetVertexBuffer();
-		IndexBuffer* ibuffer = albedoStep.GetBindableContainter().GetIndexBuffer();
-
-		vbuffer->Update(graphics, vertices.data(), vertices.size(), sizeof(vertices.front()));
-		ibuffer->Update(graphics, indices.data(), indices.size(), sizeof(indices.front()));
-	
-		vbuffer->BindToCopyPipelineIfNeeded(graphics, pipeline);
-		ibuffer->BindToCopyPipelineIfNeeded(graphics, pipeline);
+		//VertexBuffer* vbuffer = albedoStep.GetBindableContainter().GetVertexBuffer();
+		//IndexBuffer* ibuffer = albedoStep.GetBindableContainter().GetIndexBuffer();
+		//
+		//vbuffer->Update(graphics, vertices.data(), vertices.size(), sizeof(vertices.front()));
+		//ibuffer->Update(graphics, indices.data(), indices.size(), sizeof(indices.front()));
+		//
+		//vbuffer->BindToCopyPipelineIfNeeded(graphics, pipeline);
+		//ibuffer->BindToCopyPipelineIfNeeded(graphics, pipeline);
 	}
 }

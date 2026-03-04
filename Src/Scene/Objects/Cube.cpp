@@ -96,7 +96,7 @@ Cube::Cube(Graphics& graphics, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rot
 			20,23,22,
 		};
 
-		step.AddBindable(std::make_shared<VertexBuffer>(graphics, vertices.data(), vertices.size(), sizeof(vertices.at(0))));
+		step.AddBindable(VertexBufferEntry::GetResource(graphics, "Cube#POS#UV", vertices.data(), vertexLayout, vertices.size()));
 		step.AddBindable(std::make_shared<IndexBuffer>(graphics, indices));
 		step.AddBindable(m_transform.GetTransformConstantBuffer());
 

@@ -97,7 +97,7 @@ MeshBindableContainer& MeshBindableContainer::operator+=(const MeshBindableConta
 
 	m_staticBindableNames.insert(m_staticBindableNames.end(), other.m_staticBindableNames.begin(), other.m_staticBindableNames.end());
 
-	if (m_vertexBuffer == nullptr) m_vertexBuffer = other.m_vertexBuffer;
+	if (m_vertexBufferEntry == nullptr) m_vertexBufferEntry = other.m_vertexBufferEntry;
 	if (m_indexBuffer == nullptr) m_indexBuffer = other.m_indexBuffer;
 	if (m_inputLayout == nullptr) m_inputLayout = other.m_inputLayout;
 	if (m_transformConstantBuffer == nullptr) m_transformConstantBuffer = other.m_transformConstantBuffer;
@@ -119,9 +119,9 @@ void MeshBindableContainer::Initialize(Pipeline& pipeline)
 		SegregateBindableBaseFunctionality(pipeline.GetStaticResource(staticBindableName).get());
 }
 
-VertexBuffer* MeshBindableContainer::GetVertexBuffer() const
+VertexBufferEntry* MeshBindableContainer::GetVertexBufferEntry() const
 {
-	return m_vertexBuffer;
+	return m_vertexBufferEntry;
 }
 
 IndexBuffer* MeshBindableContainer::GetIndexBuffer() const
@@ -164,7 +164,12 @@ void MeshBindableContainer::SegregateBindableByClass(Bindable* bindable)
 		}
 		case BindableType::bindable_vertexBuffer:
 		{
-			m_vertexBuffer = static_cast<VertexBuffer*>(bindable);
+			THROW_INTERNAL_ERROR("VertexBuffer was pushed as regular bindable. Use VertexBufferEntry for using vertex data");
+			break;
+		}
+		case BindableType::bindable_vertexBufferEntry:
+		{
+			m_vertexBufferEntry = static_cast<VertexBufferEntry*>(bindable);
 			break;
 		}
 		case BindableType::bindable_inputLayout:

@@ -131,6 +131,7 @@
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <TreatAngleIncludeAsExternal>true</TreatAngleIncludeAsExternal>
       <DisableAnalyzeExternal>true</DisableAnalyzeExternal>
+      <SupportJustMyCode>false</SupportJustMyCode>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
