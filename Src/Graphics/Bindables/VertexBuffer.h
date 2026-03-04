@@ -9,27 +9,34 @@ class Pipeline;
 class Graphics;
 class CommandList;
 
+struct VertexBufferEntryInfo
+{
+	unsigned int offset;
+	unsigned int size;
+};
+
 class VertexBuffer : public Bindable, public CommandListBindable
 {
-public:
-	VertexBuffer(Graphics& graphics, void* pData, size_t numElements, size_t dataStride);
+	struct VertexBufferUploadData
+	{
+		unsigned int offset;
+		std::unique_ptr<GraphicsBuffer> uploadBuffer;
+	};
 
-	// data has to be aligned in 16 bytes
-	VertexBuffer(Graphics& graphics, DynamicVertex::DynamicVertex& dynamicVertexBuffer);
-	VertexBuffer(Graphics& graphics, const DynamicVertex::DynamicVertexLayout& layout, unsigned int numElements);
-	VertexBuffer(Graphics& graphics, void* pData, const DynamicVertex::DynamicVertexLayout& layout, unsigned int numElements);
+public:
+	VertexBuffer(const DynamicVertex::DynamicVertexLayout& layout);
 
 	VertexBuffer(VertexBuffer&&) noexcept = default;
 	VertexBuffer& operator=(VertexBuffer&&) noexcept = default;
 
+	static std::shared_ptr<VertexBuffer> GetResource(const DynamicVertex::DynamicVertexLayout& layout);
+
 public:
-	static std::shared_ptr<VertexBuffer> GetResource(Graphics& graphics, std::string identifier, void* pData, size_t numElements, size_t dataStride);
+	// data has to be aligned in 16 bytes
+	VertexBufferEntryInfo PushData(Graphics& graphics, DynamicVertex::DynamicVertex& dynamicVertexBuffer);
+	VertexBufferEntryInfo PushData(Graphics& graphics, void* pData, const DynamicVertex::DynamicVertexLayout& layout, unsigned int numElements);
 
-	static std::shared_ptr<VertexBuffer> GetResource(Graphics& graphics, std::string identifier, DynamicVertex::DynamicVertex& dynamicVertexBuffer);
-
-	static std::shared_ptr<VertexBuffer> GetResource(Graphics& graphics, std::string identifier, const DynamicVertex::DynamicVertexLayout& layout, size_t numElements);
-
-	static std::shared_ptr<VertexBuffer> GetResource(Graphics& graphics, std::string identifier, void* pData, const DynamicVertex::DynamicVertexLayout& layout, size_t numElements);
+	void Build(Graphics& graphics);
 
 public:
 	void BindToCopyPipelineIfNeeded(Graphics& graphics, Pipeline& pipeline);
@@ -38,13 +45,12 @@ public:
 
 	virtual BindableType GetBindableType() const override;
 
-	void Update(Graphics& graphics, void* pData, size_t numElements, size_t dataStride);
-
 	GraphicsBuffer* GetBuffer();
 
 	const DynamicVertex::DynamicVertexLayout& GetLayout() const;
 
 private:
+	void AddUploadBuffer(Graphics& graphics, unsigned int numElements, unsigned int dataStride, void* pData);
 	void UpdateBufferData(Graphics& graphics, void* pData);
 
 public:
@@ -52,10 +58,36 @@ public:
 
 private:
 	std::shared_ptr<GraphicsBuffer> m_buffer;
-	std::shared_ptr<GraphicsBuffer> m_uploadBuffer;
+	std::vector<VertexBufferUploadData> m_toUpload;
 
 	D3D12_VERTEX_BUFFER_VIEW m_vertexBufferView;
 
 	DynamicVertex::DynamicVertexLayout m_layout;
+
+	unsigned int m_accumulatedElements = {};
 };
 
+class VertexBufferEntry : public Bindable, public CommandListBindable
+{
+public:
+	VertexBufferEntry(Graphics& graphics, void* pData, const DynamicVertex::DynamicVertexLayout& layout, unsigned int numElements);
+
+	VertexBufferEntry(Graphics& graphics, DynamicVertex::DynamicVertex& dynamicVertexBuffer);
+
+	static std::shared_ptr<VertexBufferEntry> GetResource(Graphics& graphics, const std::string& identifier, void* pData, const DynamicVertex::DynamicVertexLayout& layout, unsigned int numElements);
+
+	static std::shared_ptr<VertexBufferEntry> GetResource(Graphics& graphics, const std::string& identifier, DynamicVertex::DynamicVertex& dynamicVertexBuffer);
+
+public:
+	virtual void BindToCommandList(Graphics& graphics, CommandList* commandList) override;
+
+	virtual BindableType GetBindableType() const override;
+
+	VertexBuffer* GetVertexBuffer() const;
+
+	VertexBufferEntryInfo GetEntryInfo() const;
+
+private:
+	std::shared_ptr<VertexBuffer> m_vertexBuffer;
+	VertexBufferEntryInfo m_entryInfo;
+};
