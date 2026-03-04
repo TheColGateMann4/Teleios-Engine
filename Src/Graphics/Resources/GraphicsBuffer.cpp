@@ -66,6 +66,23 @@ void GraphicsBuffer::CopyResourcesToTexture(Graphics& graphics, CommandList* cop
 	END_COMMAND_LIST_EVENT(copyCommandList);
 }
 
+void GraphicsBuffer::CopyPartiallyTo(Graphics& graphics, CommandList* copyCommandList, unsigned int srcOffset, unsigned int srcSize, GraphicsResource* dst, unsigned int dstOffset)
+{
+	THROW_INTERNAL_ERROR_IF("Dest resource was NULL", dst == nullptr);
+
+	BEGIN_COMMAND_LIST_EVENT(copyCommandList, "Copying GraphicsBuffer partially to GraphicsBuffer");
+
+	copyCommandList->SetResourceState(graphics, this, D3D12_RESOURCE_STATE_COPY_SOURCE);
+	copyCommandList->SetResourceState(graphics, dst, D3D12_RESOURCE_STATE_COPY_DEST);
+
+	copyCommandList->CopyBufferRegion(graphics, dst->GetResource(), dstOffset, this->GetResource(), srcOffset, srcSize);
+
+	copyCommandList->SetResourceState(graphics, dst, dst->GetResourceTargetState());
+	copyCommandList->SetResourceState(graphics, this, this->GetResourceTargetState());
+
+	END_COMMAND_LIST_EVENT(copyCommandList);
+}
+
 GraphicsResourceType GraphicsBuffer::GetResourceType()
 {
 	return GraphicsResourceType::buffer;

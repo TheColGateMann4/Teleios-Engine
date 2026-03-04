@@ -22,7 +22,7 @@ void GraphicsResource::CopyResourcesTo(Graphics& graphics, CommandList* copyComm
 {
 	THROW_INTERNAL_ERROR_IF("Dest resource was NULL", dst == nullptr);
 
-	BEGIN_COMMAND_LIST_EVENT(copyCommandList, "Copying GraphicsTexture");
+	BEGIN_COMMAND_LIST_EVENT(copyCommandList, "Copying GraphicsResource");
 
 	copyCommandList->SetResourceState(graphics, this, D3D12_RESOURCE_STATE_COPY_SOURCE);
 	copyCommandList->SetResourceState(graphics, dst, D3D12_RESOURCE_STATE_COPY_DEST);

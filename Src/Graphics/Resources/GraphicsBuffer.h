@@ -19,6 +19,8 @@ public:
 public:
 	virtual void CopyResourcesToTexture(Graphics& graphics, CommandList* copyCommandList, GraphicsResource* dst, int targetMip = 0) override;
 
+	virtual void CopyPartiallyTo(Graphics& graphics, CommandList* copyCommandList, unsigned int srcOffset, unsigned int srcSize, GraphicsResource* dst, unsigned int dstOffset);
+
 	virtual GraphicsResourceType GetResourceType() override;
 
 	void Read(Graphics& graphics, void* data, unsigned int size, unsigned int offset);
