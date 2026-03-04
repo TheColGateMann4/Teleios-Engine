@@ -9,7 +9,7 @@ class FrameResourceDeleter
 	// structure for resource scheduled for deletion
 	struct FrameResourceForDeletion
 	{
-		std::function<void()> destroy;
+		std::move_only_function<void()> destroy;
 		unsigned int frameIndex;
 		bool firstIteration = true;
 	};
