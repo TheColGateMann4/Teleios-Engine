@@ -56,9 +56,14 @@ void Pipeline::AddStaticResource(const char* resourceName, std::shared_ptr<Binda
 	m_staticResources.push_back({ resourceName, bindable });
 }
 
-void Pipeline::AddBufferToCopyPipeline(GraphicsResource* dst, GraphicsResource* src)
+void Pipeline::AddResourceToCopyPipeline(GraphicsResource* dst, GraphicsResource* src)
 {
-	m_buffersToCopy.push_back({ dst , src});
+	m_copyCalls.emplace_back(std::make_unique<IResourceCopyCall>(dst, src));
+}
+
+void Pipeline::AddBufferRegionToCopyPipeline(DestinationBufferRegionCopyData dst, SourceBufferRegionCopyData src)
+{
+	m_copyCalls.emplace_back(std::make_unique<IBufferRegionCopyCall>(dst, src));
 }
 
 void Pipeline::Execute(Graphics& graphics)
@@ -70,9 +75,34 @@ void Pipeline::Execute(Graphics& graphics)
 
 void Pipeline::ExecuteCopyCalls(Graphics& graphics)
 {
-	// temporarily we will be using graphic command list for copy calls
-	for (auto& copyData : m_buffersToCopy)
-		copyData.src->CopyResourcesTo(graphics, m_graphicsCommandList.get(), copyData.dst);
+	for (auto& copyCall : m_copyCalls)
+		copyCall->Execute(graphics, m_graphicsCommandList.get());
 
-	m_buffersToCopy.clear();
+	m_copyCalls.clear();
+}
+
+Pipeline::IResourceCopyCall::IResourceCopyCall(GraphicsResource* _dst, GraphicsResource* _src)
+	:
+	dst(_dst),
+	src(_src)
+{
+
+}
+
+void Pipeline::IResourceCopyCall::Execute(Graphics& graphics, CommandList* copyCommandList)
+{
+	src->CopyResourcesTo(graphics, copyCommandList, dst);
+}
+
+Pipeline::IBufferRegionCopyCall::IBufferRegionCopyCall(DestinationBufferRegionCopyData _dst, SourceBufferRegionCopyData _src)
+	:
+	dst(_dst),
+	src(_src)
+{
+
+}
+
+void Pipeline::IBufferRegionCopyCall::Execute(Graphics& graphics, CommandList* copyCommandList)
+{
+	src.buffer->CopyPartiallyTo(graphics, copyCommandList, src.byteOffset, src.byteSizeToCopy, dst.buffer, dst.byteOffset);
 }
