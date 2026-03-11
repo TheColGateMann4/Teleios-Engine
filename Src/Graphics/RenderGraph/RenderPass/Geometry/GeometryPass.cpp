@@ -64,8 +64,8 @@ const std::vector<std::shared_ptr<Bindable>>& GeometryPass::GetBindables() const
 void GeometryPass::SortJobs()
 {
 	std::sort(
-		m_pJobs.begin(), m_pJobs.end(),
-		[](const std::shared_ptr<GraphicsStepRenderJob>& a, const std::shared_ptr<GraphicsStepRenderJob>& b)
+		m_jobs.begin(), m_jobs.end(),
+		[](const std::unique_ptr<GraphicsStepRenderJob>& a, const std::unique_ptr<GraphicsStepRenderJob>& b)
 		{
 			// currently sorting by pointers, our only goal for now is just grouping the same-material render jobs together
 			return a->GetStep()->GetMaterial() < b->GetStep()->GetMaterial();
@@ -78,19 +78,27 @@ RenderJob::JobType GeometryPass::GetWantedJob() const
 	return RenderJob::JobType::None;
 }
 
-void GeometryPass::AssignJob(std::shared_ptr<RenderJob> pJob)
+void GeometryPass::AssignRenderData(GraphicsRenderData renderData)
 {
-	THROW_INTERNAL_ERROR_IF("Tried to push non-geometry render job to GeometryPass", pJob->GetGroup() != RenderJob::JobGroup::Geometry);
+	THROW_INTERNAL_ERROR_IF("Tried to push non-geometry render job to GeometryPass", RenderJob::GetJobGroup(renderData.type) != RenderJob::JobGroup::Geometry);
 
-	std::shared_ptr<GraphicsStepRenderJob> graphicsJob = std::static_pointer_cast<GraphicsStepRenderJob>(pJob);
+	m_jobs.push_back(std::make_unique<GraphicsStepRenderJob>(renderData, this));
+}
 
-	m_pJobs.push_back(graphicsJob);
+void GeometryPass::GatherJobBindables()
+{
+	for (auto& job : m_jobs)
+		job->GatherBindables();
+}
+
+void GeometryPass::InitializeJobs(Graphics& graphics, Pipeline& pipeline)
+{
+	for (auto& job : m_jobs)
+		job->Initialize(graphics, pipeline);
 }
 
 void GeometryPass::ExecutePass(Graphics& graphics, CommandList* commandList)
 {
-	for (auto pJob : m_pJobs)
-	{
-		pJob->Execute(graphics, commandList);
-	}
+	for (auto& job : m_jobs)
+		job->Execute(graphics, commandList);
 }

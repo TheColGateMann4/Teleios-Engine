@@ -1,30 +1,18 @@
 #include "RenderManager.h"
 
-void RenderManager::AddJob(std::shared_ptr<RenderJob> renderJob)
+void RenderManager::AddRenderData(GraphicsRenderData renderData)
 {
-	m_allJobs.push_back(std::move(renderJob));
+	m_allRenderData.push_back(renderData);
 }
 
 void RenderManager::BindJobsToPasses(const std::vector<GeometryPass*>& renderPasses)
 {
-	const RenderManager::PassListByJobType wantedJobsByPasses = GetWantedJobTypesByPasses(renderPasses);
+	const RenderManager::PassListByJobType wantedDataByPasses = GetWantedDataTypesByPasses(renderPasses);
 
-	AssignJobsToPasses(wantedJobsByPasses);
+	AssignRenderDataToPasses(wantedDataByPasses);
 }
 
-void RenderManager::GatherJobBindables()
-{
-	for(auto& job : m_allJobs)
-		job->GatherBindables();
-}
-
-void RenderManager::InitializeJobs(Graphics& graphics, Pipeline& pipeline)
-{
-	for(auto& job : m_allJobs)
-		job->Initialize(graphics, pipeline);
-}
-
-RenderManager::PassListByJobType RenderManager::GetWantedJobTypesByPasses(const std::vector<GeometryPass*>& renderPasses) const
+RenderManager::PassListByJobType RenderManager::GetWantedDataTypesByPasses(const std::vector<GeometryPass*>& renderPasses) const
 {
 	RenderManager::PassListByJobType m_targetPasses = {};
 
@@ -43,21 +31,16 @@ RenderManager::PassListByJobType RenderManager::GetWantedJobTypesByPasses(const 
 	return m_targetPasses;
 }
 
-void RenderManager::AssignJobsToPasses(const RenderManager::PassListByJobType& wantedJobsToPasses)
+void RenderManager::AssignRenderDataToPasses(const RenderManager::PassListByJobType& wantedJobsToPasses)
 {
-	for (auto& job : m_allJobs)
+	for (auto& renderData : m_allRenderData)
 	{
-		RenderJob::JobType jobType = job->GetType();
-
-		if (jobType == RenderJob::JobType::None)
+		if (renderData.type == RenderJob::JobType::None)
 			continue;
 
-		const PassList& targetPassesVector = wantedJobsToPasses.at(static_cast<int>(jobType));
+		const PassList& targetPassesVector = wantedJobsToPasses.at(static_cast<int>(renderData.type));
 
 		for (auto& targetPass : targetPassesVector)
-		{
-			targetPass->AssignJob(job);
-			job->LinkToPass(targetPass);
-		}
+			targetPass->AssignRenderData(renderData);
 	}
 }

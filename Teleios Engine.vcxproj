@@ -262,6 +262,7 @@
     <ClCompile Include="Src\Graphics\RenderGraph\RenderJob\StepRenderJob.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Src\Graphics\RenderGraph\RenderJob\GraphicsRenderData.h" />
     <ClInclude Include="Src\Graphics\Core\ResourceList.h" />
     <ClInclude Include="Src\Graphics\Bindables\DescriptorHeapBindable.h" />
     <ClInclude Include="Src\Graphics\Bindables\MaterialBindings.h" />

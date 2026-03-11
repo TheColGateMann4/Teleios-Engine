@@ -26,6 +26,8 @@ public:
 		Count
 	};
 
+	static JobGroup GetJobGroup(JobType jobType);
+
 public:
 	RenderJob(JobType m_type);
 

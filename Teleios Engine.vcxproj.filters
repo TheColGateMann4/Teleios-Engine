@@ -182,6 +182,7 @@
     <ClInclude Include="Src\Graphics\Bindables\MaterialBindings.h" />
     <ClInclude Include="Src\Graphics\Bindables\DescriptorHeapBindable.h" />
     <ClInclude Include="Src\Graphics\Core\ResourceList.h" />
+    <ClInclude Include="Src\Graphics\RenderGraph\RenderJob\GraphicsRenderData.h" />
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="Dependencies\zlib1.dll" />

@@ -50,14 +50,7 @@ void Mesh::SubmitJobs(Renderer& renderer)
 {
 	for (auto& technique : m_techniques)
 		for (auto& step : technique.GetSteps())
-		{		
-			renderer.SubmitJob(
-				std::make_shared<GraphicsStepRenderJob>(
-						technique.GetType(),
-						&step
-				)
-			);
-		}
+			renderer.SubmitRenderData(GraphicsRenderData(technique.GetType(), &step));
 }
 
 void Mesh::CreateImplicitTechniques(Graphics& graphics, Pipeline& pipeline)

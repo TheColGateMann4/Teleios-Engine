@@ -2,6 +2,7 @@
 #include "Includes/CppIncludes.h"
 #include "Graphics/RenderGraph/RenderJob/RenderJob.h"
 #include "Graphics/RenderGraph/RenderPass/Geometry/GeometryPass.h"
+#include "Graphics/RenderGraph/RenderJob/GraphicsRenderData.h"
 
 class RenderManager
 {
@@ -9,19 +10,15 @@ class RenderManager
 	using PassListByJobType = std::array<PassList, static_cast<int>(RenderJob::JobType::Count)>;
 
 public:
-	void AddJob(std::shared_ptr<RenderJob> renderJob);
+	void AddRenderData(GraphicsRenderData renderData);
 
 	void BindJobsToPasses(const std::vector<GeometryPass*>& renderPasses);
 
-	void GatherJobBindables();
+private:
+	RenderManager::PassListByJobType GetWantedDataTypesByPasses(const std::vector<GeometryPass*>& renderPasses) const;
 
-	void InitializeJobs(Graphics& graphics, Pipeline& pipeline);
+	void AssignRenderDataToPasses(const RenderManager::PassListByJobType& wantedJobsToPasses);
 
 private:
-	RenderManager::PassListByJobType GetWantedJobTypesByPasses(const std::vector<GeometryPass*>& renderPasses) const;
-
-	void AssignJobsToPasses(const RenderManager::PassListByJobType& wantedJobsToPasses);
-
-private:
-	std::vector<std::shared_ptr<RenderJob>> m_allJobs;
+	std::vector<GraphicsRenderData> m_allRenderData;
 };

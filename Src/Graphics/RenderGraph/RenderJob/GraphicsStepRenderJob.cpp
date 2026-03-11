@@ -10,12 +10,12 @@
 
 #include "Scene/Material.h"
 
-GraphicsStepRenderJob::GraphicsStepRenderJob(RenderJob::JobType m_type, RenderGraphicsStep* step)
+GraphicsStepRenderJob::GraphicsStepRenderJob(GraphicsRenderData renderData, GeometryPass* pass)
 	:
-	StepRenderJob(m_type),
-	m_step(step)
+	StepRenderJob(renderData.type),
+	m_step(renderData.step)
 {
-
+	m_pass = pass;
 }
 
 void GraphicsStepRenderJob::GatherBindables()

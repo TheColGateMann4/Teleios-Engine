@@ -1,8 +1,9 @@
 #pragma once
 #include "Graphics/RenderGraph/RenderPass/RenderPass.h"
+#include "Graphics/RenderGraph/RenderJob/GraphicsRenderData.h"
+#include "Graphics/RenderGraph/RenderJob/GraphicsStepRenderJob.h"
 
 class RenderJob;
-class GraphicsStepRenderJob;
 class Material;
 
 class RootSignatureConstants;
@@ -30,7 +31,10 @@ public:  // enlisting and pushing jobs
 	virtual RenderJob::JobType GetWantedJob() const;
 
 	// called by RenderManager to assign jobs that RenderPass enlisted for
-	void AssignJob(std::shared_ptr<RenderJob> pJob);
+	void AssignRenderData(GraphicsRenderData renderData);
+
+	void GatherJobBindables();
+	void InitializeJobs(Graphics& graphics, Pipeline& pipeline);
 
 protected:
 	virtual void ExecutePass(Graphics& graphics, CommandList* commandList) override;
@@ -42,7 +46,7 @@ private:
 
 	std::vector<const char*> m_staticBindables;
 
-	std::vector<std::shared_ptr<GraphicsStepRenderJob>> m_pJobs;
+	std::vector<std::unique_ptr<GraphicsStepRenderJob>> m_jobs;
 
 	unsigned int m_prevCameraIndex = UINT_MAX;
 

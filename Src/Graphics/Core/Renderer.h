@@ -2,6 +2,7 @@
 #include "Graphics/Core/Pipeline.h"
 #include "Graphics/Imgui/ImguiLayer.h"
 #include "Graphics/RenderGraph/RenderGraph.h"
+#include "Graphics/RenderGraph/RenderJob/GraphicsRenderData.h"
 
 class Graphics;
 class Scene;
@@ -22,7 +23,7 @@ public:
 
 	void DrawImguiWindow(Graphics& graphics);
 
-	void SubmitJob(std::shared_ptr<RenderJob> job);
+	void SubmitRenderData(GraphicsRenderData renderData);
 
 public:
 	Pipeline& GetPipeline();

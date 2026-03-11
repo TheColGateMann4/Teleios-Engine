@@ -2,13 +2,14 @@
 #include "StepRenderJob.h"
 #include "Graphics/Core/BindableContainer.h"
 #include "Graphics/Core/PipelineState.h"
+#include "Graphics/RenderGraph/RenderJob/GraphicsRenderData.h"
 
 class RenderGraphicsStep;
 
 class GraphicsStepRenderJob : public StepRenderJob
 {
 public:
-	GraphicsStepRenderJob(RenderJob::JobType m_type, RenderGraphicsStep* step);
+	GraphicsStepRenderJob(GraphicsRenderData renderData, GeometryPass* pass);
 
 public:
 	virtual void GatherBindables() override;

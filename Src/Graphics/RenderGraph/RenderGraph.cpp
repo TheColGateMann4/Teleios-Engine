@@ -72,12 +72,14 @@ void RenderGraph::Initialize(Graphics& graphics)
 
 void RenderGraph::GatherJobBindables()
 {
-	m_renderManager.GatherJobBindables();
+	for (auto& geometryPass : m_geometryPasses)
+		geometryPass->GatherJobBindables();
 }
 
 void RenderGraph::InitializeJobs(Graphics& graphics, Pipeline& pipeline)
 {
-	m_renderManager.InitializeJobs(graphics, pipeline);
+	for (auto& geometryPass : m_geometryPasses)
+		geometryPass->InitializeJobs(graphics, pipeline);
 }
 
 void RenderGraph::InitializePasses(Graphics& graphics, Pipeline& pipeline, Scene& scene)

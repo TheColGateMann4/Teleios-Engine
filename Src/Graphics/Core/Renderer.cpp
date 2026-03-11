@@ -78,9 +78,9 @@ void Renderer::DrawImguiWindow(Graphics& graphics)
 	//m_renderGraph.Update(graphics, m_pipeline);
 }
 
-void Renderer::SubmitJob(std::shared_ptr<RenderJob> job)
+void Renderer::SubmitRenderData(GraphicsRenderData renderData)
 {
-	m_renderGraph.GetRenderManager().AddJob(std::move(job));
+	m_renderGraph.GetRenderManager().AddRenderData(renderData);
 }
 
 Pipeline& Renderer::GetPipeline()
