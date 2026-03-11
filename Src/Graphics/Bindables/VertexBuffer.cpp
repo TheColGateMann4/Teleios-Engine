@@ -13,7 +13,6 @@ VertexBuffer::VertexBuffer(const DynamicVertex::DynamicVertexLayout& layout)
 	m_layout(layout)
 {
 	m_layout.Finish();
-	std::cout << m_layout.GetIdentifier() << "\n";
 }
 
 std::shared_ptr<VertexBuffer> VertexBuffer::GetResource(const DynamicVertex::DynamicVertexLayout& layout)
