@@ -28,7 +28,7 @@ bool CommandListState::SetRootSignature(RootSignature* _rootSignature)
 		return false;
 
 	rootSignature = _rootSignature;
-	rootBindables.resize(rootSignature->GetNumParams());
+	rootBindables.assign(rootSignature->GetNumParams(), nullptr);
 
 	return true;
 }
