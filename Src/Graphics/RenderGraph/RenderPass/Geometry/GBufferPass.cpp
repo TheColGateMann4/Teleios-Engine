@@ -8,6 +8,7 @@ GBufferPass::GBufferPass(Graphics& graphics)
 
 	AddBindable(BlendState::GetResource(graphics, false));
 	AddBindable(DepthStencilState::GetResource(graphics, DepthStencilState::DepthComparisonFunc::Equal));
+	AddBindable(ViewPort::GetResource(graphics));
 }
 
 RenderJob::JobType GBufferPass::GetWantedJob() const

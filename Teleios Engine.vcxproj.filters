@@ -89,6 +89,7 @@
     <ClCompile Include="Src\Scene\Material.cpp" />
     <ClCompile Include="Src\Graphics\Bindables\MaterialBindings.cpp" />
     <ClCompile Include="Src\Graphics\Bindables\DescriptorHeapBindable.cpp" />
+    <ClCompile Include="Src\Graphics\RenderGraph\RenderPass\Geometry\ShadowPass.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Src\Application.h" />
@@ -183,6 +184,7 @@
     <ClInclude Include="Src\Graphics\Bindables\DescriptorHeapBindable.h" />
     <ClInclude Include="Src\Graphics\Core\ResourceList.h" />
     <ClInclude Include="Src\Graphics\RenderGraph\RenderJob\GraphicsRenderData.h" />
+    <ClInclude Include="Src\Graphics\RenderGraph\RenderPass\Geometry\ShadowPass.h" />
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="Dependencies\zlib1.dll" />

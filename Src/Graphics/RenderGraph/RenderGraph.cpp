@@ -4,6 +4,7 @@
 #include "RenderPass/Geometry/PreDepthPass.h"
 #include "RenderPass/Geometry/GBufferPass.h"
 #include "RenderPass/Geometry/EmissivePass.h"
+#include "RenderPass/Geometry/ShadowPass.h"
 #include "RenderPass/Fullscreen/FullscreenRenderPass.h"
 #include "RenderPass/Fullscreen/LightningPass.h"
 #include "RenderPass/GuiPass.h"
@@ -11,18 +12,24 @@
 void RenderGraph::Initialize(Graphics& graphics)
 {
 	{
-		std::shared_ptr<PreDepthPass> preDepthPass = std::make_shared<PreDepthPass>(graphics);
+		std::shared_ptr<PreDepthPass> preDepthPass = std::make_shared<PreDepthPass>();
 		preDepthPass->SetDepthStencilView(graphics.GetDepthStencil(), ResourceDataOperation::clear);
 
 		AddRenderPass(preDepthPass);
 	}
 
+	std::shared_ptr<DepthStencilViewCubeMultiResource> lightDepthData = std::make_shared<DepthStencilViewCubeMultiResource>(graphics);
+	{
+		std::shared_ptr<ShadowPass> shadowPass = std::make_shared<ShadowPass>(graphics);
+		shadowPass->SetDepthStencilView(lightDepthData, ResourceDataOperation::clear);
+	
+		AddRenderPass(shadowPass);
+	}
 
 	DXGI_FORMAT backBufferFormat = graphics.GetBackBuffer()->GetFormat();
 	std::shared_ptr<BackBufferRenderTarget> rt0 = std::make_shared<BackBufferRenderTarget>(graphics, backBufferFormat);
 	std::shared_ptr<BackBufferRenderTarget> rt1 = std::make_shared<BackBufferRenderTarget>(graphics, backBufferFormat);
 	std::shared_ptr<BackBufferRenderTarget> rt2 = std::make_shared<BackBufferRenderTarget>(graphics, backBufferFormat);
-
 	{
 		std::shared_ptr<GBufferPass> geometryPass = std::make_shared<GBufferPass>(graphics);
 		geometryPass->AddRenderTarget(rt0, ResourceDataOperation::clear);
@@ -37,7 +44,7 @@ void RenderGraph::Initialize(Graphics& graphics)
 	std::shared_ptr<ShaderResourceViewMultiResource> rt1srv = std::make_shared<ShaderResourceViewMultiResource>(graphics, rt1.get(), 1);
 	std::shared_ptr<ShaderResourceViewMultiResource> rt2srv = std::make_shared<ShaderResourceViewMultiResource>(graphics, rt2.get(), 2);
 	std::shared_ptr<ShaderResourceViewMultiResource> depthsrv = std::make_shared<ShaderResourceViewMultiResource>(graphics, graphics.GetDepthStencil().get(), 3);
-
+	std::shared_ptr<ShaderResourceViewMultiResource> shadowMap = std::make_shared<ShaderResourceViewMultiResource>(graphics, lightDepthData.get(), 4);
 	{
 		std::shared_ptr<LightningPass> lightningPass = std::make_shared<LightningPass>(graphics, GetRenderManager());
 		lightningPass->AddRenderTarget(graphics.GetBackBuffer());
@@ -45,6 +52,7 @@ void RenderGraph::Initialize(Graphics& graphics)
 		lightningPass->AddBindable(rt1srv);
 		lightningPass->AddBindable(rt2srv);
 		lightningPass->AddBindable(depthsrv);
+		lightningPass->AddBindable(shadowMap);
 
 		AddRenderPass(lightningPass);
 	}

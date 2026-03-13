@@ -6,6 +6,8 @@ Texture2D t_rt2 : register(t2);
 
 Texture2D t_depth : register(t3);
 
+TextureCube t_shadowMap : register(t4);
+
 struct PointLightData
 {
     float3 lightPositionInCameraSpace;
@@ -29,9 +31,10 @@ cbuffer lightBuffer : register(b0)
 cbuffer transforms : register(b2)
 {
     matrix b_inverseProjection;
+    matrix b_inverseView;
 };
 
-float NormalDistribution(const float alpha, const float NdotH)
+float NormalDistribution(float alpha, float NdotH)
 {
     const float alpha2 = alpha * alpha;
     const float denominator = NdotH * NdotH * (alpha2 - 1.0f) + 1.0f;
@@ -51,29 +54,64 @@ float GeometrySmith(float NdotV, float NdotL, float roughness)
            GeometrySchlickGGX(NdotL, roughness);
 }
 
-float3 FrenselSchlick(const float3 F0, const float VdotH)
+float3 FrenselSchlick(float3 F0, float VdotH)
 {
     return F0 + (1.0f - F0) * pow(1.0f - VdotH, 5.0f);
 }
 
-float GetAttenuation(const PointLightData pointlight, const float distanceToLight)
+float GetAttenuation(PointLightData pointlightData, float distanceToLight)
 {
-    return 1.0f / ((pointlight.attenuationConstant) + (pointlight.attenuationLinear * distanceToLight) + (pointlight.attenuationQuadratic * distanceToLight * distanceToLight));
+    return 1.0f / ((pointlightData.attenuationConstant) + (pointlightData.attenuationLinear * distanceToLight) + (pointlightData.attenuationQuadratic * distanceToLight * distanceToLight));
 }
 
-float3 GetViewPosition(float2 texcoords, float depth)
+float4 GetClipPosition(float2 texcoords, float depth)
 {
     float2 ndc;
     ndc.x = texcoords.x * 2.0f - 1.0f;
     ndc.y = 1.0f - texcoords.y * 2.0f;
   
-    float4 clip = float4(ndc, depth, 1.0f);
-  
-    float4 view = mul(b_inverseProjection, clip);
+    return float4(ndc, depth, 1.0f);
+}
+
+float3 GetCameraViewPosition(float4 clipPosition)
+{  
+    const float4 view = mul(b_inverseProjection, clipPosition);
 
     return view.xyz / view.w;
 }
 
+float3 GetWorldPosition(float3 viewPosition)
+{  
+    const float4 worldPos = mul(b_inverseView, float4(viewPosition.xyz, 1.0f));
+
+    return worldPos.xyz;
+}
+
+float CalculateLightDepth(PointLightData pointlight, float3 positionInLightSpace)
+{
+    const float viewZ = positionInLightSpace.z;
+    const float farZ = pointlight.farZ;
+    const float nearZ = pointlight.nearZ;
+    
+    return (farZ / (farZ - nearZ)) - (farZ * nearZ) / (viewZ * (farZ - nearZ));
+}
+
+#define FLT_EPSILON 0.001f
+
+float SampleShadowMap(float3 sampleDir)
+{
+    return t_shadowMap.Sample(s_sampler, normalize(sampleDir)).r;
+}
+
+bool GetOcclusion(PointLightData pointlightData, float3 worldPos)
+{
+    const float3 positionInLightSpace = worldPos - GetWorldPosition(pointlightData.lightPositionInCameraSpace);
+    
+    const float sampledDepth = SampleShadowMap(positionInLightSpace);
+    const float calculatedDepth = CalculateLightDepth(pointlightData, positionInLightSpace);
+
+    return sampledDepth < (calculatedDepth - FLT_EPSILON);
+}
 
 static const float _pi = 3.14159265358979f;
 
@@ -81,24 +119,26 @@ static const float _pi = 3.14159265358979f;
 
 float4 PSMain(float2 textureCoords : TEXCOORDS) : SV_TARGET
 {
-    float4 rt0sample = t_rt0.Sample(s_sampler, textureCoords);
-    float4 rt1sample = t_rt1.Sample(s_sampler, textureCoords);
-    float4 rt2sample = t_rt2.Sample(s_sampler, textureCoords);
-    float depth = t_depth.Sample(s_sampler, textureCoords).r;
+    const float4 rt0sample = t_rt0.Sample(s_sampler, textureCoords);
+    const float4 rt1sample = t_rt1.Sample(s_sampler, textureCoords);
+    const float4 rt2sample = t_rt2.Sample(s_sampler, textureCoords);
+    const float depth = t_depth.Sample(s_sampler, textureCoords).r;
     
     
-    float3 diffuse = rt0sample.rgb;
-    float3 normal = rt2sample.rgb * 2.0f - 1.0f;
-    float metalness = rt1sample.r;
-    float roughness = rt1sample.g;
-    float3 viewPosition = GetViewPosition(textureCoords, depth);
+    const float3 diffuse = rt0sample.rgb;
+    const float3 normal = rt2sample.rgb * 2.0f - 1.0f;
+    const float metalness = rt1sample.r;
+    const float roughness = rt1sample.g;
+    const float4 clipPosition = GetClipPosition(textureCoords, depth);
+    const float3 viewPosition = GetCameraViewPosition(clipPosition);
     
     const float3 N = normalize(normal); // normal
     const float3 V = normalize(-viewPosition); // view
     
     const float NdotV = max(dot(V, N), 0.0f);
     
-    float3 F0 = lerp(float3(0.04, 0.04, 0.04), diffuse, metalness);
+    const float3 F0 = lerp(float3(0.04, 0.04, 0.04), diffuse, metalness);   
+    
     const float alpha = roughness * roughness;
     
     const float3 lambert = diffuse / _pi;
@@ -106,11 +146,16 @@ float4 PSMain(float2 textureCoords : TEXCOORDS) : SV_TARGET
     float3 accumulatedLight = float3(0.0f, 0.0f, 0.0f);
     
     [unroll]
-    for (int pointLightIndex = 0; pointLightIndex < NUM_POINTLIGHTS; pointLightIndex++)
+    for (int pointLightIndex = 0; pointLightIndex < 1; pointLightIndex++)
     {
-        PointLightData pointlight = b_pointlights[pointLightIndex];
+        PointLightData pointlightData = b_pointlights[pointLightIndex];
 
-        const float3 L = normalize(pointlight.lightPositionInCameraSpace - viewPosition); // light
+        const float3 L = normalize(pointlightData.lightPositionInCameraSpace - viewPosition); // light
+        
+        const bool occluded = GetOcclusion(pointlightData, GetWorldPosition(viewPosition));
+        if (occluded)
+            continue;
+        
         const float3 H = normalize(V + L); // halfway vector
         
         const float NdotL = max(dot(N, L), 0.0f);
@@ -127,11 +172,11 @@ float4 PSMain(float2 textureCoords : TEXCOORDS) : SV_TARGET
         const float3 DiffuseBRDF = Kd * lambert;
         const float3 SpecularBRDF = cookTorrance;
     
-        const float lengthOfDistanceToLight = length(pointlight.lightPositionInCameraSpace - viewPosition);
-        const float attenuation = GetAttenuation(pointlight, lengthOfDistanceToLight);
-        const float3 lightIntensity = pointlight.lightDiffuseColor;
+        const float lengthOfDistanceToLight = length(pointlightData.lightPositionInCameraSpace - viewPosition);
+        const float attenuation = GetAttenuation(pointlightData, lengthOfDistanceToLight);
+        const float3 lightIntensity = pointlightData.lightDiffuseColor;
     
-        float3 outgoingLight = (DiffuseBRDF + SpecularBRDF) * NdotL * attenuation * lightIntensity;
+        const float3 outgoingLight = (DiffuseBRDF + SpecularBRDF) * NdotL * attenuation * lightIntensity;
         
         accumulatedLight += outgoingLight;
     }
