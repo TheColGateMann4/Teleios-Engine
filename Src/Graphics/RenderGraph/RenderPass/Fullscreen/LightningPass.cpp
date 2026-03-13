@@ -12,14 +12,16 @@ LightningPass::LightningPass(Graphics& graphics, RenderManager& renderManager)
 	{
 		DynamicConstantBuffer::Layout layout;
 		layout.Add<DynamicConstantBuffer::ElementType::Matrix>("inverseProjection");
+		layout.Add<DynamicConstantBuffer::ElementType::Matrix>("inverseView");
 
 		DynamicConstantBuffer::Data bufferData(layout);
 		*bufferData.Get<DynamicConstantBuffer::ElementType::Matrix>("inverseProjection") = {};
+		*bufferData.Get<DynamicConstantBuffer::ElementType::Matrix>("inverseView") = {};
 
-		std::shared_ptr<CachedConstantBuffer> inverseProjectionBuffer = std::make_shared<CachedConstantBuffer>(graphics, bufferData, std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::PixelShader, 2}});
+		std::shared_ptr<CachedConstantBuffer> inverseMatriesBuffer = std::make_shared<CachedConstantBuffer>(graphics, bufferData, std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::PixelShader, 2}});
 
-		m_pInverseProjectionBuffer = inverseProjectionBuffer.get();
-		m_bindables.push_back(std::move(inverseProjectionBuffer));
+		m_pInverseMatriesBuffer = inverseMatriesBuffer.get();
+		m_bindables.push_back(std::move(inverseMatriesBuffer));
 	}
 }
 
@@ -58,10 +60,11 @@ void LightningPass::InitializeFullscreenResources(Graphics& graphics, Pipeline& 
 			THROW_INTERNAL_ERROR_IF("Passed object was not SRV type", !isSRVType);
 		}
 
-		rt0 = static_cast<ShaderResourceViewMultiResource*>(m_bindables.at(bindablesLastIndex - 3).get());
-		rt1 = static_cast<ShaderResourceViewMultiResource*>(m_bindables.at(bindablesLastIndex - 2).get());
-		rt2 = static_cast<ShaderResourceViewMultiResource*>(m_bindables.at(bindablesLastIndex - 1).get());
-		ds = static_cast<ShaderResourceViewMultiResource*>(m_bindables.at(bindablesLastIndex).get());
+		rt0 = static_cast<ShaderResourceViewMultiResource*>(m_bindables.at(bindablesLastIndex - 4).get());
+		rt1 = static_cast<ShaderResourceViewMultiResource*>(m_bindables.at(bindablesLastIndex - 3).get());
+		rt2 = static_cast<ShaderResourceViewMultiResource*>(m_bindables.at(bindablesLastIndex - 2).get());
+		ds = static_cast<ShaderResourceViewMultiResource*>(m_bindables.at(bindablesLastIndex - 1).get());
+		shadowMap = static_cast<ShaderResourceViewMultiResource*>(m_bindables.at(bindablesLastIndex).get());
 	}
 
 	// Updating inverse projection matrix
@@ -70,12 +73,13 @@ void LightningPass::InitializeFullscreenResources(Graphics& graphics, Pipeline& 
 
 void LightningPass::PreDraw(Graphics& graphics, CommandList* commandList)
 {
-	THROW_INTERNAL_ERROR_IF("One of inputs was null", rt0 == nullptr || rt1 == nullptr || rt2 == nullptr || ds == nullptr );
+	THROW_INTERNAL_ERROR_IF("One of inputs was null", rt0 == nullptr || rt1 == nullptr || rt2 == nullptr || ds == nullptr || shadowMap == nullptr);
 
 	commandList->SetResourceState(graphics, rt0->GetResource(graphics), D3D12_RESOURCE_STATE_ALL_SHADER_RESOURCE);
 	commandList->SetResourceState(graphics, rt1->GetResource(graphics), D3D12_RESOURCE_STATE_ALL_SHADER_RESOURCE);
 	commandList->SetResourceState(graphics, rt2->GetResource(graphics), D3D12_RESOURCE_STATE_ALL_SHADER_RESOURCE);
 	commandList->SetAllResourcesStates(graphics, ds->GetResource(graphics), D3D12_RESOURCE_STATE_ALL_SHADER_RESOURCE);
+	commandList->SetAllResourcesStates(graphics, shadowMap->GetResource(graphics), D3D12_RESOURCE_STATE_ALL_SHADER_RESOURCE);
 }
 
 void LightningPass::PostDraw(Graphics& graphics, CommandList* commandList)
@@ -97,9 +101,11 @@ void LightningPass::UpdateInverseProjectionMatrix(Graphics& graphics, Scene& sce
 	const Camera::Settings* currentCameraSettings = currentCamera->GetSettings();
 
 	DirectX::XMMATRIX inverseProjection = DirectX::XMMatrixInverse(nullptr, currentCamera->GetPerspectiveMatrix());
+	DirectX::XMMATRIX inverseView = DirectX::XMMatrixInverse(nullptr, currentCamera->GetTransformMatrix());
 
-	DynamicConstantBuffer::Data& cameraData = m_pInverseProjectionBuffer->GetData();
+	DynamicConstantBuffer::Data& cameraData = m_pInverseMatriesBuffer->GetData();
 	*cameraData.Get<DynamicConstantBuffer::ElementType::Matrix>("inverseProjection") = inverseProjection;
+	*cameraData.Get<DynamicConstantBuffer::ElementType::Matrix>("inverseView") = inverseView;
 
-	m_pInverseProjectionBuffer->Update(graphics);
+	m_pInverseMatriesBuffer->Update(graphics);
 }

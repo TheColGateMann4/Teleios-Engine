@@ -19,9 +19,10 @@ private:
 	void UpdateInverseProjectionMatrix(Graphics& graphics, Scene& scene);
 
 private:
-	CachedConstantBuffer* m_pInverseProjectionBuffer = nullptr;
+	CachedConstantBuffer* m_pInverseMatriesBuffer = nullptr;
 	ShaderResourceViewMultiResource* rt0 = nullptr;
 	ShaderResourceViewMultiResource* rt1 = nullptr;
 	ShaderResourceViewMultiResource* rt2 = nullptr;
 	ShaderResourceViewMultiResource* ds = nullptr;
+	ShaderResourceViewMultiResource* shadowMap = nullptr;
 };
