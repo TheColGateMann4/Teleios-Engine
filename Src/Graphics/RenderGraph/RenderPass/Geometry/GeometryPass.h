@@ -37,6 +37,9 @@ public:  // enlisting and pushing jobs
 	void InitializeJobs(Graphics& graphics, Pipeline& pipeline);
 
 protected:
+	void SetCameraTransformIndex(unsigned int cameraIndex);
+
+protected:
 	virtual void ExecutePass(Graphics& graphics, CommandList* commandList) override;
 
 private:

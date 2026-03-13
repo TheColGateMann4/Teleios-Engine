@@ -11,6 +11,8 @@
 
 GeometryPass::GeometryPass()
 {
+	AddStaticBindable("cameraBuffer");
+	
 	DynamicConstantBuffer::Layout layout;
 	layout.Add<DynamicConstantBuffer::ElementType::Int>("cameraTransformIndex");
 
@@ -39,11 +41,7 @@ void GeometryPass::Update(Graphics& graphics, Pipeline& pipeline, Scene& scene)
 {
 	unsigned int currentCameraIndex = scene.GetCurrentCamera()->GetCameraIndex();
 
-	if (m_prevCameraIndex != currentCameraIndex)
-	{
-		*m_cameraRootConstant->GetData().Get<DynamicConstantBuffer::ElementType::Int>("cameraTransformIndex") = currentCameraIndex;
-		m_prevCameraIndex = currentCameraIndex;
-	}
+	SetCameraTransformIndex(currentCameraIndex);
 }
 
 void GeometryPass::AddBindable(std::shared_ptr<Bindable> bindable)
@@ -95,6 +93,15 @@ void GeometryPass::InitializeJobs(Graphics& graphics, Pipeline& pipeline)
 {
 	for (auto& job : m_jobs)
 		job->Initialize(graphics, pipeline);
+}
+
+void GeometryPass::SetCameraTransformIndex(unsigned int cameraIndex)
+{
+	if (m_prevCameraIndex == cameraIndex)
+		return;
+
+	*m_cameraRootConstant->GetData().Get<DynamicConstantBuffer::ElementType::Int>("cameraTransformIndex") = cameraIndex;
+	m_prevCameraIndex = cameraIndex;
 }
 
 void GeometryPass::ExecutePass(Graphics& graphics, CommandList* commandList)
