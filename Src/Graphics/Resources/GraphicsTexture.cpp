@@ -16,7 +16,7 @@ GraphicsTexture::GraphicsTexture(Graphics& graphics, unsigned int width, unsigne
 	Initialize(graphics, flags, nullptr);
 }
 
-GraphicsTexture::GraphicsTexture(Graphics& graphics, unsigned int width, unsigned int height, unsigned int mipLevels, DXGI_FORMAT format, DirectX::XMFLOAT4 clearValue, CPUAccess cpuAccess, D3D12_RESOURCE_STATES state, D3D12_RESOURCE_FLAGS flags)
+GraphicsTexture::GraphicsTexture(Graphics& graphics, unsigned int width, unsigned int height, unsigned int mipLevels, DXGI_FORMAT format, RenderTargetClearValue clearValue, CPUAccess cpuAccess, D3D12_RESOURCE_STATES state, D3D12_RESOURCE_FLAGS flags)
 	:
 	GraphicsResource(format, cpuAccess, state),
 	m_width(width),
@@ -37,7 +37,7 @@ GraphicsTexture::GraphicsTexture(Graphics& graphics, unsigned int width, unsigne
 	Initialize(graphics, flags, &cv);
 }
 
-GraphicsTexture::GraphicsTexture(Graphics& graphics, unsigned int width, unsigned int height, unsigned int mipLevels, DXGI_FORMAT format, float depthClearValue, uint8_t stencilClearValue, CPUAccess cpuAccess, D3D12_RESOURCE_STATES state, D3D12_RESOURCE_FLAGS flags)
+GraphicsTexture::GraphicsTexture(Graphics& graphics, unsigned int width, unsigned int height, unsigned int mipLevels, DXGI_FORMAT format, DepthStencilClearValue clearValue, CPUAccess cpuAccess, D3D12_RESOURCE_STATES state, D3D12_RESOURCE_FLAGS flags)
 	:
 	GraphicsResource(format, cpuAccess, state),
 	m_width(width),
@@ -46,16 +46,15 @@ GraphicsTexture::GraphicsTexture(Graphics& graphics, unsigned int width, unsigne
     m_type(GraphicsTextureType::depthStencil),
 	m_states(m_mipLevels, { D3D12_RESOURCE_STATE_COMMON, state })
 {
-    m_clearValue.depthStencil.depth = depthClearValue;
-    m_clearValue.depthStencil.stencil = stencilClearValue;
+    m_clearValue.depthStencil = clearValue;
 
-	D3D12_CLEAR_VALUE clearValue = {};
-	clearValue.Format = format;
-	clearValue.DepthStencil = {};
-	clearValue.DepthStencil.Depth = depthClearValue;
-	clearValue.DepthStencil.Stencil = stencilClearValue;
+	D3D12_CLEAR_VALUE cv = {};
+	cv.Format = format;
+	cv.DepthStencil = {};
+	cv.DepthStencil.Depth = clearValue.depth;
+	cv.DepthStencil.Stencil = clearValue.stencil;
 
-	Initialize(graphics, flags, &clearValue);
+	Initialize(graphics, flags, &cv);
 }
 
 void GraphicsTexture::Initialize(Graphics& graphics, D3D12_RESOURCE_FLAGS flags, D3D12_CLEAR_VALUE* clearValue)
