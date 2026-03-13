@@ -69,8 +69,7 @@ public:
 	void Update(Graphics& graphics, Pipeline& pipeline, const void* data, unsigned int rowSize, unsigned int numRows, unsigned int rowPitch, unsigned int targetMip, DXGI_FORMAT format);
 
 public:
-	unsigned int GetWidth() const;
-	unsigned int GetHeight() const;
+	GraphicsTextureDimensions GetDimensions() const;
 
 	RenderTargetClearValue GetRenderTargetClearValue() const;
 	DepthStencilClearValue GetDepthStencilClearValue() const;

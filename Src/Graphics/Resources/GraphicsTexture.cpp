@@ -160,14 +160,9 @@ void GraphicsTexture::Update(Graphics& graphics, Pipeline& pipeline, const void*
 	}
 }
 
-unsigned int GraphicsTexture::GetWidth() const
+GraphicsTextureDimensions GraphicsTexture::GetDimensions() const
 {
-	return m_dimensions.width;
-}
-
-unsigned int GraphicsTexture::GetHeight() const
-{
-	return m_dimensions.height;
+	return m_dimensions;
 }
 
 RenderTargetClearValue GraphicsTexture::GetRenderTargetClearValue() const
