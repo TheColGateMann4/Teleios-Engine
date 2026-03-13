@@ -17,7 +17,7 @@ void ObjectTransform::SetQuaternionRotation(DirectX::XMVECTOR rotation)
 	m_localTransformChanged = true;
 }
 
-void ObjectTransform::SetEulerAnglesRotation(DirectX::XMFLOAT3 rotation)
+void ObjectTransform::SetEulerRotation(DirectX::XMFLOAT3 rotation)
 {
 	m_rotation = DirectX::XMQuaternionRotationRollPitchYaw(rotation.x, rotation.y, rotation.z);
 
@@ -60,7 +60,7 @@ DirectX::XMFLOAT3 ObjectTransform::GetPosition() const
 	return m_position;
 }
 
-DirectX::XMVECTOR ObjectTransform::GetRotation() const
+DirectX::XMVECTOR ObjectTransform::GetQuaternionRotation() const
 {
 	return m_rotation;
 }
