@@ -42,7 +42,7 @@ void DepthStencilViewBase::CreateDSV(Graphics& graphics, D3D12_CPU_DESCRIPTOR_HA
 DepthStencilView::DepthStencilView(Graphics& graphics)
 	:
 	DepthStencilViewBase(graphics, 1),
-	m_texture(graphics, graphics.GetWidth(), graphics.GetHeight(), 1, DXGI_FORMAT_D24_UNORM_S8_UINT, 1.0f, 0, GraphicsResource::CPUAccess::notavailable, D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL)
+	m_texture(graphics, GraphicsTextureDimensions(graphics.GetWidth(), graphics.GetHeight()), DXGI_FORMAT_D24_UNORM_S8_UINT, DepthStencilClearValue(1.0f, 0), GraphicsResource::CPUAccess::notavailable, D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL)
 {
 	CreateDSV(graphics, m_descriptor, &m_texture);
 }
@@ -88,7 +88,7 @@ DepthStencilViewMultiResource::DepthStencilViewMultiResource(Graphics& graphics)
 
 	for(int i = 0; i < numBuffers; i++)
 	{
-		m_textures.push_back(std::make_shared<GraphicsTexture>(graphics, graphics.GetWidth(), graphics.GetHeight(), 1, DXGI_FORMAT_D24_UNORM_S8_UINT, 1.0f, 0, GraphicsResource::CPUAccess::notavailable, D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL));
+		m_textures.push_back(std::make_shared<GraphicsTexture>(graphics, GraphicsTextureDimensions(dimensions.x, dimensions.y), DXGI_FORMAT_D24_UNORM_S8_UINT, DepthStencilClearValue(1.0f, 0), GraphicsResource::CPUAccess::notavailable, D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL));
 		
 		D3D12_CPU_DESCRIPTOR_HANDLE& descriptor = m_descriptors.at(i);
 		descriptor = m_descriptorHeap->GetCPUDescriptorHandleForHeapStart();

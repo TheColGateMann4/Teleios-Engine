@@ -214,7 +214,7 @@ BackBufferRenderTarget::BackBufferRenderTarget(Graphics& graphics, DXGI_FORMAT f
 	{
 		OwningRenderTargetData renderTargetData;
 
-		renderTargetData.texture = std::make_shared<GraphicsTexture>(graphics, graphics.GetWidth(), graphics.GetHeight(), 1, format, optimizedClearValue, GraphicsResource::CPUAccess::notavailable, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
+		renderTargetData.texture = std::make_shared<GraphicsTexture>(graphics, GraphicsTextureDimensions(graphics.GetWidth(), graphics.GetHeight()), format, RenderTargetClearValue(optimizedClearValue), GraphicsResource::CPUAccess::notavailable, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
 
 		// creating render target view
 		{

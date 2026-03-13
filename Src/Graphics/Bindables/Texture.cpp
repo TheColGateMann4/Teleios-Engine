@@ -58,7 +58,7 @@ Texture::Texture(Graphics& graphics, const char* path, TextureType type)
 		m_isAlphaOpaque = metaData.GetAlphaMode() == DirectX::TEX_ALPHA_MODE_OPAQUE;
 		m_mipmapLevels = m_generateMipMaps ? GetMipLevels(metaData.width) : 1;
 
-		m_gpuTexture = std::make_shared<GraphicsTexture>(graphics, metaData.width, metaData.height, m_mipmapLevels, format, GraphicsTexture::CPUAccess::notavailable, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_FLAG_NONE);
+		m_gpuTexture = std::make_shared<GraphicsTexture>(graphics, GraphicsTextureDimensions(metaData.width, metaData.height, m_mipmapLevels), format, GraphicsTexture::CPUAccess::notavailable, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_FLAG_NONE);
 	}
 }
 

@@ -16,6 +16,14 @@ struct DepthStencilClearValue
 	uint8_t stencil;
 };
 
+struct GraphicsTextureDimensions
+{
+	unsigned int width;
+	unsigned int height;
+	unsigned int mipLevels = 1;
+	unsigned int arraySize = 1;
+};
+
 enum class GraphicsTextureType
 {
 	unkown,
@@ -34,13 +42,13 @@ private:
 
 public:
 	// default resource constructor for textures
-	GraphicsTexture(Graphics& graphics, unsigned int width, unsigned int height, unsigned int mipLevels, DXGI_FORMAT format, CPUAccess cpuAccess = CPUAccess::notavailable, D3D12_RESOURCE_STATES state = D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_FLAGS flags = D3D12_RESOURCE_FLAG_NONE);
+	GraphicsTexture(Graphics& graphics, GraphicsTextureDimensions dimensions, DXGI_FORMAT format, CPUAccess cpuAccess = CPUAccess::notavailable, D3D12_RESOURCE_STATES state = D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_FLAGS flags = D3D12_RESOURCE_FLAG_NONE);
 
 	// Render Target resource constructor
-	GraphicsTexture(Graphics& graphics, unsigned int width, unsigned int height, unsigned int mipLevels, DXGI_FORMAT format, RenderTargetClearValue clearValue, CPUAccess cpuAccess = CPUAccess::notavailable, D3D12_RESOURCE_STATES state = D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_FLAGS flags = D3D12_RESOURCE_FLAG_NONE);
+	GraphicsTexture(Graphics& graphics, GraphicsTextureDimensions dimensions, DXGI_FORMAT format, RenderTargetClearValue clearValue, CPUAccess cpuAccess = CPUAccess::notavailable, D3D12_RESOURCE_STATES state = D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_FLAGS flags = D3D12_RESOURCE_FLAG_NONE);
 
 	// Depth Stencil resource constructor
-	GraphicsTexture(Graphics& graphics, unsigned int width, unsigned int height, unsigned int mipLevels, DXGI_FORMAT format, DepthStencilClearValue clearValue, CPUAccess cpuAccess = CPUAccess::notavailable, D3D12_RESOURCE_STATES state = D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_FLAGS flags = D3D12_RESOURCE_FLAG_NONE);
+	GraphicsTexture(Graphics& graphics, GraphicsTextureDimensions dimensions, DXGI_FORMAT format, DepthStencilClearValue clearValue, CPUAccess cpuAccess = CPUAccess::notavailable, D3D12_RESOURCE_STATES state = D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_FLAGS flags = D3D12_RESOURCE_FLAG_NONE);
 
 private:
 	void Initialize(Graphics& graphics, D3D12_RESOURCE_FLAGS flags, D3D12_CLEAR_VALUE* clearValue);
@@ -74,9 +82,7 @@ private:
 	static int GetPixelSize(DXGI_FORMAT format);
 
 private:
-	unsigned int m_width;
-	unsigned int m_height;
-	unsigned int m_mipLevels;
+	GraphicsTextureDimensions m_dimensions;
 	GraphicsTextureType m_type = GraphicsTextureType::unkown;
 	std::vector<ResourceStates> m_states;
 	ClearValue m_clearValue;

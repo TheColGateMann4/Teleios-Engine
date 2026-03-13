@@ -5,25 +5,21 @@
 #include "Graphics/Core/CommandList.h"
 #include "Graphics/Resources/GraphicsBuffer.h"
 
-GraphicsTexture::GraphicsTexture(Graphics& graphics, unsigned int width, unsigned int height, unsigned int mipLevels, DXGI_FORMAT format, CPUAccess cpuAccess, D3D12_RESOURCE_STATES state, D3D12_RESOURCE_FLAGS flags)
+GraphicsTexture::GraphicsTexture(Graphics& graphics, GraphicsTextureDimensions dimensions, DXGI_FORMAT format, CPUAccess cpuAccess, D3D12_RESOURCE_STATES state, D3D12_RESOURCE_FLAGS flags)
 	:
 	GraphicsResource(format, cpuAccess, state),
-	m_width(width),
-	m_height(height),
-	m_mipLevels(mipLevels),
-	m_states(m_mipLevels, { D3D12_RESOURCE_STATE_COMMON, state })
+    m_dimensions(dimensions),
+	m_states(m_dimensions.mipLevels, { D3D12_RESOURCE_STATE_COMMON, state })
 {
 	Initialize(graphics, flags, nullptr);
 }
 
-GraphicsTexture::GraphicsTexture(Graphics& graphics, unsigned int width, unsigned int height, unsigned int mipLevels, DXGI_FORMAT format, RenderTargetClearValue clearValue, CPUAccess cpuAccess, D3D12_RESOURCE_STATES state, D3D12_RESOURCE_FLAGS flags)
+GraphicsTexture::GraphicsTexture(Graphics& graphics, GraphicsTextureDimensions dimensions, DXGI_FORMAT format, RenderTargetClearValue clearValue, CPUAccess cpuAccess, D3D12_RESOURCE_STATES state, D3D12_RESOURCE_FLAGS flags)
 	:
 	GraphicsResource(format, cpuAccess, state),
-	m_width(width),
-	m_height(height),
-	m_mipLevels(mipLevels),
+    m_dimensions(dimensions),
     m_type(GraphicsTextureType::renderTarget),
-	m_states(m_mipLevels, { D3D12_RESOURCE_STATE_COMMON, state })
+	m_states(m_dimensions.mipLevels, { D3D12_RESOURCE_STATE_COMMON, state })
 {
     m_clearValue.renderTarget = clearValue;
 
@@ -37,14 +33,12 @@ GraphicsTexture::GraphicsTexture(Graphics& graphics, unsigned int width, unsigne
 	Initialize(graphics, flags, &cv);
 }
 
-GraphicsTexture::GraphicsTexture(Graphics& graphics, unsigned int width, unsigned int height, unsigned int mipLevels, DXGI_FORMAT format, DepthStencilClearValue clearValue, CPUAccess cpuAccess, D3D12_RESOURCE_STATES state, D3D12_RESOURCE_FLAGS flags)
+GraphicsTexture::GraphicsTexture(Graphics& graphics, GraphicsTextureDimensions dimensions, DXGI_FORMAT format, DepthStencilClearValue clearValue, CPUAccess cpuAccess, D3D12_RESOURCE_STATES state, D3D12_RESOURCE_FLAGS flags)
 	:
 	GraphicsResource(format, cpuAccess, state),
-	m_width(width),
-	m_height(height),
-	m_mipLevels(mipLevels),
+    m_dimensions(dimensions),
     m_type(GraphicsTextureType::depthStencil),
-	m_states(m_mipLevels, { D3D12_RESOURCE_STATE_COMMON, state })
+	m_states(m_dimensions.mipLevels, { D3D12_RESOURCE_STATE_COMMON, state })
 {
     m_clearValue.depthStencil = clearValue;
 
@@ -73,10 +67,10 @@ void GraphicsTexture::Initialize(Graphics& graphics, D3D12_RESOURCE_FLAGS flags,
 		D3D12_RESOURCE_DESC resourceDesc = {};
 		resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
 		resourceDesc.Alignment = 0;
-		resourceDesc.Width = m_width;
-		resourceDesc.Height = m_height;
-		resourceDesc.DepthOrArraySize = 1;
-		resourceDesc.MipLevels = m_mipLevels;
+		resourceDesc.Width = m_dimensions.width;
+		resourceDesc.Height = m_dimensions.height;
+		resourceDesc.DepthOrArraySize = m_dimensions.arraySize;
+		resourceDesc.MipLevels = m_dimensions.mipLevels;
 		resourceDesc.Format = m_format;
 		resourceDesc.SampleDesc.Count = 1;
 		resourceDesc.SampleDesc.Quality = 0;
@@ -168,12 +162,12 @@ void GraphicsTexture::Update(Graphics& graphics, Pipeline& pipeline, const void*
 
 unsigned int GraphicsTexture::GetWidth() const
 {
-	return m_width;
+	return m_dimensions.width;
 }
 
 unsigned int GraphicsTexture::GetHeight() const
 {
-	return m_height;
+	return m_dimensions.height;
 }
 
 RenderTargetClearValue GraphicsTexture::GetRenderTargetClearValue() const
@@ -208,7 +202,7 @@ void GraphicsTexture::UpdateUsingTempResource(Graphics& graphics, Pipeline& pipe
 
 void GraphicsTexture::UpdateLocalResource(Graphics& graphics, const void* data, unsigned int width, unsigned int height, DXGI_FORMAT format)
 {
-    THROW_INTERNAL_ERROR_IF("GraphicsTextures weren't same dimensions", m_width != width || m_height != height || m_format != format);
+    THROW_INTERNAL_ERROR_IF("GraphicsTextures weren't same dimensions", m_dimensions.width != width || m_dimensions.height != height || m_format != format);
 
     HRESULT hr;
 
