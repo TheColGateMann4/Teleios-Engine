@@ -7,7 +7,7 @@ class Pipeline;
 class ViewPort : public Bindable, public CommandListBindable
 {
 public:
-	ViewPort(Graphics& graphics);
+	ViewPort(Graphics& graphics, DirectX::XMFLOAT2 dimensions = {});
 
 public:
 	const D3D12_VIEWPORT& GetViewport() const;
@@ -18,9 +18,9 @@ public:
 	virtual BindableType GetBindableType() const override;
 
 public:
-	static std::shared_ptr<ViewPort> GetResource(Graphics& graphics);
+	static std::shared_ptr<ViewPort> GetResource(Graphics& graphics, DirectX::XMFLOAT2 dimensions = {});
 
-	static std::string GetIdentifier();
+	static std::string GetIdentifier(DirectX::XMFLOAT2 dimensions);
 
 private:
 	D3D12_VIEWPORT m_viewport = {};
