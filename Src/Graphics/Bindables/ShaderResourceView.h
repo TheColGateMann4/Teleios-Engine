@@ -11,6 +11,7 @@ class CommandList;
 
 class BackBufferRenderTarget;
 class DepthStencilViewMultiResource;
+class DepthStencilViewCubeMultiResource;
 
 class ShaderResourceViewBase : public Bindable, public RootParameterBinding, public DescriptorBindable
 {
@@ -75,6 +76,7 @@ class ShaderResourceViewMultiResource : public ShaderResourceViewBase
 public:
 	ShaderResourceViewMultiResource(Graphics& graphics, BackBufferRenderTarget* renderTarget, UINT slot = 0);
 	ShaderResourceViewMultiResource(Graphics& graphics, DepthStencilViewMultiResource* depthStencil, UINT slot = 0);
+	ShaderResourceViewMultiResource(Graphics& graphics, DepthStencilViewCubeMultiResource* depthStencil, UINT slot = 0);
 	ShaderResourceViewMultiResource(ShaderResourceViewMultiResource&&) noexcept = default;
 
 public:

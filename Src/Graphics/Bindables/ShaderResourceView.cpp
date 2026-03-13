@@ -67,24 +67,37 @@ void ShaderResourceViewBase::InitializeTextureSRV(Graphics& graphics, unsigned i
 {
 	THROW_INTERNAL_ERROR_IF("GraphicsTexture was NULL", texture == nullptr);
 
-	// creating UAV
+	GraphicsTextureDimensions dimensions = texture->GetDimensions();
+
+	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+	srvDesc.Format = Texture::GetLinearFormat(Texture::GetCorrectedFormat(texture->GetFormat()));
+	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	if (dimensions.arraySize % 6 == 0)
 	{
-		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-		srvDesc.Format = Texture::GetLinearFormat(Texture::GetCorrectedFormat(texture->GetFormat()));
+		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
+		srvDesc.Texture2DArray = {};
+		srvDesc.Texture2DArray.MostDetailedMip = 0;
+		srvDesc.Texture2DArray.MipLevels = targetMip + 1;
+		srvDesc.Texture2DArray.FirstArraySlice = 0;
+		srvDesc.Texture2DArray.ArraySize = dimensions.arraySize;
+		srvDesc.Texture2DArray.PlaneSlice = 0;
+		srvDesc.Texture2DArray.ResourceMinLODClamp = targetMip;
+	}
+	else
+	{
 		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-		srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 		srvDesc.Texture2D = {};
 		srvDesc.Texture2D.MostDetailedMip = 0;
 		srvDesc.Texture2D.MipLevels = targetMip + 1;
 		srvDesc.Texture2D.PlaneSlice = 0;
 		srvDesc.Texture2D.ResourceMinLODClamp = targetMip;
-
-		THROW_INFO_ERROR(graphics.GetDeviceResources().GetDevice()->CreateShaderResourceView(
-			texture->GetResource(),
-			&srvDesc,
-			descriptor.descriptorCpuHandle
-		));
 	}
+
+	THROW_INFO_ERROR(graphics.GetDeviceResources().GetDevice()->CreateShaderResourceView(
+		texture->GetResource(),
+		&srvDesc,
+		descriptor.descriptorCpuHandle
+	));
 }
 
 void ShaderResourceViewBase::InitializeBufferSRV(Graphics& graphics, DescriptorHeap::DescriptorInfo& descriptor, const GraphicsBuffer* buffer)
@@ -182,6 +195,26 @@ ShaderResourceViewMultiResource::ShaderResourceViewMultiResource(Graphics& graph
 }
 
 ShaderResourceViewMultiResource::ShaderResourceViewMultiResource(Graphics& graphics, DepthStencilViewMultiResource* depthStencil, UINT slot)
+	:
+	ShaderResourceViewBase(slot)
+{
+	unsigned int numBuffers = graphics.GetBufferCount();
+
+	graphics.GetDescriptorHeap().RequestMoreSpace(numBuffers);
+
+	m_resources.reserve(numBuffers);
+
+	for (int i = 0; i < numBuffers; i++)
+	{
+		GraphicsTexture* frameTexture = depthStencil->GetResource(i);
+
+		THROW_INTERNAL_ERROR_IF("GraphicsTexture from DepthStencilViewMultiResource was null", frameTexture == nullptr);
+
+		m_resources.push_back(frameTexture);
+	}
+}
+
+ShaderResourceViewMultiResource::ShaderResourceViewMultiResource(Graphics& graphics, DepthStencilViewCubeMultiResource* depthStencil, UINT slot)
 	:
 	ShaderResourceViewBase(slot)
 {
