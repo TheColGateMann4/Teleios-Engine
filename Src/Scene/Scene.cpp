@@ -21,16 +21,9 @@ void Scene::AddSceneObject(std::shared_ptr<SceneObject> sceneObject)
 	SceneObject* pSceneObject = sceneObject.get();
 
 	if (objectType == SceneObjectType::camera)
-	{
-		m_cameras.push_back(static_cast<Camera*>(pSceneObject));
-		m_cameras.back()->SetCameraIndex(m_cameras.size() - 1);
-	}
+		AddCamera(pSceneObject);
 	else if (objectType == SceneObjectType::pointlight)
-	{
-		m_pointlights.push_back(static_cast<PointLight*>(pSceneObject));
-		m_pointlights.back()->SetLightIndex(m_pointlights.size() - 1);
-	}
-
+		AddPointLight(pSceneObject);
 
 	m_sceneObjects.push_back(sceneObject);
 	m_nameRegistry[sceneObject->GetName()].push_back(pSceneObject);
@@ -56,7 +49,7 @@ void Scene::FinishInitialization(Graphics& graphics)
 	Renderer& renderer = graphics.GetRenderer();
 	Pipeline& pipeline = renderer.GetPipeline();
 
-	m_SetActiveCamera(m_cameras.front());
+	SetValidCameraAfterInitization(graphics);
 
 	InitializeLightBuffer(graphics, pipeline);
 
@@ -212,7 +205,8 @@ void Scene::Update(Graphics& graphics, const Input& input, bool isCursorLocked)
 	{
 		// camera position and rotation so all objects can update their matrices in the same frame
 		for (auto& camera : m_cameras)
-			camera->UpdateCamera(input, isCursorLocked);
+			if(!camera->IsShadowCamera())
+				static_cast<Camera*>(camera)->UpdateCamera(input, isCursorLocked);
 
 		// light position and data
 		for (auto& pointlight : m_pointlights)
@@ -286,6 +280,28 @@ std::shared_ptr<Material> Scene::GetMaterial(const std::string& name)
 	return found->second;
 }
 
+void Scene::SetValidCameraAfterInitization(Graphics& graphics)
+{
+	CameraBase* validCamera = nullptr;
+
+	for (CameraBase* camera : m_cameras)
+		if (!camera->IsShadowCamera())
+		{
+			validCamera = camera;
+			break;
+		}
+
+	if (validCamera == nullptr)
+	{
+		std::shared_ptr<Camera> cameraobj = std::make_shared<Camera>(graphics);
+		validCamera = cameraobj.get();
+
+		AddSceneObject(std::move(cameraobj));
+	}
+
+	m_SetActiveCamera(static_cast<Camera*>(validCamera));
+}
+
 unsigned int Scene::GetOriginalNameIndex(std::string name)
 {
 	auto found = m_nameRegistry.find(name);
@@ -321,4 +337,20 @@ void Scene::m_SetActiveCamera(Camera* camera)
 
 	m_activeCamera = camera;
 	m_activeCamera->SetActive(true);
+}
+
+void Scene::AddCamera(SceneObject* pSceneObject)
+{
+	m_cameras.push_back(static_cast<Camera*>(pSceneObject));
+	m_cameras.back()->SetCameraIndex(m_cameras.size() - 1);
+}
+
+void Scene::AddPointLight(SceneObject* pSceneObject)
+{
+	PointLight* pLight = static_cast<PointLight*>(pSceneObject);
+
+	m_pointlights.push_back(pLight);
+	pLight->SetLightIndex(m_pointlights.size() - 1);
+
+	AddCamera(pLight->GetShadowCamera());
 }

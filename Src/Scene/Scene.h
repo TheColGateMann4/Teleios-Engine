@@ -8,6 +8,7 @@
 class Input;
 class Graphics;
 class SceneObject;
+class CameraBase;
 class Camera;
 class PointLight;
 class Model;
@@ -60,21 +61,26 @@ public:
 	std::shared_ptr<Material> GetMaterial(const std::string& name);
 
 private:
+	void SetValidCameraAfterInitization(Graphics& graphics);
+
 	unsigned int GetOriginalNameIndex(std::string name);
 
 	void UpdateObjectMatrices(Graphics& graphics);
 
 	void m_SetActiveCamera(Camera* camera);
 
-private:
+	void AddCamera(SceneObject* pSceneObject);
 
+	void AddPointLight(SceneObject* pSceneObject);
+
+private:
 	using NameBucket = std::vector<SceneObject*>;
 	std::unordered_map<std::string, NameBucket> m_nameRegistry;
 	std::vector<std::shared_ptr<SceneObject>> m_sceneObjects = {};
 
 	SceneObject* m_objectSelectedInHierarchy = nullptr;
 
-	std::vector<Camera*> m_cameras;
+	std::vector<CameraBase*> m_cameras;
 	Camera* m_activeCamera = nullptr;
 
 	std::vector<PointLight*> m_pointlights;
