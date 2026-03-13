@@ -308,7 +308,7 @@ ShadowCamera::ShadowCamera(Graphics& graphics, DirectX::XMFLOAT3 position)
 	CameraBase(graphics, position, DirectX::XMFLOAT3{0.0f, 0.0f, 0.0f}, true)
 {
 	m_settings = {};
-	m_settings.FovAngleY = _pi / 2;
+	m_settings.FovAngleY = _pi / 2.0f;
 	m_settings.AspectRatio = 1.0f;
 	m_settings.NearZ = 0.1f;
 	m_settings.FarZ = 400.0f;
