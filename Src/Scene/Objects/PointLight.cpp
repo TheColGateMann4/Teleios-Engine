@@ -10,15 +10,16 @@
 
 PointLight::PointLight(Graphics& graphics, Scene& scene, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 color)
 	:
-	m_position(position),
 	m_color(color),
-	m_transformChanged(true)
+	m_transformChanged(true),
+	m_shadowCamera(graphics, position)
 {
+	m_transform.SetPosition(position);
 	SetName("PointLight");
 
 	// creating Sphere model
 	{
-		std::shared_ptr<Sphere> sphereModel = std::make_shared<Sphere>(graphics, m_position, 0.5f, 21);
+		std::shared_ptr<Sphere> sphereModel = std::make_shared<Sphere>(graphics, DirectX::XMFLOAT3{}, 0.5f, 21);
 
 		m_pSphereModel = sphereModel.get();
 		AddChild(m_pSphereModel);
@@ -34,6 +35,8 @@ void PointLight::Initialize(Graphics& graphics, Pipeline& pipeline)
 
 	m_pSphereModel->SetLightIndex(m_lightIndex);
 
+	const Camera::Settings* shadowCameraSettings = m_shadowCamera.GetSettings();
+
 	m_pLightBuffer = static_cast<CachedConstantBuffer*>(pipeline.GetStaticResource("lightBuffer").get());
 
 	DynamicConstantBuffer::Data& bufferData = m_pLightBuffer->GetData();
@@ -42,13 +45,15 @@ void PointLight::Initialize(Graphics& graphics, Pipeline& pipeline)
 	*array.Get<DynamicConstantBuffer::ElementType::Float>(m_lightIndex, "attenuationQuadratic") = 0.2f;
 	*array.Get<DynamicConstantBuffer::ElementType::Float>(m_lightIndex, "attenuationLinear") = 0.04f;
 	*array.Get<DynamicConstantBuffer::ElementType::Float>(m_lightIndex, "attenuationConstant") = 0.07f;
+	*array.Get<DynamicConstantBuffer::ElementType::Float>(m_lightIndex, "nearZ") = shadowCameraSettings->NearZ;
+	*array.Get<DynamicConstantBuffer::ElementType::Float>(m_lightIndex, "farZ") = shadowCameraSettings->FarZ;
+
+	m_shadowCamera.Initialize(graphics, pipeline);
 }
 
 void PointLight::Update(Graphics& graphics, Pipeline& pipeline)
 {
-	// dragging our model with us
-	if(m_transformChanged)
-		m_pSphereModel->GetTransform()->SetPosition(m_position);
+	m_shadowCamera.UpdateCameraBuffer();
 
 	m_transformChanged = false;
 }
@@ -60,7 +65,9 @@ void PointLight::UpdateLight(Graphics& graphics, Scene& scene)
 
 	if (m_transformChanged || activeCamera->ViewChanged())
 	{
-		DirectX::XMVECTOR vPosition = DirectX::XMLoadFloat3(&m_position);
+		auto position = m_transform.GetPosition();
+
+		DirectX::XMVECTOR vPosition = DirectX::XMLoadFloat3(&position);
 		DirectX::XMVECTOR vResultPosition = DirectX::XMVector3Transform(vPosition, activeCamera->GetTransformMatrix());
 		DirectX::XMFLOAT3 resultPosition;
 
@@ -80,9 +87,17 @@ void PointLight::DrawTransformPropeties(Scene& scene)
 		};
 
 	ImGui::Text("Position");
-	checkChanged(m_transformChanged, ImGui::SliderFloat("x##position", &m_position.x, -100.0f, 100.0f));
-	checkChanged(m_transformChanged, ImGui::SliderFloat("y##position", &m_position.y, -100.0f, 100.0f));
-	checkChanged(m_transformChanged, ImGui::SliderFloat("z##position", &m_position.z, -100.0f, 100.0f));
+
+	auto position = m_transform.GetPosition();
+	checkChanged(m_transformChanged, ImGui::SliderFloat("x##position", &position.x, -100.0f, 100.0f));
+	checkChanged(m_transformChanged, ImGui::SliderFloat("y##position", &position.y, -100.0f, 100.0f));
+	checkChanged(m_transformChanged, ImGui::SliderFloat("z##position", &position.z, -100.0f, 100.0f));
+
+	if (m_transformChanged)
+	{
+		m_transform.SetPosition(position);
+		m_shadowCamera.SetPosition(position);
+	}
 }
 
 void PointLight::DrawAdditionalPropeties(Graphics& graphics, Pipeline& pipeline)
@@ -114,4 +129,9 @@ SceneObjectType PointLight::GetSceneObjectType()
 void PointLight::SetLightIndex(unsigned int lightIndex)
 {
 	m_lightIndex = lightIndex;
+}
+
+ShadowCamera* PointLight::GetShadowCamera()
+{
+	return &m_shadowCamera;
 }

@@ -4,6 +4,7 @@
 #include "Includes/CppIncludes.h"
 #include "Graphics/Bindables/ConstantBuffer.h"
 #include "Sphere.h"
+#include "Camera.h"
 
 class Graphics;
 class Scene;
@@ -16,7 +17,7 @@ public:
 
 public:
 	virtual void Initialize(Graphics& graphics, Pipeline& pipeline) override;
-	
+
 	virtual void Update(Graphics& graphics, Pipeline& pipeline) override;
 
 	void UpdateLight(Graphics& graphics, Scene& scene);
@@ -29,12 +30,14 @@ public:
 
 	void SetLightIndex(unsigned int lightIndex);
 
+	ShadowCamera* GetShadowCamera();
+
 private:
-	DirectX::XMFLOAT3 m_position;
 	DirectX::XMFLOAT3 m_color;
 	
 	bool m_transformChanged;
 	Sphere* m_pSphereModel;
+	ShadowCamera m_shadowCamera;
 
 	CachedConstantBuffer* m_pLightBuffer = nullptr;
 	unsigned int m_lightIndex = -1;
