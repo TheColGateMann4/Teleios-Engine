@@ -43,7 +43,6 @@ Sphere::Sphere(Graphics& graphics, DirectX::XMFLOAT3 position, float diameter, s
 		step.AddBindable(DepthStencilState::GetResource(graphics, DepthStencilState::DepthComparisonFunc::Less));
 		step.AddBindable(PrimitiveTechnology::GetResource(graphics, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE));
 		step.AddStaticBindable("lightBuffer");
-		step.AddStaticBindable("cameraBuffer");
 		step.AddBindable(m_transform.GetTransformConstantBuffer());
 
 		// adding root signature constant to indicate locally used point light data
