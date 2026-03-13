@@ -109,6 +109,8 @@ void Scene::InitializeLightBuffer(Graphics& graphics, Pipeline& pipeline)
 	array.layout.Add<DynamicConstantBuffer::ElementType::Float>("attenuationQuadratic", DynamicConstantBuffer::ImguiFloatData{ true, 0.001f, 1.8f, "%.3f" });
 	array.layout.Add<DynamicConstantBuffer::ElementType::Float>("attenuationLinear", DynamicConstantBuffer::ImguiFloatData{ true, 0.0001f, 1.0f, "%.5f" });
 	array.layout.Add<DynamicConstantBuffer::ElementType::Float>("attenuationConstant", DynamicConstantBuffer::ImguiFloatData{ true, 0.000001f, 1.0f, "%.6f" });
+	array.layout.Add<DynamicConstantBuffer::ElementType::Float>("nearZ", DynamicConstantBuffer::ImguiFloatData{ false });
+	array.layout.Add<DynamicConstantBuffer::ElementType::Float>("farZ", DynamicConstantBuffer::ImguiFloatData{ false });
 
 	DynamicConstantBuffer::Layout layout;
 	layout.AddArray("lightBuffers", array);

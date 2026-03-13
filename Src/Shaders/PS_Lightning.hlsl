@@ -13,6 +13,8 @@ struct PointLightData
     float attenuationQuadratic;
     float attenuationLinear;
     float attenuationConstant;
+    float nearZ;
+    float farZ;
 };
 
 #ifndef NUM_POINTLIGHTS
