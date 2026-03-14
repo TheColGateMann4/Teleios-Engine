@@ -125,10 +125,12 @@ Camera::Camera(Graphics& graphics, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3
 
 void Camera::UpdateCamera(const Input& input, bool cursorLocked)
 {
-	UpdateCameraBuffer();
 
 	if (!m_active)
+	{
+		UpdateCameraBuffer();
 		return;
+	}
 
 	if (!m_selected)
 	{
@@ -158,6 +160,8 @@ void Camera::UpdateCamera(const Input& input, bool cursorLocked)
 
 		Move(direction, input.GetKey(VK_SHIFT));
 	}
+
+	UpdateCameraBuffer();
 }
 
 void Camera::DrawTransformPropeties(Scene& scene)
