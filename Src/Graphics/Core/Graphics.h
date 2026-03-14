@@ -45,6 +45,7 @@ private:
 	void CleanupResources();
 
 public:
+	Fence* GetFence(unsigned int frameIndex);
 	Profiler& GetProfiler();
 	Renderer& GetRenderer();
 	DeviceResources& GetDeviceResources();

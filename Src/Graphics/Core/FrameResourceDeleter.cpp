@@ -1,27 +1,39 @@
 #include "FrameResourceDeleter.h"
 #include "Graphics.h"
 
+FrameResourceDeleter::FrameIdentifier::FrameIdentifier(unsigned int _frameIndex, size_t _fenceValue)
+	:
+	frameIndex(_frameIndex),
+	fenceValue(_fenceValue)
+{
+
+}
+
+bool FrameResourceDeleter::FrameIdentifier::operator==(const FrameIdentifier& other) const
+{
+	return other.frameIndex == frameIndex &&
+		other.fenceValue == fenceValue;
+}
+
 void FrameResourceDeleter::Update(Graphics& graphics)
 {
-	for (size_t resourceIndex = 0; resourceIndex < m_resources.size(); resourceIndex++)
-	{
-		FrameResourceForDeletion& resourceForDeletion = m_resources.at(resourceIndex);
+	unsigned int curentGraphicsBufferIndex = graphics.GetCurrentBufferIndex();
+	size_t currentBufferCurrentFenceValue = graphics.GetFence(curentGraphicsBufferIndex)->GetValue();
 
-		if (resourceForDeletion.frameIndex == graphics.GetCurrentBufferIndex())
-		{
-			if (resourceForDeletion.firstIteration)
-				resourceForDeletion.firstIteration = false;
-			else
-			{
-				// if same frame index is hit twice then resource is no longer needed by pipeline
-				m_resources.erase(m_resources.begin() + resourceIndex);
-				resourceIndex--; // we are substracting one from index since next resource is going to be at the same index since we deleted this one
-			}
-		}
-	}
+	std::erase_if(m_resources, [&](const auto& entry) {
+		const auto& [key, res] = entry;
+
+		return key.frameIndex == curentGraphicsBufferIndex &&
+			key.frameIndex < currentBufferCurrentFenceValue;
+	});
 }
 
 unsigned int FrameResourceDeleter::GetFrameIndex(Graphics& graphics)
 {
 	return graphics.GetCurrentBufferIndex();
+}
+
+unsigned int FrameResourceDeleter::GetFenceValueForCurrentFrame(Graphics& graphics)
+{
+	return graphics.GetFence(GetFrameIndex(graphics))->GetValue();
 }

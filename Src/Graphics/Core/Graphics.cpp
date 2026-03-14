@@ -152,6 +152,13 @@ void Graphics::CleanupResources()
 	resourceDeleter.Update(*this);
 }
 
+Fence* Graphics::GetFence(unsigned int frameIndex)
+{
+	THROW_INTERNAL_ERROR_IF("Tried to access Fence out of bounds", frameIndex > GetBufferCount() - 1);
+
+	return &m_graphicFences.at(frameIndex);
+}
+
 Profiler& Graphics::GetProfiler()
 {
 	return profiler;
