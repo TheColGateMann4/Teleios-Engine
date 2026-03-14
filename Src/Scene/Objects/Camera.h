@@ -27,7 +27,7 @@ public:
 
 	void UpdateCameraBuffer();
 
-	DirectX::XMMATRIX GetTransformMatrix() const;
+	DirectX::XMMATRIX GetViewMatrix() const;
 
 	DirectX::XMMATRIX GetPerspectiveMatrix() const;
 

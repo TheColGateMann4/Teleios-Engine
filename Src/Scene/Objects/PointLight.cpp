@@ -68,7 +68,7 @@ void PointLight::UpdateLight(Graphics& graphics, Scene& scene)
 		auto position = m_transform.GetPosition();
 
 		DirectX::XMVECTOR vPosition = DirectX::XMLoadFloat3(&position);
-		DirectX::XMVECTOR vResultPosition = DirectX::XMVector3Transform(vPosition, activeCamera->GetTransformMatrix());
+		DirectX::XMVECTOR vResultPosition = DirectX::XMVector3Transform(vPosition, activeCamera->GetViewMatrix());
 		DirectX::XMFLOAT3 resultPosition;
 
 		DirectX::XMStoreFloat3(&resultPosition, vResultPosition);

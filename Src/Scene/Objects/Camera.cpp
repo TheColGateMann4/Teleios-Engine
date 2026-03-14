@@ -31,11 +31,11 @@ void CameraBase::UpdateCameraBuffer()
 	DynamicConstantBuffer::Data& bufferData = m_pCameraBuffer->GetData();
 	DynamicConstantBuffer::ArrayData array = bufferData.GetArrayData("cameraBuffers");
 
-	*array.Get<DynamicConstantBuffer::ElementType::Matrix>(m_cameraIndex, "view") = GetTransformMatrix();
+	*array.Get<DynamicConstantBuffer::ElementType::Matrix>(m_cameraIndex, "view") = GetViewMatrix();
 	*array.Get<DynamicConstantBuffer::ElementType::Matrix>(m_cameraIndex, "projection") = GetPerspectiveMatrix();
 }
 
-DirectX::XMMATRIX CameraBase::GetTransformMatrix() const
+DirectX::XMMATRIX CameraBase::GetViewMatrix() const
 {
 	DirectX::XMFLOAT3 startPosition = m_transform.GetPosition();
 	DirectX::FXMVECTOR upVector = {0.0f, 1.0f, 0.0f};

@@ -101,7 +101,7 @@ void LightningPass::UpdateInverseProjectionMatrix(Graphics& graphics, Scene& sce
 	const Camera::Settings* currentCameraSettings = currentCamera->GetSettings();
 
 	DirectX::XMMATRIX inverseProjection = DirectX::XMMatrixInverse(nullptr, currentCamera->GetPerspectiveMatrix());
-	DirectX::XMMATRIX inverseView = DirectX::XMMatrixInverse(nullptr, currentCamera->GetTransformMatrix());
+	DirectX::XMMATRIX inverseView = DirectX::XMMatrixInverse(nullptr, currentCamera->GetViewMatrix());
 
 	DynamicConstantBuffer::Data& cameraData = m_pInverseMatriesBuffer->GetData();
 	*cameraData.Get<DynamicConstantBuffer::ElementType::Matrix>("inverseProjection") = inverseProjection;
