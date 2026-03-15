@@ -89,14 +89,15 @@ float3 GetWorldPosition(float3 viewPosition)
 
 float CalculateLightDepth(PointLightData pointlight, float3 positionInLightSpace)
 {
-    const float viewZ = positionInLightSpace.z;
+    const float3 absSampleVec = abs(positionInLightSpace);
+    const float viewZ = max(absSampleVec.x, max(absSampleVec.y, absSampleVec.z)); // selecting dominant axis
     const float farZ = pointlight.farZ;
     const float nearZ = pointlight.nearZ;
     
     return (farZ / (farZ - nearZ)) - (farZ * nearZ) / (viewZ * (farZ - nearZ));
 }
 
-#define FLT_EPSILON 0.001f
+#define FLT_EPSILON 0.00001f
 
 float SampleShadowMap(float3 sampleDir)
 {

@@ -38,8 +38,8 @@ void CameraBase::UpdateCameraBuffer()
 DirectX::XMMATRIX CameraBase::GetViewMatrix() const
 {
 	DirectX::XMFLOAT3 startPosition = m_transform.GetPosition();
-	DirectX::FXMVECTOR upVector = {0.0f, 1.0f, 0.0f};
-	DirectX::FXMVECTOR forwardVector = {0.0f, 0.0f, 1.0f};
+	DirectX::FXMVECTOR upVector = DirectX::XMLoadFloat3(&m_upVector);
+	DirectX::FXMVECTOR forwardVector = DirectX::XMLoadFloat3(&m_forwardVector);
 	DirectX::FXMVECTOR cameraPosition = DirectX::XMLoadFloat3(&startPosition);
 	DirectX::XMVECTOR lookAtPosition = DirectX::XMVector3Transform(forwardVector, DirectX::XMMatrixRotationQuaternion(m_transform.GetQuaternionRotation()));
 	lookAtPosition = DirectX::XMVectorAdd(lookAtPosition, cameraPosition);
@@ -77,7 +77,7 @@ void CameraBase::UpdateDecoratedName()
 	m_decoratedName = m_originalName;
 }
 
-void CameraBase::SetCameraIndex(unsigned int cameraIndex)
+void CameraBase::SetCameraBufferIndex(unsigned int cameraIndex)
 {
 	m_cameraIndex = cameraIndex;
 }
@@ -90,6 +90,16 @@ unsigned int CameraBase::GetCameraIndex()
 bool CameraBase::IsShadowCamera() const
 {
 	return m_isShadowCamera;
+}
+
+void CameraBase::SetUpVector(DirectX::XMFLOAT3 up)
+{
+	m_upVector = up;
+}
+
+void CameraBase::SetForwardVector(DirectX::XMFLOAT3 forward)
+{
+	m_forwardVector = forward;
 }
 
 void CameraBase::UpdatePerspectiveMatrix()
@@ -318,6 +328,43 @@ ShadowCamera::ShadowCamera(Graphics& graphics, DirectX::XMFLOAT3 position)
 	m_settings.FarZ = 400.0f;
 
 	UpdatePerspectiveMatrix();
+}
+
+void ShadowCamera::UpdateCameraBuffer()
+{
+	THROW_INTERNAL_ERROR_IF("Camera buffer wasn't linked", m_pCameraBuffer == nullptr);
+
+	DynamicConstantBuffer::Data& bufferData = m_pCameraBuffer->GetData();
+	DynamicConstantBuffer::ArrayData array = bufferData.GetArrayData("cameraBuffers");
+
+	static constexpr float angle = DirectX::XM_PIDIV2;
+
+	struct RotationData
+	{
+		DirectX::XMFLOAT3 rotation;
+		DirectX::XMFLOAT3 up;
+		DirectX::XMFLOAT3 forward;
+	};
+
+	static constexpr RotationData faceRotations[6] =
+	{
+		{ { 0.0f,	   angle,	0.0f }, { 0.0f, 1.0f, 0.0f  }, { 0.0f, 0.0f, 1.0f } },
+		{ { 0.0f,	   -angle,	0.0f }, { 0.0f, 1.0f, 0.0f  }, { 0.0f, 0.0f, 1.0f } },
+		{ { -angle,	  0.0f,	0.0f }, { 0.0f, 0.0f, -1.0f }, { 0.0f, 0.0f, 1.0f } },
+		{ { angle,	  0.0f,	0.0f }, { 0.0f, 0.0f, 1.0f },  { 0.0f, 0.0f, 1.0f } },
+		{ { 0.0f,	   0.0f,	0.0f }, { 0.0f, 1.0f, 0.0f  }, { 0.0f, 0.0f, 1.0f } },
+		{ { 2 * angle, 0.0f,	0.0f }, { 0.0f, 1.0f, 0.0f  }, { 0.0f, 0.0f, 1.0f } }
+	};
+
+	for(int i = 0; i < ARRAYSIZE(faceRotations); i++)
+	{
+		m_transform.SetEulerRotation(faceRotations[i].rotation);
+		SetUpVector(faceRotations[i].up);
+		SetForwardVector(faceRotations[i].forward);
+
+		*array.Get<DynamicConstantBuffer::ElementType::Matrix>(m_cameraIndex + i, "view") = GetViewMatrix();
+		*array.Get<DynamicConstantBuffer::ElementType::Matrix>(m_cameraIndex + i, "projection") = GetPerspectiveMatrix();
+	}
 }
 
 void ShadowCamera::SetPosition(DirectX::XMFLOAT3 position)

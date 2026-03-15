@@ -17,8 +17,9 @@ public:
 	virtual void ExecutePass(Graphics& graphics, CommandList* commandList) override;
 
 private:
-	void SetActiveShadowCameraIndex(PointLight* pointLight, unsigned int stage);
+	void SetActiveShadowCamera(PointLight* pointLight, unsigned int stage);
 
 private:
-	Scene* m_scene;
+	Scene* m_scene = nullptr;
+	class DepthStencilViewCubeMultiResource* m_depthStencilViewCube = nullptr;
 };

@@ -124,11 +124,15 @@ void FullscreenRenderPass::AddBindable(std::shared_ptr<Bindable> bind)
 
 void FullscreenRenderPass::ExecutePass(Graphics& graphics, CommandList* commandList)
 {
+	commandList->BeginRenderPass(graphics, this);
+
 	PreDraw(graphics, commandList);
 
 	m_meshRenderJob->Execute(graphics, commandList);
 
 	PostDraw(graphics, commandList);
+
+	commandList->EndRenderPass(graphics);
 }
 
 void FullscreenRenderPass::PreDraw(Graphics& graphics, CommandList* commandList)

@@ -28,7 +28,19 @@ unsigned int RootSignatureConstants::GetNumValues() const
 
 const void* RootSignatureConstants::GetDataPtr() const
 {
+	m_isUpdated = false;
+
 	return m_data.GetPtr();
+}
+
+bool RootSignatureConstants::IsUpdated() const
+{
+	return m_isUpdated;
+}
+
+void RootSignatureConstants::SetUpdated(bool updated)
+{
+	m_isUpdated = updated;
 }
 
 DynamicConstantBuffer::Data& RootSignatureConstants::GetData()

@@ -86,7 +86,7 @@ void Scene::InitializeMaterials(Graphics& graphics)
 void Scene::InitializeCameraBuffer(Graphics& graphics, Pipeline& pipeline)
 {
 	DynamicConstantBuffer::ArrayDataInfo array = {};
-	array.numElements = m_cameras.size();
+	array.numElements = m_cameraBufferSize;
 	array.layout.Add<DynamicConstantBuffer::ElementType::Matrix>("view");
 	array.layout.Add<DynamicConstantBuffer::ElementType::Matrix>("projection");
 
@@ -343,8 +343,12 @@ void Scene::m_SetActiveCamera(Camera* camera)
 
 void Scene::AddCamera(SceneObject* pSceneObject)
 {
-	m_cameras.push_back(static_cast<Camera*>(pSceneObject));
-	m_cameras.back()->SetCameraIndex(m_cameras.size() - 1);
+	Camera* pCamera = static_cast<Camera*>(pSceneObject);
+
+	m_cameras.push_back(pCamera);
+	m_cameras.back()->SetCameraBufferIndex(m_cameraBufferSize);
+
+	m_cameraBufferSize += pCamera->IsShadowCamera() ? 6 : 1;
 }
 
 void Scene::AddPointLight(SceneObject* pSceneObject)

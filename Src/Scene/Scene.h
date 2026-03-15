@@ -82,6 +82,7 @@ private:
 
 	std::vector<CameraBase*> m_cameras;
 	Camera* m_activeCamera = nullptr;
+	unsigned int m_cameraBufferSize = 0;
 
 	std::vector<PointLight*> m_pointlights;
 	std::shared_ptr<CachedConstantBuffer> m_lightBuffer;

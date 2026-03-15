@@ -11,8 +11,12 @@ GuiPass::GuiPass(Graphics& graphics)
 
 void GuiPass::ExecutePass(Graphics& graphics, CommandList* commandList)
 {
+	commandList->BeginRenderPass(graphics, this);
+
 	m_imguiLayer.Render();
 
 	if (m_imguiLayer.IsVisible())
 		m_imguiLayer.Draw(graphics, commandList);
+
+	commandList->EndRenderPass(graphics);
 }

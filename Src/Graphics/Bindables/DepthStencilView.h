@@ -107,6 +107,8 @@ public:
 
 	virtual DepthStencilClearValue GetClearValue() const override;
 
+	void SetCurrentDepthBuffer(unsigned int newCurrentDepthBuffer);
+
 private:
 	struct FrameDescriptor
 	{
@@ -115,4 +117,6 @@ private:
 	
 	std::vector<FrameDescriptor> m_descriptors;
 	std::vector<std::shared_ptr<GraphicsTexture>> m_textures;
+
+	unsigned int m_currentDepthBuffer = 0;
 };

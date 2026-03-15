@@ -420,7 +420,7 @@ void CommandList::SetRootConstants(Graphics& graphics, RootSignatureConstants* c
 	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
 	THROW_OBJECT_STATE_ERROR_IF("Only Direct and Bundle command lists can set graphics constant buffers", m_type != D3D12_COMMAND_LIST_TYPE_DIRECT && m_type != D3D12_COMMAND_LIST_TYPE_BUNDLE);
 
-	if (!m_state.SetRootSignatureParam(target.rootIndex, constants))
+	if (!m_state.SetRootSignatureParam(target.rootIndex, constants) && !constants->IsUpdated())
 		return;
 
 	THROW_INFO_ERROR(pCommandList->SetGraphicsRoot32BitConstants(target.rootIndex, constants->GetNumValues(), constants->GetDataPtr(), 0));

@@ -54,10 +54,8 @@ void RenderPass::SetCorrectStates(Graphics& graphics, CommandList* commandList)
 void RenderPass::Execute(Graphics& graphics, CommandList* commandList)
 {
 	BEGIN_COMMAND_LIST_EVENT(commandList, typeid(*this).name() + 6); // + 6 skips "class " from type info literal
-	commandList->BeginRenderPass(graphics, this);
 
 	ExecutePass(graphics, commandList);
 
-	commandList->EndRenderPass(graphics);
 	END_COMMAND_LIST_EVENT(commandList);
 }

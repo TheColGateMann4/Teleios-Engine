@@ -193,7 +193,7 @@ DepthStencilViewCubeMultiResource::DepthStencilViewCubeMultiResource(Graphics& g
 
 const D3D12_CPU_DESCRIPTOR_HANDLE& DepthStencilViewCubeMultiResource::GetDescriptor(Graphics& graphics) const
 {
-	return m_descriptors.at(graphics.GetCurrentBufferIndex()).faces.at(4); // TODO: FOR NOW ONLY +Z face is handled
+	return m_descriptors.at(graphics.GetCurrentBufferIndex()).faces.at(m_currentDepthBuffer);
 }
 
 const GraphicsTexture* DepthStencilViewCubeMultiResource::GetResource(Graphics& graphics) const
@@ -233,4 +233,9 @@ DepthStencilClearValue DepthStencilViewCubeMultiResource::GetClearValue() const
 	THROW_INTERNAL_ERROR_IF("Depth Stencil didn't own any resources", m_textures.empty());
 
 	return m_textures.front()->GetDepthStencilClearValue();
+}
+
+void DepthStencilViewCubeMultiResource::SetCurrentDepthBuffer(unsigned int newCurrentDepthBuffer)
+{
+	m_currentDepthBuffer = newCurrentDepthBuffer;
 }

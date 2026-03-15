@@ -25,7 +25,7 @@ protected:
 public:
 	virtual void Initialize(Graphics& graphics, Pipeline& pipeline) override;
 
-	void UpdateCameraBuffer();
+	virtual void UpdateCameraBuffer();
 
 	DirectX::XMMATRIX GetViewMatrix() const;
 
@@ -40,10 +40,13 @@ public:
 
 	virtual void UpdateDecoratedName() override;
 
-	void SetCameraIndex(unsigned int cameraIndex);
+	void SetCameraBufferIndex(unsigned int cameraIndex);
 	unsigned int GetCameraIndex();
 
 	bool IsShadowCamera() const;
+
+	void SetUpVector(DirectX::XMFLOAT3 up);
+	void SetForwardVector(DirectX::XMFLOAT3 forward);
 
 protected:
 	void UpdatePerspectiveMatrix();
@@ -53,6 +56,8 @@ protected:
 	unsigned int m_cameraIndex = -1;
 
 	DirectX::XMMATRIX m_perspective;
+	DirectX::XMFLOAT3 m_upVector = { 0.0f, 1.0f, 0.0f };
+	DirectX::XMFLOAT3 m_forwardVector = { 0.0f, 0.0f, 1.0f };
 	Settings m_settings;
 
 	bool m_viewChanged;
@@ -101,6 +106,8 @@ class ShadowCamera : public CameraBase
 
 public:
 	ShadowCamera(Graphics& graphics, DirectX::XMFLOAT3 position);
+
+	virtual void UpdateCameraBuffer() override;
 
 public:
 	void SetPosition(DirectX::XMFLOAT3 position);

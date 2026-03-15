@@ -101,11 +101,17 @@ void GeometryPass::SetCameraTransformIndex(unsigned int cameraIndex)
 		return;
 
 	*m_cameraRootConstant->GetData().Get<DynamicConstantBuffer::ElementType::Int>("cameraTransformIndex") = cameraIndex;
+	m_cameraRootConstant->SetUpdated(true);
+
 	m_prevCameraIndex = cameraIndex;
 }
 
 void GeometryPass::ExecutePass(Graphics& graphics, CommandList* commandList)
 {
+	commandList->BeginRenderPass(graphics, this);
+
 	for (auto& job : m_jobs)
 		job->Execute(graphics, commandList);
+
+	commandList->EndRenderPass(graphics);
 }

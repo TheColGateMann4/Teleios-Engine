@@ -21,9 +21,14 @@ public:
 	unsigned int GetNumValues() const;
 	const void* GetDataPtr() const;
 
+	bool IsUpdated() const;
+
+	void SetUpdated(bool updated);
+
 public:
 	DynamicConstantBuffer::Data& GetData();
 
 private:
 	DynamicConstantBuffer::Data m_data;
+	mutable bool m_isUpdated = true;
 };
