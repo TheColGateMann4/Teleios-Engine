@@ -20,11 +20,14 @@ void FrameResourceDeleter::Update(Graphics& graphics)
 	unsigned int curentGraphicsBufferIndex = graphics.GetCurrentBufferIndex();
 	size_t currentBufferCurrentFenceValue = graphics.GetFence(curentGraphicsBufferIndex)->GetValue();
 
+	if (curentGraphicsBufferIndex == 0)
+		currentBufferCurrentFenceValue--; // we use first graphics frame for initialization where we needed to force-sync after to start drawing
+
 	std::erase_if(m_resources, [&](const auto& entry) {
 		const auto& [key, res] = entry;
 
 		return key.frameIndex == curentGraphicsBufferIndex &&
-			key.frameIndex < currentBufferCurrentFenceValue;
+			key.fenceValue < currentBufferCurrentFenceValue;
 	});
 }
 

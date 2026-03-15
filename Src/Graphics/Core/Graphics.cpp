@@ -104,9 +104,9 @@ void Graphics::FinishFrame()
 {
 	PresentFrame();
 
-	WaitForGPUIfNeeded();
-
 	CleanupResources();
+
+	WaitForGPUIfNeeded();
 }
 
 void Graphics::Render(Scene& scene, float deltaTime)
