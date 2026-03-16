@@ -5,6 +5,7 @@
 #include "Graphics/RenderGraph/RenderJob/GraphicsRenderData.h"
 
 class RenderGraphicsStep;
+class Material;
 
 class GraphicsStepRenderJob : public StepRenderJob
 {
@@ -23,6 +24,9 @@ public:
 	virtual JobGroup GetGroup() const override;
 
 	RenderGraphicsStep* GetStep() const;
+
+private:
+	RasterizerState* BuildAndGetRasterizerState(Graphics& graphics, Material* material);
 
 private:
 	RenderGraphicsStep* m_step;

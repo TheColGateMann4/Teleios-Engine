@@ -95,6 +95,11 @@ void GeometryPass::InitializeJobs(Graphics& graphics, Pipeline& pipeline)
 		job->Initialize(graphics, pipeline);
 }
 
+RenderPassRasterizerStateOptions GeometryPass::GetRasterizerOptions() const
+{
+	return m_rasterizerOptions;
+}
+
 void GeometryPass::SetCameraTransformIndex(unsigned int cameraIndex)
 {
 	if (m_prevCameraIndex == cameraIndex)

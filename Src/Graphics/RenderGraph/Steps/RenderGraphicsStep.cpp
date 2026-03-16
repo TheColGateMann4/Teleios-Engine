@@ -59,3 +59,13 @@ Material* RenderGraphicsStep::GetMaterial() const
 {
 	return m_material.get();
 }
+
+ObjectRasterizerStateOptions RenderGraphicsStep::GetRasterizerOptions() const
+{
+	return m_rasterizerOptions;
+}
+
+void RenderGraphicsStep::SetRasterizerOptions(ObjectRasterizerStateOptions rasterizerOptions)
+{
+	m_rasterizerOptions = rasterizerOptions;
+}

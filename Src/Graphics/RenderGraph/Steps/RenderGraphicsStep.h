@@ -6,6 +6,7 @@
 #include "Graphics/Core/PipelineState.h"
 #include "Graphics/Core/RootSignature.h"
 #include "Graphics/Core/BindableContainer.h"
+#include "Graphics/Bindables/RasterizerState.h"
 
 class Material;
 
@@ -33,7 +34,12 @@ public: // bindable container functions
 
 	Material* GetMaterial() const;
 
+	ObjectRasterizerStateOptions GetRasterizerOptions() const;
+
+	void SetRasterizerOptions(ObjectRasterizerStateOptions rasterizerOptions);
+
 private:
 	MeshBindableContainer m_bindableContainer;
 	std::shared_ptr<Material> m_material;
+	ObjectRasterizerStateOptions m_rasterizerOptions = {};
 };

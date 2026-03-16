@@ -39,9 +39,17 @@ public: // bindable container functions
 
 	const MeshBindableContainer& GetBindableContainter() const;
 
+	ObjectRasterizerStateOptions GetRasterizerOptions() const;
+
+	void SetRasterizerOptions(ObjectRasterizerStateOptions rasterizerOptions);
+
+private:
+	RasterizerState* BuildAndGetRasterizerState(Graphics& graphics);
+
 protected:
 	MeshBindableContainer m_bindableContainer;
 
 	std::shared_ptr<GraphicsPipelineState> m_pipelineState;
 	std::shared_ptr<RootSignature> m_rootSignature;
+	ObjectRasterizerStateOptions m_rasterizerOptions = {};
 };

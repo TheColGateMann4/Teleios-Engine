@@ -132,7 +132,7 @@ Material::Material(Graphics& graphics, std::string filePath, MaterialProperties:
 			m_bindableContainer.AddBindable(std::make_shared<CachedConstantBuffer>(graphics, bufferData, std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::PixelShader, 1}}));
 		}
 
-		m_bindableContainer.AddBindable(RasterizerState::GetResource(graphics, m_properties.twoSided));
+		m_rasterizerOptions.SetCulling(m_properties.twoSided ? CullingMode::cull_none : CullingMode::cull_back);
 	}
 
 	shaderMacros.push_back({ L"INPUT_NORMAL" }); // model objects will always have normals since we will generate them with assimp if they do not
@@ -209,4 +209,9 @@ DescriptorType Material::GetDescriptorType() const
 RootSignatureBindableType Material::GetRootSignatureBindableType() const
 {
 	return RootSignatureBindableType::rootSignature_none;
+}
+
+ObjectRasterizerStateOptions Material::GetRasterizerOptions() const
+{
+	return m_rasterizerOptions;
 }

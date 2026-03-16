@@ -74,8 +74,8 @@ void Mesh::CreateDepthTechnique(Graphics& graphics, Pipeline& pipeline)
 		RenderTechnique depthTechnique(RenderJob::JobType::Depth);
 
 		{
-			RenderGraphicsStep depthStep;		
-			
+			RenderGraphicsStep depthStep;
+
 			depthStep.AddBindable(geometryBindables.GetVertexBufferEntry());
 			depthStep.AddBindable(geometryBindables.GetIndexBuffer());
 
@@ -83,10 +83,10 @@ void Mesh::CreateDepthTechnique(Graphics& graphics, Pipeline& pipeline)
 
 			depthStep.AddBindable(geometryBindables.GetTransformConstantBuffer());
 
-			depthStep.AddBindable(RasterizerState::GetResource(graphics, false));
 			depthStep.AddBindable(DepthStencilState::GetResource(graphics, DepthStencilState::DepthComparisonFunc::Less));
 			depthStep.AddBindable(BlendState::GetResource(graphics));
 			depthStep.AddBindable(PrimitiveTechnology::GetResource(graphics, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE));
+			depthStep.SetRasterizerOptions(geometryStep.GetRasterizerOptions());
 
 			// if object has differing opacity then we need pixel shader to determine if we should clip individual pixels
 			if (hasOpacity)

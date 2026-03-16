@@ -103,7 +103,6 @@ Cube::Cube(Graphics& graphics, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rot
 		step.AddBindable(std::make_shared<Shader>(graphics, L"PS_Phong", ShaderType::PixelShader));
 		step.AddBindable(std::make_shared<Shader>(graphics, L"VS_Phong", ShaderType::VertexShader));
 		step.AddBindable(std::make_shared<BlendState>(graphics));
-		step.AddBindable(std::make_shared<RasterizerState>(graphics));
 		step.AddBindable(std::make_shared<DepthStencilState>(graphics));
 		step.AddBindable(std::make_shared<InputLayout>(graphics, vertexLayout));
 		step.AddBindable(std::make_shared<PrimitiveTechnology>(graphics, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE));

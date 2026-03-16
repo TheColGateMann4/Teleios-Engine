@@ -69,6 +69,8 @@ void GraphicsStepRenderJob::Initialize(Graphics& graphics, Pipeline& pipeline)
 				for (auto& pPipelineStateBindable : material->GetBindableContainer().GetPipelineStateBindables())
 					pPipelineStateBindable->AddPipelineStateParam(graphics, &pipelineStateParams);
 
+			pipelineStateParams.SetRasterizerState(BuildAndGetRasterizerState(graphics, material));
+
 			pipelineStateParams.SetRootSignature(m_rootSignature.get());
 
 			pipelineStateParams.SetSampleMask(0xffffffff);
@@ -140,4 +142,16 @@ RenderJob::JobGroup GraphicsStepRenderJob::GetGroup() const
 RenderGraphicsStep* GraphicsStepRenderJob::GetStep() const
 {
 	return m_step;
+}
+
+RasterizerState* GraphicsStepRenderJob::BuildAndGetRasterizerState(Graphics& graphics, Material* material)
+{
+	ObjectRasterizerStateOptions objectRasterizerOptions = material ? material->GetRasterizerOptions() : m_step->GetRasterizerOptions();
+
+	std::shared_ptr<RasterizerState> rasterizerState = RasterizerState::GetResource(graphics, m_pass->GetRasterizerOptions(), objectRasterizerOptions);
+	RasterizerState* pRasterizerState = rasterizerState.get();
+
+	m_bindableContainer.AddBindable(std::move(rasterizerState));
+
+	return pRasterizerState;
 }

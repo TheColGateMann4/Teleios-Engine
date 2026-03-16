@@ -33,6 +33,8 @@ void StandaloneMesh::Initialize(Graphics& graphics, Pipeline& pipeline)
 					pPipelineStateBindable->AddPipelineStateParam(graphics, &pipelineStateParams);
 			}
 
+			pipelineStateParams.SetRasterizerState(BuildAndGetRasterizerState(graphics));
+
 			pipelineStateParams.SetRootSignature(m_rootSignature.get());
 
 			pipelineStateParams.SetSampleMask(0xffffffff);
@@ -101,4 +103,24 @@ void StandaloneMesh::AddBindable(std::shared_ptr<Bindable> bindable)
 const MeshBindableContainer& StandaloneMesh::GetBindableContainter() const
 {
 	return m_bindableContainer;
+}
+
+ObjectRasterizerStateOptions StandaloneMesh::GetRasterizerOptions() const
+{
+	return m_rasterizerOptions;
+}
+
+void StandaloneMesh::SetRasterizerOptions(ObjectRasterizerStateOptions rasterizerOptions)
+{
+	m_rasterizerOptions = rasterizerOptions;
+}
+
+RasterizerState* StandaloneMesh::BuildAndGetRasterizerState(Graphics& graphics)
+{
+	std::shared_ptr<RasterizerState> rasterizerState = RasterizerState::GetResource(graphics, RenderPassRasterizerStateOptions(), m_rasterizerOptions);
+	RasterizerState* pRasterizerState = rasterizerState.get();
+
+	m_bindableContainer.AddBindable(std::move(rasterizerState));
+
+	return pRasterizerState;
 }

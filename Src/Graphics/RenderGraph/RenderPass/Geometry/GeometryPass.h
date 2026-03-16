@@ -2,6 +2,7 @@
 #include "Graphics/RenderGraph/RenderPass/RenderPass.h"
 #include "Graphics/RenderGraph/RenderJob/GraphicsRenderData.h"
 #include "Graphics/RenderGraph/RenderJob/GraphicsStepRenderJob.h"
+#include "Graphics/Bindables/RasterizerState.h"
 
 class RenderJob;
 class Material;
@@ -36,13 +37,15 @@ public:  // enlisting and pushing jobs
 	void GatherJobBindables();
 	void InitializeJobs(Graphics& graphics, Pipeline& pipeline);
 
+	RenderPassRasterizerStateOptions GetRasterizerOptions() const;
+
 protected:
 	void SetCameraTransformIndex(unsigned int cameraIndex);
 
 protected:
 	virtual void ExecutePass(Graphics& graphics, CommandList* commandList) override;
 
-private:
+protected:
 	std::shared_ptr<RootSignatureConstants> m_cameraRootConstant;
 
 	std::vector<std::shared_ptr<Bindable>> m_bindables;
@@ -54,4 +57,6 @@ private:
 	unsigned int m_prevCameraIndex = UINT_MAX;
 
 	Material* currentlyBoundMaterial = nullptr;
+
+	RenderPassRasterizerStateOptions m_rasterizerOptions = {};
 };

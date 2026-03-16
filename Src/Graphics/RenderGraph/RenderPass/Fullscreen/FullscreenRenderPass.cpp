@@ -53,7 +53,6 @@ FullscreenRenderPass::FullscreenRenderPass(Graphics& graphics, RenderManager& re
 
 	m_bindables.push_back(StaticSampler::GetResource(graphics));
 	m_bindables.push_back(BlendState::GetResource(graphics));
-	m_bindables.push_back(RasterizerState::GetResource(graphics));
 
 	m_meshRenderJob = std::make_shared<MeshRenderJob>(RenderJob::JobType::None);
 }
