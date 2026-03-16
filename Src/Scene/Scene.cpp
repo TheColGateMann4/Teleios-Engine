@@ -207,8 +207,14 @@ void Scene::Update(Graphics& graphics, const Input& input, bool isCursorLocked)
 	{
 		// camera position and rotation so all objects can update their matrices in the same frame
 		for (auto& camera : m_cameras)
-			if(!camera->IsShadowCamera())
+		{
+			if (!camera->IsShadowCamera())
 				static_cast<Camera*>(camera)->UpdateCamera(input, isCursorLocked);
+			else 
+				static_cast<ShadowCamera*>(camera)->UpdateCamera();
+			
+			camera->UpdateCameraBuffer();
+		}
 
 		// light position and data
 		for (auto& pointlight : m_pointlights)

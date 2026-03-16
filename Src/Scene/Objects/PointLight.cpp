@@ -53,8 +53,6 @@ void PointLight::Initialize(Graphics& graphics, Pipeline& pipeline)
 
 void PointLight::Update(Graphics& graphics, Pipeline& pipeline)
 {
-	m_shadowCamera.UpdateCameraBuffer();
-
 	m_transformChanged = false;
 }
 

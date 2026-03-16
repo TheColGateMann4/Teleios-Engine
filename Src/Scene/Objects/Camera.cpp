@@ -27,6 +27,9 @@ void CameraBase::UpdateCameraBuffer()
 {
 	THROW_INTERNAL_ERROR_IF("Camera buffer wasn't linked", m_pCameraBuffer == nullptr);
 
+	if (!m_viewChanged && !m_perspectiveChanged)
+		return;
+
 	DynamicConstantBuffer::Data& bufferData = m_pCameraBuffer->GetData();
 	DynamicConstantBuffer::ArrayData array = bufferData.GetArrayData("cameraBuffers");
 
@@ -142,18 +145,8 @@ Camera::Camera(Graphics& graphics, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3
 
 void Camera::UpdateCamera(const Input& input, bool cursorLocked)
 {
-
 	if (!m_active)
-	{
-		UpdateCameraBuffer();
 		return;
-	}
-
-	if (!m_selected)
-	{
-		m_viewChanged = false;
-		m_perspectiveChanged = false;
-	}
 
 	// rotation
 	if (cursorLocked)
@@ -345,9 +338,26 @@ ShadowCamera::ShadowCamera(Graphics& graphics, DirectX::XMFLOAT3 position)
 	UpdatePerspectiveMatrix();
 }
 
+void ShadowCamera::UpdateCamera()
+{
+	m_viewChanged = false;
+	m_perspectiveChanged = false;
+}
+
 void ShadowCamera::UpdateCameraBuffer()
 {
 	THROW_INTERNAL_ERROR_IF("Camera buffer wasn't linked", m_pCameraBuffer == nullptr);
+
+	if (!m_transform.GetTransformChanged())
+	{
+		m_viewChanged = false;
+		m_perspectiveChanged = false;
+		return;
+	}
+
+	m_viewChanged = true;
+	m_perspectiveChanged = true;
+	m_transform.SetUpdated();
 
 	DynamicConstantBuffer::Data& bufferData = m_pCameraBuffer->GetData();
 	DynamicConstantBuffer::ArrayData array = bufferData.GetArrayData("cameraBuffers");
@@ -382,6 +392,7 @@ void ShadowCamera::UpdateCameraBuffer()
 		*array.Get<DynamicConstantBuffer::ElementType::Matrix>(m_cameraIndex + i, "view") = GetViewMatrix();
 		*array.Get<DynamicConstantBuffer::ElementType::Matrix>(m_cameraIndex + i, "projection") = GetPerspectiveMatrix();
 	}
+	m_transform.SetUpdated();
 }
 
 void ShadowCamera::SetPosition(DirectX::XMFLOAT3 position)

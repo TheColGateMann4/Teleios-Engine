@@ -38,6 +38,18 @@ RenderJob::JobType ShadowPass::GetWantedJob() const
 void ShadowPass::ExecutePass(Graphics& graphics, CommandList* commandList)
 {
 	PointLight* pointLight = m_scene->GetPointLights().front();
+	ShadowCamera* shadowCamera = pointLight->GetShadowCamera();
+
+	bool needsUpdating = shadowCamera->ViewChanged() || shadowCamera->PerspectiveChanged();
+	static unsigned int framesLeftToUpdate = graphics.GetBufferCount();
+
+	if (needsUpdating)
+		framesLeftToUpdate = graphics.GetBufferCount();
+	
+	if (framesLeftToUpdate == 0)
+		return;
+
+	framesLeftToUpdate--;
 
 	for(int i = 0; i < 6; i++)
 	{

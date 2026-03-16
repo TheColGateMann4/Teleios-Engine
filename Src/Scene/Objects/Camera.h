@@ -109,6 +109,8 @@ class ShadowCamera : public CameraBase
 public:
 	ShadowCamera(Graphics& graphics, DirectX::XMFLOAT3 position);
 
+	void UpdateCamera();
+
 	virtual void UpdateCameraBuffer() override;
 
 public:
