@@ -9,7 +9,6 @@
 
 CameraBase::CameraBase(Graphics& graphics, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation, bool isShadowCamera)
 	:
-	m_viewChanged(false),
 	m_isShadowCamera(isShadowCamera)
 {
 	m_transform.SetEulerRotation(rotation);
@@ -37,14 +36,7 @@ void CameraBase::UpdateCameraBuffer()
 
 DirectX::XMMATRIX CameraBase::GetViewMatrix() const
 {
-	DirectX::XMFLOAT3 startPosition = m_transform.GetPosition();
-	DirectX::FXMVECTOR upVector = DirectX::XMLoadFloat3(&m_upVector);
-	DirectX::FXMVECTOR forwardVector = DirectX::XMLoadFloat3(&m_forwardVector);
-	DirectX::FXMVECTOR cameraPosition = DirectX::XMLoadFloat3(&startPosition);
-	DirectX::XMVECTOR lookAtPosition = DirectX::XMVector3Transform(forwardVector, DirectX::XMMatrixRotationQuaternion(m_transform.GetQuaternionRotation()));
-	lookAtPosition = DirectX::XMVectorAdd(lookAtPosition, cameraPosition);
-
-	return DirectX::XMMatrixLookAtLH(cameraPosition, lookAtPosition, upVector);
+	return m_view;
 }
 
 DirectX::XMMATRIX CameraBase::GetPerspectiveMatrix() const
@@ -109,6 +101,20 @@ void CameraBase::UpdatePerspectiveMatrix()
 	m_perspectiveChanged = true;
 }
 
+void CameraBase::UpdateViewMatrix()
+{
+	DirectX::XMFLOAT3 startPosition = m_transform.GetPosition();
+	DirectX::FXMVECTOR upVector = DirectX::XMLoadFloat3(&m_upVector);
+	DirectX::FXMVECTOR forwardVector = DirectX::XMLoadFloat3(&m_forwardVector);
+	DirectX::FXMVECTOR cameraPosition = DirectX::XMLoadFloat3(&startPosition);
+	DirectX::XMVECTOR lookAtPosition = DirectX::XMVector3Transform(forwardVector, DirectX::XMMatrixRotationQuaternion(m_transform.GetQuaternionRotation()));
+	lookAtPosition = DirectX::XMVectorAdd(lookAtPosition, cameraPosition);
+
+	m_view = DirectX::XMMatrixLookAtLH(cameraPosition, lookAtPosition, upVector);
+
+	m_viewChanged = true;
+}
+
 Camera::Camera(Graphics& graphics, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation, Settings* settings)
 	:
 	CameraBase(graphics, position, rotation, false)
@@ -130,6 +136,7 @@ Camera::Camera(Graphics& graphics, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3
 		m_settings.AspectRatio = float(graphics.GetWidth()) / float(graphics.GetHeight());
 	}
 
+	UpdateViewMatrix();
 	UpdatePerspectiveMatrix();
 }
 
@@ -171,7 +178,8 @@ void Camera::UpdateCamera(const Input& input, bool cursorLocked)
 		Move(direction, input.GetKey(VK_SHIFT));
 	}
 
-	UpdateCameraBuffer();
+	if (m_viewChanged)
+		UpdateViewMatrix();
 }
 
 void Camera::DrawTransformPropeties(Scene& scene)
@@ -211,6 +219,12 @@ void Camera::DrawTransformPropeties(Scene& scene)
 
 	if (rotationChanged)
 		m_transform.SetEulerRotation(position);
+
+	if (m_transform.GetTransformChanged())
+	{
+		UpdateViewMatrix();
+		UpdatePerspectiveMatrix();
+	}
 }
 
 void Camera::DrawAdditionalPropeties(Graphics& graphics, Pipeline& pipeline)
@@ -327,6 +341,7 @@ ShadowCamera::ShadowCamera(Graphics& graphics, DirectX::XMFLOAT3 position)
 	m_settings.NearZ = 0.1f;
 	m_settings.FarZ = 400.0f;
 
+	UpdateViewMatrix();
 	UpdatePerspectiveMatrix();
 }
 
@@ -361,6 +376,8 @@ void ShadowCamera::UpdateCameraBuffer()
 		m_transform.SetEulerRotation(faceRotations[i].rotation);
 		SetUpVector(faceRotations[i].up);
 		SetForwardVector(faceRotations[i].forward);
+
+		UpdateViewMatrix();
 
 		*array.Get<DynamicConstantBuffer::ElementType::Matrix>(m_cameraIndex + i, "view") = GetViewMatrix();
 		*array.Get<DynamicConstantBuffer::ElementType::Matrix>(m_cameraIndex + i, "projection") = GetPerspectiveMatrix();

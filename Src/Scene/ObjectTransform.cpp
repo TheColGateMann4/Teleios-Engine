@@ -141,6 +141,16 @@ void ObjectTransform::CheckIsTransformChanged(bool transformChanged)
 	m_localTransformChanged |= transformChanged;
 }
 
+bool ObjectTransform::GetTransformChanged() const
+{
+	return m_localTransformChanged;
+}
+
+void ObjectTransform::SetUpdated()
+{
+	m_localTransformChanged = false;
+}
+
 void ObjectTransform::UpdateLocalTransform()
 {
 	m_localTransform =

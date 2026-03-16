@@ -33,6 +33,8 @@ public:
 	void UpdateTransformBufferIfNeeded(Graphics& graphics, Camera& camera);
 	void UpdateLocalTransformIfNeeded();
 	void CheckIsTransformChanged(bool transformChanged);
+	bool GetTransformChanged() const;
+	void SetUpdated();
 
 private:
 	void UpdateLocalTransform();

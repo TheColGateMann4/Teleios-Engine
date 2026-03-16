@@ -50,18 +50,20 @@ public:
 
 protected:
 	void UpdatePerspectiveMatrix();
+	void UpdateViewMatrix();
 
 protected:
 	CachedConstantBuffer* m_pCameraBuffer = nullptr;
 	unsigned int m_cameraIndex = -1;
 
 	DirectX::XMMATRIX m_perspective;
+	DirectX::XMMATRIX m_view;
 	DirectX::XMFLOAT3 m_upVector = { 0.0f, 1.0f, 0.0f };
 	DirectX::XMFLOAT3 m_forwardVector = { 0.0f, 0.0f, 1.0f };
 	Settings m_settings;
 
-	bool m_viewChanged;
-	bool m_perspectiveChanged;
+	bool m_viewChanged = false;
+	bool m_perspectiveChanged = false;
 	bool m_isShadowCamera;
 };
 
