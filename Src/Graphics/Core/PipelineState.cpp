@@ -55,12 +55,8 @@ namespace
 
 	std::string GetStringFromFloat(FLOAT val)
 	{
-		if (val == 0.0f)
-			return "FLT_ZERO";
-		else if (val == D3D12_FLOAT32_MAX)
-			return "FLT_MAX";
-
-		THROW_INTERNAL_ERROR("Unhandled floating point value");
+		unsigned int bits = std::bit_cast<unsigned int>(val);
+		return "FLT_" + std::to_string(bits);
 	}
 };
 
