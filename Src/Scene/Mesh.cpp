@@ -93,7 +93,7 @@ void Mesh::CreateDepthTechnique(Graphics& graphics, Pipeline& pipeline)
 				const Material* geometryStepMaterial = geometryStep.GetMaterial();
 				ObjectRasterizerStateOptions objectRasterizerStateOptions = geometryStepMaterial ? geometryStepMaterial->GetRasterizerOptions() : geometryStep.GetRasterizerOptions();
 
-				depthStep.SetRasterizerOptions(geometryStep.GetRasterizerOptions());
+				depthStep.SetRasterizerOptions(objectRasterizerStateOptions);
 			}
 
 			// if object has differing opacity then we need pixel shader to determine if we should clip individual pixels
