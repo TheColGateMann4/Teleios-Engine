@@ -40,10 +40,7 @@ cbuffer modelBuffer : register(b1)
             uint b_normalTextureID;
         #endif
         
-        #ifdef TEXTURE_SPECULAR
-            uint b_specularTextureID;
-        #endif
-        
+#if defined(METALNESS_PIPELINE)
         #ifdef METALNESS_ROUGHNESS_ONE_TEXTURE
             uint b_metalnessRoughnessTextureID;
         #else
@@ -55,11 +52,22 @@ cbuffer modelBuffer : register(b1)
                     uint b_roughnessTextureID;
             #endif
         #endif
-        
+
         #ifdef TEXTURE_REFLECTIVITY
             uint b_reflectivityTextureID;
         #endif
+      
+
+#elif defined(SPECULAR_PIPELINE)
+        #ifdef TEXTURE_SPECULAR
+            uint b_specularTextureID;
+        #endif
         
+        #ifdef TEXTURE_GLOSINESS
+            uint b_glosinessTextureID;
+        #endif
+#endif
+         
         #ifdef TEXTURE_AMBIENT
             uint b_ambientTextureID;
         #endif
@@ -74,9 +82,17 @@ cbuffer modelBuffer : register(b1)
     }
 #endif
 
-// rt0 RGB: diffuse.rgb, A: -
-// rt1 R: metalness, G: roughness, 
-// rt2 RGB: normal.xyz
+#define FLAG_WORKFLOW_METALNESS (1 << 0)
+#define FLAG_WORKFLOW_SPECULAR (1 << 1)
+
+float GetFlagData(uint flags)
+{
+    return flags / 255.0f;
+}
+
+// rt0 RGB: diffuse, A: roughness
+// rt1 RGB: reflectivity, A: metalness
+// rt2 RGB: normal A: flags
 
 struct PSOut
 {
@@ -138,38 +154,57 @@ PSOut PSMain(
 #endif
     
     
-    
-#ifdef METALNESS_ROUGHNESS_ONE_TEXTURE
-    float3 metalnessRoughnessSample = SampleTexture(b_metalnessRoughnessTextureID, textureCoords).rgb;
-    
-    float metalness = metalnessRoughnessSample.b;
-    float roughness = metalnessRoughnessSample.g;
-#else
-    #ifdef TEXTURE_METALNESS
-                float metalness = SampleTexture(b_metalnessTextureID, textureCoords).r;
-    #else
-        float metalness = b_metalness;
-    #endif
+#if defined(METALNESS_PIPELINE)
+    #ifdef METALNESS_ROUGHNESS_ONE_TEXTURE
+        float3 metalnessRoughnessSample = SampleTexture(b_metalnessRoughnessTextureID, textureCoords).rgb;
         
-    
-    #ifdef TEXTURE_ROUGHNESS
-                float roughness = SampleTexture(b_roughnessTextureID, textureCoords).r;
+        float metalness = metalnessRoughnessSample.b;
+        float roughness = metalnessRoughnessSample.g;
     #else
-        float roughness = b_roughness;
+        #ifdef TEXTURE_METALNESS
+            float metalness = SampleTexture(b_metalnessTextureID, textureCoords).r;
+        #else
+            float metalness = b_metalness;
+        #endif
+            
+        
+        #ifdef TEXTURE_ROUGHNESS
+            float roughness = SampleTexture(b_roughnessTextureID, textureCoords).r;
+        #else
+            float roughness = b_roughness;
+        #endif
+    #endif
+        metalness = saturate(metalness);
+        metalness = (metalness < 0.05f) ? 0.0f : metalness;
+        
+        roughness = clamp(roughness, 0.04f, 1.0f);   
+        
+    #ifdef TEXTURE_REFLECTIVITY
+        float3 reflectivity = SampleTexture(b_reflectivityTextureID, textureCoords).rgb;
+    #else
+        float3 reflectivity = b_reflectivity;
+    #endif
+#elif defined (SPECULAR_PIPELINE)
+    #ifdef TEXTURE_SPECULAR
+        float3 specular = float3(0.0f, 0.0f, 0.0f);
+        if(b_specularMapOnlyOneChannel)
+        {
+            const float specularSample = SampleTexture(b_specularTextureID, textureCoords).r;
+            specular = float3(specularSample, specularSample, specularSample);
+        }
+        else
+            specular = SampleTexture(b_specularTextureID, textureCoords).rgb; 
+    #else
+        float3 specular = b_specularColor;
+    #endif
+    
+    #ifdef TEXTURE_GLOSINESS
+        float glosiness = SampleTexture(b_glosinessTextureID, textureCoords).r;
+    #else
+        float glosiness = b_glosiness;
     #endif
 #endif
-    metalness = saturate(metalness);
-    metalness = (metalness < 0.05f) ? 0.0f : metalness;
-    
-    roughness = clamp(roughness, 0.04f, 1.0f);
 
-
-    
-#ifdef TEXTURE_REFLECTIVITY
-    float3 reflectivity = SampleTexture(b_reflectivityTextureID, textureCoords).rgb;
-#else
-    float3 reflectivity = b_reflectivity;
-#endif
     
     
 #ifdef TEXTURE_AMBIENT
@@ -188,12 +223,29 @@ PSOut PSMain(
     if (!isFrontFace)
         normal = -normal;
     
+    uint flags = 0;
+#if defined(METALNESS_PIPELINE)
+    flags |= FLAG_WORKFLOW_METALNESS;
+#elif defined (SPECULAR_PIPELINE)
+    flags |= FLAG_WORKFLOW_SPECULAR;
+#endif    
     
     PSOut psout;
     
+    
+    
+#if defined(METALNESS_PIPELINE)
+    psout.rt0 = float4(diffuse, roughness);
+    psout.rt1 = float4(reflectivity, metalness);
+#elif defined (SPECULAR_PIPELINE)
+    psout.rt0 = float4(diffuse, glosiness);
+    psout.rt1 = float4(specular, 0.0f);
+#else
     psout.rt0 = float4(diffuse, 0.0f);
-    psout.rt1 = float4(metalness, roughness, 0.0f, 0.0f);    
-    psout.rt2 = float4(normal, 0.0f);
+    psout.rt1 = float4(0.0f, 0.0f, 0.0f, 0.0f);
+#endif
+    
+    psout.rt2 = float4(normal, GetFlagData(flags));
     
     return psout;
 }

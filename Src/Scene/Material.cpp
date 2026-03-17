@@ -11,11 +11,6 @@ Material::Material(Graphics& graphics, std::string filePath, MaterialProperties:
 	std::vector<ShaderMacro> shaderMacros;
 
 	{
-		shaderMacros.push_back({ L"METALNESS_PIPELINE" });
-
-		if (m_properties.roughnessMetalnessInOneTexture)
-			shaderMacros.push_back({ L"METALNESS_ROUGHNESS_ONE_TEXTURE" });
-
 		// textures
 		if (m_properties.hasAnyMap)
 		{
@@ -43,34 +38,65 @@ Material::Material(Graphics& graphics, std::string filePath, MaterialProperties:
 				shaderMacros.push_back({ L"INPUT_BITANGENT" });
 			}
 
-			if (m_properties.metalRoughnessSystem)
+			switch(m_properties.materialWorkflow)
 			{
-				if (m_properties.roughnessMetalnessInOneTexture)
+				case MaterialProperties::MaterialWorkflow::metalnessRoughness:
 				{
-					std::shared_ptr<Texture> metalnessRoughnessTexture = Texture::GetResource(graphics, (filePath + m_properties.specularMetalnessMapPath).c_str(), TextureType::texture_metalness_roughness);
+					shaderMacros.push_back({ L"METALNESS_PIPELINE" });
 
-					m_bindableContainer.AddBindable(std::move(metalnessRoughnessTexture));
-				}
-				else
-				{
-					if (m_properties.hasMetalnessMap)
+					if (m_properties.roughnessMetalnessInOneTexture)
+						shaderMacros.push_back({ L"METALNESS_ROUGHNESS_ONE_TEXTURE" });
+
+					if (m_properties.roughnessMetalnessInOneTexture)
 					{
-						std::shared_ptr<Texture> metalnessTexture = Texture::GetResource(graphics, (filePath + m_properties.specularMetalnessMapPath).c_str(), TextureType::texture_metalness);
+						std::shared_ptr<Texture> metalnessRoughnessTexture = Texture::GetResource(graphics, (filePath + m_properties.specularMetalnessMapPath).c_str(), TextureType::texture_metalness_roughness);
 
-						m_bindableContainer.AddBindable(std::move(metalnessTexture));
-						shaderMacros.push_back({ L"TEXTURE_METALNESS" });
+						m_bindableContainer.AddBindable(std::move(metalnessRoughnessTexture));
+					}
+					else
+					{
+						if (m_properties.hasMetalnessMap)
+						{
+							std::shared_ptr<Texture> metalnessTexture = Texture::GetResource(graphics, (filePath + m_properties.specularMetalnessMapPath).c_str(), TextureType::texture_metalness);
+
+							m_bindableContainer.AddBindable(std::move(metalnessTexture));
+							shaderMacros.push_back({ L"TEXTURE_METALNESS" });
+						}
+
+						if (m_properties.hasRoughnessMap)
+						{
+							std::shared_ptr<Texture> roughnessTexture = Texture::GetResource(graphics, (filePath + m_properties.glosinessRoughnessMapPath).c_str(), TextureType::texture_roughness);
+
+							m_bindableContainer.AddBindable(std::move(roughnessTexture));
+							shaderMacros.push_back({ L"TEXTURE_ROUGHNESS" });
+						}
 					}
 
-					if (m_properties.hasRoughnessMap)
-					{
-						std::shared_ptr<Texture> roughnessTexture = Texture::GetResource(graphics, (filePath + m_properties.glosinessRoughnessMapPath).c_str(), TextureType::texture_roughness);
-
-						m_bindableContainer.AddBindable(std::move(roughnessTexture));
-						shaderMacros.push_back({ L"TEXTURE_ROUGHNESS" });
-					}
+					// reflectivity 5
+					break;
 				}
+				case MaterialProperties::MaterialWorkflow::specularGlossiness:
+				{
+					shaderMacros.push_back({ L"SPECULAR_PIPELINE" });
 
-				// reflectivity 5
+					if (m_properties.hasSpecularMap)
+					{
+						std::shared_ptr<Texture> specularTexture = Texture::GetResource(graphics, (filePath + m_properties.specularMetalnessMapPath).c_str(), TextureType::texture_specular);
+
+						m_bindableContainer.AddBindable(std::move(specularTexture));
+						shaderMacros.push_back({ L"TEXTURE_SPECULAR" });
+					}
+
+					if (m_properties.hasGlosinessMap)
+					{
+						std::shared_ptr<Texture> glosinessTexture = Texture::GetResource(graphics, (filePath + m_properties.glosinessRoughnessMapPath).c_str(), TextureType::texture_glosiness);
+
+						m_bindableContainer.AddBindable(std::move(glosinessTexture));
+						shaderMacros.push_back({ L"TEXTURE_GLOSINESS" });
+					}
+
+					break;
+				}
 			}
 
 			if (m_properties.hasAmbientMap)
@@ -92,19 +118,24 @@ Material::Material(Graphics& graphics, std::string filePath, MaterialProperties:
 				layout.Add<DynamicConstantBuffer::ElementType::Float3>("ambient");
 				layout.Add<DynamicConstantBuffer::ElementType::Float3>("diffuse");
 
-				if (m_properties.metalRoughnessSystem)
+				switch (m_properties.materialWorkflow)
 				{
-					layout.Add<DynamicConstantBuffer::ElementType::Float3>("reflectivity");
-					layout.Add<DynamicConstantBuffer::ElementType::Float>("metalness", DynamicConstantBuffer::ImguiFloatData{ true, 0.0f, 1.0f });
-					layout.Add<DynamicConstantBuffer::ElementType::Float>("roughness", DynamicConstantBuffer::ImguiFloatData{ true, 0.0f, 1.0f });
-				}
-				else
-				{
-					layout.Add<DynamicConstantBuffer::ElementType::Float3>("defaultSpecularColor");
-					layout.Add<DynamicConstantBuffer::ElementType::Bool>("specularOneChannelOnly", DynamicConstantBuffer::ImguiData{ false });
-					layout.Add<DynamicConstantBuffer::ElementType::Float>("specular", DynamicConstantBuffer::ImguiFloatData{ true, 0.001f, 150.0f });
-					layout.Add<DynamicConstantBuffer::ElementType::Float>("glosiness", DynamicConstantBuffer::ImguiFloatData{ true, 0.001f, 150.0f });
-				}
+					case MaterialProperties::MaterialWorkflow::metalnessRoughness:
+					{
+						layout.Add<DynamicConstantBuffer::ElementType::Float3>("reflectivity");
+						layout.Add<DynamicConstantBuffer::ElementType::Float>("metalness", DynamicConstantBuffer::ImguiFloatData{ true, 0.0f, 1.0f });
+						layout.Add<DynamicConstantBuffer::ElementType::Float>("roughness", DynamicConstantBuffer::ImguiFloatData{ true, 0.0f, 1.0f });
+						break;
+					}
+					case MaterialProperties::MaterialWorkflow::specularGlossiness:
+					{
+						layout.Add<DynamicConstantBuffer::ElementType::Float3>("defaultSpecularColor");
+						layout.Add<DynamicConstantBuffer::ElementType::Bool>("specularOneChannelOnly", DynamicConstantBuffer::ImguiData{ false });
+						layout.Add<DynamicConstantBuffer::ElementType::Float>("specular", DynamicConstantBuffer::ImguiFloatData{ true, 0.001f, 150.0f });
+						layout.Add<DynamicConstantBuffer::ElementType::Float>("glosiness", DynamicConstantBuffer::ImguiFloatData{ true, 0.001f, 150.0f });
+						break;
+					}
+				}	
 				layout.Add<DynamicConstantBuffer::ElementType::Float>("opacity", DynamicConstantBuffer::ImguiFloatData{ true, 0.0f, 1.0f });
 			}
 
@@ -113,18 +144,23 @@ Material::Material(Graphics& graphics, std::string filePath, MaterialProperties:
 				*bufferData.Get<DynamicConstantBuffer::ElementType::Float3>("ambient") = m_properties.ambient;
 				*bufferData.Get<DynamicConstantBuffer::ElementType::Float3>("diffuse") = m_properties.albedo;
 
-				if (m_properties.metalRoughnessSystem)
+				switch (m_properties.materialWorkflow)
 				{
-					*bufferData.Get<DynamicConstantBuffer::ElementType::Float3>("reflectivity") = m_properties.reflective;
-					*bufferData.Get<DynamicConstantBuffer::ElementType::Float>("metalness") = m_properties.metalness;
-					*bufferData.Get<DynamicConstantBuffer::ElementType::Float>("roughness") = m_properties.roughness;
-				}
-				else
-				{
-					*bufferData.Get<DynamicConstantBuffer::ElementType::Float3>("defaultSpecularColor") = m_properties.specularColor;
-					*bufferData.Get<DynamicConstantBuffer::ElementType::Bool>("specularOneChannelOnly") = m_properties.specularOneChannelOnly;
-					*bufferData.Get<DynamicConstantBuffer::ElementType::Float>("specular") = m_properties.specular;
-					*bufferData.Get<DynamicConstantBuffer::ElementType::Float>("glosiness") = m_properties.glosiness;
+					case MaterialProperties::MaterialWorkflow::metalnessRoughness:
+					{
+						*bufferData.Get<DynamicConstantBuffer::ElementType::Float3>("reflectivity") = m_properties.reflective;
+						*bufferData.Get<DynamicConstantBuffer::ElementType::Float>("metalness") = m_properties.metalness;
+						*bufferData.Get<DynamicConstantBuffer::ElementType::Float>("roughness") = m_properties.roughness;
+						break;
+					}
+					case MaterialProperties::MaterialWorkflow::specularGlossiness:
+					{
+						*bufferData.Get<DynamicConstantBuffer::ElementType::Float3>("defaultSpecularColor") = m_properties.specularColor;
+						*bufferData.Get<DynamicConstantBuffer::ElementType::Bool>("specularOneChannelOnly") = m_properties.specularOneChannelOnly;
+						*bufferData.Get<DynamicConstantBuffer::ElementType::Float>("specular") = m_properties.specular;
+						*bufferData.Get<DynamicConstantBuffer::ElementType::Float>("glosiness") = m_properties.glosiness;
+						break;
+					}
 				}
 				*bufferData.Get<DynamicConstantBuffer::ElementType::Float>("opacity") = m_properties.opacity;
 			}

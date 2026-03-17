@@ -27,6 +27,8 @@ enum class TextureType : int
 	texture_metalness_roughness,
 	texture_metalness,
 	texture_roughness,
+	texture_specular,
+	texture_glosiness,
 	texture_reflectivity,
 	texture_ambient,
 	texture_opacity,

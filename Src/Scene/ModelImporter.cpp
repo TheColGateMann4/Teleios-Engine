@@ -186,6 +186,19 @@ MaterialProperties::MaterialProperties ModelImporter::ProcessMaterialProperties(
 
 		resultPropeties.hasSpecularMap = true;
 		resultPropeties.specularMetalnessMapPath = std::string(resultTexturePath.data, resultTexturePath.length);
+		resultPropeties.materialWorkflow = MaterialProperties::MaterialWorkflow::specularGlossiness;
+	}
+
+	if (material->GetTexture(aiTextureType_SHININESS, 0, &resultTexturePath) == aiReturn_SUCCESS)
+	{
+		if (resultPropeties.hasMetalnessMap || resultPropeties.hasRoughnessMap)
+			THROW_INTERNAL_ERROR("Tried to mix two PBR systems");
+
+		resultPropeties.hasAnyMap = true;
+
+		resultPropeties.hasGlosinessMap = true;
+		resultPropeties.glosinessRoughnessMapPath = std::string(resultTexturePath.data, resultTexturePath.length);
+		resultPropeties.materialWorkflow = MaterialProperties::MaterialWorkflow::specularGlossiness;
 	}
 
 	if (material->GetTexture(aiTextureType_METALNESS, 0, &resultTexturePath) == aiReturn_SUCCESS)
@@ -196,8 +209,8 @@ MaterialProperties::MaterialProperties ModelImporter::ProcessMaterialProperties(
 		resultPropeties.hasAnyMap = true;
 
 		resultPropeties.hasMetalnessMap = true;
-		resultPropeties.metalRoughnessSystem = true;
 		resultPropeties.specularMetalnessMapPath = std::string(resultTexturePath.data, resultTexturePath.length);
+		resultPropeties.materialWorkflow = MaterialProperties::MaterialWorkflow::metalnessRoughness;
 	}
 
 	if (material->GetTexture(aiTextureType_DIFFUSE_ROUGHNESS, 0, &resultTexturePath) == aiReturn_SUCCESS)
@@ -213,8 +226,8 @@ MaterialProperties::MaterialProperties ModelImporter::ProcessMaterialProperties(
 		{
 			resultPropeties.hasAnyMap = true;
 			resultPropeties.hasRoughnessMap = true;
-			resultPropeties.metalRoughnessSystem = true;
 			resultPropeties.glosinessRoughnessMapPath = std::string(resultTexturePath.data, resultTexturePath.length);
+			resultPropeties.materialWorkflow = MaterialProperties::MaterialWorkflow::metalnessRoughness;
 		}
 	}
 
@@ -234,6 +247,14 @@ MaterialProperties::MaterialProperties ModelImporter::ProcessMaterialProperties(
 		//resultPropeties.opacityMapPath = std::string(resultTexturePath.data, resultTexturePath.length);
 	}
 
+	if (material->GetTexture(aiTextureType_REFLECTION, 0, &resultTexturePath) == aiReturn_SUCCESS)
+	{
+		//resultPropeties.hasAnyMap = true;
+		//
+		//resultPropeties.hasOpacityMap = true;
+		//resultPropeties.opacityMapPath = std::string(resultTexturePath.data, resultTexturePath.length);
+	}
+
 
 	(void)material->Get(AI_MATKEY_COLOR_AMBIENT, resultPropeties.ambient); // we can ignore if the function succeded since we have this member initialized
 
@@ -244,7 +265,7 @@ MaterialProperties::MaterialProperties ModelImporter::ProcessMaterialProperties(
 	(void)material->Get(AI_MATKEY_COLOR_REFLECTIVE, resultPropeties.reflective);
 
 
-	if (!resultPropeties.metalRoughnessSystem)
+	if (resultPropeties.materialWorkflow != MaterialProperties::MaterialWorkflow::metalnessRoughness)
 	{
 		if (material->Get(AI_MATKEY_SHININESS, resultPropeties.specular) != aiReturn_SUCCESS || resultPropeties.specular == 0.0f)
 		{

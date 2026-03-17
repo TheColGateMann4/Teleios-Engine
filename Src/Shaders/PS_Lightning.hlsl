@@ -116,6 +116,13 @@ bool GetOcclusion(PointLightData pointlightData, float3 worldPos)
 
 static const float _pi = 3.14159265358979f;
 
+#define FLAG_WORKFLOW_METALNESS (1 << 0)
+#define FLAG_WORKFLOW_SPECULAR (1 << 1)
+
+uint GetFlags(float flagData)
+{
+    return (uint)round(flagData * 255.0f);
+}
 
 
 float4 PSMain(float2 textureCoords : TEXCOORDS) : SV_TARGET
@@ -125,11 +132,28 @@ float4 PSMain(float2 textureCoords : TEXCOORDS) : SV_TARGET
     const float4 rt2sample = t_rt2.Sample(s_sampler, textureCoords);
     const float depth = t_depth.Sample(s_sampler, textureCoords).r;
     
-    
     const float3 diffuse = rt0sample.rgb;
     const float3 normal = rt2sample.rgb * 2.0f - 1.0f;
-    const float metalness = rt1sample.r;
-    const float roughness = rt1sample.g;
+    uint flags = GetFlags(rt2sample.a);
+    
+    float roughness;
+    float metalness;
+    float3 F0;
+    
+    if (flags & FLAG_WORKFLOW_METALNESS)
+    {   
+        roughness = rt1sample.g;
+        metalness = rt1sample.r;
+        F0 = lerp(float3(0.04, 0.04, 0.04), diffuse, metalness);      
+    }
+    else if (flags & FLAG_WORKFLOW_SPECULAR)
+    {
+        const float glosiness = rt1sample.g;
+        roughness = 1.0f - glosiness;
+        metalness = 0.0f;
+        F0 = rt1sample.rgb;
+    }
+    
     const float4 clipPosition = GetClipPosition(textureCoords, depth);
     const float3 viewPosition = GetCameraViewPosition(clipPosition);
     
@@ -137,8 +161,6 @@ float4 PSMain(float2 textureCoords : TEXCOORDS) : SV_TARGET
     const float3 V = normalize(-viewPosition); // view
     
     const float NdotV = max(dot(V, N), 0.0f);
-    
-    const float3 F0 = lerp(float3(0.04, 0.04, 0.04), diffuse, metalness);   
     
     const float alpha = roughness * roughness;
     

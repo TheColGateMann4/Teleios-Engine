@@ -78,6 +78,8 @@ void MaterialBindings::InitializeTextureIndexesConstants(std::vector<Texture*> t
 	ADD_TEXTURE_INDEX_TO_LAYOUT(TextureType::texture_metalness_roughness, "b_metalnessRoughnessTextureID");
 	ADD_TEXTURE_INDEX_TO_LAYOUT(TextureType::texture_metalness, "b_metalnessTextureID");
 	ADD_TEXTURE_INDEX_TO_LAYOUT(TextureType::texture_roughness, "b_roughnessTextureID");
+	ADD_TEXTURE_INDEX_TO_LAYOUT(TextureType::texture_specular, "b_specularTextureID");	
+	ADD_TEXTURE_INDEX_TO_LAYOUT(TextureType::texture_glosiness, "b_glosinessTextureID");
 	ADD_TEXTURE_INDEX_TO_LAYOUT(TextureType::texture_reflectivity, "b_reflectivityTextureID");
 	ADD_TEXTURE_INDEX_TO_LAYOUT(TextureType::texture_ambient, "b_ambientTextureID");
 	ADD_TEXTURE_INDEX_TO_LAYOUT(TextureType::texture_opacity, "b_opacityTextureID");
@@ -90,6 +92,8 @@ void MaterialBindings::InitializeTextureIndexesConstants(std::vector<Texture*> t
 	SET_TEXTURE_INDEX_DATA(TextureType::texture_metalness_roughness, "b_metalnessRoughnessTextureID");
 	SET_TEXTURE_INDEX_DATA(TextureType::texture_metalness, "b_metalnessTextureID");
 	SET_TEXTURE_INDEX_DATA(TextureType::texture_roughness, "b_roughnessTextureID");
+	SET_TEXTURE_INDEX_DATA(TextureType::texture_specular, "b_specularTextureID");
+	SET_TEXTURE_INDEX_DATA(TextureType::texture_specular, "b_specularTextureID");
 	SET_TEXTURE_INDEX_DATA(TextureType::texture_reflectivity, "b_reflectivityTextureID");
 	SET_TEXTURE_INDEX_DATA(TextureType::texture_ambient, "b_ambientTextureID");
 	SET_TEXTURE_INDEX_DATA(TextureType::texture_opacity, "b_opacityTextureID");

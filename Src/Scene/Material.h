@@ -9,6 +9,13 @@ class Bindable;
 
 namespace MaterialProperties
 {
+	enum class MaterialWorkflow
+	{
+		none,
+		metalnessRoughness,
+		specularGlossiness
+	};
+
 	struct MaterialProperties
 	{
 		bool hasAnyMap = false;
@@ -21,7 +28,7 @@ namespace MaterialProperties
 		bool hasRoughnessMap = false;
 		bool hasAmbientMap = false;
 
-		bool metalRoughnessSystem = false;
+		MaterialWorkflow materialWorkflow = MaterialWorkflow::none;
 
 		std::string albedoMapPath;
 		std::string normalMapPath;
