@@ -25,7 +25,11 @@ Material::Material(Graphics& graphics, std::string filePath, MaterialProperties:
 
 			if (m_properties.hasAlbedoMap)
 			{
-				m_bindableContainer.AddBindable(Texture::GetResource(graphics, (filePath + m_properties.albedoMapPath).c_str(), TextureType::texture_albedo));
+				std::shared_ptr<Texture> albedoTexture = Texture::GetResource(graphics, (filePath + m_properties.albedoMapPath).c_str(), TextureType::texture_albedo);
+
+				m_properties.twoSided |= !albedoTexture->IsAlphaOpaque();
+
+				m_bindableContainer.AddBindable(std::move(albedoTexture));
 				shaderMacros.push_back({ L"TEXTURE_DIFFUSE" });
 			}
 
