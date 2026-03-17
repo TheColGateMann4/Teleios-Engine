@@ -33,6 +33,8 @@ void GraphicsStepRenderJob::GatherBindables()
 
 void GraphicsStepRenderJob::Initialize(Graphics& graphics, Pipeline& pipeline)
 {
+	InitializeMaterialBindings();
+
 	m_bindableContainer.Initialize(pipeline);
 
 	const std::vector<RenderPass::RenderTargetData>& renderTargets = m_pass->GetRenderTargets();
@@ -89,6 +91,21 @@ void GraphicsStepRenderJob::Initialize(Graphics& graphics, Pipeline& pipeline)
 	}
 
 	InitializeGraphicResources(graphics, pipeline);
+}
+
+void GraphicsStepRenderJob::InitializeMaterialBindings()
+{
+	const auto* material = m_step->GetMaterial();
+	const auto& bindableContainer = material ? material->GetBindableContainer() : m_bindableContainer;
+	const auto& textures = bindableContainer.GetTextures();
+
+	if (textures.empty())
+		return;
+
+	m_materialBindings = std::make_shared<MaterialBindings>(textures);
+
+	m_bindableContainer.AddBindable(m_materialBindings->GetDescriptorHeapBindable());
+	m_bindableContainer.AddBindable(m_materialBindings->GetTextureIndexesConstants());
 }
 
 void GraphicsStepRenderJob::InitializeGraphicResources(Graphics& graphics, Pipeline& pipeline)

@@ -177,13 +177,6 @@ Material::Material(Graphics& graphics, std::string filePath, MaterialProperties:
 
 	m_bindableContainer.AddBindable(Shader::GetResource(graphics, L"PS_GBuffer", ShaderType::PixelShader, shaderMacros));
 	m_bindableContainer.AddBindable(Shader::GetResource(graphics, L"VS", ShaderType::VertexShader, shaderMacros));
-
-
-	if(!m_bindableContainer.GetTextures().empty())
-	{
-		m_materialBindings = std::make_shared<MaterialBindings>();
-		m_bindableContainer.AddBindable(m_materialBindings);
-	}
 }
 
 const MaterialProperties::MaterialProperties& Material::GetProperties() const
@@ -217,12 +210,6 @@ void Material::Initialize(Graphics& graphics)
 {
 	for (auto& pDescriptorBindable : m_bindableContainer.GetDescriptorBindables())
 		pDescriptorBindable->Initialize(graphics);
-
-
-	const auto& textures = m_bindableContainer.GetTextures();
-
-	if(!textures.empty())
-		m_materialBindings->InitializeTextureIndexesConstants(textures);
 }
 
 void Material::InitializeGraphicResources(Graphics& graphics, Pipeline& pipeline)

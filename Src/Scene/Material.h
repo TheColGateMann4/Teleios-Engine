@@ -2,7 +2,6 @@
 #include "Includes/DirectXIncludes.h"
 #include "Graphics/Bindables/Shader.h"
 #include "Graphics/Core/BindableContainer.h"
-#include "Graphics/Bindables/MaterialBindings.h"
 #include "Graphics/Bindables/RasterizerState.h"
 
 class Bindable;
@@ -89,8 +88,6 @@ private:
 	MaterialProperties::MaterialProperties m_properties = {};
 	DescriptorHeap::DescriptorInfo m_descriptorInfo = {};
 	bool m_hasDescriptorBindables = false;
-
-	std::shared_ptr<MaterialBindings> m_materialBindings;
 
 	ObjectRasterizerStateOptions m_rasterizerOptions = {};
 };
