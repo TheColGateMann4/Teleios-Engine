@@ -52,6 +52,8 @@ Texture::Texture(Graphics& graphics, const char* path, TextureType type)
 		DXGI_FORMAT format = GetCorrectedFormat(metaData.format);
 		format = m_srgb ? GetSRGBFormat(format) : GetLinearFormat(format);
 		
+		m_originalFormat = format;
+
 		if(m_compressImage)
 			format = GetCompressedFormat(format);
 
@@ -166,6 +168,11 @@ void Texture::SetComputeRootIndex(unsigned int rootIndex)
 bool Texture::IsAlphaOpaque() const
 {
 	return m_isAlphaOpaque;
+}
+
+DXGI_FORMAT Texture::GetOriginalFormat() const
+{
+	return m_originalFormat;
 }
 
 bool Texture::IsSRGBTypeTexture(TextureType type)

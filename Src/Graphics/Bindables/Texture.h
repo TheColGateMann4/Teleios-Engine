@@ -81,6 +81,8 @@ public:
 	
 	bool IsAlphaOpaque() const;
 
+	DXGI_FORMAT GetOriginalFormat() const;
+
 	static DXGI_FORMAT GetCorrectedFormat(DXGI_FORMAT format);
 	static DXGI_FORMAT GetLinearFormat(DXGI_FORMAT format);
 	static DXGI_FORMAT GetSRGBFormat(DXGI_FORMAT format);
@@ -116,6 +118,7 @@ private:
 
 	std::string m_path;
 	TextureType m_type;
+	DXGI_FORMAT m_originalFormat = DXGI_FORMAT_UNKNOWN;
 	bool m_isAlphaOpaque = false;
 	bool m_srgb = false;
 	unsigned int m_mipmapLevels = 1;
