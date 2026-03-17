@@ -83,6 +83,8 @@ Material::Material(Graphics& graphics, std::string filePath, MaterialProperties:
 					{
 						std::shared_ptr<Texture> specularTexture = Texture::GetResource(graphics, (filePath + m_properties.specularMetalnessMapPath).c_str(), TextureType::texture_specular);
 
+						m_properties.specularOneChannelOnly = specularTexture->GetOriginalFormat() == DXGI_FORMAT_R8_UNORM;
+
 						m_bindableContainer.AddBindable(std::move(specularTexture));
 						shaderMacros.push_back({ L"TEXTURE_SPECULAR" });
 					}
