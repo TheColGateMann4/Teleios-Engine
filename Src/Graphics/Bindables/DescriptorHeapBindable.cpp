@@ -8,7 +8,7 @@
 
 DescriptorHeapBindable::DescriptorHeapBindable(std::vector<TargetSlotAndShader> targets)
 	:
-	RootSignatureBindable(std::move(targets))
+	RootParameterBinding(std::move(targets))
 {
 
 }
@@ -32,14 +32,14 @@ std::string DescriptorHeapBindable::GetIdentifier(std::vector<TargetSlotAndShade
 	return result;
 }
 
-void DescriptorHeapBindable::BindToRootSignature(RootSignatureParams* rootSignatureParams)
+void DescriptorHeapBindable::BindToRootSignature(RootSignatureParams* rootSignatureParams, TargetSlotAndShader& target)
 {
-	rootSignatureParams->AddDescriptorTableParameter(this);
+	rootSignatureParams->AddDescriptorTableParameter(this, target);
 }
 
-void DescriptorHeapBindable::BindToCommandList(Graphics& graphics, CommandList* commandList)
+void DescriptorHeapBindable::BindToCommandList(Graphics& graphics, CommandList* commandList, TargetSlotAndShader& target)
 {
-	commandList->SetGraphicsDescriptorTable(graphics, this);
+	commandList->SetGraphicsDescriptorTable(graphics, this, target);
 }
 
 BindableType DescriptorHeapBindable::GetBindableType() const

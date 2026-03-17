@@ -2,10 +2,11 @@
 #include "Includes/CppIncludes.h"
 
 #include "Bindable.h"
+#include "Binding.h"
 
 class Graphics;
 
-class DescriptorHeapBindable : public Bindable, public RootSignatureBindable, public CommandListBindable, public DescriptorBindable
+class DescriptorHeapBindable : public Bindable, public RootParameterBinding, public DescriptorBindable
 {
 public:
 	DescriptorHeapBindable(std::vector<TargetSlotAndShader> targets = std::vector<TargetSlotAndShader>{ {ShaderVisibilityGraphic::PixelShader, 0}});
@@ -15,9 +16,9 @@ public:
 public:
 	static std::string GetIdentifier(std::vector<TargetSlotAndShader> targets);
 
-	virtual void BindToRootSignature(RootSignatureParams* rootSignatureParams) override;
+	virtual void BindToRootSignature(RootSignatureParams* rootSignatureParams, TargetSlotAndShader& target) override;
 
-	virtual void BindToCommandList(Graphics& graphics, CommandList* commandList) override;
+	virtual void BindToCommandList(Graphics& graphics, CommandList* commandList, TargetSlotAndShader& target) override;
 
 	virtual BindableType GetBindableType() const override;
 
