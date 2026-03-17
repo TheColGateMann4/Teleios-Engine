@@ -391,12 +391,10 @@ void CommandList::SetDescriptorHeap(Graphics& graphics, DescriptorHeap* descript
 	THROW_INFO_ERROR(pCommandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps));
 }
 
-void CommandList::SetGraphicsDescriptorTable(Graphics& graphics, DescriptorHeapBindable* descriptorHeapBindable)
+void CommandList::SetGraphicsDescriptorTable(Graphics& graphics, DescriptorHeapBindable* descriptorHeapBindable, TargetSlotAndShader& target)
 {
 	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
 	THROW_OBJECT_STATE_ERROR_IF("Only Direct and Bundle command lists can set graphics Descriptor Tables", m_type != D3D12_COMMAND_LIST_TYPE_DIRECT && m_type != D3D12_COMMAND_LIST_TYPE_BUNDLE);
-
-	TargetSlotAndShader& target = descriptorHeapBindable->GetTargets().front();
 
 	if (!m_state.SetRootSignatureParam(target.rootIndex, descriptorHeapBindable))
 		return;

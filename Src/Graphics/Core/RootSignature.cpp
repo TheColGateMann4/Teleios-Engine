@@ -115,10 +115,8 @@ void RootSignatureParams::AddConstBufferViewParameter(ConstantBuffer* constantBu
 	m_rootSignatureDesc.pParameters = m_rootParameters.data();
 }
 
-void RootSignatureParams::AddDescriptorTableParameter(DescriptorHeapBindable* descriptorHeapBindable)
+void RootSignatureParams::AddDescriptorTableParameter(DescriptorHeapBindable* descriptorHeapBindable, TargetSlotAndShader& target)
 {
-	TargetSlotAndShader& target = descriptorHeapBindable->GetTargets().front();
-
 	target.rootIndex = m_AddDescriptorTableParameter(
 		D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 
 		target, 

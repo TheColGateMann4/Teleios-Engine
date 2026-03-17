@@ -124,7 +124,7 @@ public:
 
 	void SetGraphicsConstBufferView(Graphics& graphics, ConstantBuffer* constBuffer, TargetSlotAndShader target);
 
-	void SetGraphicsDescriptorTable(Graphics& graphics, DescriptorHeapBindable* descriptorHeapBindable);
+	void SetGraphicsDescriptorTable(Graphics& graphics, DescriptorHeapBindable* descriptorHeapBindable, TargetSlotAndShader& target);
 	void SetGraphicsDescriptorTable(Graphics& graphics, ShaderResourceViewBase* srv, TargetSlotAndShader target);
 
 	void SetRootConstants(Graphics& graphics, RootSignatureConstants* constants, TargetSlotAndShader target);

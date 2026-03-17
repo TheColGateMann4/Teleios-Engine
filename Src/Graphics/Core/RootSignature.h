@@ -33,7 +33,7 @@ public:
 	// returns rootIndex that was used
 	void AddConstBufferViewParameter(ConstantBuffer* constantBuffer, TargetSlotAndShader& target);
 
-	void AddDescriptorTableParameter(DescriptorHeapBindable* descriptorHeapBindable);
+	void AddDescriptorTableParameter(DescriptorHeapBindable* descriptorHeapBindable, TargetSlotAndShader& target);
 	void AddDescriptorTableParameter(Texture* texture, TargetSlotAndShader& target);
 	void AddDescriptorTableParameter(ShaderResourceViewBase* srv, TargetSlotAndShader& target);
 
