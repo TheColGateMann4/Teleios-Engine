@@ -34,6 +34,10 @@ private:
 
 	static bool StepHasOpacity(const RenderGraphicsStep& geometryStep);
 
+	static const MeshBindableContainer& GetTextureContainerOfStep(const RenderGraphicsStep& step);
+
+	static std::optional<const Texture*> GetAlbedoTexture(const std::vector<Texture*>& textures);
+
 	RenderTechnique* m_GetTechnique(RenderJob::JobType type);
 
 protected:

@@ -15,6 +15,8 @@
 #include "Graphics/Bindables/RasterizerState.h"
 #include "Graphics/Bindables/Sampler.h"
 
+#include "Scene/Material.h"
+
 void Mesh::Initialize(Graphics& graphics, Pipeline& pipeline)
 {
 	CreateImplicitTechniques(graphics, pipeline);
@@ -86,7 +88,13 @@ void Mesh::CreateDepthTechnique(Graphics& graphics, Pipeline& pipeline)
 			depthStep.AddBindable(DepthStencilState::GetResource(graphics, DepthStencilState::DepthComparisonFunc::Less));
 			depthStep.AddBindable(BlendState::GetResource(graphics));
 			depthStep.AddBindable(PrimitiveTechnology::GetResource(graphics, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE));
-			depthStep.SetRasterizerOptions(geometryStep.GetRasterizerOptions());
+			
+			{
+				const Material* geometryStepMaterial = geometryStep.GetMaterial();
+				ObjectRasterizerStateOptions objectRasterizerStateOptions = geometryStepMaterial ? geometryStepMaterial->GetRasterizerOptions() : geometryStep.GetRasterizerOptions();
+
+				depthStep.SetRasterizerOptions(geometryStep.GetRasterizerOptions());
+			}
 
 			// if object has differing opacity then we need pixel shader to determine if we should clip individual pixels
 			if (hasOpacity)
@@ -96,7 +104,7 @@ void Mesh::CreateDepthTechnique(Graphics& graphics, Pipeline& pipeline)
 
 				// TODO: Handle for opacity texture
 				depthStep.AddBindable(StaticSampler::GetResource(graphics, D3D12_FILTER_MIN_MAG_MIP_POINT));
-				depthStep.AddBindable(geometryStep.GetBindableContainter().GetTextures().front());
+				depthStep.AddBindable(GetTextureContainerOfStep(geometryStep).GetTextures().front());
 			}
 			else
 				depthStep.AddBindable(Shader::GetResource(graphics, L"VS", ShaderType::VertexShader));
@@ -110,7 +118,7 @@ void Mesh::CreateDepthTechnique(Graphics& graphics, Pipeline& pipeline)
 
 bool Mesh::StepHasOpacity(const RenderGraphicsStep& geometryStep)
 {
-	const auto& geometryStepTextures = geometryStep.GetBindableContainter().GetTextures();
+	const auto& geometryStepTextures = GetTextureContainerOfStep(geometryStep).GetTextures();
 
 	if (geometryStepTextures.empty())
 		return false;
@@ -119,14 +127,31 @@ bool Mesh::StepHasOpacity(const RenderGraphicsStep& geometryStep)
 
 	// check diffuse texture alpha channel
 	{
-		// TODO: Make better system for accesing bindables of given step. For now this is correct since diffuse texture is always first
-		// but edge case for now would be if given object doesn't have diffuse texture. Important to remember
-		const Texture* diffuseTexture = geometryStepTextures.front();
+		std::optional<const Texture*> optDiffuseTexture = GetAlbedoTexture(geometryStepTextures);
 
-		bool isAlphaOpaque = diffuseTexture->IsAlphaOpaque();
+		if (!optDiffuseTexture.has_value())
+			return false;
+
+		bool isAlphaOpaque = optDiffuseTexture.value()->IsAlphaOpaque();
 
 		return !isAlphaOpaque;
 	}
+}
+
+const MeshBindableContainer& Mesh::GetTextureContainerOfStep(const RenderGraphicsStep& step)
+{
+	Material* stepMaterial = step.GetMaterial();
+
+	return stepMaterial ? stepMaterial->GetBindableContainer() : step.GetBindableContainter();
+}
+
+std::optional<const Texture*> Mesh::GetAlbedoTexture(const std::vector<Texture*>& textures)
+{
+	for (auto* texture : textures)
+		if (texture->GetTextureType() == TextureType::texture_albedo)
+			return texture;
+
+	return std::nullopt;
 }
 
 RenderTechnique* Mesh::m_GetTechnique(RenderJob::JobType type)
