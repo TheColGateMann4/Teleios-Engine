@@ -142,9 +142,10 @@ float4 PSMain(float2 textureCoords : TEXCOORDS) : SV_TARGET
     
     if (flags & FLAG_WORKFLOW_METALNESS)
     {   
-        roughness = rt1sample.g;
-        metalness = rt1sample.r;
-        F0 = lerp(float3(0.04, 0.04, 0.04), diffuse, metalness);      
+        roughness = rt0sample.a;
+        metalness = rt1sample.a;
+        const float3 reflectivity = rt1sample.rgb;
+        F0 = lerp(float3(0.04, 0.04, 0.04), diffuse, metalness) * reflectivity;
     }
     else if (flags & FLAG_WORKFLOW_SPECULAR)
     {
