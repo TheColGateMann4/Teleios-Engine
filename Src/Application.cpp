@@ -9,7 +9,7 @@ Application::Application(unsigned int width, unsigned int height, const char* na
 	:
 	m_name(name),
 	window(width, height, m_name),
-	graphics(window.GetHWnd(), DXGI_FORMAT_R16G16B16A16_FLOAT),
+	graphics(window.GetHWnd(), DXGI_FORMAT_R8G8B8A8_UNORM),
 	scene()
 {
 	window.SetFunctionCallback(graphics.GetImguiManager()->HandleMessages);
