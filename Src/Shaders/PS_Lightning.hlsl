@@ -205,5 +205,6 @@ float4 PSMain(float2 textureCoords : TEXCOORDS) : SV_TARGET
         accumulatedLight += outgoingLight;
     }
 
-    return float4(accumulatedLight, 1.0f);
+    accumulatedLight.rgb += float3(0.02, 0.02, 0.02) * diffuse;
+
 }
