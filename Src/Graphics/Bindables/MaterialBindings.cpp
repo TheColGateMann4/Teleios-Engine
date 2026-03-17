@@ -2,54 +2,6 @@
 
 #include "Texture.h"
 
-MaterialBindings::MaterialBindings()
-	:
-	RootSignatureBindable({})
-{
-	m_descriptorHeapBindable = DescriptorHeapBindable::GetResource();
-}
-
-void MaterialBindings::BindToRootSignature(RootSignatureParams* rootSignatureParams)
-{
-	m_descriptorHeapBindable->BindToRootSignature(rootSignatureParams);
-
-	m_textureIndexesConstants->BindToRootSignature(rootSignatureParams, m_textureIndexesConstants->GetTargets().front());
-}
-
-void MaterialBindings::BindToCommandList(Graphics& graphics, CommandList* commandList)
-{
-	// setting descriptor heap with textures
-	m_descriptorHeapBindable->BindToCommandList(graphics, commandList);
-
-	// setting Root Signature constants with texture indexes inside of descriptor heap
-	m_textureIndexesConstants->BindToCommandList(graphics, commandList, m_textureIndexesConstants->GetTargets().front());
-}
-
-BindableType MaterialBindings::GetBindableType() const
-{
-	return BindableType::bindable_materialBindings;
-}
-
-RootSignatureBindableType MaterialBindings::GetRootSignatureBindableType() const
-{
-	return RootSignatureBindableType::rootSignature_none;
-}
-
-void MaterialBindings::Initialize(Graphics& graphics, DescriptorHeap::DescriptorInfo descriptorInfo, unsigned int descriptorNum)
-{
-
-}
-
-void MaterialBindings::Initialize(Graphics& graphics)
-{
-	m_descriptorHeapBindable->Initialize(graphics);
-}
-
-DescriptorType MaterialBindings::GetDescriptorType() const
-{
-	return DescriptorType::descriptor_none;
-}
-
 #define ADD_TEXTURE_INDEX_TO_LAYOUT(type, str) \
 if(texturesByTypes.at(static_cast<int>(type)) != nullptr) \
 	layout.Add<DynamicConstantBuffer::ElementType::Uint>(str);
@@ -61,8 +13,10 @@ if(texturesByTypes.at(static_cast<int>(type)) != nullptr) \
 		*bufferData.Get<DynamicConstantBuffer::ElementType::Uint>(str) = tex->GetOffsetInDescriptor(); \
 }
 
-void MaterialBindings::InitializeTextureIndexesConstants(std::vector<Texture*> textures)
+MaterialBindings::MaterialBindings(const std::vector<Texture*>&textures)
 {
+	m_descriptorHeapBindable = DescriptorHeapBindable::GetResource();
+
 	std::vector<Texture*> texturesByTypes(static_cast<int>(TextureType::texture_types_num), nullptr);
 
 	for (auto* texture : textures)
@@ -78,7 +32,7 @@ void MaterialBindings::InitializeTextureIndexesConstants(std::vector<Texture*> t
 	ADD_TEXTURE_INDEX_TO_LAYOUT(TextureType::texture_metalness_roughness, "b_metalnessRoughnessTextureID");
 	ADD_TEXTURE_INDEX_TO_LAYOUT(TextureType::texture_metalness, "b_metalnessTextureID");
 	ADD_TEXTURE_INDEX_TO_LAYOUT(TextureType::texture_roughness, "b_roughnessTextureID");
-	ADD_TEXTURE_INDEX_TO_LAYOUT(TextureType::texture_specular, "b_specularTextureID");	
+	ADD_TEXTURE_INDEX_TO_LAYOUT(TextureType::texture_specular, "b_specularTextureID");
 	ADD_TEXTURE_INDEX_TO_LAYOUT(TextureType::texture_glosiness, "b_glosinessTextureID");
 	ADD_TEXTURE_INDEX_TO_LAYOUT(TextureType::texture_reflectivity, "b_reflectivityTextureID");
 	ADD_TEXTURE_INDEX_TO_LAYOUT(TextureType::texture_ambient, "b_ambientTextureID");
@@ -103,3 +57,13 @@ void MaterialBindings::InitializeTextureIndexesConstants(std::vector<Texture*> t
 
 #undef ADD_TEXTURE_INDEX_TO_LAYOUT
 #undef SET_TEXTURE_INDEX_DATA
+
+RootSignatureConstants* MaterialBindings::GetTextureIndexesConstants()
+{
+	return m_textureIndexesConstants.get();
+}
+
+DescriptorHeapBindable* MaterialBindings::GetDescriptorHeapBindable()
+{
+	return m_descriptorHeapBindable.get();
+}

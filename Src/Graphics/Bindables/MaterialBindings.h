@@ -8,30 +8,16 @@
 
 class Texture;
 
-class MaterialBindings : public Bindable, public RootSignatureBindable, public CommandListBindable, public DescriptorBindable
+class MaterialBindings
 {
 public:
-	MaterialBindings();
+	MaterialBindings(const std::vector<Texture*>& textures);
 
 public:
-	virtual void BindToRootSignature(RootSignatureParams* rootSignatureParams) override;
+	RootSignatureConstants* GetTextureIndexesConstants();
+	DescriptorHeapBindable* GetDescriptorHeapBindable();
 
-	virtual void BindToCommandList(Graphics& graphics, CommandList* commandList) override;
-
-	virtual BindableType GetBindableType() const override;
-
-	virtual RootSignatureBindableType GetRootSignatureBindableType() const override;
-
-	virtual void Initialize(Graphics& graphics, DescriptorHeap::DescriptorInfo descriptorInfo, unsigned int descriptorNum) override;
-
-	virtual void Initialize(Graphics& graphics) override;
-
-	virtual DescriptorType GetDescriptorType() const override;
-
-public:
-	void InitializeTextureIndexesConstants(std::vector<Texture*> textures);
-
-public:
+private:
 	std::shared_ptr<RootSignatureConstants> m_textureIndexesConstants;
 	std::shared_ptr<DescriptorHeapBindable> m_descriptorHeapBindable;
 };
