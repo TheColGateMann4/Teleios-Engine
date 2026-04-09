@@ -35,6 +35,16 @@ void RenderGraphicsStep::AddStaticBindable(const char* bindableName)
 	m_bindableContainer.AddStaticBindable(bindableName);
 }
 
+void RenderGraphicsStep::SetAttributeBufferEntry(std::shared_ptr<VertexBufferEntry> attributeBufferEntry)
+{
+	m_bindableContainer.SetAttributeBufferEntry(std::move(attributeBufferEntry));
+}
+
+void RenderGraphicsStep::SetPositionBufferEntry(std::shared_ptr<VertexBufferEntry> positionBufferEntry)
+{
+	m_bindableContainer.SetPositionBufferEntry(std::move(positionBufferEntry));
+}
+
 void RenderGraphicsStep::AddBindable(std::shared_ptr<Bindable> bindable)
 {
 	m_bindableContainer.AddBindable(bindable);

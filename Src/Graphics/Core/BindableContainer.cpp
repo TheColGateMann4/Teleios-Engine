@@ -97,7 +97,8 @@ MeshBindableContainer& MeshBindableContainer::operator+=(const MeshBindableConta
 
 	m_staticBindableNames.insert(m_staticBindableNames.end(), other.m_staticBindableNames.begin(), other.m_staticBindableNames.end());
 
-	if (m_vertexBufferEntry == nullptr) m_vertexBufferEntry = other.m_vertexBufferEntry;
+	if (!m_attributeBuffer) m_attributeBuffer = other.m_attributeBuffer;
+	if (!m_positionBuffer) m_positionBuffer = other.m_positionBuffer;
 	if (m_indexBuffer == nullptr) m_indexBuffer = other.m_indexBuffer;
 	if (m_inputLayout == nullptr) m_inputLayout = other.m_inputLayout;
 	if (m_transformConstantBuffer == nullptr) m_transformConstantBuffer = other.m_transformConstantBuffer;
@@ -106,6 +107,16 @@ MeshBindableContainer& MeshBindableContainer::operator+=(const MeshBindableConta
 	m_textures.insert(m_textures.end(), other.m_textures.begin(), other.m_textures.end());
 
 	return *this;
+}
+
+void MeshBindableContainer::SetAttributeBufferEntry(std::shared_ptr<VertexBufferEntry> attributeBufferEntry)
+{
+	m_attributeBuffer = std::move(attributeBufferEntry);
+}
+
+void MeshBindableContainer::SetPositionBufferEntry(std::shared_ptr<VertexBufferEntry> positionBufferEntry)
+{
+	m_positionBuffer = std::move(positionBufferEntry);
 }
 
 void MeshBindableContainer::AddStaticBindable(const char* bindableName)
@@ -119,9 +130,14 @@ void MeshBindableContainer::Initialize(Pipeline& pipeline)
 		SegregateBindableBaseFunctionality(pipeline.GetStaticResource(staticBindableName).get());
 }
 
-VertexBufferEntry* MeshBindableContainer::GetVertexBufferEntry() const
+std::shared_ptr<VertexBufferEntry> MeshBindableContainer::GetAttributeVertexBufferEntry() const
 {
-	return m_vertexBufferEntry;
+	return m_attributeBuffer;
+}
+
+std::shared_ptr<VertexBufferEntry> MeshBindableContainer::GetPositionVertexBufferEntry() const
+{
+	return m_positionBuffer;
 }
 
 IndexBuffer* MeshBindableContainer::GetIndexBuffer() const
@@ -164,12 +180,12 @@ void MeshBindableContainer::SegregateBindableByClass(Bindable* bindable)
 		}
 		case BindableType::bindable_vertexBuffer:
 		{
-			THROW_INTERNAL_ERROR("VertexBuffer was pushed as regular bindable. Use VertexBufferEntry for using vertex data");
+			THROW_INTERNAL_ERROR("VertexBuffer was pushed as regular bindable. Use VertexBufferEntry for using vertex data. Then bind is using SetAttributeBuffer() or SetPositionBuffer()");
 			break;
 		}
 		case BindableType::bindable_vertexBufferEntry:
 		{
-			m_vertexBufferEntry = static_cast<VertexBufferEntry*>(bindable);
+			THROW_INTERNAL_ERROR("VertexBufferEntry was pushed as regular bindable. Bind it is using SetAttributeBuffer() or SetPositionBuffer()");
 			break;
 		}
 		case BindableType::bindable_inputLayout:

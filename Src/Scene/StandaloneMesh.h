@@ -37,6 +37,9 @@ public: // bindable container functions
 
 	void AddBindable(std::shared_ptr<Bindable> bindable);
 
+	void SetAttributeBufferEntry(std::shared_ptr<VertexBufferEntry> attributeBufferEntry);
+	void SetPositionBufferEntry(std::shared_ptr<VertexBufferEntry> positionBufferEntry);
+
 	const MeshBindableContainer& GetBindableContainter() const;
 
 	ObjectRasterizerStateOptions GetRasterizerOptions() const;

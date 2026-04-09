@@ -19,6 +19,110 @@
 #include <assimp/scene.h>           // Output data structure
 #include <assimp/postprocess.h>     // Post processing flags
 
+void HandleVertexData(Graphics& graphics, RenderGraphicsStep& step, aiMesh* mesh, float scale)
+{
+	size_t numVertices = mesh->mNumVertices + 1;
+
+	bool hasPositions = mesh->HasPositions();
+	bool hasNormals = mesh->HasNormals();
+	bool hasTextureCoords = mesh->HasTextureCoords(0);
+	bool hasTangentsAndBitangent = mesh->HasTangentsAndBitangents();
+	bool hasVertexColors = mesh->HasVertexColors(0);
+
+	THROW_INTERNAL_ERROR_IF("Model didn't have vertex positions", !hasPositions);
+
+	DynamicVertex::DynamicVertexLayout vertexLayout;
+
+	// initializing vertex layout
+	{
+		vertexLayout.AddElement<DynamicVertex::ElementType::Position>();
+
+		if (hasTextureCoords)
+			vertexLayout.AddElement<DynamicVertex::ElementType::TextureCoords>();
+
+		if (hasNormals)
+			vertexLayout.AddElement<DynamicVertex::ElementType::Normal>();
+
+		if (hasTangentsAndBitangent)
+		{
+			vertexLayout.AddElement<DynamicVertex::ElementType::Tangent>();
+			vertexLayout.AddElement<DynamicVertex::ElementType::Bitangent>();
+		}
+
+		if (hasVertexColors)
+			vertexLayout.AddElement<DynamicVertex::ElementType::Color4>();
+	}
+
+	// pushing all the data to vertex buffer
+	{
+		DynamicVertex::DynamicVertex vertexBuffer(vertexLayout, numVertices);
+
+		for (size_t vertexIndex = 0; vertexIndex < numVertices; vertexIndex++)
+		{
+			vertexBuffer.EmplaceBack();
+
+			// position
+			{
+				DirectX::XMFLOAT3* pPosition = reinterpret_cast<DirectX::XMFLOAT3*>(&mesh->mVertices[vertexIndex]);
+
+				vertexBuffer.Back().GetPropety<DynamicVertex::ElementType::Position>() = { pPosition->x * scale, pPosition->y * scale,pPosition->z * scale };
+			}
+
+			if (hasTextureCoords)
+				vertexBuffer.Back().GetPropety<DynamicVertex::ElementType::TextureCoords>() = *reinterpret_cast<DirectX::XMFLOAT2*>(&mesh->mTextureCoords[0][vertexIndex]);
+
+			if (hasNormals)
+				vertexBuffer.Back().GetPropety<DynamicVertex::ElementType::Normal>() = *reinterpret_cast<DirectX::XMFLOAT3*>(&mesh->mNormals[vertexIndex]);
+
+			if (hasTangentsAndBitangent)
+			{
+				vertexBuffer.Back().GetPropety<DynamicVertex::ElementType::Tangent>() = *reinterpret_cast<DirectX::XMFLOAT3*>(&mesh->mTangents[vertexIndex]);
+				vertexBuffer.Back().GetPropety<DynamicVertex::ElementType::Bitangent>() = *reinterpret_cast<DirectX::XMFLOAT3*>(&mesh->mBitangents[vertexIndex]);
+			}
+
+			if (hasVertexColors)
+				vertexBuffer.Back().GetPropety<DynamicVertex::ElementType::Color4>() = *reinterpret_cast<DirectX::XMFLOAT4*>(&mesh->mColors[0][vertexIndex]);
+		}
+
+		std::string vbName = std::string(mesh->mName.C_Str()) + "#AttributeBuffer";
+		step.SetAttributeBufferEntry(VertexBufferEntry::GetResource(graphics, vbName, vertexBuffer));
+	}
+
+	// creating position only vertex buffer
+	{
+		DynamicVertex::DynamicVertexLayout positionOnlyVertexLayout;
+		positionOnlyVertexLayout.AddElement<DynamicVertex::ElementType::Position>();
+
+		DynamicVertex::DynamicVertex positionOnlyVertexBuffer(positionOnlyVertexLayout, numVertices);
+		for (size_t vertexIndex = 0; vertexIndex < numVertices; vertexIndex++)
+		{
+			positionOnlyVertexBuffer.EmplaceBack();
+
+			DirectX::XMFLOAT3* pPosition = reinterpret_cast<DirectX::XMFLOAT3*>(&mesh->mVertices[vertexIndex]);
+
+			positionOnlyVertexBuffer.Back().GetPropety<DynamicVertex::ElementType::Position>() = { pPosition->x * scale, pPosition->y * scale,pPosition->z * scale };
+		}
+
+		std::string vbName = std::string(mesh->mName.C_Str()) + "#PositionBuffer";
+		step.SetPositionBufferEntry(VertexBufferEntry::GetResource(graphics, vbName, positionOnlyVertexBuffer));
+
+	}
+
+	step.AddBindable(InputLayout::GetResource(graphics, vertexLayout));
+}
+
+void HandleIndiceData(Graphics& graphics, RenderGraphicsStep& step, aiMesh* mesh)
+{
+	size_t mNumIndices = mesh->mNumFaces * mesh->mFaces->mNumIndices;
+	std::vector<unsigned int> indices(mNumIndices, '\0');
+
+	for (size_t faceIndex = 0; faceIndex < mesh->mNumFaces; faceIndex++)
+		for (size_t indiceIndex = 0; indiceIndex < mesh->mFaces[faceIndex].mNumIndices; indiceIndex++)
+			indices.at(faceIndex * 3 + indiceIndex) = mesh->mFaces[faceIndex].mIndices[indiceIndex];
+
+	step.AddBindable(IndexBuffer::GetResource(graphics, mesh->mName.C_Str(), indices));
+}
+
 Model::Model(Graphics& graphics, Model* pParent, aiNode* node, std::vector<std::pair<aiMesh*, std::shared_ptr<Material>>> modelMeshes, float scale, DirectX::XMFLOAT3 position)
 	:
 	SceneObject(pParent)
@@ -38,14 +142,6 @@ Model::Model(Graphics& graphics, Model* pParent, aiNode* node, std::vector<std::
 		std::shared_ptr<Material> material = modelMesh.second;
 		const MaterialProperties::MaterialProperties& materialPropeties = material->GetProperties();
 
-		size_t numVertices = mesh->mNumVertices + 1;
-
-		bool hasPositions = mesh->HasPositions();
-		bool hasNormals = mesh->HasNormals();
-		bool hasTextureCoords = mesh->HasTextureCoords(0);
-		bool hasTangentsAndBitangent = mesh->HasTangentsAndBitangents();
-		bool hasVertexColors = mesh->HasVertexColors(0);
-
 		Mesh objectMesh;
 
 		RenderTechnique technique(RenderJob::JobType::GBuffer);
@@ -54,78 +150,12 @@ Model::Model(Graphics& graphics, Model* pParent, aiNode* node, std::vector<std::
 		{
 			step.AddBindable(m_transform.GetTransformConstantBuffer());
 
-			DynamicVertex::DynamicVertexLayout vertexLayout;
+			HandleVertexData(graphics, step, mesh, scale);
 
-			// initializing vertex layout
-			{
-				if (hasPositions)
-					vertexLayout.AddElement<DynamicVertex::ElementType::Position>();
-
-				if (hasTextureCoords)
-					vertexLayout.AddElement<DynamicVertex::ElementType::TextureCoords>();
-
-				if (hasNormals)
-					vertexLayout.AddElement<DynamicVertex::ElementType::Normal>();
-
-				if (hasTangentsAndBitangent)
-				{
-					vertexLayout.AddElement<DynamicVertex::ElementType::Tangent>();
-					vertexLayout.AddElement<DynamicVertex::ElementType::Bitangent>();
-				}
-
-				if (hasVertexColors)
-					vertexLayout.AddElement<DynamicVertex::ElementType::Color4>();
-			}
-
-			// pushing all the data to vertex buffer
-			{
-				DynamicVertex::DynamicVertex vertexBuffer(vertexLayout, numVertices);
-
-				for (size_t vertexIndex = 0; vertexIndex < numVertices; vertexIndex++)
-				{
-					vertexBuffer.EmplaceBack();
-
-					if (hasPositions)
-					{
-						DirectX::XMFLOAT3* pPosition = reinterpret_cast<DirectX::XMFLOAT3*>(&mesh->mVertices[vertexIndex]);
-
-						vertexBuffer.Back().GetPropety<DynamicVertex::ElementType::Position>() = { pPosition->x * scale, pPosition->y * scale,pPosition->z * scale };
-					}
-
-					if (hasTextureCoords)
-						vertexBuffer.Back().GetPropety<DynamicVertex::ElementType::TextureCoords>() = *reinterpret_cast<DirectX::XMFLOAT2*>(&mesh->mTextureCoords[0][vertexIndex]);
-
-					if (hasNormals)
-						vertexBuffer.Back().GetPropety<DynamicVertex::ElementType::Normal>() = *reinterpret_cast<DirectX::XMFLOAT3*>(&mesh->mNormals[vertexIndex]);
-
-					if (hasTangentsAndBitangent)
-					{
-						vertexBuffer.Back().GetPropety<DynamicVertex::ElementType::Tangent>() = *reinterpret_cast<DirectX::XMFLOAT3*>(&mesh->mTangents[vertexIndex]);
-						vertexBuffer.Back().GetPropety<DynamicVertex::ElementType::Bitangent>() = *reinterpret_cast<DirectX::XMFLOAT3*>(&mesh->mBitangents[vertexIndex]);
-					}
-
-					if (hasVertexColors)
-						vertexBuffer.Back().GetPropety<DynamicVertex::ElementType::Color4>() = *reinterpret_cast<DirectX::XMFLOAT4*>(&mesh->mColors[0][vertexIndex]);
-				}
-
-				step.AddBindable(VertexBufferEntry::GetResource(graphics, mesh->mName.C_Str(), vertexBuffer));
-			}
-
-			//indices
-			{
-				size_t mNumIndices = mesh->mNumFaces * mesh->mFaces->mNumIndices;
-				std::vector<unsigned int> indices(mNumIndices, '\0');
-
-				for (size_t faceIndex = 0; faceIndex < mesh->mNumFaces; faceIndex++)
-					for (size_t indiceIndex = 0; indiceIndex < mesh->mFaces[faceIndex].mNumIndices; indiceIndex++)
-						indices.at(faceIndex * 3 + indiceIndex) = mesh->mFaces[faceIndex].mIndices[indiceIndex];
-
-				step.AddBindable(IndexBuffer::GetResource(graphics, mesh->mName.C_Str(), indices));
-			}
+			HandleIndiceData(graphics, step, mesh);
 
 			step.SetMaterial(material);
 
-			step.AddBindable(InputLayout::GetResource(graphics, vertexLayout));
 			step.AddBindable(PrimitiveTechnology::GetResource(graphics, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE));
 		}
 

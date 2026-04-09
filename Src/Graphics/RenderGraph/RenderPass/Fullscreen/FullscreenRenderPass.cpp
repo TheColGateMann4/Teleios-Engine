@@ -30,9 +30,7 @@ FullscreenRenderPass::FullscreenRenderPass(Graphics& graphics, RenderManager& re
 		{{ 1.0f, -1.0f, 0.0f }, { 1.0f, 1.0f }}
 	};
 
-	std::shared_ptr<VertexBufferEntry> vertexBufferEntry = VertexBufferEntry::GetResource(graphics, "FullscreenMesh", vertices.data(), layout, vertices.size());
-	m_vertexBufferEntry = vertexBufferEntry.get();
-	m_bindables.push_back(std::move(vertexBufferEntry));
+	m_vertexBufferEntry = VertexBufferEntry::GetResource(graphics, "FullscreenMesh", vertices.data(), layout, vertices.size());
 
 	m_bindables.push_back(InputLayout::GetResource(graphics, layout));
 
@@ -68,6 +66,7 @@ void FullscreenRenderPass::Initialize(Graphics& graphics, Scene& scene)
 		for (const auto& bind : m_bindables)
 			mesh.AddBindable(bind);
 
+		mesh.SetAttributeBufferEntry(m_vertexBufferEntry);
 		mesh.AddBindable(m_pCameraData); // b0
 		mesh.AddBindable(m_renderTargetSRV); // t0
 		mesh.AddBindable(Shader::GetResource(graphics, L"PS_Fullscreen", ShaderType::PixelShader)); // ps

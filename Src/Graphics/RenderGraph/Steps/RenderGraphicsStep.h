@@ -24,6 +24,10 @@ public:
 public: // bindable container functions
 	void AddStaticBindable(const char* bindableName);
 
+	void SetAttributeBufferEntry(std::shared_ptr<VertexBufferEntry> attributeBufferEntry);
+
+	void SetPositionBufferEntry(std::shared_ptr<VertexBufferEntry> positionBufferEntry);
+
 	void AddBindable(std::shared_ptr<Bindable> bindable);
 
 	void SetMaterial(std::shared_ptr<Material> material);

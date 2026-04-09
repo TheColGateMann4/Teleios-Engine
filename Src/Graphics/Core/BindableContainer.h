@@ -65,12 +65,17 @@ public:
 	MeshBindableContainer& operator+=(const MeshBindableContainer& other);
 
 public:
+	void SetAttributeBufferEntry(std::shared_ptr<VertexBufferEntry> attributeBufferEntry);
+	void SetPositionBufferEntry(std::shared_ptr<VertexBufferEntry> positionBufferEntry);
+
 	void AddStaticBindable(const char* bindableName);
 
 	void Initialize(Pipeline& pipeline);
 
 public:
-	VertexBufferEntry* GetVertexBufferEntry() const;
+	std::shared_ptr<VertexBufferEntry> GetAttributeVertexBufferEntry() const;
+	std::shared_ptr<VertexBufferEntry> GetPositionVertexBufferEntry() const;
+
 	IndexBuffer* GetIndexBuffer() const;
 	InputLayout* GetInputLayout() const;
 	TransformConstantBuffer* GetTransformConstantBuffer() const;
@@ -83,8 +88,10 @@ private:
 private:
 	// vector with names of static scene resources
 	std::vector<const char*> m_staticBindableNames;
+	
+	std::shared_ptr<VertexBufferEntry> m_attributeBuffer;
+	std::shared_ptr<VertexBufferEntry> m_positionBuffer;
 
-	VertexBufferEntry* m_vertexBufferEntry = nullptr;
 	IndexBuffer* m_indexBuffer = nullptr;
 	InputLayout* m_inputLayout = nullptr;
 	TransformConstantBuffer* m_transformConstantBuffer = nullptr;

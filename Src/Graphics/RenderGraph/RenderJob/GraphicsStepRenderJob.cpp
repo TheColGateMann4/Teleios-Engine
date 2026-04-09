@@ -110,7 +110,14 @@ void GraphicsStepRenderJob::InitializeMaterialBindings()
 
 void GraphicsStepRenderJob::InitializeGraphicResources(Graphics& graphics, Pipeline& pipeline)
 {
-	m_bindableContainer.GetVertexBufferEntry()->GetVertexBuffer()->BindToCopyPipelineIfNeeded(graphics, pipeline);
+	auto attributeVertexEntry = m_bindableContainer.GetAttributeVertexBufferEntry();
+	auto positionVertexEntry = m_bindableContainer.GetPositionVertexBufferEntry();
+
+	if (attributeVertexEntry)
+		attributeVertexEntry->GetVertexBuffer()->BindToCopyPipelineIfNeeded(graphics, pipeline);
+	if (positionVertexEntry)
+		positionVertexEntry->GetVertexBuffer()->BindToCopyPipelineIfNeeded(graphics, pipeline);
+
 	m_bindableContainer.GetIndexBuffer()->BindToCopyPipelineIfNeeded(graphics, pipeline);
 
 	for (auto texture : m_bindableContainer.GetTextures())
@@ -146,7 +153,19 @@ void GraphicsStepRenderJob::Execute(Graphics& graphics, CommandList* commandList
 	}
 
 	unsigned int indexCount = m_bindableContainer.GetIndexBuffer()->GetIndexCount();
-	unsigned int baseVertexOffset = m_bindableContainer.GetVertexBufferEntry()->GetEntryInfo().offset;
+	unsigned int baseVertexOffset = 0;
+
+	auto attribBufferEntry = m_bindableContainer.GetAttributeVertexBufferEntry();
+	auto positionBufferEntry = m_bindableContainer.GetPositionVertexBufferEntry();
+
+	if (attribBufferEntry)
+		baseVertexOffset = attribBufferEntry->GetEntryInfo().offset;
+	else if (positionBufferEntry)
+		baseVertexOffset = positionBufferEntry->GetEntryInfo().offset;
+	else
+	{
+		THROW_INTERNAL_ERROR("Position buffer and Attribute buffer were both NULL");
+	}
 
 	commandList->DrawIndexed(graphics, indexCount, baseVertexOffset);
 }

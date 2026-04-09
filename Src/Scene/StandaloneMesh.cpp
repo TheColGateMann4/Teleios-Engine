@@ -100,6 +100,16 @@ void StandaloneMesh::AddBindable(std::shared_ptr<Bindable> bindable)
 	m_bindableContainer.AddBindable(bindable);
 }
 
+void StandaloneMesh::SetAttributeBufferEntry(std::shared_ptr<VertexBufferEntry> attributeBufferEntry)
+{
+	m_bindableContainer.SetAttributeBufferEntry(std::move(attributeBufferEntry));
+}
+
+void StandaloneMesh::SetPositionBufferEntry(std::shared_ptr<VertexBufferEntry> positionBufferEntry)
+{
+	m_bindableContainer.SetPositionBufferEntry(std::move(positionBufferEntry));
+}
+
 const MeshBindableContainer& StandaloneMesh::GetBindableContainter() const
 {
 	return m_bindableContainer;
