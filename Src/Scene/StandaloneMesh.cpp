@@ -57,6 +57,21 @@ void StandaloneMesh::Initialize(Graphics& graphics, Pipeline& pipeline)
 
 void StandaloneMesh::Draw(Graphics& graphics, CommandList* commandList) const
 {
+	std::shared_ptr<VertexBufferEntry> vertexBufferEntry;
+	{
+		auto attribBufferEntry = m_bindableContainer.GetAttributeVertexBufferEntry();
+		auto positionBufferEntry = m_bindableContainer.GetPositionVertexBufferEntry();
+
+		if (attribBufferEntry)
+			vertexBufferEntry = attribBufferEntry;
+		else if (positionBufferEntry)
+			vertexBufferEntry = positionBufferEntry;
+		else
+		{
+			THROW_INTERNAL_ERROR("Position buffer and Attribute buffer were both NULL");
+		}
+	}
+
 	commandList->SetPipelineState(graphics, m_pipelineState.get());
 
 	commandList->SetGraphicsRootSignature(graphics, m_rootSignature.get());
@@ -66,9 +81,14 @@ void StandaloneMesh::Draw(Graphics& graphics, CommandList* commandList) const
 
 		for (auto& pCommandListBindable : commandListBindables)
 			pCommandListBindable->BindToCommandList(graphics, commandList);
+
+		vertexBufferEntry->BindToCommandList(graphics, commandList);
 	}
 
-	commandList->DrawIndexed(graphics, m_bindableContainer.GetIndexBuffer()->GetIndexCount());
+	unsigned int indexCount = m_bindableContainer.GetIndexBuffer()->GetIndexCount();
+	unsigned int baseVertexOffset = vertexBufferEntry->GetEntryInfo().offset;;
+
+	commandList->DrawIndexed(graphics, indexCount, baseVertexOffset);
 };
 
 void StandaloneMesh::Update(Graphics& graphics, Pipeline& pipeline)

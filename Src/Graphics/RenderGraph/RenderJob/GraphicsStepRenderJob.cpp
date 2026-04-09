@@ -138,6 +138,22 @@ void GraphicsStepRenderJob::Execute(Graphics& graphics, CommandList* commandList
 
 	commandList->SetGraphicsRootSignature(graphics, m_rootSignature.get());
 
+
+	std::shared_ptr<VertexBufferEntry> vertexBufferEntry;
+	{
+		auto attribBufferEntry = m_bindableContainer.GetAttributeVertexBufferEntry();
+		auto positionBufferEntry = m_bindableContainer.GetPositionVertexBufferEntry();
+
+		if (attribBufferEntry)
+			vertexBufferEntry = attribBufferEntry;
+		else if (positionBufferEntry)
+			vertexBufferEntry = positionBufferEntry;
+		else
+		{
+			THROW_INTERNAL_ERROR("Position buffer and Attribute buffer were both NULL");
+		}
+	}
+
 	{
 		auto* material = m_step->GetMaterial();
 
@@ -150,22 +166,12 @@ void GraphicsStepRenderJob::Execute(Graphics& graphics, CommandList* commandList
 
 		for (auto& pCommandListBindable : commandListBindables)
 			pCommandListBindable->BindToCommandList(graphics, commandList);
+
+		vertexBufferEntry->BindToCommandList(graphics, commandList);
 	}
 
 	unsigned int indexCount = m_bindableContainer.GetIndexBuffer()->GetIndexCount();
-	unsigned int baseVertexOffset = 0;
-
-	auto attribBufferEntry = m_bindableContainer.GetAttributeVertexBufferEntry();
-	auto positionBufferEntry = m_bindableContainer.GetPositionVertexBufferEntry();
-
-	if (attribBufferEntry)
-		baseVertexOffset = attribBufferEntry->GetEntryInfo().offset;
-	else if (positionBufferEntry)
-		baseVertexOffset = positionBufferEntry->GetEntryInfo().offset;
-	else
-	{
-		THROW_INTERNAL_ERROR("Position buffer and Attribute buffer were both NULL");
-	}
+	unsigned int baseVertexOffset = vertexBufferEntry->GetEntryInfo().offset;
 
 	commandList->DrawIndexed(graphics, indexCount, baseVertexOffset);
 }
