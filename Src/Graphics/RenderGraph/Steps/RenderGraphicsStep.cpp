@@ -45,14 +45,19 @@ void RenderGraphicsStep::SetPositionBufferEntry(std::shared_ptr<VertexBufferEntr
 	m_bindableContainer.SetPositionBufferEntry(std::move(positionBufferEntry));
 }
 
+void RenderGraphicsStep::SetBoundingBox(BoundingBox boundingBox)
+{
+	m_boundingBox = boundingBox;
+}
+
 void RenderGraphicsStep::AddBindable(std::shared_ptr<Bindable> bindable)
 {
-	m_bindableContainer.AddBindable(bindable);
+	m_bindableContainer.AddBindable(std::move(bindable));
 }
 
 void RenderGraphicsStep::SetMaterial(std::shared_ptr<Material> material)
 {
-	m_material = material;
+	m_material = std::move(material);
 }
 
 void RenderGraphicsStep::AddBindable(Bindable* bindable)

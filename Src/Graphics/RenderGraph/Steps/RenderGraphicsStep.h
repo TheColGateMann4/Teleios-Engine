@@ -10,6 +10,12 @@
 
 class Material;
 
+struct BoundingBox
+{
+	DirectX::XMFLOAT3 min = DirectX::XMFLOAT3(FLT_MAX, FLT_MAX, FLT_MAX);
+	DirectX::XMFLOAT3 max = DirectX::XMFLOAT3(-FLT_MAX, -FLT_MAX, -FLT_MAX);
+};
+
 class RenderGraphicsStep : public RenderStep
 {
 public:
@@ -27,6 +33,8 @@ public: // bindable container functions
 	void SetAttributeBufferEntry(std::shared_ptr<VertexBufferEntry> attributeBufferEntry);
 
 	void SetPositionBufferEntry(std::shared_ptr<VertexBufferEntry> positionBufferEntry);
+
+	void SetBoundingBox(BoundingBox boundingBox);
 
 	void AddBindable(std::shared_ptr<Bindable> bindable);
 
@@ -46,4 +54,6 @@ private:
 	MeshBindableContainer m_bindableContainer;
 	std::shared_ptr<Material> m_material;
 	ObjectRasterizerStateOptions m_rasterizerOptions = {};
+
+	BoundingBox m_boundingBox = {};
 };
