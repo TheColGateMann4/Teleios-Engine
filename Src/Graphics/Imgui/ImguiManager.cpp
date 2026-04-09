@@ -6,6 +6,21 @@
 #include <backends/imgui_impl_dx12.h>
 #include <backends/imgui_impl_win32.h>
 
+void SrvDescriptorAllocFn(ImGui_ImplDX12_InitInfo* info, D3D12_CPU_DESCRIPTOR_HANDLE* out_cpu_desc_handle, D3D12_GPU_DESCRIPTOR_HANDLE* out_gpu_desc_handle)
+{
+	Graphics* pGraphics = static_cast<Graphics*>(info->UserData);
+	
+	DescriptorHeap::DescriptorInfo descriptorInfo = pGraphics->GetDescriptorHeap().GetNextHandle();
+	
+	*out_cpu_desc_handle = descriptorInfo.descriptorCpuHandle;
+	*out_gpu_desc_handle = descriptorInfo.descriptorHeapGpuHandle;
+}
+
+void SrvDescriptorFreeFn(ImGui_ImplDX12_InitInfo* info, D3D12_CPU_DESCRIPTOR_HANDLE cpu_desc_handle, D3D12_GPU_DESCRIPTOR_HANDLE gpu_desc_handle)
+{
+	// TODO: for now we don't handle free'ing descriptors
+}
+
 ImguiManager::ImguiManager(Graphics& graphics, HWND hWnd)
 {
 	HRESULT hr;
@@ -28,19 +43,23 @@ ImguiManager::ImguiManager(Graphics& graphics, HWND hWnd)
 		desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 		desc.NumDescriptors = 1;
 		desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-
+		
 		THROW_ERROR(graphics.GetDeviceResources().GetDevice()->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&pDescriptorHeap)));
-
-		ImGui_ImplWin32_Init(hWnd);
-
-		ImGui_ImplDX12_Init(
-			graphics.GetDeviceResources().GetDevice(),
-			graphics.GetBufferCount(),
-			graphics.GetBackBuffer()->GetFormat(),
-			pDescriptorHeap.Get(),
-			pDescriptorHeap->GetCPUDescriptorHandleForHeapStart(),
-			pDescriptorHeap->GetGPUDescriptorHandleForHeapStart()
-		);
+		
+		THROW_INTERNAL_ERROR_IF("Failed to initialize imgui win32 backend", !ImGui_ImplWin32_Init(hWnd));
+		
+		ImGui_ImplDX12_InitInfo initInfo = {};
+		initInfo.Device = graphics.GetDeviceResources().GetDevice();
+		initInfo.CommandQueue = graphics.GetDeviceResources().GetCommandQueue();
+		initInfo.NumFramesInFlight = graphics.GetBufferCount();
+		initInfo.RTVFormat = graphics.GetBackBuffer()->GetFormat();
+		initInfo.DSVFormat = graphics.GetDepthStencil()->GetFormat();
+		initInfo.UserData = &graphics;
+		initInfo.SrvDescriptorHeap = graphics.GetDescriptorHeap().Get();
+		initInfo.SrvDescriptorAllocFn = SrvDescriptorAllocFn;
+		initInfo.SrvDescriptorFreeFn = SrvDescriptorFreeFn;
+		
+		THROW_INTERNAL_ERROR_IF("Failed to initialize imgui directx12 backend", !ImGui_ImplDX12_Init(&initInfo));
 	}
 }
 

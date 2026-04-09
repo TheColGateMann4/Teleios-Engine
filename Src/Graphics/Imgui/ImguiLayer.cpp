@@ -24,8 +24,6 @@ void ImguiLayer::Render()
 
 void ImguiLayer::GetImguiCommands(Graphics& graphics, ID3D12GraphicsCommandList* pDirectCommandList)
 {
-	THROW_INFO_ERROR(pDirectCommandList->SetDescriptorHeaps(1, m_imguiManager->GetAddressOfDescriptorHeap()));
-
 	ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), pDirectCommandList);
 }
 

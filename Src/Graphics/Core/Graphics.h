@@ -93,4 +93,6 @@ private:
 
 	const unsigned int swapChainBufferCount = 2;
 	unsigned int m_currentBufferIndex = 0;
+
+	HWND m_windowHwnd;
 };

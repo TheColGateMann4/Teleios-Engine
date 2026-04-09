@@ -7,6 +7,8 @@ extern "C" { __declspec(dllexport) extern const UINT D3D12SDKVersion = 715; } //
 extern "C" { __declspec(dllexport) extern const char* D3D12SDKPath = "D3D12/"; } // path of agility dll's
 
 Graphics::Graphics(HWND hWnd, DXGI_FORMAT renderTargetFormat)
+	:
+	m_windowHwnd(hWnd)
 {
 	THROW_OBJECT_STATE_ERROR_IF("Given format is not valid swap chain buffer", !CheckValidRenderTargetFormat(renderTargetFormat));
 
@@ -53,9 +55,6 @@ Graphics::Graphics(HWND hWnd, DXGI_FORMAT renderTargetFormat)
 		// initializing graphic fence for each frame buffer
 		for (unsigned int bufferIndex = 0; bufferIndex < swapChainBufferCount; bufferIndex++)
 			m_graphicFences.push_back(Fence(*this));
-
-		//initializing imgui
-		m_imguiManager = std::make_unique<ImguiManager>(*this, hWnd);
 	}
 
 	renderer.Initialize(*this);
@@ -145,6 +144,9 @@ void Graphics::FinishInitialization()
 
 	// we are creating one big constant buffer that will hold every constant buffer on scene
 	constantBufferHeap.Finish(*this);
+
+	//initializing imgui
+	m_imguiManager = std::make_unique<ImguiManager>(*this, m_windowHwnd);
 }
 
 void Graphics::CleanupResources()
