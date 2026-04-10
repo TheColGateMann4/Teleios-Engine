@@ -185,6 +185,7 @@
     <ClInclude Include="Src\Graphics\Core\ResourceList.h" />
     <ClInclude Include="Src\Graphics\RenderGraph\RenderJob\GraphicsRenderData.h" />
     <ClInclude Include="Src\Graphics\RenderGraph\RenderPass\Geometry\ShadowPass.h" />
+    <ClInclude Include="Src\Graphics\Core\Pix.h" />
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="Dependencies\zlib1.dll" />

@@ -2,6 +2,8 @@
 #include "Graphics/Core/CommandList.h"
 #include "Graphics/RenderGraph/RenderJob/RenderJob.h"
 
+#include "Graphics/Core/Pix.h"
+
 void RenderPass::Initialize(Graphics& graphics, Scene& scene)
 {
 
@@ -53,9 +55,11 @@ void RenderPass::SetCorrectStates(Graphics& graphics, CommandList* commandList)
 
 void RenderPass::Execute(Graphics& graphics, CommandList* commandList)
 {
+	START_CPU_EVENT(PIX_COLOR(0, 255, 0), typeid(*this).name() + 6);
 	BEGIN_COMMAND_LIST_EVENT(commandList, typeid(*this).name() + 6); // + 6 skips "class " from type info literal
 
 	ExecutePass(graphics, commandList);
 
 	END_COMMAND_LIST_EVENT(commandList);
+	END_CPU_EVENT();
 }

@@ -1,6 +1,8 @@
 #include "Graphics.h"
 #include "Macros/ErrorMacros.h"
 
+#include "Graphics/Core/Pix.h"
+
 using namespace  std::string_literals;
 extern "C" { __declspec(dllexport) extern const UINT D3D12SDKVersion = 715; } // agility version of D3D12Core.dll. Mine is latest preview
 
@@ -101,9 +103,17 @@ void Graphics::BeginFrame(float deltaTime)
 
 void Graphics::FinishFrame()
 {
+	START_CPU_EVENT(PIX_COLOR(0, 255, 255), "Present");
+
 	PresentFrame();
 
+	END_CPU_EVENT();
+
+	START_CPU_EVENT(PIX_COLOR(0, 255, 255), "Cleanup");
+
 	CleanupResources();
+
+	END_CPU_EVENT();
 
 	WaitForGPUIfNeeded();
 }

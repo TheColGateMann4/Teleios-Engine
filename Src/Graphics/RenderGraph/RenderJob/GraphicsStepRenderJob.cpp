@@ -10,6 +10,8 @@
 
 #include "Scene/Material.h"
 
+#include "Graphics/Core/Pix.h"
+
 GraphicsStepRenderJob::GraphicsStepRenderJob(GraphicsRenderData renderData, GeometryPass* pass)
 	:
 	StepRenderJob(renderData.type),
@@ -134,6 +136,8 @@ void GraphicsStepRenderJob::InitializeGraphicResources(Graphics& graphics, Pipel
 
 void GraphicsStepRenderJob::Execute(Graphics& graphics, CommandList* commandList) const
 {
+	START_CPU_EVENT(PIX_COLOR(0, 127, 127), "DrawIndexed");
+
 	commandList->SetPipelineState(graphics, m_pipelineState.get());
 
 	commandList->SetGraphicsRootSignature(graphics, m_rootSignature.get());
@@ -174,6 +178,8 @@ void GraphicsStepRenderJob::Execute(Graphics& graphics, CommandList* commandList
 	unsigned int baseVertexOffset = vertexBufferEntry->GetEntryInfo().offset;
 
 	commandList->DrawIndexed(graphics, indexCount, baseVertexOffset);
+
+	END_CPU_EVENT();
 }
 
 RenderJob::JobGroup GraphicsStepRenderJob::GetGroup() const

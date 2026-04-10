@@ -4,6 +4,8 @@
 #include "Scene/Scene.h"
 #include "Scene/SceneObject.h"
 
+#include "Graphics/Core/Pix.h"
+
 void Renderer::Initialize(Graphics& graphics)
 {
 	m_pipeline.Initialize(graphics);
@@ -48,6 +50,8 @@ void Renderer::AssignJobsToPasses()
 
 void Renderer::Draw(Graphics& graphics, float deltaTime)
 {
+	START_CPU_EVENT(PIX_COLOR(255, 0, 255), "Rendering");
+
 	{
 		// moved to graphics::BeginFrame(), 
 		// we need to push copy events during runtime, we need to have command list open then
@@ -71,6 +75,8 @@ void Renderer::Draw(Graphics& graphics, float deltaTime)
 
 	// executing command lists
 	m_pipeline.Execute(graphics);
+
+	END_CPU_EVENT();
 }
 
 void Renderer::DrawImguiWindow(Graphics& graphics)

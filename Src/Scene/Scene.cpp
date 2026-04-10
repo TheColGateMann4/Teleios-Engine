@@ -10,6 +10,8 @@
 
 #include <imgui.h>
 
+#include "Graphics/Core/Pix.h"
+
 void Scene::AddSceneObjectFromFile(Graphics& graphics, const char* path, float scale)
 {
 	ModelImporter::AddSceneObjectFromFile(graphics, path, scale, *this);
@@ -42,12 +44,18 @@ void Scene::BeginInitialization(Graphics& graphics)
 {
 	// for now we will use graphic command list for simplicity
 	graphics.GetRenderer().GetPipeline().GetGraphicCommandList()->Open(graphics);
+
+	START_CPU_EVENT(PIX_COLOR(255, 0, 0), "Initialization");
 }
 
 void Scene::FinishInitialization(Graphics& graphics)
 {
 	Renderer& renderer = graphics.GetRenderer();
 	Pipeline& pipeline = renderer.GetPipeline();
+
+	END_CPU_EVENT();
+
+	START_CPU_EVENT(PIX_COLOR(255, 255, 0), "Finishing Initialization");
 
 	SetValidCameraAfterInitization(graphics);
 
@@ -73,6 +81,8 @@ void Scene::FinishInitialization(Graphics& graphics)
 	renderer.InitializeJobs(graphics);
 
 	renderer.FinishInitialization(graphics);
+
+	END_CPU_EVENT();
 
 	graphics.WaitForGPU();
 }
@@ -163,6 +173,8 @@ void Scene::DrawObjectInspector(Graphics& graphics)
 	if (!graphics.GetRenderer().GetImguiLayer().IsVisible())
 		return;
 
+	START_CPU_EVENT(PIX_COLOR(0, 0, 255), "Scene hierarchy");
+
 	if(ImGui::Begin("Scene Inspector"))
 	{
 		if(ImGui::BeginTable("SceneInspectorTable", 2, ImGuiTableFlags_Resizable | ImGuiTableFlags_BordersInnerV))
@@ -199,10 +211,14 @@ void Scene::DrawObjectInspector(Graphics& graphics)
 	}
 
 	ImGui::End();
+
+	END_CPU_EVENT();
 }
 
 void Scene::Update(Graphics& graphics, const Input& input, bool isCursorLocked)
 {
+	START_CPU_EVENT(PIX_COLOR(0, 0, 255), "Update");
+
 	// updating importatnt data that other objects depend on
 	{
 		// camera position and rotation so all objects can update their matrices in the same frame
@@ -234,6 +250,8 @@ void Scene::Update(Graphics& graphics, const Input& input, bool isCursorLocked)
 	UpdateObjectMatrices(graphics);
 
 	UpdateGraphicResources(graphics);
+
+	END_CPU_EVENT();
 }
 
 void Scene::UpdateBuffersIfNeeded(Graphics& graphics)

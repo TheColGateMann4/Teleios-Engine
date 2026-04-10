@@ -15,10 +15,7 @@
 
 #include "Graphics/Bindables/DescriptorHeapBindable.h"
 
-#ifdef _DEBUG
-	#include <pix3.h>
-	#pragma comment(lib, "WinPixEventRuntime.lib")
-#endif
+#include "Pix.h"
 
 bool CommandListState::SetRootSignature(RootSignature* _rootSignature)
 {
@@ -162,19 +159,19 @@ void CommandList::SetMarker(std::string_view name)
 {
 	static UINT markerColor = PIX_COLOR(0, 255, 255);
 
-	PIXSetMarker(pCommandList.Get(), markerColor, name.data());
+	SET_GPU_MARKER(pCommandList.Get(), markerColor, name.data());
 }
 
 void CommandList::BeginEvent(std::string_view name)
 {
 	static UINT eventColor = PIX_COLOR(255, 0, 255);
 
-	PIXBeginEvent(pCommandList.Get(), eventColor, name.data());
+	START_GPU_EVENT(pCommandList.Get(), eventColor, name.data());
 }
 
 void CommandList::EndEvent()
 {
-	PIXEndEvent(pCommandList.Get());
+	END_GPU_EVENT(pCommandList.Get());
 }
 #endif
 
