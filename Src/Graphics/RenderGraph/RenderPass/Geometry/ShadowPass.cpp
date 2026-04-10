@@ -6,6 +6,8 @@
 
 #include "Scene/Scene.h"
 
+#include "Graphics/Core/Pix.h"
+
 ShadowPass::ShadowPass(Graphics& graphics)
 {
 	AddBindable(ViewPort::GetResource(graphics, DirectX::XMFLOAT2(graphics.GetWidth(), graphics.GetWidth())));
@@ -54,10 +56,12 @@ void ShadowPass::ExecutePass(Graphics& graphics, CommandList* commandList)
 	for(int i = 0; i < 6; i++)
 	{
 		BEGIN_COMMAND_LIST_EVENT(commandList, std::to_string(i));
+		START_CPU_EVENT(PIX_COLOR(255, 0, 0), std::to_string(i).c_str());
 
 		SetActiveShadowCamera(pointLight, i);
 		GeometryPass::ExecutePass(graphics, commandList);
 
+		END_CPU_EVENT();
 		END_COMMAND_LIST_EVENT(commandList);
 	}
 }
