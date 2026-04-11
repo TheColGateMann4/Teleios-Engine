@@ -57,6 +57,7 @@ public:
 
 public:
 	DXGI_FORMAT GetFormat() const;
+	D3D12_GPU_VIRTUAL_ADDRESS GetGPUAddress() const;
 
 	virtual D3D12_RESOURCE_STATES GetResourceState(unsigned int targetSubresource = 0) const;
 	virtual D3D12_RESOURCE_STATES GetResourceTargetState(unsigned int targetSubresource = 0);

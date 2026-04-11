@@ -60,6 +60,11 @@ DXGI_FORMAT GraphicsResource::GetFormat() const
 	return m_format;
 }
 
+D3D12_GPU_VIRTUAL_ADDRESS GraphicsResource::GetGPUAddress() const
+{
+	return m_pResource->GetGPUVirtualAddress();
+}
+
 D3D12_RESOURCE_STATES GraphicsResource::GetResourceState(unsigned int targetSubresource) const
 {
 	return m_state.currentState;
