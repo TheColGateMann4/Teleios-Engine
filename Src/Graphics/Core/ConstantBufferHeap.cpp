@@ -3,10 +3,12 @@
 #include "Graphics.h"
 #include "CommandList.h"
 
+#include "Graphics/Resources/GraphicsBuffer.h"
+
 ConstantBufferHeap::~ConstantBufferHeap()
 {
-	if(pBufferHeap)
-		pBufferHeap->Unmap(0, nullptr);
+	if(pBufferHeapMappedData && m_bufferHeap)
+		m_bufferHeap->UnMap();
 }
 
 unsigned int ConstantBufferHeap::GetNextTempIndex(UINT resourceAlignedSize)
@@ -43,62 +45,13 @@ void ConstantBufferHeap::Finish(Graphics& graphics)
 {
 	THROW_OBJECT_STATE_ERROR_IF("Tried to finish  when constant buffer heap is finished", m_finished);
 
-	HRESULT hr;
+	THROW_INTERNAL_ERROR_IF("Combined static resource size wasn't multiple of 256", m_combinedSize % 256 != 0);
+	m_bufferHeap = std::make_unique<GraphicsBuffer>(graphics, m_combinedSize / 256 + m_numberOfTempBuffers, 256, GraphicsResource::CPUAccess::readwrite);
 
-	D3D12_HEAP_PROPERTIES heapPropeties = {};
-	heapPropeties.Type = D3D12_HEAP_TYPE_CUSTOM;
-	heapPropeties.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_WRITE_COMBINE;
-	heapPropeties.MemoryPoolPreference = D3D12_MEMORY_POOL_L0;
-	heapPropeties.VisibleNodeMask = 0;
+	pBufferHeapMappedData = m_bufferHeap->Map(graphics);
 
-	D3D12_RESOURCE_DESC resourceDesc = {};
-	resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-	resourceDesc.Alignment = D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT;
-	resourceDesc.Width = m_combinedSize + m_numberOfTempBuffers * 256;
-	resourceDesc.Height = 1;
-	resourceDesc.DepthOrArraySize = 1;
-	resourceDesc.MipLevels = 1;
-	resourceDesc.Format = DXGI_FORMAT_UNKNOWN;
-	resourceDesc.SampleDesc.Count = 1;
-	resourceDesc.SampleDesc.Quality = 0;
-	resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-	resourceDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
-
-	// creating constant buffer of non static resources
-	{
-
-		THROW_ERROR(graphics.GetDeviceResources().GetDevice()->CreateCommittedResource(
-			&heapPropeties,
-			D3D12_HEAP_FLAG_NONE,
-			&resourceDesc,
-			D3D12_RESOURCE_STATE_COMMON, //D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER,
-			nullptr,
-			IID_PPV_ARGS(&pBufferHeap)
-		));
-
-		THROW_ERROR(pBufferHeap->Map(
-			0,
-			nullptr,
-			&pMappedData
-		));
-	}
-
-	// creating "static" constant buffer resource
-	{
-		heapPropeties.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_NOT_AVAILABLE; // cpu won't be able to modify this varible
-		heapPropeties.MemoryPoolPreference = D3D12_MEMORY_POOL_L1; // L1 memory pool is strictly for GPU
-
-		resourceDesc.Width = m_combinedSizeStaticBuffer; // setting size to the one for static resources
-
-		THROW_ERROR(graphics.GetDeviceResources().GetDevice()->CreateCommittedResource(
-			&heapPropeties,
-			D3D12_HEAP_FLAG_NONE,
-			&resourceDesc,
-			D3D12_RESOURCE_STATE_COMMON, //D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER,
-			nullptr,
-			IID_PPV_ARGS(&pStaticBufferHeap)
-		));
-	}
+	THROW_INTERNAL_ERROR_IF("Combined static resource size wasn't multiple of 256", m_combinedSizeStaticBuffer % 256 != 0);
+	m_staticBufferHeap = std::make_unique<GraphicsBuffer>(graphics, m_combinedSizeStaticBuffer / 256, 256, GraphicsResource::CPUAccess::notavailable);
 
 	m_finished = true;
 }
@@ -147,7 +100,7 @@ D3D12_GPU_VIRTUAL_ADDRESS ConstantBufferHeap::GetTempBufferAddress(unsigned int 
 {
 	THROW_INTERNAL_ERROR_IF("Tried to access buffer outside of range", bufferIndex > m_numberOfTempBuffers);
 
-	D3D12_GPU_VIRTUAL_ADDRESS bufferAddress = pBufferHeap->GetGPUVirtualAddress();
+	D3D12_GPU_VIRTUAL_ADDRESS bufferAddress = m_bufferHeap->GetGPUAddress();
 	bufferAddress += GetOffsetOfTempBufferAtIndex(bufferIndex);
 
 	return bufferAddress;
@@ -155,7 +108,7 @@ D3D12_GPU_VIRTUAL_ADDRESS ConstantBufferHeap::GetTempBufferAddress(unsigned int 
 
 D3D12_GPU_VIRTUAL_ADDRESS ConstantBufferHeap::GetBufferAddress(Graphics& graphics, unsigned int bufferIndex)
 {
-	D3D12_GPU_VIRTUAL_ADDRESS bufferAddress = pBufferHeap->GetGPUVirtualAddress();
+	D3D12_GPU_VIRTUAL_ADDRESS bufferAddress = m_bufferHeap->GetGPUAddress();
 	bufferAddress += GetOffsetOfFrameBufferAtIndex(graphics, bufferIndex);
 
 	return bufferAddress;
@@ -163,7 +116,7 @@ D3D12_GPU_VIRTUAL_ADDRESS ConstantBufferHeap::GetBufferAddress(Graphics& graphic
 
 D3D12_GPU_VIRTUAL_ADDRESS ConstantBufferHeap::GetStaticBufferAddress(unsigned int bufferIndex)
 {
-	D3D12_GPU_VIRTUAL_ADDRESS bufferAddress = pStaticBufferHeap->GetGPUVirtualAddress();
+	D3D12_GPU_VIRTUAL_ADDRESS bufferAddress = m_staticBufferHeap->GetGPUAddress();
 	bufferAddress += GetOffsetOfStaticBufferAtIndex(bufferIndex);
 
 	return bufferAddress;
@@ -173,42 +126,25 @@ void ConstantBufferHeap::CopyResources(Graphics& graphics, CommandList* copyComm
 {
 	THROW_OBJECT_STATE_ERROR_IF("Buffer was not finished", !m_finished);
 
-	bool isStaticBufferUsed = false;
+	if (m_uploadResources.empty())
+		return;
 
-	for (size_t updateResourceDataIndex = 0; updateResourceDataIndex < m_uploadResources.size(); updateResourceDataIndex++)
+	copyCommandList->SetResourceState(graphics, m_staticBufferHeap.get(), D3D12_RESOURCE_STATE_COPY_DEST);
+
+	for (auto& uploadData : m_uploadResources)
 	{
-		UploadResource& uploadData = m_uploadResources.at(updateResourceDataIndex);
-
-		if (uploadData.updatedAtFrameIndex != graphics.GetCurrentBufferIndex())
-			continue;
-
-		if(uploadData.alreadyUpdated)
-		{
-			m_uploadResources.erase(m_uploadResources.begin() + updateResourceDataIndex);
-			continue;
-		}
-
-		if(!isStaticBufferUsed)
-		{
-			copyCommandList->SetResourceState(graphics, pStaticBufferHeap.Get(), D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, D3D12_RESOURCE_STATE_COPY_DEST);
-			isStaticBufferUsed = true;
-		}
-
-		UINT64 bufferStartingOffset = GetOffsetOfStaticBufferAtIndex(uploadData.staticResourceID);
-		Microsoft::WRL::ComPtr<ID3D12Resource>& pUploadResource = uploadData.pUploadResource;
+		std::unique_ptr<GraphicsBuffer>& pUploadResource = uploadData.uploadResource;
 		unsigned int bufferWorkRange = uploadData.workRangeInBytes;
+		UINT64 bufferStartingOffset = GetOffsetOfStaticBufferAtIndex(uploadData.staticResourceID);
 	
-		copyCommandList->SetResourceState(graphics, pUploadResource.Get(), D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, D3D12_RESOURCE_STATE_COPY_SOURCE);
+		pUploadResource->CopyPartiallyTo(graphics, copyCommandList, 0, bufferWorkRange, m_staticBufferHeap.get(), bufferStartingOffset);
 
-		copyCommandList->CopyBufferRegion(graphics, pStaticBufferHeap.Get(), bufferStartingOffset, pUploadResource.Get(), 0, bufferWorkRange);
-
-		copyCommandList->SetResourceState(graphics, pUploadResource.Get(), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
-
-		uploadData.alreadyUpdated = true; // indicating that resource has been copied and just waits for safe deletion
+		graphics.GetFrameResourceDeleter()->DeleteResource(graphics, std::move(pUploadResource));
 	}
 
-	if(isStaticBufferUsed)
-		copyCommandList->SetResourceState(graphics, pStaticBufferHeap.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
+	copyCommandList->SetResourceState(graphics, m_staticBufferHeap.get(), D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
+
+	m_uploadResources.clear();
 }
 
 void ConstantBufferHeap::UpdateHeap(Graphics& graphics)
@@ -217,25 +153,22 @@ void ConstantBufferHeap::UpdateHeap(Graphics& graphics)
 
 	unsigned int currFrameIndex = graphics.GetCurrentBufferIndex();
 
-	for (unsigned int updatedResourceDataIndex = m_frequentlyUpdatedResourcesToUpdate.size(); updatedResourceDataIndex > 0; updatedResourceDataIndex--)
+	for (auto& resourceToUpdate : m_frequentlyUpdatedResourcesToUpdate)
 	{
-		auto& staticResourceToUpdate = m_frequentlyUpdatedResourcesToUpdate.at(updatedResourceDataIndex - 1);
+		if (resourceToUpdate.second.updated)
+			continue;
 
-		if (staticResourceToUpdate.updatedAtFrameIndex == currFrameIndex)
-		{
-			if (staticResourceToUpdate.alreadyUpdated)
-			{
-				m_frequentlyUpdatedResourcesToUpdate.erase(m_frequentlyUpdatedResourcesToUpdate.begin() + updatedResourceDataIndex - 1);
-				continue;
-			}
-			else
-			{
-				staticResourceToUpdate.alreadyUpdated = true;
-			}
-		}
-
-		UpdateResource(graphics, staticResourceToUpdate.bufferIndex, staticResourceToUpdate.data, staticResourceToUpdate.dataSize);
+		UpdateResource(graphics, resourceToUpdate.first, resourceToUpdate.second.data, resourceToUpdate.second.dataSize);
+		resourceToUpdate.second.updated = true;
 	}
+
+	std::erase_if(m_frequentlyUpdatedResourcesToUpdate, 
+		[&graphics](const auto& e)
+		{
+			const auto& v = e.second;
+			return v.updated == true && v.frameIndex == graphics.GetCurrentBufferIndex();
+		}
+	);
 }
 
 void ConstantBufferHeap::UpdateTempResource(Graphics& graphics, unsigned int bufferIndex, void* data, size_t size)
@@ -263,7 +196,7 @@ void ConstantBufferHeap::UpdateResource(Graphics& graphics, UINT64 bufferStartin
 	THROW_INTERNAL_ERROR_IF("Tried to update buffer as larger than it is", size > bufferSize);
 	THROW_INTERNAL_ERROR_IF("Passed sizes were larger than buffer itself", size > m_combinedSize || bufferSize > m_combinedSize);
 
-	void* dest = static_cast<char*>(pMappedData) + bufferStartingOffset;
+	void* dest = static_cast<char*>(pBufferHeapMappedData) + bufferStartingOffset;
 
 	memcpy_s(dest, bufferSize, data, size);
 }
@@ -272,93 +205,38 @@ void ConstantBufferHeap::UpdateStaticResource(Graphics& graphics, unsigned int b
 {
 	THROW_OBJECT_STATE_ERROR_IF("Buffer was not finished", !m_finished);
 
-	Microsoft::WRL::ComPtr<ID3D12Resource> pUploadResource;
+	constexpr unsigned int bufferAlignment = 256;
+	unsigned int alignedSize = std::ceil(float(size) / float(bufferAlignment)) * float(bufferAlignment);
 
-	// creating upload constant buffer
-	{
-		constexpr unsigned int bufferAlignment = 256;
-		unsigned int alignedSize = std::ceil(float(size) / float(bufferAlignment)) * float(bufferAlignment);
-
-		HRESULT hr;
-
-		D3D12_HEAP_PROPERTIES heapPropeties = {};
-		heapPropeties.Type = D3D12_HEAP_TYPE_CUSTOM;
-		heapPropeties.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_WRITE_BACK;
-		heapPropeties.MemoryPoolPreference = D3D12_MEMORY_POOL_L0;
-		heapPropeties.VisibleNodeMask = 0;
-
-		D3D12_RESOURCE_DESC resourceDesc = {};
-		resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-		resourceDesc.Alignment = D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT;
-		resourceDesc.Width = alignedSize;
-		resourceDesc.Height = 1;
-		resourceDesc.DepthOrArraySize = 1;
-		resourceDesc.MipLevels = 1;
-		resourceDesc.Format = DXGI_FORMAT_UNKNOWN;
-		resourceDesc.SampleDesc.Count = 1;
-		resourceDesc.SampleDesc.Quality = 0;
-		resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-		resourceDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
-
-		THROW_ERROR(graphics.GetDeviceResources().GetDevice()->CreateCommittedResource(
-			&heapPropeties,
-			D3D12_HEAP_FLAG_NONE,
-			&resourceDesc,
-			D3D12_RESOURCE_STATE_COMMON, //D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER,
-			nullptr,
-			IID_PPV_ARGS(&pUploadResource)
-		));
-	}
+	std::unique_ptr<GraphicsBuffer> uploadResource = std::make_unique<GraphicsBuffer>(graphics, alignedSize / 256, 256, GraphicsResource::CPUAccess::write);;
 
 	// update upload constant buffer
 	{
-		HRESULT hr;
-
-		D3D12_RANGE readRange = {};
-		readRange.Begin = 0;
-		readRange.End = 0;
-
-		D3D12_RANGE writeRange = {};
-		writeRange.Begin = 0;
-		writeRange.End = size;
-
 		void* pMappedData = nullptr;
 
-		THROW_ERROR(pUploadResource->Map(
-			0,
-			&readRange,
-			&pMappedData
-		));
+		pMappedData = uploadResource->Map(graphics);
 
 		memcpy_s(static_cast<char*>(pMappedData), size, data, size);
 
-		THROW_INFO_ERROR(pUploadResource->Unmap(0, &writeRange));
+		uploadResource->UnMap(0, size);
 	}
 
 	UploadResource uploadResourceData = {};
-	uploadResourceData.pUploadResource = pUploadResource;
+	uploadResourceData.uploadResource = std::move(uploadResource);
 	uploadResourceData.staticResourceID = bufferIndex;
 	uploadResourceData.workRangeInBytes = size;
-	uploadResourceData.updatedAtFrameIndex = graphics.GetCurrentBufferIndex();
 
-	m_uploadResources.push_back(uploadResourceData);
+	m_uploadResources.push_back(std::move(uploadResourceData));
 }
 
 void ConstantBufferHeap::UpdateFrequentlyUpdatedStaticResource(Graphics& graphics, unsigned int bufferIndex, void* data, size_t size)
 {
 	THROW_OBJECT_STATE_ERROR_IF("Buffer was not finished", !m_finished);
 
-	//removing previous update data for currently targeted buffer
-	for(size_t updateDataIndex = 0; updateDataIndex < m_frequentlyUpdatedResourcesToUpdate.size(); updateDataIndex++)
-		if(m_frequentlyUpdatedResourcesToUpdate.at(updateDataIndex).bufferIndex == bufferIndex)
-			m_frequentlyUpdatedResourcesToUpdate.erase(m_frequentlyUpdatedResourcesToUpdate.begin() + updateDataIndex);
-
-
 	FrequentlyUpdatedResourceData frequentlyUpdatedResourceData = {};
 	frequentlyUpdatedResourceData.data = data;
 	frequentlyUpdatedResourceData.dataSize = size;
-	frequentlyUpdatedResourceData.bufferIndex = bufferIndex;
-	frequentlyUpdatedResourceData.updatedAtFrameIndex = graphics.GetCurrentBufferIndex();
+	frequentlyUpdatedResourceData.frameIndex = graphics.GetCurrentBufferIndex();
 
-	m_frequentlyUpdatedResourcesToUpdate.push_back(frequentlyUpdatedResourceData);
+	m_frequentlyUpdatedResourcesToUpdate[bufferIndex] = frequentlyUpdatedResourceData;
 }

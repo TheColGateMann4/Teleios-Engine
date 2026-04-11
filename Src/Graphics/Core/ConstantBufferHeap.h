@@ -5,6 +5,7 @@
 
 class Graphics;
 class CommandList;
+class GraphicsBuffer;
 
 class ConstantBufferHeap
 {
@@ -51,13 +52,13 @@ private:
 	bool m_finished = false;
 
 	// non static resources - on shared memory
-	Microsoft::WRL::ComPtr<ID3D12Resource> pBufferHeap;
+	std::unique_ptr<GraphicsBuffer> m_bufferHeap;
 	std::vector<UINT64> m_bufferOffsets = {};
 	UINT64 m_combinedSize = 0;
-	void* pMappedData = nullptr;
+	void* pBufferHeapMappedData = nullptr;
 
 	// static resources - on GPU memory
-	Microsoft::WRL::ComPtr<ID3D12Resource> pStaticBufferHeap;
+	std::unique_ptr<GraphicsBuffer> m_staticBufferHeap;
 	std::vector<UINT64> m_staticBufferOffsets = {};
 	UINT64 m_combinedSizeStaticBuffer = 0;
 	
@@ -70,12 +71,9 @@ private:
 	// struct contaning data for updating resource on GPU
 	struct UploadResource 
 	{
-		Microsoft::WRL::ComPtr<ID3D12Resource> pUploadResource;
+		std::unique_ptr<GraphicsBuffer> uploadResource;
 		unsigned int workRangeInBytes;
-
 		unsigned int staticResourceID;
-		unsigned int updatedAtFrameIndex;
-		bool alreadyUpdated = false;
 	};
 
 	std::vector<UploadResource> m_uploadResources;
@@ -85,10 +83,9 @@ private:
 		void* data;
 		size_t dataSize;
 
-		unsigned int bufferIndex;
-		unsigned int updatedAtFrameIndex;
-		bool alreadyUpdated = false;
+		unsigned int frameIndex;
+		bool updated = false;
 	};
 
-	std::vector<FrequentlyUpdatedResourceData> m_frequentlyUpdatedResourcesToUpdate;
+	std::unordered_map<unsigned int, FrequentlyUpdatedResourceData> m_frequentlyUpdatedResourcesToUpdate;
 };
