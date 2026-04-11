@@ -41,6 +41,9 @@ public:
 		Update(graphics, pipeline, list.begin(), list.size() * sizeof(T));
 	}
 
+	void* Map(Graphics& graphics, SIZE_T readStart = 0, SIZE_T readEnd = 0);
+	void UnMap(SIZE_T writeStart = 0, SIZE_T writeEnd = 0);
+
 	size_t GetByteSize() const;
 	size_t GetNumElements() const;
 	size_t GetByteStride() const;
@@ -53,4 +56,5 @@ private:
 	size_t m_byteSize;
 	size_t m_byteStride;
 	size_t m_numElements;
+	bool m_mapped = false;
 };

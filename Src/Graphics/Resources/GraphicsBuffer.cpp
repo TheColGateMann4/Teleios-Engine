@@ -140,6 +140,35 @@ void GraphicsBuffer::Update(Graphics& graphics, Pipeline& pipeline, const void* 
 	}
 }
 
+void* GraphicsBuffer::Map(Graphics& graphics, SIZE_T readStart, SIZE_T readEnd)
+{
+	THROW_INTERNAL_ERROR_IF("Tried to read out of buffer data", readStart > m_byteSize || readEnd > m_byteSize );
+	THROW_INTERNAL_ERROR_IF("Tried to map buffer that doesn't have write CPU access", m_cpuAccess != CPUAccess::readwrite && m_cpuAccess != CPUAccess::write);
+	THROW_INTERNAL_ERROR_IF("Tried to map and read buffer that doesn't have CPU read access", m_cpuAccess == CPUAccess::write && (readStart != 0 || readEnd != 0));
+	THROW_INTERNAL_ERROR_IF("Tried to map already mapped buffer", m_mapped);
+
+	HRESULT hr;
+
+	D3D12_RANGE readRange = { .Begin = readStart , .End = readEnd };
+	void* pMappedData = nullptr;
+	THROW_ERROR(m_pResource->Map(0, &readRange, &pMappedData));
+
+	m_mapped = true;
+
+	return pMappedData;
+}
+
+void GraphicsBuffer::UnMap(SIZE_T writeStart, SIZE_T writeEnd)
+{
+	THROW_INTERNAL_ERROR_IF("Tried to write out of buffer data", writeStart > m_byteSize || writeEnd > m_byteSize);
+	THROW_INTERNAL_ERROR_IF("Tried to unmap not mapped buffer", !m_mapped);
+
+	D3D12_RANGE writeRange = { .Begin = writeStart , .End = writeEnd };
+	m_pResource->Unmap(0, &writeRange);
+
+	m_mapped = false;
+}
+
 size_t GraphicsBuffer::GetByteSize() const
 {
 	return m_byteSize;
