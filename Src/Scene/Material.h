@@ -27,7 +27,7 @@ namespace MaterialProperties
 		bool hasRoughnessMap = false;
 		bool hasAmbientMap = false;
 
-		MaterialWorkflow materialWorkflow = MaterialWorkflow::none;
+		MaterialWorkflow materialWorkflow = MaterialWorkflow::metalnessRoughness;
 
 		std::string albedoMapPath;
 		std::string normalMapPath;
