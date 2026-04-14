@@ -27,6 +27,7 @@ protected:
 		initialized(true)
 	{}
 
+public:
 	unsigned int GetIndex() const
 	{
 		THROW_INTERNAL_ERROR_IF("Tried to use invalid buffer index", !initialized);
@@ -79,6 +80,10 @@ public:	// At runtime
 	D3D12_GPU_VIRTUAL_ADDRESS GetBufferAddress(Graphics& graphics, DynamicBufferIndex bufferIndex);
 	D3D12_GPU_VIRTUAL_ADDRESS GetBufferAddress(StaticBufferIndex bufferIndex);
 
+	ID3D12Resource* GetDynamicResource() const;
+	ID3D12Resource* GetStaticResource() const;
+	ID3D12Resource* GetTempResource() const;
+
 	void UpdateHeap(Graphics& graphics);
 
 	void UpdateResource(Graphics& graphics, TempBufferIndex bufferIndex, void* data, size_t size);
@@ -87,7 +92,7 @@ public:	// At runtime
 	void UpdateFrequentlyUpdatedResource(Graphics& graphics, DynamicBufferIndex bufferIndex, void* data, size_t size);
 
 private:
-	void UpdateResource(Graphics& graphics, UINT64 bufferStartingOffset, UINT64 bufferSize, void* data, size_t size);
+	void UpdateResource(UINT64 bufferStartingOffset, UINT64 bufferSize, void* data, size_t size);
 
 private:
 	UINT64 GetOffsetOfBuffer(Graphics& graphics, DynamicBufferIndex bufferIndex);
@@ -159,11 +164,11 @@ public:  // At program initialization
 
 public: // At runtime
 	// returns index offset of element in buffer
-	UINT GetOffsetOfBuffer(Graphics& graphics, unsigned int bufferIndex);
+	UINT64 GetOffsetOfBuffer(Graphics& graphics, unsigned int bufferIndex);
+	UINT64 GetOffsetOfBuffer(unsigned int frameIndex, unsigned int bufferIndex);
 
 private:
-	UINT GetOffsetOfBuffer(unsigned int frameIndex, unsigned int bufferIndex);
-	UINT GetBufferOffset(unsigned int bufferIndex);
+	UINT64 GetBufferOffset(unsigned int bufferIndex);
 	UINT GetBufferSize(unsigned int bufferIndex);
 
 protected:

@@ -15,6 +15,12 @@ void BufferHeapBase::Finish(Graphics& graphics)
 {
 	THROW_OBJECT_STATE_ERROR_IF("Tried to finish when constant buffer heap is finished", m_finished);
 
+	if (m_dynamicHeap.combinedSize == 0)
+		m_dynamicHeap.combinedSize = 1024 * 8;
+
+	if (m_staticHeap.combinedSize == 0)
+		m_staticHeap.combinedSize = 1024 * 8;
+
 	m_dynamicHeap.heap = std::make_unique<GraphicsBuffer>(graphics, m_dynamicHeap.combinedSize + m_numberOfTempBuffers, 1, GraphicsResource::CPUAccess::readwrite);
 
 	pBufferHeapMappedData = m_dynamicHeap.heap->Map(graphics);
@@ -111,6 +117,21 @@ void BufferHeapBase::CopyResources(Graphics& graphics, CommandList* copyCommandL
 	m_uploadResources.clear();
 }
 
+ID3D12Resource* BufferHeapBase::GetDynamicResource() const
+{
+	return m_dynamicHeap.heap->GetResource();
+}
+
+ID3D12Resource* BufferHeapBase::GetStaticResource() const
+{
+	return m_staticHeap.heap->GetResource();
+}
+
+ID3D12Resource* BufferHeapBase::GetTempResource() const
+{
+	return m_dynamicHeap.heap->GetResource();
+}
+
 void BufferHeapBase::UpdateHeap(Graphics& graphics)
 {
 	THROW_OBJECT_STATE_ERROR_IF("Buffer was not finished", !m_finished);
@@ -142,7 +163,7 @@ void BufferHeapBase::UpdateResource(Graphics& graphics, TempBufferIndex bufferIn
 	UINT64 bufferStartingOffset = GetOffsetOfBuffer(bufferIndex);
 	UINT64 bufferSize = 256;
 
-	UpdateResource(graphics, bufferStartingOffset, bufferSize, data, size);
+	UpdateResource(bufferStartingOffset, bufferSize, data, size);
 }
 
 void BufferHeapBase::UpdateResource(Graphics& graphics, DynamicBufferIndex bufferIndex, void* data, size_t size)
@@ -152,10 +173,10 @@ void BufferHeapBase::UpdateResource(Graphics& graphics, DynamicBufferIndex buffe
 	UINT64 bufferStartingOffset = GetOffsetOfBuffer(graphics, bufferIndex);
 	UINT64 bufferSize = GetSizeOfBuffer(graphics, bufferIndex);
 
-	UpdateResource(graphics, bufferStartingOffset, bufferSize, data, size);
+	UpdateResource(bufferStartingOffset, bufferSize, data, size);
 }
 
-void BufferHeapBase::UpdateResource(Graphics& graphics, UINT64 bufferStartingOffset, UINT64 bufferSize, void* data, size_t size)
+void BufferHeapBase::UpdateResource(UINT64 bufferStartingOffset, UINT64 bufferSize, void* data, size_t size)
 {
 	THROW_INTERNAL_ERROR_IF("Tried to update buffer as larger than it is", size > bufferSize);
 	THROW_INTERNAL_ERROR_IF("Passed sizes were larger than buffer itself", size > m_dynamicHeap.combinedSize || bufferSize > m_dynamicHeap.combinedSize);
@@ -300,19 +321,19 @@ DynamicBufferIndex BufferHeap::RequestMoreSpace(Graphics& graphics, UINT resourc
 	return DynamicBufferIndex(m_dynamicHeap.buffers.size() - 1);
 }
 
-UINT BufferHeap::GetOffsetOfBuffer(Graphics& graphics, unsigned int bufferIndex)
+UINT64 BufferHeap::GetOffsetOfBuffer(Graphics& graphics, unsigned int bufferIndex)
 {
 	return GetOffsetOfBuffer(graphics.GetCurrentBufferIndex(), bufferIndex);
 }
 
-UINT BufferHeap::GetOffsetOfBuffer(unsigned int frameIndex, unsigned int bufferIndex)
+UINT64 BufferHeap::GetOffsetOfBuffer(unsigned int frameIndex, unsigned int bufferIndex)
 {
 	THROW_INTERNAL_ERROR_IF("Tried to access buffer outside of range", bufferIndex > m_dynamicHeap.buffers.size());
 
 	return GetBufferOffset(bufferIndex) + GetBufferSize(bufferIndex) * frameIndex;
 }
 
-UINT BufferHeap::GetBufferOffset(unsigned int bufferIndex)
+UINT64 BufferHeap::GetBufferOffset(unsigned int bufferIndex)
 {
 	auto bufferData = m_dynamicHeap.buffers.at(bufferIndex);
 
