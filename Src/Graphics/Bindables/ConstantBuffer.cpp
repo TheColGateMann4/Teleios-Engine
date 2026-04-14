@@ -40,7 +40,7 @@ void Buffer::Initialize(Graphics& graphics, DescriptorHeap::DescriptorInfo descr
 	shaderResourceViewDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
 	shaderResourceViewDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 	shaderResourceViewDesc.Buffer = {};
-	shaderResourceViewDesc.Buffer.FirstElement = offsetInMainBuffer / stride;
+	shaderResourceViewDesc.Buffer.FirstElement = 0;
 	shaderResourceViewDesc.Buffer.NumElements = m_numElements;
 	shaderResourceViewDesc.Buffer.StructureByteStride = stride;
 	shaderResourceViewDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
