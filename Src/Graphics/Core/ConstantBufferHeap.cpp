@@ -5,149 +5,113 @@
 
 #include "Graphics/Resources/GraphicsBuffer.h"
 
-ConstantBufferHeap::~ConstantBufferHeap()
+BufferHeapBase::~BufferHeapBase()
 {
-	if(pBufferHeapMappedData && m_bufferHeap)
-		m_bufferHeap->UnMap();
+	if(pBufferHeapMappedData && m_dynamicHeap.heap)
+		m_dynamicHeap.heap->UnMap();
 }
 
-unsigned int ConstantBufferHeap::GetNextTempIndex(UINT resourceAlignedSize)
+void BufferHeapBase::Finish(Graphics& graphics)
 {
-	THROW_INTERNAL_ERROR_IF("Temp buffer size was higher than 256", resourceAlignedSize > 256);
-	THROW_INTERNAL_ERROR_IF("Ran out of space for temp buffers", m_numTempBuffersUsed == m_numberOfTempBuffers);
+	THROW_OBJECT_STATE_ERROR_IF("Tried to finish when constant buffer heap is finished", m_finished);
 
-	m_numTempBuffersUsed++;
+	m_dynamicHeap.heap = std::make_unique<GraphicsBuffer>(graphics, m_dynamicHeap.combinedSize + m_numberOfTempBuffers, 1, GraphicsResource::CPUAccess::readwrite);
 
-	return m_numTempBuffersUsed - 1;
-}
+	pBufferHeapMappedData = m_dynamicHeap.heap->Map(graphics);
 
-unsigned int ConstantBufferHeap::RequestMoreStaticSpace(UINT resourceAlignedSize)
-{
-	THROW_OBJECT_STATE_ERROR_IF("Tried to Request more space when constant buffer heap is finished", m_finished);
-
-	m_staticBufferOffsets.push_back(m_combinedSizeStaticBuffer);
-	m_combinedSizeStaticBuffer += resourceAlignedSize;
-
-	return m_staticBufferOffsets.size() - 1;
-}
-
-unsigned int ConstantBufferHeap::RequestMoreSpace(Graphics& graphics, UINT resourceAlignedSize)
-{
-	THROW_OBJECT_STATE_ERROR_IF("Tried to Request more space when constant buffer heap is finished", m_finished);
-
-	m_bufferOffsets.push_back(m_combinedSize);
-	m_combinedSize += resourceAlignedSize * graphics.GetBufferCount();
-
-	return m_bufferOffsets.size() - 1;
-}
-
-void ConstantBufferHeap::Finish(Graphics& graphics)
-{
-	THROW_OBJECT_STATE_ERROR_IF("Tried to finish  when constant buffer heap is finished", m_finished);
-
-	THROW_INTERNAL_ERROR_IF("Combined static resource size wasn't multiple of 256", m_combinedSize % 256 != 0);
-	m_bufferHeap = std::make_unique<GraphicsBuffer>(graphics, m_combinedSize / 256 + m_numberOfTempBuffers, 256, GraphicsResource::CPUAccess::readwrite);
-
-	pBufferHeapMappedData = m_bufferHeap->Map(graphics);
-
-	THROW_INTERNAL_ERROR_IF("Combined static resource size wasn't multiple of 256", m_combinedSizeStaticBuffer % 256 != 0);
-	m_staticBufferHeap = std::make_unique<GraphicsBuffer>(graphics, m_combinedSizeStaticBuffer / 256, 256, GraphicsResource::CPUAccess::notavailable);
+	m_staticHeap.heap = std::make_unique<GraphicsBuffer>(graphics, m_staticHeap.combinedSize, 1, GraphicsResource::CPUAccess::notavailable);
 
 	m_finished = true;
 }
 
-UINT64 ConstantBufferHeap::GetOffsetOfFrameBufferAtIndex(Graphics& graphics, unsigned int bufferIndex)
+UINT64 BufferHeapBase::GetOffsetOfBuffer(Graphics& graphics, DynamicBufferIndex bufferIndex)
 {
-	return GetOffsetAtIndex(bufferIndex) + GetBufferSizeAtIndex(graphics, bufferIndex) * graphics.GetCurrentBufferIndex();
+	return GetBufferOffsetAtIndex(m_dynamicHeap, bufferIndex.GetIndex()) + GetSizeOfBuffer(graphics, bufferIndex) * graphics.GetCurrentBufferIndex();
 }
 
-UINT64 ConstantBufferHeap::GetOffsetOfTempBufferAtIndex(unsigned int bufferIndex)
+UINT64 BufferHeapBase::GetOffsetOfBuffer(TempBufferIndex bufferIndex)
 {
-	return m_combinedSize + bufferIndex * 256;
+	return m_dynamicHeap.combinedSize + bufferIndex.GetIndex() * 256;
 }
 
-UINT64 ConstantBufferHeap::GetOffsetOfStaticBufferAtIndex(unsigned int bufferIndex)
+UINT64 BufferHeapBase::GetOffsetOfBuffer(StaticBufferIndex bufferIndex)
 {
-	THROW_INTERNAL_ERROR_IF("Tried to access offset outside constant buffer heap", bufferIndex > m_staticBufferOffsets.size());
-
-	return m_staticBufferOffsets.at(bufferIndex);
+	return GetBufferOffsetAtIndex(m_staticHeap, bufferIndex.GetIndex());
 }
 
-UINT64 ConstantBufferHeap::GetOffsetAtIndex(unsigned int bufferIndex)
+UINT64 BufferHeapBase::GetSizeOfBuffer(Graphics& graphics, DynamicBufferIndex bufferIndex)
 {
-	THROW_INTERNAL_ERROR_IF("Tried to access offset outside constant buffer heap", bufferIndex > m_bufferOffsets.size());
+	THROW_INTERNAL_ERROR_IF("Tried to access offset outside constant buffer heap", bufferIndex.GetIndex() > m_dynamicHeap.buffers.size());
 
-	return m_bufferOffsets.at(bufferIndex);
+	return m_dynamicHeap.buffers.at(bufferIndex.GetIndex()).size;
 }
 
-UINT64 ConstantBufferHeap::GetBufferSizeAtIndex(Graphics& graphics, unsigned int bufferIndex)
+UINT64 BufferHeapBase::GetSizeOfBuffer(Graphics& graphics, StaticBufferIndex bufferIndex)
 {
-	UINT64 startOffset = GetOffsetAtIndex(bufferIndex);
-	UINT64 endOffset = bufferIndex + 1 == m_bufferOffsets.size() ? m_combinedSize : GetOffsetAtIndex(bufferIndex + 1);
+	THROW_INTERNAL_ERROR_IF("Tried to access offset outside constant buffer heap", bufferIndex.GetIndex() > m_staticHeap.buffers.size());
 
-	return (endOffset - startOffset) / graphics.GetBufferCount();
+	return m_staticHeap.buffers.at(bufferIndex.GetIndex()).size;
 }
 
-UINT64 ConstantBufferHeap::GetStaticBufferSizeAtIndex(Graphics& graphics, unsigned int bufferIndex)
+UINT64 BufferHeapBase::GetBufferOffsetAtIndex(const HeapData& heapData, unsigned int bufferIndex)
 {
-	UINT64 startOffset = GetOffsetOfStaticBufferAtIndex(bufferIndex);
-	UINT64 endOffset = bufferIndex + 1 == m_staticBufferOffsets.size() ? m_combinedSizeStaticBuffer : GetOffsetOfStaticBufferAtIndex(bufferIndex + 1);
+	THROW_INTERNAL_ERROR_IF("Tried to access offset outside constant buffer heap", bufferIndex > heapData.buffers.size());
 
-	return (endOffset - startOffset);
+	return heapData.buffers.at(bufferIndex).offset;
 }
 
-D3D12_GPU_VIRTUAL_ADDRESS ConstantBufferHeap::GetTempBufferAddress(unsigned int bufferIndex)
+D3D12_GPU_VIRTUAL_ADDRESS BufferHeapBase::GetBufferAddress(TempBufferIndex bufferIndex)
 {
-	THROW_INTERNAL_ERROR_IF("Tried to access buffer outside of range", bufferIndex > m_numberOfTempBuffers);
+	THROW_INTERNAL_ERROR_IF("Tried to access buffer outside of range", bufferIndex.GetIndex() > m_numberOfTempBuffers);
 
-	D3D12_GPU_VIRTUAL_ADDRESS bufferAddress = m_bufferHeap->GetGPUAddress();
-	bufferAddress += GetOffsetOfTempBufferAtIndex(bufferIndex);
+	D3D12_GPU_VIRTUAL_ADDRESS bufferAddress = m_dynamicHeap.heap->GetGPUAddress();
+	bufferAddress += GetOffsetOfBuffer(bufferIndex);
 
 	return bufferAddress;
 }
 
-D3D12_GPU_VIRTUAL_ADDRESS ConstantBufferHeap::GetBufferAddress(Graphics& graphics, unsigned int bufferIndex)
+D3D12_GPU_VIRTUAL_ADDRESS BufferHeapBase::GetBufferAddress(Graphics& graphics, DynamicBufferIndex bufferIndex)
 {
-	D3D12_GPU_VIRTUAL_ADDRESS bufferAddress = m_bufferHeap->GetGPUAddress();
-	bufferAddress += GetOffsetOfFrameBufferAtIndex(graphics, bufferIndex);
+	D3D12_GPU_VIRTUAL_ADDRESS bufferAddress = m_dynamicHeap.heap->GetGPUAddress();
+	bufferAddress += GetOffsetOfBuffer(graphics, bufferIndex);
 
 	return bufferAddress;
 }
 
-D3D12_GPU_VIRTUAL_ADDRESS ConstantBufferHeap::GetStaticBufferAddress(unsigned int bufferIndex)
+D3D12_GPU_VIRTUAL_ADDRESS BufferHeapBase::GetBufferAddress(StaticBufferIndex bufferIndex)
 {
-	D3D12_GPU_VIRTUAL_ADDRESS bufferAddress = m_staticBufferHeap->GetGPUAddress();
-	bufferAddress += GetOffsetOfStaticBufferAtIndex(bufferIndex);
+	D3D12_GPU_VIRTUAL_ADDRESS bufferAddress = m_staticHeap.heap->GetGPUAddress();
+	bufferAddress += GetOffsetOfBuffer(bufferIndex);
 
 	return bufferAddress;
 }
 
-void ConstantBufferHeap::CopyResources(Graphics& graphics, CommandList* copyCommandList)
+void BufferHeapBase::CopyResources(Graphics& graphics, CommandList* copyCommandList)
 {
 	THROW_OBJECT_STATE_ERROR_IF("Buffer was not finished", !m_finished);
 
 	if (m_uploadResources.empty())
 		return;
 
-	copyCommandList->SetResourceState(graphics, m_staticBufferHeap.get(), D3D12_RESOURCE_STATE_COPY_DEST);
+	copyCommandList->SetResourceState(graphics, m_staticHeap.heap.get(), D3D12_RESOURCE_STATE_COPY_DEST);
 
 	for (auto& uploadData : m_uploadResources)
 	{
 		std::unique_ptr<GraphicsBuffer>& pUploadResource = uploadData.uploadResource;
 		unsigned int bufferWorkRange = uploadData.workRangeInBytes;
-		UINT64 bufferStartingOffset = GetOffsetOfStaticBufferAtIndex(uploadData.staticResourceID);
+		UINT64 bufferStartingOffset = GetOffsetOfBuffer(uploadData.staticResourceID);
 	
-		pUploadResource->CopyPartiallyTo(graphics, copyCommandList, 0, bufferWorkRange, m_staticBufferHeap.get(), bufferStartingOffset);
+		pUploadResource->CopyPartiallyTo(graphics, copyCommandList, 0, bufferWorkRange, m_staticHeap.heap.get(), bufferStartingOffset);
 
 		graphics.GetFrameResourceDeleter()->DeleteResource(graphics, std::move(pUploadResource));
 	}
 
-	copyCommandList->SetResourceState(graphics, m_staticBufferHeap.get(), D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
+	copyCommandList->SetResourceState(graphics, m_staticHeap.heap.get(), D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
 
 	m_uploadResources.clear();
 }
 
-void ConstantBufferHeap::UpdateHeap(Graphics& graphics)
+void BufferHeapBase::UpdateHeap(Graphics& graphics)
 {
 	THROW_OBJECT_STATE_ERROR_IF("Buffer was not finished", !m_finished);
 
@@ -158,7 +122,7 @@ void ConstantBufferHeap::UpdateHeap(Graphics& graphics)
 		if (resourceToUpdate.second.updated)
 			continue;
 
-		UpdateResource(graphics, resourceToUpdate.first, resourceToUpdate.second.data, resourceToUpdate.second.dataSize);
+		UpdateResource(graphics, DynamicBufferIndex(resourceToUpdate.first), resourceToUpdate.second.data, resourceToUpdate.second.dataSize);
 		resourceToUpdate.second.updated = true;
 	}
 
@@ -171,44 +135,41 @@ void ConstantBufferHeap::UpdateHeap(Graphics& graphics)
 	);
 }
 
-void ConstantBufferHeap::UpdateTempResource(Graphics& graphics, unsigned int bufferIndex, void* data, size_t size)
+void BufferHeapBase::UpdateResource(Graphics& graphics, TempBufferIndex bufferIndex, void* data, size_t size)
 {
 	THROW_OBJECT_STATE_ERROR_IF("Buffer was not finished", !m_finished);
 
-	UINT64 bufferStartingOffset = GetOffsetOfTempBufferAtIndex(bufferIndex);
+	UINT64 bufferStartingOffset = GetOffsetOfBuffer(bufferIndex);
 	UINT64 bufferSize = 256;
 
 	UpdateResource(graphics, bufferStartingOffset, bufferSize, data, size);
 }
 
-void ConstantBufferHeap::UpdateResource(Graphics& graphics, unsigned int bufferIndex, void* data, size_t size)
+void BufferHeapBase::UpdateResource(Graphics& graphics, DynamicBufferIndex bufferIndex, void* data, size_t size)
 {
 	THROW_OBJECT_STATE_ERROR_IF("Buffer was not finished", !m_finished);
 
-	UINT64 bufferStartingOffset = GetOffsetOfFrameBufferAtIndex(graphics, bufferIndex);
-	UINT64 bufferSize = GetBufferSizeAtIndex(graphics, bufferIndex);
+	UINT64 bufferStartingOffset = GetOffsetOfBuffer(graphics, bufferIndex);
+	UINT64 bufferSize = GetSizeOfBuffer(graphics, bufferIndex);
 
 	UpdateResource(graphics, bufferStartingOffset, bufferSize, data, size);
 }
 
-void ConstantBufferHeap::UpdateResource(Graphics& graphics, UINT64 bufferStartingOffset, UINT64 bufferSize, void* data, size_t size)
+void BufferHeapBase::UpdateResource(Graphics& graphics, UINT64 bufferStartingOffset, UINT64 bufferSize, void* data, size_t size)
 {
 	THROW_INTERNAL_ERROR_IF("Tried to update buffer as larger than it is", size > bufferSize);
-	THROW_INTERNAL_ERROR_IF("Passed sizes were larger than buffer itself", size > m_combinedSize || bufferSize > m_combinedSize);
+	THROW_INTERNAL_ERROR_IF("Passed sizes were larger than buffer itself", size > m_dynamicHeap.combinedSize || bufferSize > m_dynamicHeap.combinedSize);
 
 	void* dest = static_cast<char*>(pBufferHeapMappedData) + bufferStartingOffset;
 
 	memcpy_s(dest, bufferSize, data, size);
 }
 
-void ConstantBufferHeap::UpdateStaticResource(Graphics& graphics, unsigned int bufferIndex, void* data, size_t size)
+void BufferHeapBase::UpdateResource(Graphics& graphics, StaticBufferIndex bufferIndex, void* data, size_t size)
 {
 	THROW_OBJECT_STATE_ERROR_IF("Buffer was not finished", !m_finished);
 
-	constexpr unsigned int bufferAlignment = 256;
-	unsigned int alignedSize = std::ceil(float(size) / float(bufferAlignment)) * float(bufferAlignment);
-
-	std::unique_ptr<GraphicsBuffer> uploadResource = std::make_unique<GraphicsBuffer>(graphics, alignedSize / 256, 256, GraphicsResource::CPUAccess::write);;
+	std::unique_ptr<GraphicsBuffer> uploadResource = std::make_unique<GraphicsBuffer>(graphics, size, 1, GraphicsResource::CPUAccess::write);;
 
 	// update upload constant buffer
 	{
@@ -229,7 +190,7 @@ void ConstantBufferHeap::UpdateStaticResource(Graphics& graphics, unsigned int b
 	m_uploadResources.push_back(std::move(uploadResourceData));
 }
 
-void ConstantBufferHeap::UpdateFrequentlyUpdatedStaticResource(Graphics& graphics, unsigned int bufferIndex, void* data, size_t size)
+void BufferHeapBase::UpdateFrequentlyUpdatedResource(Graphics& graphics, DynamicBufferIndex bufferIndex, void* data, size_t size)
 {
 	THROW_OBJECT_STATE_ERROR_IF("Buffer was not finished", !m_finished);
 
@@ -238,5 +199,141 @@ void ConstantBufferHeap::UpdateFrequentlyUpdatedStaticResource(Graphics& graphic
 	frequentlyUpdatedResourceData.dataSize = size;
 	frequentlyUpdatedResourceData.frameIndex = graphics.GetCurrentBufferIndex();
 
-	m_frequentlyUpdatedResourcesToUpdate[bufferIndex] = frequentlyUpdatedResourceData;
+	m_frequentlyUpdatedResourcesToUpdate[bufferIndex.GetIndex()] = frequentlyUpdatedResourceData;
+}
+
+TempBufferIndex ConstantBufferHeap::GetNextTempIndex(UINT resourceSize)
+{
+	THROW_INTERNAL_ERROR_IF("Temp buffer size was higher than 256", resourceSize > 256);
+	THROW_INTERNAL_ERROR_IF("Ran out of space for temp buffers", m_numTempBuffersUsed == m_numberOfTempBuffers);
+
+	m_numTempBuffersUsed++;
+
+	return TempBufferIndex(m_numTempBuffersUsed - 1);
+}
+
+StaticBufferIndex ConstantBufferHeap::RequestMoreStaticSpace(UINT resourceSize)
+{
+	THROW_OBJECT_STATE_ERROR_IF("Tried to Request more space when constant buffer heap is finished", m_finished);
+
+	UINT alignedSize = GetAligned(resourceSize, 256);
+
+	BufferData bufferData =
+	{
+		.offset = m_staticHeap.combinedSize,
+		.size = resourceSize,
+		.stride = 256
+	};
+
+	m_staticHeap.buffers.push_back(bufferData);
+	m_staticHeap.combinedSize += alignedSize;
+
+	return StaticBufferIndex(m_staticHeap.buffers.size() - 1);
+}
+
+DynamicBufferIndex ConstantBufferHeap::RequestMoreSpace(Graphics& graphics, UINT resourceSize)
+{
+	THROW_OBJECT_STATE_ERROR_IF("Tried to Request more space when constant buffer heap is finished", m_finished);
+
+	UINT alignedSize = GetAligned(resourceSize, 256);
+
+	BufferData bufferData =
+	{
+		.offset = m_dynamicHeap.combinedSize,
+		.size = resourceSize,
+		.stride = 256
+	};
+
+	m_dynamicHeap.buffers.push_back(bufferData);
+	m_dynamicHeap.combinedSize += alignedSize * graphics.GetBufferCount();
+
+	return DynamicBufferIndex(m_dynamicHeap.buffers.size() - 1);
+}
+
+UINT64 ConstantBufferHeap::GetAligned(UINT64 offset, UINT stride)
+{
+	return ((offset + 256 - 1) / 256) * 256;
+}
+
+BufferHeap::BufferHeap()
+{
+	m_numberOfTempBuffers = 0; // we won't use temp buffers in regular buffer heap for now
+}
+
+StaticBufferIndex BufferHeap::RequestMoreStaticSpace(UINT resourceSize, UINT stride)
+{
+	THROW_OBJECT_STATE_ERROR_IF("Tried to Request more space when constant buffer heap is finished", m_finished);
+
+	UINT64 offset = GetAligned(m_dynamicHeap.combinedSize, stride);
+
+	BufferData bufferData =
+	{
+		.offset = m_staticHeap.combinedSize,
+		.size = resourceSize,
+		.stride = stride
+	};
+
+	m_staticHeap.buffers.push_back(bufferData);
+
+	m_staticHeap.combinedSize = offset + resourceSize;
+
+	return StaticBufferIndex(m_staticHeap.buffers.size() - 1);
+}
+
+DynamicBufferIndex BufferHeap::RequestMoreSpace(Graphics& graphics, UINT resourceSize, UINT stride)
+{
+	THROW_OBJECT_STATE_ERROR_IF("Tried to Request more space when constant buffer heap is finished", m_finished);
+
+	UINT64 offset = GetAligned(m_dynamicHeap.combinedSize, stride);
+
+	BufferData bufferData =
+	{
+		.offset = m_dynamicHeap.combinedSize,
+		.size = resourceSize,
+		.stride = stride
+	};
+
+	m_dynamicHeap.buffers.push_back(bufferData);
+	m_dynamicHeap.combinedSize = offset;
+	m_dynamicHeap.combinedSize += resourceSize * graphics.GetBufferCount();
+
+	return DynamicBufferIndex(m_dynamicHeap.buffers.size() - 1);
+}
+
+UINT BufferHeap::GetOffsetOfBuffer(Graphics& graphics, unsigned int bufferIndex)
+{
+	return GetOffsetOfBuffer(graphics.GetCurrentBufferIndex(), bufferIndex);
+}
+
+UINT BufferHeap::GetOffsetOfBuffer(unsigned int frameIndex, unsigned int bufferIndex)
+{
+	THROW_INTERNAL_ERROR_IF("Tried to access buffer outside of range", bufferIndex > m_dynamicHeap.buffers.size());
+
+	return GetBufferOffset(bufferIndex) + GetBufferSize(bufferIndex) * frameIndex;
+}
+
+UINT BufferHeap::GetBufferOffset(unsigned int bufferIndex)
+{
+	auto bufferData = m_dynamicHeap.buffers.at(bufferIndex);
+
+	return bufferData.offset / bufferData.size;
+}
+
+UINT BufferHeap::GetBufferSize(unsigned int bufferIndex)
+{
+	THROW_INTERNAL_ERROR_IF("Tried to access buffer outside of range", bufferIndex > m_dynamicHeap.buffers.size());
+	
+	UINT64 bufferOffset = m_dynamicHeap.buffers.at(bufferIndex).size;
+
+	if (bufferIndex == m_dynamicHeap.buffers.size() - 1)
+		return m_dynamicHeap.combinedSize  - bufferOffset;
+	
+	UINT64 nextBufferOffset = m_dynamicHeap.buffers.at(bufferIndex).size;
+	return nextBufferOffset - bufferOffset;
+}
+
+
+UINT64 BufferHeap::GetAligned(UINT64 offset, UINT stride)
+{
+	return ((offset + stride - 1) / stride) * stride;
 }

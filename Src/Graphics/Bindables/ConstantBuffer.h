@@ -4,6 +4,7 @@
 #include "Includes/WRLNoWarnings.h"
 #include "Graphics/Data/DynamicConstantBuffer.h"
 #include "Binding.h"
+#include "Graphics/Core/ConstantBufferHeap.h"
 
 class Graphics;
 class CommandList;
@@ -18,17 +19,11 @@ public:
 
 	virtual void BindToRootSignature(RootSignatureParams* rootSignatureParams, TargetSlotAndShader& target) override;
 
-	virtual D3D12_GPU_VIRTUAL_ADDRESS GetGPUAddress(Graphics& graphics) const override;
-
 	virtual BindableType GetBindableType() const override;
 
 	virtual RootSignatureBindableType GetRootSignatureBindableType() const override;
 
 protected:
-	void InternalUpdate(Graphics& graphics, void* data, size_t size);
-
-protected:
-	unsigned int resourceIndexInHeap = 0;
 	bool m_initializedRootIndex = false;
 };
 
@@ -40,10 +35,13 @@ public:
 
 	void Update(Graphics& graphics, void* data, size_t size);
 
+	virtual D3D12_GPU_VIRTUAL_ADDRESS GetGPUAddress(Graphics& graphics) const override;
+
 	virtual BindableType GetBindableType() const override;
 
 private:
 	DynamicConstantBuffer::Layout m_layout;
+	DynamicBufferIndex m_bufferIndex = DynamicBufferIndex();
 };
 
 class CachedConstantBuffer : public ConstantBuffer
@@ -65,6 +63,13 @@ public:
 
 private:
 	DynamicConstantBuffer::Data m_data;
+
+	union
+	{
+		DynamicBufferIndex dynamicIndex = DynamicBufferIndex(); // m_frequentlyUpdated == true
+		StaticBufferIndex staticIndex; // m_frequentlyUpdated == false
+	}m_bufferIndex;
+
 	bool m_frequentlyUpdated;
 };
 
@@ -88,4 +93,5 @@ public:
 
 private:
 	DynamicConstantBuffer::Data m_data;
+	TempBufferIndex m_bufferIndex;
 };
