@@ -9,6 +9,7 @@ class ConstantBuffer;
 class DescriptorHeapBindable;
 class Texture;
 class ShaderResourceViewBase;
+class Buffer;
 class UnorderedAccessView;
 class RootSignatureConstants;
 class StaticSampler;
@@ -36,6 +37,8 @@ public:
 	void AddDescriptorTableParameter(DescriptorHeapBindable* descriptorHeapBindable, TargetSlotAndShader& target);
 	void AddDescriptorTableParameter(Texture* texture, TargetSlotAndShader& target);
 	void AddDescriptorTableParameter(ShaderResourceViewBase* srv, TargetSlotAndShader& target);
+
+	void AddDescriptorParameter(Buffer* buffer, TargetSlotAndShader& target);
 
 	void AddComputeDescriptorTableParameter(Texture* texture, TargetSlotAndShader& target);
 	void AddComputeDescriptorTableParameter(ShaderResourceViewBase* srv, TargetSlotAndShader& target);

@@ -4,15 +4,59 @@
 #include "Includes/WRLNoWarnings.h"
 #include "Graphics/Data/DynamicConstantBuffer.h"
 #include "Binding.h"
+
 #include "Graphics/Core/ConstantBufferHeap.h"
 
 class Graphics;
 class CommandList;
 
-class ConstantBuffer : public Bindable, public RootParameterBinding
+class BufferBase : public Bindable, public RootParameterBinding
+{
+protected:
+	BufferBase(Graphics& graphics, const DynamicConstantBuffer::Layout& layout, ResourceTargets targets = { {ShaderVisibilityGraphic::PixelShader, 0} });
+
+protected:
+	bool m_initializedRootIndex = false;
+};
+
+class Buffer : public BufferBase, public DescriptorBindable
 {
 public:
-	ConstantBuffer(Graphics& graphics, const DynamicConstantBuffer::Layout& layout, std::vector<TargetSlotAndShader> targets = { {ShaderVisibilityGraphic::PixelShader, 0} });
+	Buffer(Graphics& graphics, unsigned int numElements, DynamicConstantBuffer::Layout& layout, ResourceTargets targets = { {ShaderVisibilityGraphic::PixelShader, 0} });
+
+public:
+	virtual void Initialize(Graphics& graphics, DescriptorHeap::DescriptorInfo descriptorInfo, unsigned int descriptorNum) override;
+
+	virtual void Initialize(Graphics& graphics) override;
+
+	virtual D3D12_GPU_DESCRIPTOR_HANDLE GetDescriptorHeapGPUHandle(Graphics& graphics) const override;
+
+	virtual DescriptorType GetDescriptorType() const override;
+
+	virtual void BindToCommandList(Graphics& graphics, CommandList* commandList, TargetSlotAndShader& target) override;
+
+	virtual void BindToRootSignature(RootSignatureParams* rootSignatureParams, TargetSlotAndShader& target) override;
+
+	void Update(Graphics& graphics, void* data, size_t size);
+
+	virtual D3D12_GPU_VIRTUAL_ADDRESS GetGPUAddress(Graphics& graphics) const override;
+
+	virtual BindableType GetBindableType() const override;
+
+	virtual RootSignatureBindableType GetRootSignatureBindableType() const override;
+
+private:
+	std::vector<DescriptorHeap::DescriptorInfo> m_descriptorPerFrame;
+
+	DynamicConstantBuffer::Layout m_layout;
+	unsigned int m_numElements;
+	DynamicBufferIndex m_bufferIndex = DynamicBufferIndex();
+}; 
+
+class ConstantBuffer : public BufferBase
+{
+public:
+	ConstantBuffer(Graphics& graphics, const DynamicConstantBuffer::Layout& layout, ResourceTargets = { {ShaderVisibilityGraphic::PixelShader, 0} });
 
 public:
 	virtual void BindToCommandList(Graphics& graphics, CommandList* commandList, TargetSlotAndShader& target) override;
@@ -31,7 +75,7 @@ protected:
 class NonCachedConstantBuffer : public ConstantBuffer
 {
 public:
-	NonCachedConstantBuffer(Graphics& graphics, DynamicConstantBuffer::Layout& layout, std::vector<TargetSlotAndShader> targets = { {ShaderVisibilityGraphic::PixelShader, 0} });
+	NonCachedConstantBuffer(Graphics& graphics, DynamicConstantBuffer::Layout& layout, ResourceTargets targets = { {ShaderVisibilityGraphic::PixelShader, 0} });
 
 	void Update(Graphics& graphics, void* data, size_t size);
 
@@ -47,7 +91,7 @@ private:
 class CachedConstantBuffer : public ConstantBuffer
 {
 public:
-	CachedConstantBuffer(Graphics& graphics, DynamicConstantBuffer::Data& data, std::vector<TargetSlotAndShader> targets = { {ShaderVisibilityGraphic::PixelShader, 0} }, bool frequentlyUpdated = false);
+	CachedConstantBuffer(Graphics& graphics, DynamicConstantBuffer::Data& data, ResourceTargets targets = { {ShaderVisibilityGraphic::PixelShader, 0} }, bool frequentlyUpdated = false);
 
 	CachedConstantBuffer(const CachedConstantBuffer&) = delete;
 
@@ -77,7 +121,7 @@ private:
 class TempConstantBuffer : public ConstantBuffer
 {
 public:
-	TempConstantBuffer(Graphics& graphics, DynamicConstantBuffer::Data& data, std::vector<TargetSlotAndShader> targets = { {ShaderVisibilityGraphic::PixelShader, 0} }, bool frequentlyUpdated = false);
+	TempConstantBuffer(Graphics& graphics, DynamicConstantBuffer::Data& data, ResourceTargets targets = { {ShaderVisibilityGraphic::PixelShader, 0} }, bool frequentlyUpdated = false);
 
 	TempConstantBuffer(const CachedConstantBuffer&) = delete;
 

@@ -13,6 +13,7 @@ class IndexBuffer;
 class VertexBuffer;
 class RootSignature;
 class ConstantBuffer;
+class Buffer;
 class DescriptorHeapBindable;
 class Texture;
 class ShaderResourceViewBase;
@@ -124,6 +125,7 @@ public:
 
 	void SetGraphicsConstBufferView(Graphics& graphics, ConstantBuffer* constBuffer, TargetSlotAndShader target);
 
+	void SetGraphicsDescriptor(Graphics& graphics, Buffer* buffer, TargetSlotAndShader& target);
 	void SetGraphicsDescriptorTable(Graphics& graphics, DescriptorHeapBindable* descriptorHeapBindable, TargetSlotAndShader& target);
 	void SetGraphicsDescriptorTable(Graphics& graphics, ShaderResourceViewBase* srv, TargetSlotAndShader target);
 

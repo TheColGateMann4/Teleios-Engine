@@ -7,6 +7,7 @@ enum class BindableType
 	bindable_constantBuffer,
 	bindable_cachedConstantBuffer,
 	bindable_nonCachedConstantBuffer,
+	bindable_buffer,
 	bindable_depthStencilState,
 	bindable_depthStencilView,
 	bindable_indexBuffer,

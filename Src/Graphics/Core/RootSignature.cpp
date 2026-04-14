@@ -135,6 +135,27 @@ void RootSignatureParams::AddDescriptorTableParameter(ShaderResourceViewBase* sr
 	target.rootIndex = m_AddDescriptorTableParameter(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, target);
 }
 
+void RootSignatureParams::AddDescriptorParameter(Buffer* buffer, TargetSlotAndShader& target)
+{
+	THROW_INTERNAL_ERROR_IF("RootSignatureParams were already finished", m_finished);
+
+	target.rootIndex = m_rootSignatureDesc.NumParameters;
+
+	m_rootSignatureDesc.NumParameters++;
+
+	D3D12_ROOT_PARAMETER1 rootParameter = {};
+	rootParameter.ParameterType = D3D12_ROOT_PARAMETER_TYPE_SRV;
+	rootParameter.Descriptor = {};
+	rootParameter.Descriptor.ShaderRegister = target.slot;
+	rootParameter.Descriptor.RegisterSpace = 0;
+	rootParameter.Descriptor.Flags = {};
+	rootParameter.ShaderVisibility = static_cast<D3D12_SHADER_VISIBILITY>(target.target);
+
+	m_rootParameters.push_back(rootParameter);
+
+	m_rootSignatureDesc.pParameters = m_rootParameters.data();
+}
+
 void RootSignatureParams::AddComputeDescriptorTableParameter(Texture* texture, TargetSlotAndShader& target)
 {
 	texture->SetComputeRootIndex(m_AddDescriptorTableParameter(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, target));

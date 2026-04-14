@@ -3,10 +3,113 @@
 #include "Graphics/Core/Graphics.h"
 #include "Graphics/Core/CommandList.h"
 #include "Graphics/Core/ConstantBufferHeap.h"
+#include "Macros/ErrorMacros.h"
 
-ConstantBuffer::ConstantBuffer(Graphics& graphics, const DynamicConstantBuffer::Layout& layout, std::vector<TargetSlotAndShader> targets)
+BufferBase::BufferBase(Graphics& graphics, const DynamicConstantBuffer::Layout& layout, ResourceTargets targets)
 	:
 	RootParameterBinding(targets)
+{
+
+}
+
+Buffer::Buffer(Graphics& graphics, unsigned int numElements, DynamicConstantBuffer::Layout& layout, ResourceTargets targets)
+	:
+	BufferBase(graphics, layout, targets),
+	m_layout(std::move(layout.GetFinished(DynamicConstantBuffer::Layout::LayoutType::data))),
+	m_numElements(numElements)
+{
+	graphics.GetDescriptorHeap().RequestMoreSpace(graphics.GetBufferCount());
+	m_descriptorPerFrame.resize(graphics.GetBufferCount());
+
+	unsigned int layoutSize = layout.GetSize();
+
+	THROW_INTERNAL_ERROR_IF("This system was written when layout had all elements included in its size", layoutSize < numElements);
+
+	m_bufferIndex = graphics.GetBufferHeap().RequestMoreSpace(graphics, layoutSize, layoutSize / numElements);
+}
+
+void Buffer::Initialize(Graphics& graphics, DescriptorHeap::DescriptorInfo descriptorInfo, unsigned int descriptorNum)
+{
+	UINT64 offsetInMainBuffer = graphics.GetBufferHeap().GetOffsetOfBuffer(descriptorNum, m_bufferIndex.GetIndex());
+	unsigned int stride = m_layout.GetSize() / m_numElements;
+
+	THROW_INTERNAL_ERROR_IF("Failed to get direct offset of buffer", offsetInMainBuffer % stride != 0);
+
+	D3D12_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc = {};
+	shaderResourceViewDesc.Format = DXGI_FORMAT_UNKNOWN;
+	shaderResourceViewDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
+	shaderResourceViewDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	shaderResourceViewDesc.Buffer = {};
+	shaderResourceViewDesc.Buffer.FirstElement = offsetInMainBuffer / stride;
+	shaderResourceViewDesc.Buffer.NumElements = m_numElements;
+	shaderResourceViewDesc.Buffer.StructureByteStride = stride;
+	shaderResourceViewDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
+
+	// creating SRV for texture resource on GPU memory
+	{
+		m_descriptorPerFrame.at(descriptorNum) = descriptorInfo;
+
+		THROW_INFO_ERROR(graphics.GetDeviceResources().GetDevice()->CreateShaderResourceView(
+			graphics.GetBufferHeap().GetDynamicResource(),
+			&shaderResourceViewDesc,
+			m_descriptorPerFrame.at(descriptorNum).descriptorCpuHandle
+		));
+	}
+}
+
+void Buffer::Initialize(Graphics& graphics)
+{
+	for (unsigned int i = 0; i < graphics.GetBufferCount(); i++)
+	{
+		DescriptorHeap::DescriptorInfo descriptorInfo = graphics.GetDescriptorHeap().GetNextHandle();
+
+		Initialize(graphics, descriptorInfo, i);
+	}
+}
+
+D3D12_GPU_DESCRIPTOR_HANDLE Buffer::GetDescriptorHeapGPUHandle(Graphics& graphics) const
+{
+	return m_descriptorPerFrame.at(graphics.GetCurrentBufferIndex()).descriptorHeapGpuHandle;
+}
+
+DescriptorType Buffer::GetDescriptorType() const
+{
+	return DescriptorType::descriptor_SRV;
+}
+
+void Buffer::BindToCommandList(Graphics& graphics, CommandList* commandList, TargetSlotAndShader& target)
+{
+	commandList->SetGraphicsDescriptor(graphics, this, target);
+}
+
+void Buffer::BindToRootSignature(RootSignatureParams* rootSignatureParams, TargetSlotAndShader& target)
+{
+	rootSignatureParams->AddDescriptorParameter(this, target);
+}
+
+void Buffer::Update(Graphics& graphics, void* data, size_t size)
+{
+	graphics.GetBufferHeap().UpdateResource(graphics, m_bufferIndex, data, size);
+}
+
+D3D12_GPU_VIRTUAL_ADDRESS Buffer::GetGPUAddress(Graphics& graphics) const
+{
+	return graphics.GetBufferHeap().GetBufferAddress(graphics, m_bufferIndex);
+}
+
+BindableType Buffer::GetBindableType() const
+{
+	return BindableType::bindable_buffer;
+}
+
+RootSignatureBindableType Buffer::GetRootSignatureBindableType() const
+{
+	return RootSignatureBindableType::rootSignature_BufferSRV;
+}
+
+ConstantBuffer::ConstantBuffer(Graphics& graphics, const DynamicConstantBuffer::Layout& layout, ResourceTargets targets)
+	:
+	BufferBase(graphics, layout, targets)
 {
 
 }
@@ -31,7 +134,7 @@ RootSignatureBindableType ConstantBuffer::GetRootSignatureBindableType() const
 	return RootSignatureBindableType::rootSignature_CBV;
 }
 
-NonCachedConstantBuffer::NonCachedConstantBuffer(Graphics& graphics, DynamicConstantBuffer::Layout& layout, std::vector<TargetSlotAndShader> targets)
+NonCachedConstantBuffer::NonCachedConstantBuffer(Graphics& graphics, DynamicConstantBuffer::Layout& layout, ResourceTargets targets)
 	:
 	ConstantBuffer(graphics, layout.GetFinished(), targets),
 	m_layout(std::move(layout))
@@ -55,7 +158,7 @@ BindableType NonCachedConstantBuffer::GetBindableType() const
 	return BindableType::bindable_nonCachedConstantBuffer;
 }
 
-CachedConstantBuffer::CachedConstantBuffer(Graphics& graphics, DynamicConstantBuffer::Data& data, std::vector<TargetSlotAndShader> targets, bool frequentlyUpdated)
+CachedConstantBuffer::CachedConstantBuffer(Graphics& graphics, DynamicConstantBuffer::Data& data, ResourceTargets targets, bool frequentlyUpdated)
 	:
 	ConstantBuffer(graphics, data.GetLayout(), targets),
 	m_data(std::move(data)),
@@ -101,7 +204,7 @@ void CachedConstantBuffer::DrawImguiProperties(Graphics& graphics)
 		Update(graphics);
 }
 
-TempConstantBuffer::TempConstantBuffer(Graphics& graphics, DynamicConstantBuffer::Data& data, std::vector<TargetSlotAndShader> targets, bool frequentlyUpdated)
+TempConstantBuffer::TempConstantBuffer(Graphics& graphics, DynamicConstantBuffer::Data& data, ResourceTargets targets, bool frequentlyUpdated)
 	:
 	ConstantBuffer(graphics, data.GetLayout(), targets),
 	m_data(std::move(data))

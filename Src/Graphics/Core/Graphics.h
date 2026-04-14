@@ -50,6 +50,7 @@ public:
 	Renderer& GetRenderer();
 	DeviceResources& GetDeviceResources();
 	ConstantBufferHeap& GetConstantBufferHeap();
+	BufferHeap& GetBufferHeap();
 	DescriptorHeap& GetDescriptorHeap();
 	FrameResourceDeleter* GetFrameResourceDeleter();
 	ImguiManager* GetImguiManager();
@@ -71,6 +72,7 @@ private:
 private:
 	DeviceResources deviceResources;
 	ConstantBufferHeap constantBufferHeap;
+	BufferHeap bufferHeap;
 	DescriptorHeap descriptorHeap;
 	FrameResourceDeleter resourceDeleter;
 	Renderer renderer;

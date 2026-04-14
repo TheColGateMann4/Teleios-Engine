@@ -155,6 +155,8 @@ void Graphics::FinishInitialization()
 	// we are creating one big constant buffer that will hold every constant buffer on scene
 	constantBufferHeap.Finish(*this);
 
+	bufferHeap.Finish(*this);
+
 	//initializing imgui
 	m_imguiManager = std::make_unique<ImguiManager>(*this, m_windowHwnd);
 }
@@ -189,6 +191,11 @@ DeviceResources& Graphics::GetDeviceResources()
 ConstantBufferHeap& Graphics::GetConstantBufferHeap()
 {
 	return constantBufferHeap;
+}
+
+BufferHeap& Graphics::GetBufferHeap()
+{
+	return bufferHeap;
 }
 
 DescriptorHeap& Graphics::GetDescriptorHeap()
