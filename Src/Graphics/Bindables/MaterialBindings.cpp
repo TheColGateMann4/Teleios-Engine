@@ -52,7 +52,7 @@ MaterialBindings::MaterialBindings(const std::vector<Texture*>&textures)
 	SET_TEXTURE_INDEX_DATA(TextureType::texture_ambient, "b_ambientTextureID");
 	SET_TEXTURE_INDEX_DATA(TextureType::texture_opacity, "b_opacityTextureID");
 
-	m_textureIndexesConstants = std::make_shared<RootSignatureConstants>(bufferData, std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::PixelShader, 2}});
+	m_textureIndexesConstants = std::make_shared<RootSignatureConstants>(bufferData, ResourceTargets{{ShaderVisibilityGraphic::PixelShader, 2}});
 }
 
 #undef ADD_TEXTURE_INDEX_TO_LAYOUT

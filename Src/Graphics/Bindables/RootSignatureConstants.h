@@ -7,6 +7,7 @@ class RootSignatureConstants : public Bindable, public RootParameterBinding
 {
 public:
 	RootSignatureConstants(DynamicConstantBuffer::Data& data, std::vector<TargetSlotAndShader> targets = { {ShaderVisibilityGraphic::PixelShader, 0} });
+	RootSignatureConstants(DynamicConstantBuffer::Data& data, ResourceTargets targets = { {ShaderVisibilityGraphic::PixelShader, 0} });
 
 public:
 	virtual void BindToCommandList(Graphics& graphics, CommandList* commandList, TargetSlotAndShader& target) override;

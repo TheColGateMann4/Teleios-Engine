@@ -9,12 +9,12 @@ class Graphics;
 class DescriptorHeapBindable : public Bindable, public RootParameterBinding, public DescriptorBindable
 {
 public:
-	DescriptorHeapBindable(std::vector<TargetSlotAndShader> targets = std::vector<TargetSlotAndShader>{ {ShaderVisibilityGraphic::PixelShader, 0}});
+	DescriptorHeapBindable(ResourceTargets targets = ResourceTargets{ {ShaderVisibilityGraphic::PixelShader, 0}});
 
-	static std::shared_ptr<DescriptorHeapBindable> GetResource(std::vector<TargetSlotAndShader> targets = std::vector<TargetSlotAndShader>{ {ShaderVisibilityGraphic::PixelShader, 0} });
+	static std::shared_ptr<DescriptorHeapBindable> GetResource(ResourceTargets targets = ResourceTargets{ {ShaderVisibilityGraphic::PixelShader, 0} });
 
 public:
-	static std::string GetIdentifier(std::vector<TargetSlotAndShader> targets);
+	static std::string GetIdentifier(ResourceTargets targets);
 
 	virtual void BindToRootSignature(RootSignatureParams* rootSignatureParams, TargetSlotAndShader& target) override;
 

@@ -15,7 +15,7 @@ public:
 class RootSignatureBinding
 {
 public:
-	RootSignatureBinding(std::vector<TargetSlotAndShader> targets);
+	RootSignatureBinding(ResourceTargets targets);
 
 public:
 	virtual ~RootSignatureBinding() = default;
@@ -28,7 +28,7 @@ public:
 
 	virtual D3D12_GPU_DESCRIPTOR_HANDLE GetDescriptorHeapGPUHandle(Graphics& graphics) const;
 
-	std::vector<TargetSlotAndShader>& GetTargets();
+	ResourceTargets& GetTargets();
 
 	virtual RootSignatureBindableType GetRootSignatureBindableType() const = 0;
 
@@ -36,12 +36,12 @@ protected:
 	virtual void Initialize(Graphics& graphics);
 
 private:
-	std::vector<TargetSlotAndShader> m_targets;
+	ResourceTargets m_targets;
 	bool m_initialized = false;
 };
 
 class RootParameterBinding : public RootSignatureBinding, public CommandListBinding
 {
 public:
-	RootParameterBinding(std::vector<TargetSlotAndShader> targets);
+	RootParameterBinding(ResourceTargets targets);
 };

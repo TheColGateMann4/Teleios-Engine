@@ -12,7 +12,7 @@
 
 ShaderResourceViewBase::ShaderResourceViewBase(unsigned int slot)
 	:
-	RootParameterBinding(std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::AllShaders, slot}}),
+	RootParameterBinding(ResourceTargets{{ShaderVisibilityGraphic::AllShaders, slot}}),
 	m_computeRootIndex(0)
 {
 

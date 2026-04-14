@@ -5,7 +5,7 @@
 
 Material::Material(Graphics& graphics, std::string filePath, MaterialProperties::MaterialProperties properties)
 	:
-	RootSignatureBindable(std::vector<TargetSlotAndShader>{ {ShaderVisibilityGraphic::PixelShader, 0} }),
+	RootSignatureBindable(ResourceTargets{ {ShaderVisibilityGraphic::PixelShader, 0} }),
 	m_properties(properties)
 {
 	std::vector<ShaderMacro> shaderMacros;
@@ -171,7 +171,7 @@ Material::Material(Graphics& graphics, std::string filePath, MaterialProperties:
 				*bufferData.Get<DynamicConstantBuffer::ElementType::Float>("opacity") = m_properties.opacity;
 			}
 
-			m_bindableContainer.AddBindable(std::make_shared<CachedConstantBuffer>(graphics, bufferData, std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::PixelShader, 1}}));
+			m_bindableContainer.AddBindable(std::make_shared<CachedConstantBuffer>(graphics, bufferData, ResourceTargets{{ShaderVisibilityGraphic::PixelShader, 1}}));
 		}
 
 		m_rasterizerOptions.SetCulling(m_properties.twoSided ? CullingMode::cull_none : CullingMode::cull_back);

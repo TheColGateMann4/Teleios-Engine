@@ -54,7 +54,7 @@ Sphere::Sphere(Graphics& graphics, DirectX::XMFLOAT3 position, float diameter, s
 			DynamicConstantBuffer::Data bufferData(layout);
 			*bufferData.Get<DynamicConstantBuffer::ElementType::Int>("pointLightIndex") = 0;
 
-			m_pointLightIndexConstant = std::make_shared<RootSignatureConstants>(bufferData, std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::PixelShader, 1}});
+			m_pointLightIndexConstant = std::make_shared<RootSignatureConstants>(bufferData, ResourceTargets{{ShaderVisibilityGraphic::PixelShader, 1}});
 
 			step.AddBindable(m_pointLightIndexConstant);
 		}

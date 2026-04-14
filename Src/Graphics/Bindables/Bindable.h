@@ -1,4 +1,5 @@
 #pragma once
+#include "Includes/CppIncludes.h"
 #include "Shaders/TargetShaders.h"
 #include "BindableTypes.h"
 
@@ -18,6 +19,7 @@ struct TargetSlotAndShader
 	UINT rootIndex = 0;
 };
 
+using ResourceTargets = std::vector<TargetSlotAndShader>;
 
 class Bindable
 {
@@ -64,19 +66,19 @@ enum class RootSignatureBindableType
 class RootSignatureBindable
 {
 public:
-	RootSignatureBindable(std::vector<TargetSlotAndShader> targets);
+	RootSignatureBindable(ResourceTargets targets);
 
 public:
 	virtual void BindToRootSignature(RootSignatureParams* rootSignatureParams) = 0;
 
 	virtual void AddComputeRootSignatureParam(RootSignatureParams* rootSignatureParams);
 
-	std::vector<TargetSlotAndShader>& GetTargets();
+	ResourceTargets& GetTargets();
 
 	virtual RootSignatureBindableType GetRootSignatureBindableType() const = 0;
 
 private:
-	std::vector<TargetSlotAndShader> m_targets;
+	ResourceTargets m_targets;
 };
 
 

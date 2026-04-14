@@ -6,19 +6,19 @@
 
 #include "Graphics/Core/ResourceList.h"
 
-DescriptorHeapBindable::DescriptorHeapBindable(std::vector<TargetSlotAndShader> targets)
+DescriptorHeapBindable::DescriptorHeapBindable(ResourceTargets targets)
 	:
 	RootParameterBinding(std::move(targets))
 {
 
 }
 
-std::shared_ptr<DescriptorHeapBindable> DescriptorHeapBindable::GetResource(std::vector<TargetSlotAndShader> targets)
+std::shared_ptr<DescriptorHeapBindable> DescriptorHeapBindable::GetResource(ResourceTargets targets)
 {
 	return ResourceList::GetResource<DescriptorHeapBindable>(std::move(targets));
 }
 
-std::string DescriptorHeapBindable::GetIdentifier(std::vector<TargetSlotAndShader> targets)
+std::string DescriptorHeapBindable::GetIdentifier(ResourceTargets targets)
 {
 	std::string result = {};
 

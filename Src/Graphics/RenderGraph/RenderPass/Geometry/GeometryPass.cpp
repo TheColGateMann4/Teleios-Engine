@@ -21,7 +21,7 @@ GeometryPass::GeometryPass()
 	DynamicConstantBuffer::Data bufferData(layout);
 	*bufferData.Get<DynamicConstantBuffer::ElementType::Int>("cameraTransformIndex") = 0;
 
-	m_cameraRootConstant = std::make_shared<RootSignatureConstants>(bufferData, std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::VertexShader, 2}});
+	m_cameraRootConstant = std::make_shared<RootSignatureConstants>(bufferData, ResourceTargets{{ShaderVisibilityGraphic::VertexShader, 2}});
 
 	AddBindable(m_cameraRootConstant);
 }

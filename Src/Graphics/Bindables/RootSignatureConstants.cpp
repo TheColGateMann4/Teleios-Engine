@@ -3,7 +3,7 @@
 #include "Graphics/Core/RootSignature.h"
 #include "Graphics/Core/CommandList.h"
 
-RootSignatureConstants::RootSignatureConstants(DynamicConstantBuffer::Data& data, std::vector<TargetSlotAndShader> targets)
+RootSignatureConstants::RootSignatureConstants(DynamicConstantBuffer::Data& data, ResourceTargets targets)
 	:
 	RootParameterBinding(targets),
 	m_data(std::move(data))

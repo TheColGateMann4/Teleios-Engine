@@ -105,7 +105,7 @@ void Scene::InitializeCameraBuffer(Graphics& graphics, Pipeline& pipeline)
 
 	DynamicConstantBuffer::Data bufferData(layout);
 
-	m_cameraBuffer = std::make_shared<CachedConstantBuffer>(graphics, bufferData, std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::VertexShader, 1}}, true);
+	m_cameraBuffer = std::make_shared<CachedConstantBuffer>(graphics, bufferData, ResourceTargets{{ShaderVisibilityGraphic::VertexShader, 1}}, true);
 
 	pipeline.AddStaticResource("cameraBuffer", m_cameraBuffer);
 }
@@ -127,7 +127,7 @@ void Scene::InitializeLightBuffer(Graphics& graphics, Pipeline& pipeline)
 
 	DynamicConstantBuffer::Data bufferData(layout);
 
-	m_lightBuffer = std::make_shared<CachedConstantBuffer>(graphics, bufferData, std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::PixelShader, 0}}, true);
+	m_lightBuffer = std::make_shared<CachedConstantBuffer>(graphics, bufferData, ResourceTargets{{ShaderVisibilityGraphic::PixelShader, 0}}, true);
 
 	pipeline.AddStaticResource("lightBuffer", m_lightBuffer);
 }

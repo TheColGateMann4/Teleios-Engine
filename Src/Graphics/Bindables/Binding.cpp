@@ -7,7 +7,7 @@ void CommandListBinding::BindToComputeCommandList(Graphics& graphics, CommandLis
 
 }
 
-RootSignatureBinding::RootSignatureBinding(std::vector<TargetSlotAndShader> targets)
+RootSignatureBinding::RootSignatureBinding(ResourceTargets targets)
 	:
 	m_targets(targets)
 {
@@ -29,7 +29,7 @@ D3D12_GPU_DESCRIPTOR_HANDLE RootSignatureBinding::GetDescriptorHeapGPUHandle(Gra
 	THROW_INTERNAL_ERROR("Object doesn't use GPU Descriptors");
 }
 
-std::vector<TargetSlotAndShader>& RootSignatureBinding::GetTargets()
+ResourceTargets& RootSignatureBinding::GetTargets()
 {
 	return m_targets;
 }
@@ -39,7 +39,7 @@ void RootSignatureBinding::Initialize(Graphics& graphics)
 
 }
 
-RootParameterBinding::RootParameterBinding(std::vector<TargetSlotAndShader> targets)
+RootParameterBinding::RootParameterBinding(ResourceTargets targets)
 	:
 	RootSignatureBinding(targets)
 {

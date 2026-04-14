@@ -13,7 +13,7 @@ void PipelineStateBindable::AddComputePipelineStateParam(Graphics& graphics, Com
 
 }
 
-RootSignatureBindable::RootSignatureBindable(std::vector<TargetSlotAndShader> targets)
+RootSignatureBindable::RootSignatureBindable(ResourceTargets targets)
 	:
 	m_targets(targets)
 {
@@ -25,7 +25,7 @@ void RootSignatureBindable::AddComputeRootSignatureParam(RootSignatureParams* ro
 
 }
 
-std::vector<TargetSlotAndShader>& RootSignatureBindable::GetTargets()
+ResourceTargets& RootSignatureBindable::GetTargets()
 {
 	return m_targets;
 }

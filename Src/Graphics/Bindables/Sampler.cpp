@@ -3,7 +3,7 @@
 
 #include "Graphics/Core/ResourceList.h"
 
-StaticSampler::StaticSampler(Graphics& graphics, D3D12_FILTER filter, D3D12_TEXTURE_ADDRESS_MODE overlappingMode, std::vector<TargetSlotAndShader> targets)
+StaticSampler::StaticSampler(Graphics& graphics, D3D12_FILTER filter, D3D12_TEXTURE_ADDRESS_MODE overlappingMode, ResourceTargets targets)
 	: 
 	RootSignatureBindable(targets)
 {
@@ -20,12 +20,12 @@ StaticSampler::StaticSampler(Graphics& graphics, D3D12_FILTER filter, D3D12_TEXT
 	m_staticSamplerDesc.RegisterSpace = 0;
 }
 
-std::shared_ptr<StaticSampler> StaticSampler::GetResource(Graphics& graphics, D3D12_FILTER filter, D3D12_TEXTURE_ADDRESS_MODE overlappingMode, std::vector<TargetSlotAndShader> targets)
+std::shared_ptr<StaticSampler> StaticSampler::GetResource(Graphics& graphics, D3D12_FILTER filter, D3D12_TEXTURE_ADDRESS_MODE overlappingMode, ResourceTargets targets)
 {
 	return ResourceList::GetResource<StaticSampler>(graphics, filter, overlappingMode, targets);
 }
 
-std::string StaticSampler::GetIdentifier(D3D12_FILTER filter, D3D12_TEXTURE_ADDRESS_MODE overlappingMode, std::vector<TargetSlotAndShader> targets)
+std::string StaticSampler::GetIdentifier(D3D12_FILTER filter, D3D12_TEXTURE_ADDRESS_MODE overlappingMode, ResourceTargets targets)
 {
 	std::string resultString = "StaticSampler#";
 

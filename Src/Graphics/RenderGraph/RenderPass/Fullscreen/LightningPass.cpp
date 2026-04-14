@@ -18,7 +18,7 @@ LightningPass::LightningPass(Graphics& graphics, RenderManager& renderManager)
 		*bufferData.Get<DynamicConstantBuffer::ElementType::Matrix>("inverseProjection") = {};
 		*bufferData.Get<DynamicConstantBuffer::ElementType::Matrix>("inverseView") = {};
 
-		std::shared_ptr<CachedConstantBuffer> inverseMatriesBuffer = std::make_shared<CachedConstantBuffer>(graphics, bufferData, std::vector<TargetSlotAndShader>{{ShaderVisibilityGraphic::PixelShader, 2}}, true);
+		std::shared_ptr<CachedConstantBuffer> inverseMatriesBuffer = std::make_shared<CachedConstantBuffer>(graphics, bufferData, ResourceTargets{{ShaderVisibilityGraphic::PixelShader, 2}}, true);
 
 		m_pInverseMatriesBuffer = inverseMatriesBuffer.get();
 		m_bindables.push_back(std::move(inverseMatriesBuffer));
