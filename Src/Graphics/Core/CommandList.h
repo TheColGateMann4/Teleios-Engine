@@ -39,6 +39,7 @@ public:
 	bool SetRootSignatureParam(unsigned int paramIndex, Bindable* rootBindable);
 	bool SetVertexBuffer(VertexBuffer* _vertexBuffer);
 	bool SetIndexBuffer(IndexBuffer* _indexBuffer);
+	bool SetPrimitiveTechnology(D3D_PRIMITIVE_TOPOLOGY _primitiveTechnology);
 
 private:
 	RootSignature* rootSignature;
@@ -46,6 +47,7 @@ private:
 	std::vector<Bindable*> rootBindables;
 	VertexBuffer* vertexBuffer;
 	IndexBuffer* indexBuffer;
+	D3D_PRIMITIVE_TOPOLOGY primitiveTechnology = D3D_PRIMITIVE_TOPOLOGY_UNDEFINED;
 };
 
 #ifdef _DEBUG

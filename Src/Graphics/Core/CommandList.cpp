@@ -77,6 +77,15 @@ bool CommandListState::SetIndexBuffer(IndexBuffer* _indexBuffer)
 	return true;
 }
 
+bool CommandListState::SetPrimitiveTechnology(D3D_PRIMITIVE_TOPOLOGY _primitiveTechnology)
+{
+	if (primitiveTechnology == _primitiveTechnology)
+		return false;
+
+	primitiveTechnology = _primitiveTechnology;
+	return true;
+}
+
 CommandList::CommandList(Graphics& graphics, D3D12_COMMAND_LIST_TYPE type, PipelineState* pPipelineState)
 	:
 	m_pCommandAllocators(graphics.GetBufferCount()),
@@ -343,6 +352,9 @@ void CommandList::SetPrimitiveTopology(Graphics& graphics, D3D_PRIMITIVE_TOPOLOG
 {
 	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
 	THROW_OBJECT_STATE_ERROR_IF("Only Direct and Bundle command lists can set topology", m_type != D3D12_COMMAND_LIST_TYPE_DIRECT && m_type != D3D12_COMMAND_LIST_TYPE_BUNDLE);
+
+	if (!m_state.SetPrimitiveTechnology(primitiveTechnology))
+		return;
 
 	THROW_INFO_ERROR(pCommandList->IASetPrimitiveTopology(primitiveTechnology));
 }
