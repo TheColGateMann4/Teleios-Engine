@@ -30,6 +30,9 @@ void Scene::AddSceneObject(std::shared_ptr<SceneObject> sceneObject)
 	m_sceneObjects.push_back(sceneObject);
 	m_nameRegistry[sceneObject->GetName()].push_back(pSceneObject);
 
+	unsigned int objectSceneID = m_sceneObjects.size() - 1;
+	pSceneObject->SetSceneIndex(objectSceneID);
+
 	sceneObject->SetNameIndex(GetOriginalNameIndex(sceneObject->GetName()));
 }
 
@@ -62,6 +65,8 @@ void Scene::FinishInitialization(Graphics& graphics)
 	InitializeLightBuffer(graphics, pipeline);
 
 	InitializeCameraBuffer(graphics, pipeline);
+
+	InitializeTransformBuffer(graphics, pipeline);
 
 	graphics.FinishInitialization();
 
@@ -130,6 +135,40 @@ void Scene::InitializeLightBuffer(Graphics& graphics, Pipeline& pipeline)
 	m_lightBuffer = std::make_shared<CachedConstantBuffer>(graphics, bufferData, ResourceTargets{{ShaderVisibilityGraphic::PixelShader, 0}}, true);
 
 	pipeline.AddStaticResource("lightBuffer", m_lightBuffer);
+}
+
+void Scene::InitializeTransformBuffer(Graphics& graphics, Pipeline& pipeline)
+{
+	unsigned int numElements = m_sceneObjects.size();
+
+	DynamicConstantBuffer::ArrayDataInfo array = {};
+	array.numElements = numElements;
+	array.layout.Add<DynamicConstantBuffer::ElementType::Matrix>("transform");
+
+	DynamicConstantBuffer::Layout layout;
+	layout.AddArray("transforms", array);
+
+	m_transformBuffer = std::make_shared<Buffer>(graphics, numElements, layout, ResourceTargets{{ShaderVisibilityGraphic::VertexShader, 0}});
+
+	pipeline.AddStaticResource("transformBuffer", m_transformBuffer);
+}
+
+void Scene::UpdateTransformBuffer(Graphics& graphics)
+{
+	static std::vector<DirectX::XMMATRIX> m_currentFrameMatrices(m_sceneObjects.size(), {});
+
+	if (m_currentFrameMatrices.size() != m_sceneObjects.size())
+		m_currentFrameMatrices.resize(m_sceneObjects.size());
+
+	for (size_t i = 0; i < m_sceneObjects.size(); i++)
+	{
+		auto& sceneObject = m_sceneObjects.at(i);
+
+		sceneObject->SetSceneIndex(i);
+		m_currentFrameMatrices.at(i) = m_sceneObjects.at(i)->GetTransform()->GetWorldTransform();
+	}
+
+	m_transformBuffer->Update(graphics, m_currentFrameMatrices.data(), m_currentFrameMatrices.size() * sizeof(m_currentFrameMatrices.front()));
 }
 
 void Scene::AssignJobs(Graphics& graphics)
@@ -349,9 +388,7 @@ void Scene::UpdateObjectMatrices(Graphics& graphics)
 		if (!sceneObject->isChild())
 			sceneObject->UpdateParentMatrix();
 
-	// after all matrices are set up, we send them to camera
-	for (auto& sceneObject : m_sceneObjects)
-		sceneObject->UpdateTransformBufferIfNeeded(graphics, *m_activeCamera);
+	UpdateTransformBuffer(graphics);
 }
 
 void Scene::m_SetActiveCamera(Camera* camera)

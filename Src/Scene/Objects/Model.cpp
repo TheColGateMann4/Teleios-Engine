@@ -159,8 +159,6 @@ Model::Model(Graphics& graphics, Model* pParent, aiNode* node, std::vector<std::
 		m_transform.SetFromMatrix(nodeTransform, position, scale);
 	}
 
-	m_transform.SetTransformConstantBuffer(std::make_shared<TransformConstantBuffer>(graphics));
-
 	for(auto& modelMesh : modelMeshes)
 	{
 		aiMesh* mesh = modelMesh.first;
@@ -173,8 +171,6 @@ Model::Model(Graphics& graphics, Model* pParent, aiNode* node, std::vector<std::
 		RenderGraphicsStep step;
 
 		{
-			step.AddBindable(m_transform.GetTransformConstantBuffer());
-
 			HandleVertexData(graphics, step, mesh, scale);
 
 			HandleIndiceData(graphics, step, mesh);

@@ -4,6 +4,7 @@
 #include "Graphics/Imgui/ImguiLayer.h"
 
 #include "Material.h"
+#include "Graphics/Bindables/ConstantBuffer.h"
 
 class Input;
 class Graphics;
@@ -34,6 +35,10 @@ public:
 	void InitializeCameraBuffer(Graphics& graphics, Pipeline& pipeline);
 
 	void InitializeLightBuffer(Graphics& graphics, Pipeline& pipeline);
+
+	void InitializeTransformBuffer(Graphics& graphics, Pipeline& pipeline);
+
+	void UpdateTransformBuffer(Graphics& graphics);
 
 	void AssignJobs(Graphics& graphics);
 
@@ -87,6 +92,7 @@ private:
 	std::vector<PointLight*> m_pointlights;
 	std::shared_ptr<CachedConstantBuffer> m_lightBuffer;
 	std::shared_ptr<CachedConstantBuffer> m_cameraBuffer;
+	std::shared_ptr<Buffer> m_transformBuffer;
 
 	std::unordered_map<std::string, std::shared_ptr<Material>> m_materials;
 };

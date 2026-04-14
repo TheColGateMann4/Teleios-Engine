@@ -12,6 +12,7 @@
 GeometryPass::GeometryPass()
 {
 	AddStaticBindable("cameraBuffer");
+	AddStaticBindable("transformBuffer");
 	
 	DynamicConstantBuffer::Layout layout;
 	layout.Add<DynamicConstantBuffer::ElementType::Int>("cameraTransformIndex");

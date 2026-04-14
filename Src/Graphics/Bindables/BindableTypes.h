@@ -20,7 +20,6 @@ enum class BindableType
 	bindable_shader,
 	bindable_shaderResourceView,
 	bindable_texture,
-	bindable_transformConstantBuffer,
 	bindable_unorderedAccessView,
 	bindable_vertexBuffer,
 	bindable_vertexBufferEntry,

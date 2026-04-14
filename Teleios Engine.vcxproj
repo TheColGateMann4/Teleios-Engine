@@ -252,7 +252,6 @@
     <ClCompile Include="Src\Graphics\Bindables\ShaderResourceView.cpp" />
     <ClCompile Include="Src\Graphics\Core\TempCommandList.cpp" />
     <ClCompile Include="Src\Graphics\Bindables\Texture.cpp" />
-    <ClCompile Include="Src\Graphics\Bindables\TransformConstantBuffer.cpp" />
     <ClCompile Include="Src\Scene\Objects\Cube.cpp" />
     <ClCompile Include="Src\Graphics\Bindables\UnorderedAccessView.cpp" />
     <ClCompile Include="Src\Graphics\Bindables\VertexBuffer.cpp" />
@@ -347,7 +346,6 @@
     <ClInclude Include="Src\Shaders\TargetShaders.h" />
     <ClInclude Include="Src\Graphics\Core\TempCommandList.h" />
     <ClInclude Include="Src\Graphics\Bindables\Texture.h" />
-    <ClInclude Include="Src\Graphics\Bindables\TransformConstantBuffer.h" />
     <ClInclude Include="Src\Scene\Objects\Cube.h" />
     <ClInclude Include="Src\Graphics\Bindables\UnorderedAccessView.h" />
     <ClInclude Include="Src\Graphics\Bindables\VertexBuffer.h" />

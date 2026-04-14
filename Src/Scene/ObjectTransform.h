@@ -1,7 +1,6 @@
 #pragma once
 #include "Includes/CppIncludes.h"
 #include "Includes/DirectXIncludes.h"
-#include "Graphics/Bindables/TransformConstantBuffer.h"
 
 class Graphics;
 class Camera;
@@ -30,7 +29,6 @@ public:
 	void SetParentTransform(DirectX::XMMATRIX accumulatedParentTransform);
 
 public:
-	void UpdateTransformBufferIfNeeded(Graphics& graphics, Camera& camera);
 	void UpdateLocalTransformIfNeeded();
 	void CheckIsTransformChanged(bool transformChanged);
 	bool GetTransformChanged() const;
@@ -40,10 +38,6 @@ private:
 	void UpdateLocalTransform();
 	void UpdateWorldTransform();
 
-public:
-	std::shared_ptr<TransformConstantBuffer> GetTransformConstantBuffer() const;
-	void SetTransformConstantBuffer(std::shared_ptr<TransformConstantBuffer> transformConstantBuffer);
-
 private:
 	DirectX::XMFLOAT3 m_position = {0.0f, 0.0f, 0.0f};
 	DirectX::XMVECTOR m_rotation = DirectX::XMQuaternionIdentity();
@@ -52,8 +46,6 @@ private:
 	DirectX::XMMATRIX m_worldTransform = DirectX::XMMatrixIdentity();
 	DirectX::XMMATRIX m_accumulatedParentTransform = DirectX::XMMatrixIdentity();
 	DirectX::XMMATRIX m_localTransform = DirectX::XMMatrixIdentity();
-
-	std::shared_ptr<TransformConstantBuffer> m_transformConstantBuffer = nullptr;
 
 	bool m_localTransformChanged = false;
 	bool m_parentTransformChanged = false;

@@ -6,7 +6,7 @@
 class RootSignatureConstants : public Bindable, public RootParameterBinding
 {
 public:
-	RootSignatureConstants(DynamicConstantBuffer::Data& data, std::vector<TargetSlotAndShader> targets = { {ShaderVisibilityGraphic::PixelShader, 0} });
+	// data has to have finished layout with 'data' type since it is padding-less
 	RootSignatureConstants(DynamicConstantBuffer::Data& data, ResourceTargets targets = { {ShaderVisibilityGraphic::PixelShader, 0} });
 
 public:

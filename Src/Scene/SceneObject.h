@@ -35,9 +35,6 @@ public:
 
 	void UpdateParentMatrix(DirectX::XMMATRIX parentMatrix = DirectX::XMMatrixIdentity());
 
-	// this function allows us to update transformCbuffer once per frame
-	void UpdateTransformBufferIfNeeded(Graphics& graphics, Camera& camera);
-
 	void UpdateLocalTransformIfNeeded();
 
 private:
@@ -77,6 +74,7 @@ protected:
 public:
 	ObjectTransform* GetTransform();
 
+	void SetSceneIndex(unsigned int sceneIndex);
 
 	std::string GetName() const;
 	void SetName(std::string newName);
@@ -104,4 +102,7 @@ protected:
 	bool m_isChild;
 	bool m_hideInHierarchy = false;
 	bool m_selected = false;
+
+	unsigned int m_sceneIndex = 0;
+	std::shared_ptr<RootSignatureConstants> m_sceneIndexConstant;
 };

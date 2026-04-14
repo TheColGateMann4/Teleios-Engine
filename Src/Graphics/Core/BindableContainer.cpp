@@ -193,11 +193,6 @@ void MeshBindableContainer::SegregateBindableByClass(Bindable* bindable)
 			m_inputLayout = static_cast<InputLayout*>(bindable);
 			break;
 		}
-		case BindableType::bindable_transformConstantBuffer:
-		{
-			m_transformConstantBuffer = static_cast<TransformConstantBuffer*>(bindable);
-			break;
-		}
 		case BindableType::bindable_cachedConstantBuffer:
 		{
 			m_cachedBuffers.push_back(static_cast<CachedConstantBuffer*>(bindable));

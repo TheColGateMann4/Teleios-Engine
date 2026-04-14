@@ -16,10 +16,30 @@ SceneObject::SceneObject(SceneObject* pParent)
 
 void SceneObject::InternalInitialize(Graphics& graphics, Pipeline& pipeline)
 {
+	// initializing modelSceneIndex
+	{
+		DynamicConstantBuffer::Layout layout;
+		layout.Add<DynamicConstantBuffer::ElementType::Uint>("modelSceneIndex");
+
+		layout.GetFinished(DynamicConstantBuffer::Layout::LayoutType::data);
+
+		DynamicConstantBuffer::Data bufferData(layout);
+		*bufferData.Get<DynamicConstantBuffer::ElementType::Uint>("modelSceneIndex") = m_sceneIndex;
+
+		m_sceneIndexConstant = std::make_shared<RootSignatureConstants>(bufferData, ResourceTargets{{ShaderVisibilityGraphic::VertexShader, 3}});
+	}
+
 	Initialize(graphics, pipeline);
 
 	for (auto& mesh : m_meshes)
 		mesh.Initialize(graphics, pipeline);
+
+	// adding modelSceneIndex bind to all meshe's steps
+	// specificly after mesh.Initialize() since meshes create implicit techniques there
+	for (auto& mesh : m_meshes)
+		for (auto& technique : mesh.GetTechniques())
+			for (auto& step : technique.GetSteps())
+				step.AddBindable(m_sceneIndexConstant);
 }
 
 void SceneObject::SubmitJobs(Renderer& renderer)
@@ -44,13 +64,6 @@ void SceneObject::UpdateParentMatrix(DirectX::XMMATRIX parentMatrix)
 
 	for (auto& child : m_children)
 		child->UpdateParentMatrix(m_transform.GetWorldTransform());
-}
-
-void SceneObject::UpdateTransformBufferIfNeeded(Graphics& graphics, Camera& camera)
-{
-	// if object does not have any meshes then we don't need to update transformConstBuffer since no objects will be drawn using it
-	if(!m_meshes.empty())
-		m_transform.UpdateTransformBufferIfNeeded(graphics, camera);
 }
 
 void SceneObject::UpdateLocalTransformIfNeeded()
@@ -236,6 +249,11 @@ void SceneObject::AddChild(SceneObject* object)
 ObjectTransform* SceneObject::GetTransform()
 {
 	return &m_transform;
+}
+
+void SceneObject::SetSceneIndex(unsigned int sceneIndex)
+{
+	m_sceneIndex = sceneIndex;
 }
 
 std::string SceneObject::GetName() const

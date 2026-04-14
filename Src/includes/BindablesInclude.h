@@ -6,7 +6,6 @@
 #include "Graphics/Bindables/IndexBuffer.h"
 #include "Graphics/Bindables/Texture.h"
 #include "Graphics/Bindables/ConstantBuffer.h"
-#include "Graphics/Bindables/TransformConstantBuffer.h"
 #include "Graphics/Bindables/InputLayout.h"
 #include "Graphics/Bindables/Sampler.h"
 #include "Graphics/Bindables/BlendState.h"

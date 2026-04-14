@@ -99,37 +99,6 @@ void ObjectTransform::SetParentTransform(DirectX::XMMATRIX accumulatedParentTran
 	UpdateWorldTransform();
 }
 
-std::shared_ptr<TransformConstantBuffer> ObjectTransform::GetTransformConstantBuffer() const
-{
-	return m_transformConstantBuffer;
-}
-
-void ObjectTransform::SetTransformConstantBuffer(std::shared_ptr<TransformConstantBuffer> transformConstantBuffer)
-{
-	m_transformConstantBuffer = transformConstantBuffer;
-	m_transformConstantBuffer->SetParentPtr(this);
-}
-
-void ObjectTransform::UpdateTransformBufferIfNeeded(Graphics& graphics, Camera& camera)
-{
-	bool updateDueToNewData = m_localTransformChanged || m_parentTransformChanged || camera.ViewChanged();
-	bool updateDueToBuffersLeft = m_buffersLeftToChange > 0;
-
-	if (!updateDueToNewData && updateDueToBuffersLeft)
-		m_buffersLeftToChange--;
-
-	if (updateDueToNewData)
-		m_buffersLeftToChange = graphics.GetBufferCount();
-
-	if (updateDueToNewData || updateDueToBuffersLeft)
-	{
-		m_transformConstantBuffer->Update(graphics, camera);
-
-		m_localTransformChanged = false;
-		m_parentTransformChanged = false;
-	}
-}
-
 void ObjectTransform::UpdateLocalTransformIfNeeded()
 {
 	if (m_localTransformChanged)

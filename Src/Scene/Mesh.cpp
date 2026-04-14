@@ -83,8 +83,6 @@ void Mesh::CreateDepthTechnique(Graphics& graphics, Pipeline& pipeline)
 
 			depthStep.AddBindable(geometryBindables.GetInputLayout());
 
-			depthStep.AddBindable(geometryBindables.GetTransformConstantBuffer());
-
 			depthStep.AddBindable(DepthStencilState::GetResource(graphics, DepthStencilState::DepthComparisonFunc::Less));
 			depthStep.AddBindable(BlendState::GetResource(graphics));
 			depthStep.AddBindable(PrimitiveTechnology::GetResource(graphics, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE));

@@ -1,7 +1,9 @@
-cbuffer modelTransforms : register(b0)
+struct TransformModelData
 {
     row_major matrix transform;
 };
+
+StructuredBuffer<TransformModelData> modelTransforms : register(t0);
 
 #ifndef NUM_CAMERAS
 #define NUM_CAMERAS 10
@@ -18,9 +20,14 @@ cbuffer cameraTransforms : register(b1)
 	CameraData cameras[NUM_CAMERAS];
 };
 
-cbuffer constants : register(b2)
+cbuffer cameraConstants : register(b2)
 {
     int cameraTransformIndex;
+}
+
+cbuffer modelConstants : register(b3)
+{
+    int modelTransformIndex;
 }
 
 struct VSOut
@@ -69,6 +76,8 @@ VSOut VSMain(
 
 	)
 {
+    row_major matrix transform = modelTransforms[modelTransformIndex].transform;
+    
     matrix transformInCameraSpace = mul(transform, cameras[cameraTransformIndex].view);
     matrix transformInCameraView = mul(transformInCameraSpace, cameras[cameraTransformIndex].projection);
     
