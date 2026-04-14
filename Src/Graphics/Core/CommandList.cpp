@@ -124,6 +124,8 @@ void CommandList::Open(Graphics& graphics, PipelineState* pPipelineState)
 	THROW_ERROR(pCommandList->Reset(m_pCommandAllocators.at(m_currCommandAllocatorIndex).Get(), pipelineState));
 
 	m_open = true;
+
+	m_state = CommandListState{}; // reseting state since command list on gpu has no state after reset
 }
 
 void CommandList::Close(Graphics& graphics)
@@ -352,7 +354,7 @@ void CommandList::SetPrimitiveTopology(Graphics& graphics, D3D_PRIMITIVE_TOPOLOG
 {
 	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
 	THROW_OBJECT_STATE_ERROR_IF("Only Direct and Bundle command lists can set topology", m_type != D3D12_COMMAND_LIST_TYPE_DIRECT && m_type != D3D12_COMMAND_LIST_TYPE_BUNDLE);
-
+	
 	if (!m_state.SetPrimitiveTechnology(primitiveTechnology))
 		return;
 
