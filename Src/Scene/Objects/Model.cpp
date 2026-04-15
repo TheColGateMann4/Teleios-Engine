@@ -145,7 +145,8 @@ void HandleIndiceData(Graphics& graphics, RenderGraphicsStep& step, aiMesh* mesh
 		for (size_t indiceIndex = 0; indiceIndex < mesh->mFaces[faceIndex].mNumIndices; indiceIndex++)
 			indices.at(faceIndex * 3 + indiceIndex) = mesh->mFaces[faceIndex].mIndices[indiceIndex];
 
-	step.AddBindable(IndexBuffer::GetResource(graphics, mesh->mName.C_Str(), indices));
+	std::string ibName = std::string(mesh->mName.C_Str()) + "#IndexBuffer";
+	step.SetIndexBufferEntry(IndexBufferEntry::GetResource(graphics, ibName, std::move(indices)));
 }
 
 Model::Model(Graphics& graphics, Model* pParent, aiNode* node, std::vector<std::pair<aiMesh*, std::shared_ptr<Material>>> modelMeshes, float scale, DirectX::XMFLOAT3 position)

@@ -34,6 +34,8 @@ public: // bindable container functions
 
 	void SetPositionBufferEntry(std::shared_ptr<VertexBufferEntry> positionBufferEntry);
 
+	void SetIndexBufferEntry(std::shared_ptr<IndexBufferEntry> indexBufferEntry);
+
 	void SetBoundingBox(BoundingBox boundingBox);
 
 	void AddBindable(std::shared_ptr<Bindable> bindable);

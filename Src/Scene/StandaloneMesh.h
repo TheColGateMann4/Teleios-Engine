@@ -39,6 +39,7 @@ public: // bindable container functions
 
 	void SetAttributeBufferEntry(std::shared_ptr<VertexBufferEntry> attributeBufferEntry);
 	void SetPositionBufferEntry(std::shared_ptr<VertexBufferEntry> positionBufferEntry);
+	void SetIndexBufferEntry(std::shared_ptr<IndexBufferEntry> indexBufferEntry);
 
 	const MeshBindableContainer& GetBindableContainter() const;
 

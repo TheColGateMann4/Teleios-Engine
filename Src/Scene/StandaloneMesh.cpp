@@ -57,6 +57,7 @@ void StandaloneMesh::Initialize(Graphics& graphics, Pipeline& pipeline)
 
 void StandaloneMesh::Draw(Graphics& graphics, CommandList* commandList) const
 {
+	std::shared_ptr<IndexBufferEntry> indexBufferEntry = m_bindableContainer.GetIndexBufferEntry();
 	std::shared_ptr<VertexBufferEntry> vertexBufferEntry;
 	{
 		auto attribBufferEntry = m_bindableContainer.GetAttributeVertexBufferEntry();
@@ -83,12 +84,14 @@ void StandaloneMesh::Draw(Graphics& graphics, CommandList* commandList) const
 			pCommandListBindable->BindToCommandList(graphics, commandList);
 
 		vertexBufferEntry->BindToCommandList(graphics, commandList);
+		indexBufferEntry->BindToCommandList(graphics, commandList);
 	}
 
-	unsigned int indexCount = m_bindableContainer.GetIndexBuffer()->GetIndexCount();
-	unsigned int baseVertexOffset = vertexBufferEntry->GetEntryInfo().offset;;
+	unsigned int indices = m_bindableContainer.GetIndexBufferEntry()->GetIndexCount();
+	unsigned int baseVertexOffset = vertexBufferEntry->GetEntryInfo().offset;
+	unsigned int startIndexOffset = indexBufferEntry->GetEntryInfo().offset;
 
-	commandList->DrawIndexed(graphics, indexCount, baseVertexOffset);
+	commandList->DrawIndexed(graphics, indices, baseVertexOffset, startIndexOffset);
 };
 
 void StandaloneMesh::Update(Graphics& graphics, Pipeline& pipeline)
@@ -128,6 +131,11 @@ void StandaloneMesh::SetAttributeBufferEntry(std::shared_ptr<VertexBufferEntry> 
 void StandaloneMesh::SetPositionBufferEntry(std::shared_ptr<VertexBufferEntry> positionBufferEntry)
 {
 	m_bindableContainer.SetPositionBufferEntry(std::move(positionBufferEntry));
+}
+
+void StandaloneMesh::SetIndexBufferEntry(std::shared_ptr<IndexBufferEntry> indexBufferEntry)
+{
+	m_bindableContainer.SetIndexBufferEntry(std::move(indexBufferEntry));
 }
 
 const MeshBindableContainer& StandaloneMesh::GetBindableContainter() const

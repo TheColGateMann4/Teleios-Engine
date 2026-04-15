@@ -119,6 +119,11 @@ void MeshBindableContainer::SetPositionBufferEntry(std::shared_ptr<VertexBufferE
 	m_positionBuffer = std::move(positionBufferEntry);
 }
 
+void MeshBindableContainer::SetIndexBufferEntry(std::shared_ptr<IndexBufferEntry> indexBufferEntry)
+{
+	m_indexBuffer = std::move(indexBufferEntry);
+}
+
 void MeshBindableContainer::AddStaticBindable(const char* bindableName)
 {
 	m_staticBindableNames.push_back(bindableName);
@@ -140,7 +145,7 @@ std::shared_ptr<VertexBufferEntry> MeshBindableContainer::GetPositionVertexBuffe
 	return m_positionBuffer;
 }
 
-IndexBuffer* MeshBindableContainer::GetIndexBuffer() const
+std::shared_ptr<IndexBufferEntry> MeshBindableContainer::GetIndexBufferEntry() const
 {
 	return m_indexBuffer;
 }
@@ -175,17 +180,22 @@ void MeshBindableContainer::SegregateBindableByClass(Bindable* bindable)
 	{
 		case BindableType::bindable_indexBuffer:
 		{
-			m_indexBuffer = static_cast<IndexBuffer*>(bindable);
+			THROW_INTERNAL_ERROR("IndexBuffer was pushed as regular bindable. Use IndexBufferEntry for using index data. Then bind it using SetIndexBuffer()");
+			break;
+		}
+		case BindableType::bindable_indexBufferEntry:
+		{
+			THROW_INTERNAL_ERROR("IndexBufferEntry was pushed as regular bindable. Bind it using SetIndexBuffer()");
 			break;
 		}
 		case BindableType::bindable_vertexBuffer:
 		{
-			THROW_INTERNAL_ERROR("VertexBuffer was pushed as regular bindable. Use VertexBufferEntry for using vertex data. Then bind is using SetAttributeBuffer() or SetPositionBuffer()");
+			THROW_INTERNAL_ERROR("VertexBuffer was pushed as regular bindable. Use VertexBufferEntry for using vertex data. Then bind it using SetAttributeBuffer() or SetPositionBuffer()");
 			break;
 		}
 		case BindableType::bindable_vertexBufferEntry:
 		{
-			THROW_INTERNAL_ERROR("VertexBufferEntry was pushed as regular bindable. Bind it is using SetAttributeBuffer() or SetPositionBuffer()");
+			THROW_INTERNAL_ERROR("VertexBufferEntry was pushed as regular bindable. Bind it using SetAttributeBuffer() or SetPositionBuffer()");
 			break;
 		}
 		case BindableType::bindable_inputLayout:

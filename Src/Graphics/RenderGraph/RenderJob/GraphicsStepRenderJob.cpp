@@ -114,13 +114,17 @@ void GraphicsStepRenderJob::InitializeGraphicResources(Graphics& graphics, Pipel
 {
 	auto attributeVertexEntry = m_bindableContainer.GetAttributeVertexBufferEntry();
 	auto positionVertexEntry = m_bindableContainer.GetPositionVertexBufferEntry();
+	auto indexBuffer = m_bindableContainer.GetIndexBufferEntry();
 
 	if (attributeVertexEntry)
 		attributeVertexEntry->GetVertexBuffer()->BindToCopyPipelineIfNeeded(graphics, pipeline);
 	if (positionVertexEntry)
 		positionVertexEntry->GetVertexBuffer()->BindToCopyPipelineIfNeeded(graphics, pipeline);
 
-	m_bindableContainer.GetIndexBuffer()->BindToCopyPipelineIfNeeded(graphics, pipeline);
+	THROW_INTERNAL_ERROR_IF("None vertex buffer was bound", !attributeVertexEntry && !positionVertexEntry);
+	THROW_INTERNAL_ERROR_IF("Index buffer hasn't been bound", !indexBuffer);
+
+	indexBuffer->GetIndexBuffer()->BindToCopyPipelineIfNeeded(graphics, pipeline);
 
 	for (auto texture : m_bindableContainer.GetTextures())
 		texture->InitializeGraphicResources(graphics, pipeline);
@@ -142,7 +146,7 @@ void GraphicsStepRenderJob::Execute(Graphics& graphics, CommandList* commandList
 
 	commandList->SetGraphicsRootSignature(graphics, m_rootSignature.get());
 
-
+	std::shared_ptr<IndexBufferEntry> indexBufferEntry = m_bindableContainer.GetIndexBufferEntry();
 	std::shared_ptr<VertexBufferEntry> vertexBufferEntry;
 	{
 		auto attribBufferEntry = m_bindableContainer.GetAttributeVertexBufferEntry();
@@ -172,12 +176,14 @@ void GraphicsStepRenderJob::Execute(Graphics& graphics, CommandList* commandList
 			pCommandListBindable->BindToCommandList(graphics, commandList);
 
 		vertexBufferEntry->BindToCommandList(graphics, commandList);
+		indexBufferEntry->BindToCommandList(graphics, commandList);
 	}
 
-	unsigned int indexCount = m_bindableContainer.GetIndexBuffer()->GetIndexCount();
+	unsigned int indices = m_bindableContainer.GetIndexBufferEntry()->GetIndexCount();
 	unsigned int baseVertexOffset = vertexBufferEntry->GetEntryInfo().offset;
+	unsigned int startIndexOffset = indexBufferEntry->GetEntryInfo().offset;
 
-	commandList->DrawIndexed(graphics, indexCount, baseVertexOffset);
+	commandList->DrawIndexed(graphics, indices, baseVertexOffset, startIndexOffset);
 
 	END_CPU_EVENT();
 }

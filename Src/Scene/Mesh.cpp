@@ -79,7 +79,7 @@ void Mesh::CreateDepthTechnique(Graphics& graphics, Pipeline& pipeline)
 			RenderGraphicsStep depthStep;
 
 			depthStep.SetPositionBufferEntry(geometryBindables.GetPositionVertexBufferEntry());
-			depthStep.AddBindable(geometryBindables.GetIndexBuffer());
+			depthStep.SetIndexBufferEntry(geometryBindables.GetIndexBufferEntry());
 
 			depthStep.AddBindable(geometryBindables.GetInputLayout());
 

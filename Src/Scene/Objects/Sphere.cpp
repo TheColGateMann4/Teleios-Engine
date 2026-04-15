@@ -115,7 +115,7 @@ void Sphere::UpdateMesh(Graphics& graphics, Pipeline& pipeline)
 	{
 		albedoStep.SetAttributeBufferEntry(VertexBufferEntry::GetResource(graphics, "Sphere", vertices.data(), vertexLayout, vertices.size()));
 
-		albedoStep.AddBindable(IndexBuffer::GetResource(graphics, "Sphere", indices));
+		albedoStep.SetIndexBufferEntry(IndexBufferEntry::GetResource(graphics, "Sphere", std::move(indices)));
 
 		m_initialized = true;
 	}

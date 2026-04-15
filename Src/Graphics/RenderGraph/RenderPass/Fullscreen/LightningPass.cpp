@@ -38,6 +38,7 @@ void LightningPass::Initialize(Graphics& graphics, Scene& scene)
 	THROW_INTERNAL_ERROR_IF("There were no lights on the scene", numberOfLightsOnScene == 0);
 
 	mesh.SetAttributeBufferEntry(m_vertexBufferEntry);
+	mesh.SetIndexBufferEntry(m_indexBufferEntry);
 	mesh.AddStaticBindable("lightBuffer");
 	mesh.AddBindable(Shader::GetResource(graphics, L"PS_Lightning", ShaderType::PixelShader, { { L"NUM_POINTLIGHTS", strNumberOfLightsOnScene.c_str()} })); // ps
 	mesh.AddBindable(Shader::GetResource(graphics, L"VS_Fullscreen", ShaderType::VertexShader)); // vs

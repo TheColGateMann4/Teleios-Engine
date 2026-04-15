@@ -45,6 +45,11 @@ void RenderGraphicsStep::SetPositionBufferEntry(std::shared_ptr<VertexBufferEntr
 	m_bindableContainer.SetPositionBufferEntry(std::move(positionBufferEntry));
 }
 
+void RenderGraphicsStep::SetIndexBufferEntry(std::shared_ptr<IndexBufferEntry> indexBufferEntry)
+{
+	m_bindableContainer.SetIndexBufferEntry(std::move(indexBufferEntry));
+}
+
 void RenderGraphicsStep::SetBoundingBox(BoundingBox boundingBox)
 {
 	m_boundingBox = boundingBox;

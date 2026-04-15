@@ -9,9 +9,7 @@
 
 FullscreenRenderPass::FullscreenRenderPass(Graphics& graphics, RenderManager& renderManager)
 {
-	std::shared_ptr<IndexBuffer> indexBuffer = IndexBuffer::GetResource(graphics, "FullscreenMesh", std::vector<unsigned int>{0, 1, 3, 0, 3, 2});
-	m_pIndexBuffer = indexBuffer.get();
-	m_bindables.push_back(std::move(indexBuffer));
+	m_indexBufferEntry = IndexBufferEntry::GetResource(graphics, "FullscreenMesh", std::vector<unsigned int>{0, 1, 3, 0, 3, 2});
 
 	DynamicVertex::DynamicVertexLayout layout;
 	layout.AddElement<DynamicVertex::ElementType::Position>();
@@ -67,6 +65,7 @@ void FullscreenRenderPass::Initialize(Graphics& graphics, Scene& scene)
 			mesh.AddBindable(bind);
 
 		mesh.SetAttributeBufferEntry(m_vertexBufferEntry);
+		mesh.SetIndexBufferEntry(m_indexBufferEntry);
 		mesh.AddBindable(m_pCameraData); // b0
 		mesh.AddBindable(m_renderTargetSRV); // t0
 		mesh.AddBindable(Shader::GetResource(graphics, L"PS_Fullscreen", ShaderType::PixelShader)); // ps
@@ -80,7 +79,7 @@ void FullscreenRenderPass::InitializePassResources(Graphics& graphics, Pipeline&
 {
 	// copy index and vertex buffers to gpu
 	m_vertexBufferEntry->GetVertexBuffer()->BindToCopyPipelineIfNeeded(graphics, pipeline);
-	m_pIndexBuffer->BindToCopyPipelineIfNeeded(graphics, pipeline);
+	m_indexBufferEntry->GetIndexBuffer()->BindToCopyPipelineIfNeeded(graphics, pipeline);
 
 	// Updating camera data
 	{

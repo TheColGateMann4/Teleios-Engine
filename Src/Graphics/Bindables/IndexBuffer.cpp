@@ -5,48 +5,55 @@
 
 #include "Graphics/Core/ResourceList.h"
 
-IndexBuffer::IndexBuffer(Graphics& graphics, std::vector<unsigned int> indices)
-	:
-	IndexBuffer(graphics, indices.data(), indices.size(), DXGI_FORMAT_R32_UINT)
-{
-
-}
-
-IndexBuffer::IndexBuffer(Graphics& graphics, std::vector<unsigned short> indices)
+IndexBuffer::IndexBuffer(unsigned int stride)
     :
-    IndexBuffer(graphics, indices.data(), indices.size(), DXGI_FORMAT_R16_UINT)
+	m_dataFormat(stride == 2 ? DXGI_FORMAT_R16_UINT : DXGI_FORMAT_R32_UINT),
+	m_stride(stride)
 {
-
+	THROW_INTERNAL_ERROR_IF("Stride was invalid", stride != 2 && stride != 4);
 }
 
-IndexBuffer::IndexBuffer(Graphics& graphics, void* pData, size_t indexCount, DXGI_FORMAT dataFormat)
-	:
-	m_dataFormat(dataFormat)
+std::shared_ptr<IndexBuffer> IndexBuffer::GetResource(unsigned int stride)
 {
-	THROW_OBJECT_STATE_ERROR_IF("Haven't handled other indice formats", m_dataFormat != DXGI_FORMAT_R32_UINT && m_dataFormat != DXGI_FORMAT_R16_UINT);
+	return ResourceList::GetResourceByID<IndexBuffer>("IndexBuffer#" + std::to_string(stride), stride);
+}
 
-	uint8_t structureSize = m_dataFormat == DXGI_FORMAT_R32_UINT ? 4 : 2; // 4bytes for 32bits and 2bytes for 16bits
+IndexBufferEntryInfo IndexBuffer::PushData(Graphics& graphics, std::vector<unsigned int>&& indices)
+{
+	return PushData(graphics, indices.data(), indices.size(), sizeof(indices.front()));
+}
 
-	m_buffer = std::make_shared<GraphicsBuffer>(graphics, indexCount, structureSize, GraphicsBuffer::CPUAccess::unknown, D3D12_RESOURCE_STATE_INDEX_BUFFER, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
-	m_uploadBuffer = std::make_shared<GraphicsBuffer>(graphics, indexCount, structureSize, GraphicsBuffer::CPUAccess::write);
+IndexBufferEntryInfo IndexBuffer::PushData(Graphics& graphics, std::vector<unsigned short>&& indices)
+{
+	return PushData(graphics, indices.data(), indices.size(), sizeof(indices.front()));
+}
+
+IndexBufferEntryInfo IndexBuffer::PushData(Graphics& graphics, void* pData, unsigned int indexCount, unsigned int stride)
+{
+	THROW_INTERNAL_ERROR_IF("Passed data was NULL", pData == nullptr);
+	THROW_INTERNAL_ERROR_IF("Num elements passed to IndexBuffer was 0", indexCount == 0);
+	THROW_INTERNAL_ERROR_IF("Tried to push indice data with different stride than target buffer", stride != m_stride);
+
+	unsigned int previouslyAccumulatedElements = m_accumulatedElements;
+
+	AddUploadBuffer(graphics, indexCount, pData);
+
+	return IndexBufferEntryInfo{
+		previouslyAccumulatedElements,
+		indexCount
+	};
+}
+
+void IndexBuffer::Build(Graphics& graphics)
+{
+	if (m_buffer)
+		return;
+
+	m_buffer = std::make_shared<GraphicsBuffer>(graphics, m_accumulatedElements, m_stride, GraphicsBuffer::CPUAccess::unknown, D3D12_RESOURCE_STATE_INDEX_BUFFER, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
 
 	m_indexBufferView.BufferLocation = m_buffer->GetResource()->GetGPUVirtualAddress();
-	m_indexBufferView.SizeInBytes = indexCount * structureSize;
+	m_indexBufferView.SizeInBytes = m_accumulatedElements * m_stride;
 	m_indexBufferView.Format = m_dataFormat;
-
-	// passing data to index buffer resource
-	if (pData != nullptr)
-		UpdateBufferData(graphics, pData);
-}
-
-std::shared_ptr<IndexBuffer> IndexBuffer::GetResource(Graphics& graphics, std::string identifier, std::vector<unsigned int> indices)
-{
-	return ResourceList::GetResourceByID<IndexBuffer>("IndexBuffer#" + identifier, graphics, indices);
-}
-
-std::shared_ptr<IndexBuffer> IndexBuffer::GetResource(Graphics& graphics, std::string identifier, std::vector<unsigned short> indices)
-{
-	return ResourceList::GetResourceByID<IndexBuffer>("IndexBuffer#" + identifier, graphics, indices);
 }
 
 GraphicsBuffer* IndexBuffer::GetBuffer()
@@ -56,12 +63,21 @@ GraphicsBuffer* IndexBuffer::GetBuffer()
 
 void IndexBuffer::BindToCopyPipelineIfNeeded(Graphics& graphics, Pipeline& pipeline)
 {
-	if (!m_uploadBuffer) // if uploadResource ptr is not holding value then we don't want to update
+	Build(graphics);
+
+	if (m_toUpload.empty()) // if uploadResource ptr is not holding value then we don't want to update
 		return;
 
-	pipeline.AddResourceToCopyPipeline(m_buffer.get(), m_uploadBuffer.get());
+	for (auto& upload : m_toUpload)
+	{
+		unsigned int srcSize = upload.uploadBuffer->GetByteSize();
 
-	graphics.GetFrameResourceDeleter()->DeleteResource(graphics, std::move(m_uploadBuffer));
+		pipeline.AddBufferRegionToCopyPipeline(DestinationBufferRegionCopyData(m_buffer.get(), upload.offset), SourceBufferRegionCopyData(upload.uploadBuffer.get(), 0, srcSize));
+
+		graphics.GetFrameResourceDeleter()->DeleteResource(graphics, std::move(upload.uploadBuffer));
+	}
+
+	m_toUpload.clear();
 }
 
 void IndexBuffer::BindToCommandList(Graphics& graphics, CommandList* commandList)
@@ -72,23 +88,6 @@ void IndexBuffer::BindToCommandList(Graphics& graphics, CommandList* commandList
 BindableType IndexBuffer::GetBindableType() const
 {
 	return BindableType::bindable_indexBuffer;
-}
-
-void IndexBuffer::Update(Graphics& graphics, void* pData, size_t numElements, size_t structureSize)
-{
-	// if sizes are not the same, we will be creating new GPU resource.
-	if (m_buffer->GetByteSize() != numElements * structureSize)
-	{
-		graphics.GetFrameResourceDeleter()->DeleteResource(graphics, std::move(m_buffer));
-		m_buffer = std::make_shared<GraphicsBuffer>(graphics, numElements, structureSize, GraphicsBuffer::CPUAccess::unknown, D3D12_RESOURCE_STATE_INDEX_BUFFER, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
-
-		m_indexBufferView.BufferLocation = m_buffer->GetResource()->GetGPUVirtualAddress();
-		m_indexBufferView.SizeInBytes = numElements * structureSize;
-		m_indexBufferView.Format = m_dataFormat;
-	}
-
-	m_uploadBuffer = std::make_shared<GraphicsBuffer>(graphics, numElements, structureSize, GraphicsBuffer::CPUAccess::write);
-	UpdateBufferData(graphics, pData);
 }
 
 const D3D12_INDEX_BUFFER_VIEW* IndexBuffer::Get() const
@@ -106,8 +105,21 @@ DXGI_FORMAT IndexBuffer::GetFormat() const
 	return m_dataFormat;
 }
 
+void IndexBuffer::AddUploadBuffer(Graphics& graphics, unsigned int numElements, void* pData)
+{
+	std::unique_ptr<GraphicsBuffer> uploadBuffer = std::make_unique<GraphicsBuffer>(graphics, numElements, m_stride, GraphicsResource::CPUAccess::write);
+
+	m_toUpload.emplace_back(m_accumulatedElements * m_stride, std::move(uploadBuffer));
+
+	UpdateBufferData(graphics, pData);
+
+	m_accumulatedElements += numElements;
+}
+
 void IndexBuffer::UpdateBufferData(Graphics& graphics, void* pData)
 {
+	GraphicsBuffer* uploadBuffer = m_toUpload.back().uploadBuffer.get();
+
 	HRESULT hr;
 
 	D3D12_RANGE readRange = {};
@@ -116,17 +128,68 @@ void IndexBuffer::UpdateBufferData(Graphics& graphics, void* pData)
 
 	D3D12_RANGE writeRange = {};
 	writeRange.Begin = 0;
-	writeRange.End = m_uploadBuffer->GetByteSize();
+	writeRange.End = uploadBuffer->GetByteSize();
 
 	void* pMappedData = nullptr;
 
-	THROW_ERROR(m_uploadBuffer->GetResource()->Map(
+	THROW_ERROR(uploadBuffer->GetResource()->Map(
 		0,
 		&readRange,
 		&pMappedData
 	));
 
-	memcpy_s(pMappedData, m_uploadBuffer->GetByteSize(), pData, m_uploadBuffer->GetByteSize());
+	memcpy_s(pMappedData, uploadBuffer->GetByteSize(), pData, uploadBuffer->GetByteSize());
 
-	m_uploadBuffer->GetResource()->Unmap(0, &writeRange);
+	uploadBuffer->GetResource()->Unmap(0, &writeRange);
+}
+
+IndexBufferEntry::IndexBufferEntry(Graphics& graphics, std::vector<unsigned int>&& indices)
+{
+	m_indexBuffer = ResourceList::GetResourceByID<IndexBuffer>("IndexBuffer#" + std::to_string(sizeof(indices.front())), sizeof(indices.front()));
+	m_indexCount = indices.size();
+
+	m_entryInfo = m_indexBuffer->PushData(graphics, std::move(indices));
+}
+
+IndexBufferEntry::IndexBufferEntry(Graphics& graphics, std::vector<unsigned short>&& indices)
+{
+	m_indexBuffer = ResourceList::GetResourceByID<IndexBuffer>("IndexBuffer#" + std::to_string(sizeof(indices.front())), sizeof(indices.front()));
+	m_indexCount = indices.size();
+
+	m_entryInfo = m_indexBuffer->PushData(graphics, std::move(indices));
+}
+
+std::shared_ptr<IndexBufferEntry> IndexBufferEntry::GetResource(Graphics& graphics, const std::string& identifier, std::vector<unsigned int>&& indices)
+{
+	return ResourceList::GetResourceByID<IndexBufferEntry>(identifier, graphics, std::move(indices));
+}
+
+std::shared_ptr<IndexBufferEntry> IndexBufferEntry::GetResource(Graphics& graphics, const std::string& identifier, std::vector<unsigned short>&& indices)
+{
+	return ResourceList::GetResourceByID<IndexBufferEntry>(identifier, graphics, std::move(indices));
+}
+
+void IndexBufferEntry::BindToCommandList(Graphics& graphics, CommandList* commandList)
+{
+	commandList->SetIndexBuffer(graphics, m_indexBuffer.get());
+}
+
+BindableType IndexBufferEntry::GetBindableType() const
+{
+	return BindableType::bindable_indexBufferEntry;
+}
+
+IndexBuffer* IndexBufferEntry::GetIndexBuffer() const
+{
+	return m_indexBuffer.get();
+}
+
+IndexBufferEntryInfo IndexBufferEntry::GetEntryInfo() const
+{
+	return m_entryInfo;
+}
+
+unsigned int IndexBufferEntry::GetIndexCount() const
+{
+	return m_indexCount;
 }

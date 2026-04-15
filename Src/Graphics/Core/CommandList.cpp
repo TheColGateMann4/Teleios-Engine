@@ -139,12 +139,12 @@ void CommandList::Close(Graphics& graphics)
 	m_open = false;
 }
 
-void CommandList::DrawIndexed(Graphics& graphics, unsigned int indices, unsigned int baseVertexOffset)
+void CommandList::DrawIndexed(Graphics& graphics, unsigned int indices, unsigned int baseVertexOffset, unsigned int startIndexOffset)
 {
 	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
 	THROW_OBJECT_STATE_ERROR_IF("Only Direct and Bundle command lists can DrawIndexed", m_type != D3D12_COMMAND_LIST_TYPE_DIRECT && m_type != D3D12_COMMAND_LIST_TYPE_BUNDLE);
 
-	THROW_INFO_ERROR(pCommandList->DrawIndexedInstanced(indices, 1, 0, baseVertexOffset, 0));
+	THROW_INFO_ERROR(pCommandList->DrawIndexedInstanced(indices, 1, startIndexOffset, baseVertexOffset, 0));
 }
 
 void CommandList::Dispatch(Graphics& graphics, unsigned int workToProcessX, unsigned int workToProcessY, unsigned int workToProcessZ)

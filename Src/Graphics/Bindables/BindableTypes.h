@@ -11,6 +11,7 @@ enum class BindableType
 	bindable_depthStencilState,
 	bindable_depthStencilView,
 	bindable_indexBuffer,
+	bindable_indexBufferEntry,
 	bindable_inputLayout,
 	bindable_primitiveTechnology,
 	bindable_rasterizerState,

@@ -38,6 +38,6 @@ protected:
 	std::shared_ptr<ShaderResourceViewMultiResource> m_depthStencilSRV;
 
 	std::shared_ptr<CachedConstantBuffer> m_pCameraData;
-	IndexBuffer* m_pIndexBuffer;
 	std::shared_ptr<VertexBufferEntry> m_vertexBufferEntry;
+	std::shared_ptr<IndexBufferEntry> m_indexBufferEntry;
 };

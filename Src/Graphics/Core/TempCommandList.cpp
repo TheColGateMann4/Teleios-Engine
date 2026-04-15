@@ -125,7 +125,27 @@ void TempGraphicsCommandList::DrawIndexed(Graphics& graphics)
 	for (auto commandListBindable : m_bindableContainer.GetCommandListBindables())
 		commandListBindable->BindToCommandList(graphics, m_commandList);
 
-	m_commandList->DrawIndexed(graphics, m_bindableContainer.GetIndexBuffer()->GetIndexCount());
+	std::shared_ptr<IndexBufferEntry> indexBufferEntry = m_bindableContainer.GetIndexBufferEntry();
+	std::shared_ptr<VertexBufferEntry> vertexBufferEntry;
+	{
+		auto attribBufferEntry = m_bindableContainer.GetAttributeVertexBufferEntry();
+		auto positionBufferEntry = m_bindableContainer.GetPositionVertexBufferEntry();
+
+		if (attribBufferEntry)
+			vertexBufferEntry = attribBufferEntry;
+		else if (positionBufferEntry)
+			vertexBufferEntry = positionBufferEntry;
+		else
+		{
+			THROW_INTERNAL_ERROR("Position buffer and Attribute buffer were both NULL");
+		}
+	}
+
+	unsigned int indices = m_bindableContainer.GetIndexBufferEntry()->GetIndexCount();
+	unsigned int baseVertexOffset = vertexBufferEntry->GetEntryInfo().offset;
+	unsigned int startIndexOffset = indexBufferEntry->GetEntryInfo().offset;
+
+	m_commandList->DrawIndexed(graphics, indices, baseVertexOffset, startIndexOffset);
 }
 
 void TempGraphicsCommandList::Bind(std::shared_ptr<Bindable> bindable)

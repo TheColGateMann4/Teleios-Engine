@@ -5,6 +5,7 @@
 class Pipeline;
 
 class VertexBufferEntry;
+class IndexBufferEntry;
 class IndexBuffer;
 class InputLayout;
 class TransformConstantBuffer;
@@ -67,6 +68,7 @@ public:
 public:
 	void SetAttributeBufferEntry(std::shared_ptr<VertexBufferEntry> attributeBufferEntry);
 	void SetPositionBufferEntry(std::shared_ptr<VertexBufferEntry> positionBufferEntry);
+	void SetIndexBufferEntry(std::shared_ptr<IndexBufferEntry> indexBufferEntry);
 
 	void AddStaticBindable(const char* bindableName);
 
@@ -75,8 +77,8 @@ public:
 public:
 	std::shared_ptr<VertexBufferEntry> GetAttributeVertexBufferEntry() const;
 	std::shared_ptr<VertexBufferEntry> GetPositionVertexBufferEntry() const;
+	std::shared_ptr<IndexBufferEntry> GetIndexBufferEntry() const;
 
-	IndexBuffer* GetIndexBuffer() const;
 	InputLayout* GetInputLayout() const;
 	TransformConstantBuffer* GetTransformConstantBuffer() const;
 	const std::vector<CachedConstantBuffer*>& GetCachedBuffers() const;
@@ -91,8 +93,8 @@ private:
 	
 	std::shared_ptr<VertexBufferEntry> m_attributeBuffer;
 	std::shared_ptr<VertexBufferEntry> m_positionBuffer;
+	std::shared_ptr<IndexBufferEntry> m_indexBuffer;
 
-	IndexBuffer* m_indexBuffer = nullptr;
 	InputLayout* m_inputLayout = nullptr;
 	TransformConstantBuffer* m_transformConstantBuffer = nullptr;
 
