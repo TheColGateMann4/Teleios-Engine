@@ -40,14 +40,16 @@ public:
 	bool SetVertexBuffer(VertexBuffer* _vertexBuffer);
 	bool SetIndexBuffer(IndexBuffer* _indexBuffer);
 	bool SetPrimitiveTechnology(D3D_PRIMITIVE_TOPOLOGY _primitiveTechnology);
+	bool SetViewPort(ViewPort* _viewPort);
 
 private:
-	RootSignature* rootSignature;
-	PipelineState* pipelineState;
-	std::vector<Bindable*> rootBindables;
-	VertexBuffer* vertexBuffer;
-	IndexBuffer* indexBuffer;
+	RootSignature* rootSignature = nullptr;
+	PipelineState* pipelineState = nullptr;
+	std::vector<Bindable*> rootBindables = {};
+	VertexBuffer* vertexBuffer = nullptr;
+	IndexBuffer* indexBuffer = nullptr;
 	D3D_PRIMITIVE_TOPOLOGY primitiveTechnology = D3D_PRIMITIVE_TOPOLOGY_UNDEFINED;
+	ViewPort* viewPort = nullptr;
 };
 
 #ifdef _DEBUG

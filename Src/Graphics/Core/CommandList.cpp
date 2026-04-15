@@ -86,6 +86,15 @@ bool CommandListState::SetPrimitiveTechnology(D3D_PRIMITIVE_TOPOLOGY _primitiveT
 	return true;
 }
 
+bool CommandListState::SetViewPort(ViewPort* _viewPort)
+{
+	if (viewPort == _viewPort)
+		return false;
+
+	viewPort = _viewPort;
+	return true;
+}
+
 CommandList::CommandList(Graphics& graphics, D3D12_COMMAND_LIST_TYPE type, PipelineState* pPipelineState)
 	:
 	m_pCommandAllocators(graphics.GetBufferCount()),
@@ -365,6 +374,9 @@ void CommandList::SetViewPort(Graphics& graphics, ViewPort* viewPort)
 {
 	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
 	THROW_OBJECT_STATE_ERROR_IF("Only graphics command list can set viewport", m_type != D3D12_COMMAND_LIST_TYPE_DIRECT);
+
+	if (!m_state.SetViewPort(viewPort))
+		return;
 
 	THROW_INFO_ERROR(pCommandList->RSSetViewports(1, &viewPort->GetViewport()));
 	THROW_INFO_ERROR(pCommandList->RSSetScissorRects(1, &viewPort->GetViewportRect()));
