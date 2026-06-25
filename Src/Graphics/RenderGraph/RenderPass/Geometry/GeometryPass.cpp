@@ -101,15 +101,20 @@ RenderPassRasterizerStateOptions GeometryPass::GetRasterizerOptions() const
 	return m_rasterizerOptions;
 }
 
+unsigned int GeometryPass::GetActiveCameraIndex() const
+{
+	return m_currentCameraIndex;
+}
+
 void GeometryPass::SetCameraTransformIndex(unsigned int cameraIndex)
 {
-	if (m_prevCameraIndex == cameraIndex)
+	if (m_currentCameraIndex == cameraIndex)
 		return;
 
 	*m_cameraRootConstant->GetData().Get<DynamicConstantBuffer::ElementType::Int>("cameraTransformIndex") = cameraIndex;
 	m_cameraRootConstant->SetUpdated(true);
 
-	m_prevCameraIndex = cameraIndex;
+	m_currentCameraIndex = cameraIndex;
 }
 
 void GeometryPass::ExecutePass(Graphics& graphics, CommandList* commandList)

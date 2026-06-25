@@ -39,6 +39,8 @@ public:  // enlisting and pushing jobs
 
 	RenderPassRasterizerStateOptions GetRasterizerOptions() const;
 
+	unsigned int GetActiveCameraIndex() const;
+
 protected:
 	void SetCameraTransformIndex(unsigned int cameraIndex);
 
@@ -54,7 +56,7 @@ protected:
 
 	std::vector<std::unique_ptr<GraphicsStepRenderJob>> m_jobs;
 
-	unsigned int m_prevCameraIndex = UINT_MAX;
+	unsigned int m_currentCameraIndex = UINT_MAX;
 
 	Material* currentlyBoundMaterial = nullptr;
 
