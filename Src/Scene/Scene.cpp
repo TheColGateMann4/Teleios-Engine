@@ -5,6 +5,7 @@
 #include "Objects/Camera.h"
 #include "Objects/PointLight.h"
 #include "Objects/Model.h"
+#include "Graphics/Core/OcclusionPrimitives.h"
 
 #include "ModelImporter.h"
 
@@ -288,9 +289,58 @@ void Scene::Update(Graphics& graphics, const Input& input, bool isCursorLocked)
 
 	UpdateObjectMatrices(graphics);
 
+	UpdateVisibility();
+
 	UpdateGraphicResources(graphics);
 
 	END_CPU_EVENT();
+}
+
+void Scene::UpdateVisibility()
+{
+	auto HandleFrustum = [&](const auto& cameraFrustum, unsigned int cameraIndex)
+		{
+			auto& visibilityVector = m_visibilityData[cameraIndex];
+			visibilityVector.resize(m_sceneObjects.size());
+
+			for (auto& sceneObject : m_sceneObjects)
+			{
+				bool visible = cameraFrustum.HasInside(sceneObject->GetBoundingBox() + sceneObject->GetTransform()->GetWorldPosition());
+
+				visibilityVector.at(sceneObject->GetSceneIndex()) = visible;
+			}
+		};
+
+	for (auto& cameraBase : m_cameras)
+	{
+		if (cameraBase->IsShadowCamera())
+		{
+			ShadowCamera* shadowCamera = static_cast<ShadowCamera*>(cameraBase);
+
+			for (int i = 0; i < 6; i++)
+				HandleFrustum(shadowCamera->GetFrustum(i), shadowCamera->GetCameraIndex() + i);
+		}
+		else
+		{
+			Camera* camera = static_cast<Camera*>(cameraBase);
+
+			if(camera->IsActive())
+				HandleFrustum(camera->GetFrustum(), camera->GetCameraIndex());
+		}
+	}
+}
+
+bool Scene::IsVisible(unsigned int cameraIndex, unsigned int sceneIndex)
+{
+	auto found = m_visibilityData.find(cameraIndex);
+
+	THROW_INTERNAL_ERROR_IF("Tried to use invalid camera index", found == m_visibilityData.end());
+
+	const auto& visibilityVector = found->second;
+
+	THROW_INTERNAL_ERROR_IF("Tried to use invalid scene object index", visibilityVector.size() < sceneIndex);
+
+	return visibilityVector.at(sceneIndex);
 }
 
 void Scene::UpdateBuffersIfNeeded(Graphics& graphics)
@@ -374,7 +424,7 @@ unsigned int Scene::GetOriginalNameIndex(std::string name)
 	// we assume that object that is trying to get its index previously was pushed to name registry
 	THROW_INTERNAL_ERROR_IF("Failed to find name bucket of scene object", found == m_nameRegistry.end());
 
-	return found->second.size() - 1; // substracting 1 because our objects is already in the registry
+	return found->second.size() - 1; // substracting 1 because our object is already in the registry
 }
 
 void Scene::UpdateObjectMatrices(Graphics& graphics)

@@ -53,6 +53,10 @@ public:
 
 	void Update(Graphics& graphics, const Input& input, bool isCursorLocked);
 
+	void UpdateVisibility();
+
+	bool IsVisible(unsigned int cameraIndex, unsigned int sceneIndex);
+
 	void UpdateBuffersIfNeeded(Graphics& graphics);
 
 	std::vector<std::shared_ptr<SceneObject>>& GetObjects();
@@ -88,6 +92,8 @@ private:
 	std::vector<CameraBase*> m_cameras;
 	Camera* m_activeCamera = nullptr;
 	unsigned int m_cameraBufferSize = 0;
+
+	std::unordered_map<unsigned int, std::vector<bool>> m_visibilityData; // mapping: cameraID -> vector of bools, bool for each SceneObject
 
 	std::vector<PointLight*> m_pointlights;
 	std::shared_ptr<CachedConstantBuffer> m_lightBuffer;

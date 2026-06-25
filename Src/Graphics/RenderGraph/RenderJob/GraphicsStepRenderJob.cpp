@@ -7,6 +7,8 @@
 #include "Graphics/Core/CommandList.h"
 
 #include "Includes/BindablesInclude.h"
+#include "Scene/Scene.h"
+#include "Scene/SceneObject.h"
 
 #include "Scene/Material.h"
 
@@ -136,6 +138,14 @@ void GraphicsStepRenderJob::InitializeGraphicResources(Graphics& graphics, Pipel
 
 	if (material)
 		material->InitializeGraphicResources(graphics, pipeline);
+}
+
+bool GraphicsStepRenderJob::IsValid(RenderPass* pass, Scene& scene) const
+{
+	unsigned int sceneIndex = m_step->GetSceneObject()->GetSceneIndex();
+	GeometryPass* geometryPass = static_cast<GeometryPass*>(pass);
+
+	return scene.IsVisible(geometryPass->GetActiveCameraIndex(), sceneIndex);
 }
 
 void GraphicsStepRenderJob::Execute(Graphics& graphics, CommandList* commandList) const

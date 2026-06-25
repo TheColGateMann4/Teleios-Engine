@@ -20,6 +20,8 @@ public:
 
 	void InitializeGraphicResources(Graphics& graphics, Pipeline& pipeline);
 
+	virtual bool IsValid(RenderPass* pass, Scene& scene) const;
+
 	virtual void Execute(Graphics& graphics, CommandList* commandList) const override;
 
 	virtual JobGroup GetGroup() const override;
