@@ -38,11 +38,11 @@ void Profiler::Draw()
 void Profiler::UpdateData()
 {
 	double gpuTime = m_gpuProfiler.GetData();	// seconds
-	float cpuTime = m_cpuProfiler.GetData();	// seconds
-	float frameTime = std::max<float>(cpuTime, gpuTime);
-	float fps = frameTime > 0.0f ? 1.0f / frameTime : 0.0f;
+	float cpuWorkTime = m_cpuProfiler.GetWorkTime();	// seconds
+	float cpuTotalTime = m_cpuProfiler.GetTotalTime();	// seconds
+	float fps = cpuTotalTime > 0.0f ? 1.0f / cpuTotalTime : 0.0f;
 
-	SmoothData(m_cpuSmoothedData, cpuTime);
+	SmoothData(m_cpuSmoothedData, cpuWorkTime);
 	SmoothData(m_gpuSmoothedData, gpuTime);
 	SmoothData(m_fpsSmoothed, fps);
 }
@@ -55,6 +55,6 @@ void Profiler::SetBeginData(Graphics& graphics, CommandList* commandList, float 
 
 void Profiler::SetEndData(Graphics& graphics, CommandList* commandList, float deltaTime)
 {
-	m_cpuProfiler.EndBeginData(deltaTime);
+	m_cpuProfiler.SetEndData(deltaTime);
 	m_gpuProfiler.SetEndData(graphics, commandList);
 }
