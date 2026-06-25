@@ -38,6 +38,8 @@ public:
 	void UpdateLocalTransformIfNeeded();
 
 private:
+	void UpdateBoundingBox();
+
 	virtual void Initialize(Graphics& graphics, Pipeline& pipeline);
 
 	virtual void Draw(Graphics& graphics, Pipeline& pipeline) const;
@@ -74,6 +76,8 @@ protected:
 public:
 	ObjectTransform* GetTransform();
 
+	const BoundingBox& GetBoundingBox() const;
+
 	void SetSceneIndex(unsigned int sceneIndex);
 
 	std::string GetName() const;
@@ -93,6 +97,7 @@ public:
 
 protected:
 	ObjectTransform m_transform;
+	BoundingBox m_boundingBox;
 	std::vector<Mesh> m_meshes;
 	std::vector<SceneObject*> m_children;
 	std::string m_name = "unnamed";

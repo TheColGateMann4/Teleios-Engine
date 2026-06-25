@@ -14,6 +14,14 @@ SceneObject::SceneObject(SceneObject* pParent)
 		pParent->AddChild(this);
 }
 
+void SceneObject::UpdateBoundingBox()
+{
+	for (auto& mesh : m_meshes)
+		for (auto& technique : mesh.GetTechniques())
+			for (auto& step : technique.GetSteps())
+				m_boundingBox.Add(step.GetBoundingBox());
+}
+
 void SceneObject::InternalInitialize(Graphics& graphics, Pipeline& pipeline)
 {
 	// initializing modelSceneIndex
@@ -40,6 +48,8 @@ void SceneObject::InternalInitialize(Graphics& graphics, Pipeline& pipeline)
 		for (auto& technique : mesh.GetTechniques())
 			for (auto& step : technique.GetSteps())
 				step.AddBindable(m_sceneIndexConstant);
+
+	UpdateBoundingBox();
 }
 
 void SceneObject::SubmitJobs(Renderer& renderer)
@@ -249,6 +259,11 @@ void SceneObject::AddChild(SceneObject* object)
 ObjectTransform* SceneObject::GetTransform()
 {
 	return &m_transform;
+}
+
+const BoundingBox& SceneObject::GetBoundingBox() const
+{
+	return m_boundingBox;
 }
 
 void SceneObject::SetSceneIndex(unsigned int sceneIndex)

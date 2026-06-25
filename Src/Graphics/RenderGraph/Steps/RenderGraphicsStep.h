@@ -6,15 +6,10 @@
 #include "Graphics/Core/PipelineState.h"
 #include "Graphics/Core/RootSignature.h"
 #include "Graphics/Core/BindableContainer.h"
+#include "Graphics/Core/OcclusionPrimitives.h"
 #include "Graphics/Bindables/RasterizerState.h"
 
 class Material;
-
-struct BoundingBox
-{
-	DirectX::XMFLOAT3 min = DirectX::XMFLOAT3(FLT_MAX, FLT_MAX, FLT_MAX);
-	DirectX::XMFLOAT3 max = DirectX::XMFLOAT3(-FLT_MAX, -FLT_MAX, -FLT_MAX);
-};
 
 class RenderGraphicsStep : public RenderStep
 {
@@ -37,6 +32,8 @@ public: // bindable container functions
 	void SetIndexBufferEntry(std::shared_ptr<IndexBufferEntry> indexBufferEntry);
 
 	void SetBoundingBox(BoundingBox boundingBox);
+
+	const BoundingBox& GetBoundingBox() const;
 
 	void AddBindable(std::shared_ptr<Bindable> bindable);
 

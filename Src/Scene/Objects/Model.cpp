@@ -4,6 +4,7 @@
 
 #include "Graphics/Resources/GraphicsTexture.h"
 
+#include "Graphics/Core/OcclusionPrimitives.h"
 #include "Graphics/Data/DynamicVertex.h"
 #include "Graphics/Data/DynamicConstantBuffer.h"
 
@@ -18,29 +19,6 @@
 #include <assimp/Importer.hpp>      // C++ importer interface
 #include <assimp/scene.h>           // Output data structure
 #include <assimp/postprocess.h>     // Post processing flags
-
-BoundingBox CalculateBoundingBox(DynamicVertex::DynamicVertex& vertexData)
-{
-	BoundingBox result = {};
-
-	int numVertices = vertexData.GetNumVertices();
-	DirectX::XMFLOAT3* verticeData = static_cast<DirectX::XMFLOAT3*>(vertexData.GetData());
-
-	THROW_INTERNAL_ERROR_IF("Mesh had invalid number of vertices", numVertices <= 0);
-
-	for (int i = 0; i < numVertices; i++)
-	{
-		result.min.x = std::min<float>(verticeData[i].x, result.min.x);
-		result.min.y = std::min<float>(verticeData[i].y, result.min.y);
-		result.min.z = std::min<float>(verticeData[i].z, result.min.z);
-
-		result.max.x = std::max<float>(verticeData[i].x, result.max.x);
-		result.max.y = std::max<float>(verticeData[i].y, result.max.y);
-		result.max.z = std::max<float>(verticeData[i].z, result.max.z);
-	}
-
-	return result;
-}
 
 void HandleVertexData(Graphics& graphics, RenderGraphicsStep& step, aiMesh* mesh, float scale)
 {
@@ -126,7 +104,7 @@ void HandleVertexData(Graphics& graphics, RenderGraphicsStep& step, aiMesh* mesh
 			positionOnlyVertexBuffer.Back().GetPropety<DynamicVertex::ElementType::Position>() = { pPosition->x * scale, pPosition->y * scale,pPosition->z * scale };
 		}
 
-		step.SetBoundingBox(CalculateBoundingBox(positionOnlyVertexBuffer));
+		step.SetBoundingBox(BoundingBox(positionOnlyVertexBuffer));
 
 		std::string vbName = std::string(mesh->mName.C_Str()) + "#PositionBuffer";
 		step.SetPositionBufferEntry(VertexBufferEntry::GetResource(graphics, vbName, positionOnlyVertexBuffer));

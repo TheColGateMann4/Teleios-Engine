@@ -55,6 +55,11 @@ void RenderGraphicsStep::SetBoundingBox(BoundingBox boundingBox)
 	m_boundingBox = boundingBox;
 }
 
+const BoundingBox& RenderGraphicsStep::GetBoundingBox() const
+{
+	return m_boundingBox;
+}
+
 void RenderGraphicsStep::AddBindable(std::shared_ptr<Bindable> bindable)
 {
 	m_bindableContainer.AddBindable(std::move(bindable));
