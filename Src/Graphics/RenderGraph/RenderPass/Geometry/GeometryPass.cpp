@@ -117,11 +117,12 @@ void GeometryPass::SetCameraTransformIndex(unsigned int cameraIndex)
 	m_currentCameraIndex = cameraIndex;
 }
 
-void GeometryPass::ExecutePass(Graphics& graphics, CommandList* commandList)
+void GeometryPass::ExecutePass(Graphics& graphics, CommandList* commandList, Scene& scene)
 {
 	commandList->BeginRenderPass(graphics, this);
 
 	for (auto& job : m_jobs)
+		if(job->IsValid(this, scene))
 		job->Execute(graphics, commandList);
 
 	commandList->EndRenderPass(graphics);

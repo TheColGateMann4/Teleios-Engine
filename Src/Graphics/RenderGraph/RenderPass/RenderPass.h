@@ -46,7 +46,7 @@ public:
 	void SetCorrectStates(Graphics& graphics, CommandList* commandList);
 
 	// record jobs on command list
-	void Execute(Graphics& graphics, CommandList* commandList);
+	void Execute(Graphics& graphics, CommandList* commandList, Scene& scene);
 
 public: // RenderTargets and DepthStecilViews
 	void AddRenderTarget(std::shared_ptr<RenderTarget> renderTarget, ResourceDataOperation loadop = ResourceDataOperation::keep, ResourceDataOperation storeop = ResourceDataOperation::keep);
@@ -56,7 +56,7 @@ public: // RenderTargets and DepthStecilViews
 	DepthStencilData GetDepthStencilView() const;
 
 protected:
-	virtual void ExecutePass(Graphics& graphics, CommandList* commandList) = 0;
+	virtual void ExecutePass(Graphics& graphics, CommandList* commandList, Scene& scene) = 0;
 
 private:
 	std::vector<RenderTargetData> m_renderTargets;

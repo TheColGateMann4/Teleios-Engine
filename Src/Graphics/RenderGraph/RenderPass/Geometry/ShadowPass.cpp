@@ -37,7 +37,7 @@ RenderJob::JobType ShadowPass::GetWantedJob() const
 	return RenderJob::JobType::Depth;
 }
 
-void ShadowPass::ExecutePass(Graphics& graphics, CommandList* commandList)
+void ShadowPass::ExecutePass(Graphics& graphics, CommandList* commandList, Scene& scene)
 {
 	PointLight* pointLight = m_scene->GetPointLights().front();
 	ShadowCamera* shadowCamera = pointLight->GetShadowCamera();
@@ -59,7 +59,7 @@ void ShadowPass::ExecutePass(Graphics& graphics, CommandList* commandList)
 		START_CPU_EVENT(PIX_COLOR(255, 0, 0), std::to_string(i).c_str());
 
 		SetActiveShadowCamera(pointLight, i);
-		GeometryPass::ExecutePass(graphics, commandList);
+		GeometryPass::ExecutePass(graphics, commandList, scene);
 
 		END_CPU_EVENT();
 		END_COMMAND_LIST_EVENT(commandList);

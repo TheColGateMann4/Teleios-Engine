@@ -10,7 +10,7 @@ public:
 	GuiPass(Graphics& graphics);
 
 public:
-	virtual void ExecutePass(Graphics& graphics, CommandList* commandList) override;
+	virtual void ExecutePass(Graphics& graphics, CommandList* commandList, Scene& scene) override;
 
 private:
 	ImguiLayer& m_imguiLayer;

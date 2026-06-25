@@ -48,7 +48,7 @@ void Renderer::AssignJobsToPasses()
 	m_renderGraph.AssignJobsToPasses();
 }
 
-void Renderer::Draw(Graphics& graphics, float deltaTime)
+void Renderer::Draw(Graphics& graphics, Scene& scene, float deltaTime)
 {
 	START_CPU_EVENT(PIX_COLOR(255, 0, 255), "Rendering");
 
@@ -66,7 +66,7 @@ void Renderer::Draw(Graphics& graphics, float deltaTime)
 
 		graphicsCommandList->SetDescriptorHeap(graphics, &graphics.GetDescriptorHeap());
 
-		m_renderGraph.Execute(graphics, graphicsCommandList);
+		m_renderGraph.Execute(graphics, graphicsCommandList, scene);
 
 		graphics.GetProfiler().SetEndData(graphics, graphicsCommandList, deltaTime);
 

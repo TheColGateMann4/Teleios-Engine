@@ -40,6 +40,11 @@ void RenderJob::Initialize(Graphics& graphics, Pipeline& pipeline)
 	
 }
 
+bool RenderJob::IsValid(RenderPass* pass, Scene& scene) const
+{
+	return true;
+}
+
 RenderJob::JobType RenderJob::GetType() const
 {
 	return m_type;

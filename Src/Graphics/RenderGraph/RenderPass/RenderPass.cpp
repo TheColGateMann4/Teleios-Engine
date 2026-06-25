@@ -53,12 +53,12 @@ void RenderPass::SetCorrectStates(Graphics& graphics, CommandList* commandList)
 		commandList->SetAllResourcesStates(graphics, m_depthStencil.resource->GetResource(graphics), D3D12_RESOURCE_STATE_DEPTH_WRITE);
 }
 
-void RenderPass::Execute(Graphics& graphics, CommandList* commandList)
+void RenderPass::Execute(Graphics& graphics, CommandList* commandList, Scene& scene)
 {
 	START_CPU_EVENT(PIX_COLOR(0, 255, 0), typeid(*this).name() + 6);
 	BEGIN_COMMAND_LIST_EVENT(commandList, typeid(*this).name() + 6); // + 6 skips "class " from type info literal
 
-	ExecutePass(graphics, commandList);
+	ExecutePass(graphics, commandList, scene);
 
 	END_COMMAND_LIST_EVENT(commandList);
 	END_CPU_EVENT();

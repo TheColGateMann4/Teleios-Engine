@@ -116,12 +116,12 @@ void RenderGraph::AssignJobsToPasses()
 	m_renderManager.BindJobsToPasses(m_geometryPasses);
 }
 
-void RenderGraph::Execute(Graphics& graphics, CommandList* commandList)
+void RenderGraph::Execute(Graphics& graphics, CommandList* commandList, Scene& scene)
 {
 	for (auto& renderPass : m_renderPasses)
 	{
 		renderPass->SetCorrectStates(graphics, commandList);
-		renderPass->Execute(graphics, commandList);
+		renderPass->Execute(graphics, commandList, scene);
 	}
 }
 

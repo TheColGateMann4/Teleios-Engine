@@ -9,7 +9,7 @@ GuiPass::GuiPass(Graphics& graphics)
 
 }
 
-void GuiPass::ExecutePass(Graphics& graphics, CommandList* commandList)
+void GuiPass::ExecutePass(Graphics& graphics, CommandList* commandList, Scene& scene)
 {
 	commandList->BeginRenderPass(graphics, this);
 

@@ -120,7 +120,7 @@ void Graphics::FinishFrame()
 
 void Graphics::Render(Scene& scene, float deltaTime)
 {
-	renderer.Draw(*this, deltaTime);
+	renderer.Draw(*this, scene, deltaTime);
 }
 
 void Graphics::PresentFrame()

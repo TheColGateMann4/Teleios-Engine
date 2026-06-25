@@ -18,7 +18,7 @@ public:
 	void AddBindable(std::shared_ptr<Bindable> bind);
 
 public: // Execution
-	virtual void ExecutePass(Graphics& graphics, CommandList* commandList) override;
+	virtual void ExecutePass(Graphics& graphics, CommandList* commandList, Scene& scene) override;
 	virtual void PreDraw(Graphics& graphics, CommandList* commandList);
 	virtual void PostDraw(Graphics& graphics, CommandList* commandList);
 

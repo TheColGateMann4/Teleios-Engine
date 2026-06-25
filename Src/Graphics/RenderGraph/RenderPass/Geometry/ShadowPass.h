@@ -14,7 +14,7 @@ public:
 
 	virtual RenderJob::JobType GetWantedJob() const override;
 
-	virtual void ExecutePass(Graphics& graphics, CommandList* commandList) override;
+	virtual void ExecutePass(Graphics& graphics, CommandList* commandList, Scene& scene) override;
 
 private:
 	void SetActiveShadowCamera(PointLight* pointLight, unsigned int stage);

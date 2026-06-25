@@ -1,7 +1,9 @@
 #pragma once
 
+class RenderPass;
 class Graphics;
 class Pipeline;
+class Scene;
 class CommandList;
 class GeometryPass;
 
@@ -37,6 +39,8 @@ public:
 	virtual void GatherBindables();
 
 	virtual void Initialize(Graphics& graphics, Pipeline& pipeline);
+
+	virtual bool IsValid(RenderPass* pass, Scene& scene) const;
 
 	virtual void Execute(Graphics& graphics, CommandList* commandList) const = 0;
 

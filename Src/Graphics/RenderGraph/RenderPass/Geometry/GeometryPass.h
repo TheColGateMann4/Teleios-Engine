@@ -45,7 +45,7 @@ protected:
 	void SetCameraTransformIndex(unsigned int cameraIndex);
 
 protected:
-	virtual void ExecutePass(Graphics& graphics, CommandList* commandList) override;
+	virtual void ExecutePass(Graphics& graphics, CommandList* commandList, Scene& scene) override;
 
 protected:
 	std::shared_ptr<RootSignatureConstants> m_cameraRootConstant;

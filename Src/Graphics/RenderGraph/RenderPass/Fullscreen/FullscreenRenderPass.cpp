@@ -119,7 +119,7 @@ void FullscreenRenderPass::AddBindable(std::shared_ptr<Bindable> bind)
 	m_bindables.push_back(std::move(bind));
 }
 
-void FullscreenRenderPass::ExecutePass(Graphics& graphics, CommandList* commandList)
+void FullscreenRenderPass::ExecutePass(Graphics& graphics, CommandList* commandList, Scene& scene)
 {
 	commandList->BeginRenderPass(graphics, this);
 

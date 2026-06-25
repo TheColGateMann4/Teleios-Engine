@@ -27,7 +27,7 @@ public:
 
 	void AssignJobsToPasses();
 
-	void Execute(Graphics& graphics, CommandList* commandList);
+	void Execute(Graphics& graphics, CommandList* commandList, Scene& scene);
 
 	RenderManager& GetRenderManager();
 	

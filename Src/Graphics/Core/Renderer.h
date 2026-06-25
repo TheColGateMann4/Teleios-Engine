@@ -19,7 +19,7 @@ public:
 	void SubmitPassesJobs();
 	void AssignJobsToPasses();
 
-	void Draw(Graphics& graphics, float deltaTime);
+	void Draw(Graphics& graphics, Scene& scene, float deltaTime);
 
 	void DrawImguiWindow(Graphics& graphics);
 
