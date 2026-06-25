@@ -166,7 +166,12 @@ void* DynamicVertex::DynamicVertex::GetData()
 	return m_data;
 }
 
-int DynamicVertex::DynamicVertex::GetNumVertices()
+const void* DynamicVertex::DynamicVertex::GetData() const
+{
+	return m_data;
+}
+
+int DynamicVertex::DynamicVertex::GetNumVertices() const
 {
 	return m_numVertices;
 }

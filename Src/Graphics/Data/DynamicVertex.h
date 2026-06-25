@@ -198,7 +198,9 @@ namespace DynamicVertex
 	public:
 		void* GetData();
 
-		int GetNumVertices();
+		const void* GetData() const;
+
+		int GetNumVertices() const;
 
 		const DynamicVertexLayout& GetLayout() const;
 
