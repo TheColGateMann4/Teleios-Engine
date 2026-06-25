@@ -2,6 +2,8 @@
 #include "Includes/DirectXIncludes.h"
 #include "Includes/WRLNoWarnings.h"
 
+#include "Graphics/Core/OcclusionPrimitives.h"
+
 #include "Scene/SceneObject.h"
 
 class Graphics;
@@ -25,7 +27,7 @@ protected:
 public:
 	virtual void Initialize(Graphics& graphics, Pipeline& pipeline) override;
 
-	virtual void UpdateCameraBuffer();
+	virtual void UpdateCameraBuffer() = 0;
 
 	DirectX::XMMATRIX GetViewMatrix() const;
 
@@ -74,10 +76,13 @@ public:
 
 public:
 	void UpdateCamera(const Input& input, bool cursorLocked);
+	virtual void UpdateCameraBuffer() override;
 
 public:
 	virtual void DrawTransformPropeties(Scene& scene) override;
 	virtual void DrawAdditionalPropeties(Graphics& graphics, Pipeline& pipeline) override;
+
+	const Frustum& GetFrustum() const;
 
 	void SetActive(bool active);
 	bool IsActive() const;
@@ -92,6 +97,7 @@ private:
 	static constexpr float GetClampedValue(float angle, float minAngle, float maxAngle);
 
 private:
+	Frustum m_frustum;
 	float m_pitch = 0.0f;
 	float m_yaw = 0.0f;
 
@@ -115,4 +121,9 @@ public:
 
 public:
 	void SetPosition(DirectX::XMFLOAT3 position);
+
+	const Frustum& GetFrustum(unsigned int side) const;
+
+private:
+	Frustum m_frustumSides[6];
 };

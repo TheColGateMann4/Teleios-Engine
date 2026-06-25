@@ -23,20 +23,6 @@ void CameraBase::Initialize(Graphics& graphics, Pipeline& pipeline)
 	m_pCameraBuffer = static_cast<CachedConstantBuffer*>(pipeline.GetStaticResource("cameraBuffer").get());
 }
 
-void CameraBase::UpdateCameraBuffer()
-{
-	THROW_INTERNAL_ERROR_IF("Camera buffer wasn't linked", m_pCameraBuffer == nullptr);
-
-	if (!m_viewChanged && !m_perspectiveChanged)
-		return;
-
-	DynamicConstantBuffer::Data& bufferData = m_pCameraBuffer->GetData();
-	DynamicConstantBuffer::ArrayData array = bufferData.GetArrayData("cameraBuffers");
-
-	*array.Get<DynamicConstantBuffer::ElementType::Matrix>(m_cameraIndex, "view") = GetViewMatrix();
-	*array.Get<DynamicConstantBuffer::ElementType::Matrix>(m_cameraIndex, "projection") = GetPerspectiveMatrix();
-}
-
 DirectX::XMMATRIX CameraBase::GetViewMatrix() const
 {
 	return m_view;
@@ -175,6 +161,22 @@ void Camera::UpdateCamera(const Input& input, bool cursorLocked)
 		UpdateViewMatrix();
 }
 
+void Camera::UpdateCameraBuffer()
+{
+	THROW_INTERNAL_ERROR_IF("Camera buffer wasn't linked", m_pCameraBuffer == nullptr);
+
+	if (!m_viewChanged && !m_perspectiveChanged)
+		return;
+
+	DynamicConstantBuffer::Data& bufferData = m_pCameraBuffer->GetData();
+	DynamicConstantBuffer::ArrayData array = bufferData.GetArrayData("cameraBuffers");
+
+	m_frustum.Update(m_view * m_perspective);
+
+	*array.Get<DynamicConstantBuffer::ElementType::Matrix>(m_cameraIndex, "view") = GetViewMatrix();
+	*array.Get<DynamicConstantBuffer::ElementType::Matrix>(m_cameraIndex, "projection") = GetPerspectiveMatrix();
+}
+
 void Camera::DrawTransformPropeties(Scene& scene)
 {
 	m_viewChanged = false;
@@ -243,6 +245,11 @@ void Camera::DrawAdditionalPropeties(Graphics& graphics, Pipeline& pipeline)
 
 	if (changed)
 		UpdatePerspectiveMatrix();
+}
+
+const Frustum& Camera::GetFrustum() const
+{
+	return m_frustum;
 }
 
 void Camera::SetActive(bool active)
@@ -389,8 +396,12 @@ void ShadowCamera::UpdateCameraBuffer()
 
 		UpdateViewMatrix();
 
-		*array.Get<DynamicConstantBuffer::ElementType::Matrix>(m_cameraIndex + i, "view") = GetViewMatrix();
-		*array.Get<DynamicConstantBuffer::ElementType::Matrix>(m_cameraIndex + i, "projection") = GetPerspectiveMatrix();
+		const auto& view = GetViewMatrix();
+
+		m_frustumSides[i].Update(m_view* m_perspective); // also updating our CPU sided frustum
+
+		*array.Get<DynamicConstantBuffer::ElementType::Matrix>(m_cameraIndex + i, "view") = m_view;
+		*array.Get<DynamicConstantBuffer::ElementType::Matrix>(m_cameraIndex + i, "projection") = m_perspective;
 	}
 	m_transform.SetUpdated();
 }
@@ -398,4 +409,11 @@ void ShadowCamera::UpdateCameraBuffer()
 void ShadowCamera::SetPosition(DirectX::XMFLOAT3 position)
 {
 	m_transform.SetPosition(position);
+}
+
+const Frustum& ShadowCamera::GetFrustum(unsigned int side) const
+{
+	THROW_INTERNAL_ERROR_IF("Tried to access invalid side of shadow camera", side >= 6);
+
+	return m_frustumSides[side];
 }
