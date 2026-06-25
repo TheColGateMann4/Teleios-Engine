@@ -9,13 +9,14 @@
 #include "Graphics/Core/OcclusionPrimitives.h"
 #include "Graphics/Bindables/RasterizerState.h"
 
+class SceneObject;
 class Material;
 
 class RenderGraphicsStep : public RenderStep
 {
 public:
-	RenderGraphicsStep(const std::string& name);
-	RenderGraphicsStep();
+	RenderGraphicsStep(SceneObject* sceneObject, const std::string& name);
+	RenderGraphicsStep(SceneObject* sceneObject);
 	RenderGraphicsStep(RenderGraphicsStep&&) noexcept = default;
 	RenderGraphicsStep(const RenderGraphicsStep&) = delete;
 
@@ -34,6 +35,8 @@ public: // bindable container functions
 	void SetBoundingBox(BoundingBox boundingBox);
 
 	const BoundingBox& GetBoundingBox() const;
+
+	SceneObject* GetSceneObject() const;
 
 	void AddBindable(std::shared_ptr<Bindable> bindable);
 
@@ -55,4 +58,5 @@ private:
 	ObjectRasterizerStateOptions m_rasterizerOptions = {};
 
 	BoundingBox m_boundingBox = {};
+	SceneObject* m_sceneObject;
 };

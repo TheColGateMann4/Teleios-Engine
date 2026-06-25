@@ -8,16 +8,18 @@
 #include "Graphics/Bindables/ConstantBuffer.h"
 #include "Graphics/Bindables/Texture.h"
 
-RenderGraphicsStep::RenderGraphicsStep(const std::string& name)
+RenderGraphicsStep::RenderGraphicsStep(SceneObject* sceneObject, const std::string& name)
 	:
-	RenderStep(name)
+	RenderStep(name),
+	m_sceneObject(sceneObject)
 {
 
 }
 
-RenderGraphicsStep::RenderGraphicsStep()
+RenderGraphicsStep::RenderGraphicsStep(SceneObject* sceneObject)
 	:
-	RenderStep()
+	RenderStep(),
+	m_sceneObject(sceneObject)
 {
 
 }
@@ -58,6 +60,11 @@ void RenderGraphicsStep::SetBoundingBox(BoundingBox boundingBox)
 const BoundingBox& RenderGraphicsStep::GetBoundingBox() const
 {
 	return m_boundingBox;
+}
+
+SceneObject* RenderGraphicsStep::GetSceneObject() const
+{
+	return m_sceneObject;
 }
 
 void RenderGraphicsStep::AddBindable(std::shared_ptr<Bindable> bindable)

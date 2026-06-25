@@ -23,7 +23,7 @@ Sphere::Sphere(Graphics& graphics, DirectX::XMFLOAT3 position, float diameter, s
 	Mesh modelMesh;
 
 	RenderTechnique technique(RenderJob::JobType::Emissive);
-	RenderGraphicsStep step;
+	RenderGraphicsStep step(this);
 	{
 		DynamicVertex::DynamicVertexLayout vertexLayout;
 		vertexLayout.AddElement<DynamicVertex::ElementType::Position>();

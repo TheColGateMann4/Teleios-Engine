@@ -147,7 +147,7 @@ Model::Model(Graphics& graphics, Model* pParent, aiNode* node, std::vector<std::
 		Mesh objectMesh;
 
 		RenderTechnique technique(RenderJob::JobType::GBuffer);
-		RenderGraphicsStep step;
+		RenderGraphicsStep step(this);
 
 		{
 			HandleVertexData(graphics, step, mesh, scale);

@@ -76,7 +76,7 @@ void Mesh::CreateDepthTechnique(Graphics& graphics, Pipeline& pipeline)
 		RenderTechnique depthTechnique(RenderJob::JobType::Depth);
 
 		{
-			RenderGraphicsStep depthStep;
+			RenderGraphicsStep depthStep(geometryStep.GetSceneObject());
 
 			depthStep.SetPositionBufferEntry(geometryBindables.GetPositionVertexBufferEntry());
 			depthStep.SetIndexBufferEntry(geometryBindables.GetIndexBufferEntry());
