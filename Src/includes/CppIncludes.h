@@ -87,3 +87,5 @@ static constexpr float _pi = 3.14159265358979f;
 #undef AddJob
 #undef UpdateResource
 #undef LoadImage
+#undef min
+#undef max
