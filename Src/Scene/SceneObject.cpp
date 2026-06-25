@@ -271,6 +271,11 @@ void SceneObject::SetSceneIndex(unsigned int sceneIndex)
 	m_sceneIndex = sceneIndex;
 }
 
+unsigned int SceneObject::GetSceneIndex()
+{
+	return m_sceneIndex;
+}
+
 std::string SceneObject::GetName() const
 {
 	return m_name;

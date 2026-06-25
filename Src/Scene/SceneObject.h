@@ -79,6 +79,7 @@ public:
 	const BoundingBox& GetBoundingBox() const;
 
 	void SetSceneIndex(unsigned int sceneIndex);
+	unsigned int GetSceneIndex();
 
 	std::string GetName() const;
 	void SetName(std::string newName);
