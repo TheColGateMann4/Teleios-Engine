@@ -60,6 +60,14 @@ DirectX::XMFLOAT3 ObjectTransform::GetPosition() const
 	return m_position;
 }
 
+DirectX::XMFLOAT3 ObjectTransform::GetWorldPosition() const
+{
+	DirectX::XMFLOAT4 row;
+	DirectX::XMStoreFloat4(&row, m_worldTransform.r[3]);
+
+	return { row.x, row.y, row.z };
+}
+
 DirectX::XMVECTOR ObjectTransform::GetQuaternionRotation() const
 {
 	return m_rotation;

@@ -15,6 +15,7 @@ public:
 	void SetFromMatrix(DirectX::XMMATRIX transform, DirectX::XMFLOAT3 basePosition, float scale);
 
 	DirectX::XMFLOAT3 GetPosition() const;
+	DirectX::XMFLOAT3 GetWorldPosition() const;
 	DirectX::XMVECTOR GetQuaternionRotation() const;
 	DirectX::XMFLOAT3 GetScale() const;
 
