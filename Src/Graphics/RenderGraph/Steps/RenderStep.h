@@ -13,6 +13,10 @@ protected:
 public:
 	const std::string& GetName() const;
 
+	bool IsEnabled() const;
+	void SetEnabled(bool enabled);
+
 private:
 	std::string m_name;
+	bool m_enabled = true;
 };

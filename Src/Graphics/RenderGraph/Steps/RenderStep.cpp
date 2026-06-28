@@ -14,8 +14,17 @@ RenderStep::RenderStep(const std::string& name)
 
 }
 
-
 const std::string& RenderStep::GetName() const
 {
 	return m_name;
+}
+
+bool RenderStep::IsEnabled() const
+{
+	return m_enabled;
+}
+
+void RenderStep::SetEnabled(bool enabled)
+{
+	m_enabled = enabled;
 }

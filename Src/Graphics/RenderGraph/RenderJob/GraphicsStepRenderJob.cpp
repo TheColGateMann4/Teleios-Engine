@@ -142,6 +142,9 @@ void GraphicsStepRenderJob::InitializeGraphicResources(Graphics& graphics, Pipel
 
 bool GraphicsStepRenderJob::IsValid(RenderPass* pass, Scene& scene) const
 {
+	if (!m_step->IsEnabled())
+		return false;
+
 	unsigned int sceneIndex = m_step->GetSceneObject()->GetSceneIndex();
 	GeometryPass* geometryPass = static_cast<GeometryPass*>(pass);
 
