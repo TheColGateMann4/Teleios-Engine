@@ -11,6 +11,8 @@ RenderJob::JobGroup RenderJob::GetJobGroup(JobType jobType)
 		case JobType::GBuffer:
 		case JobType::Depth:
 		case JobType::Emissive:
+		case JobType::VisibleDebug:
+		case JobType::OccludedDebug:
 			return JobGroup::Geometry;
 
 		default:

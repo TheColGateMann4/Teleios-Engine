@@ -16,6 +16,8 @@ public:
 		GBuffer = 0,
 		Depth,
 		Emissive,
+		VisibleDebug,
+		OccludedDebug,
 
 		Count
 	};

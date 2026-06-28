@@ -90,6 +90,9 @@
     <ClCompile Include="Src\Graphics\Bindables\DescriptorHeapBindable.cpp" />
     <ClCompile Include="Src\Graphics\RenderGraph\RenderPass\Geometry\ShadowPass.cpp" />
     <ClCompile Include="Src\Graphics\Core\OcclusionPrimitives.cpp" />
+    <ClCompile Include="Src\Graphics\RenderGraph\RenderPass\Geometry\OccludedDebugPass.cpp" />
+    <ClCompile Include="Src\Graphics\RenderGraph\RenderPass\Geometry\VisibleDebugPass.cpp" />
+    <ClCompile Include="Src\Graphics\RenderGraph\RenderJob\DebugGraphicsStepRenderJob.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Src\Application.h" />
@@ -186,6 +189,9 @@
     <ClInclude Include="Src\Graphics\RenderGraph\RenderPass\Geometry\ShadowPass.h" />
     <ClInclude Include="Src\Graphics\Core\Pix.h" />
     <ClInclude Include="Src\Graphics\Core\OcclusionPrimitives.h" />
+    <ClInclude Include="Src\Graphics\RenderGraph\RenderPass\Geometry\OccludedDebugPass.h" />
+    <ClInclude Include="Src\Graphics\RenderGraph\RenderPass\Geometry\VisibleDebugPass.h" />
+    <ClInclude Include="Src\Graphics\RenderGraph\RenderJob\DebugGraphicsStepRenderJob.h" />
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="Dependencies\zlib1.dll" />

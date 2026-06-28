@@ -172,6 +172,8 @@
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Src\Graphics\RenderGraph\RenderJob\DebugGraphicsStepRenderJob.cpp" />
+    <ClCompile Include="Src\Graphics\RenderGraph\RenderPass\Geometry\OccludedDebugPass.cpp" />
     <ClCompile Include="Src\Graphics\Core\OcclusionPrimitives.cpp" />
     <ClCompile Include="Src\Graphics\Bindables\DescriptorHeapBindable.cpp" />
     <ClCompile Include="Src\Graphics\Bindables\MaterialBindings.cpp" />
@@ -261,8 +263,11 @@
     <ClCompile Include="Src\System\Time.cpp" />
     <ClCompile Include="Src\Scene\StandaloneMesh.cpp" />
     <ClCompile Include="Src\Graphics\RenderGraph\RenderJob\StepRenderJob.cpp" />
+    <ClCompile Include="Src\Graphics\RenderGraph\RenderPass\Geometry\VisibleDebugPass.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Src\Graphics\RenderGraph\RenderJob\DebugGraphicsStepRenderJob.h" />
+    <ClInclude Include="Src\Graphics\RenderGraph\RenderPass\Geometry\OccludedDebugPass.h" />
     <ClInclude Include="Src\Graphics\Core\OcclusionPrimitives.h" />
     <ClInclude Include="Src\Graphics\Core\Pix.h" />
     <ClInclude Include="Src\Graphics\RenderGraph\RenderJob\GraphicsRenderData.h" />
@@ -357,6 +362,7 @@
     <ClInclude Include="Src\System\Time.h" />
     <ClInclude Include="Src\Scene\StandaloneMesh.h" />
     <ClInclude Include="Src\Graphics\RenderGraph\RenderJob\StepRenderJob.h" />
+    <ClInclude Include="Src\Graphics\RenderGraph\RenderPass\Geometry\VisibleDebugPass.h" />
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="Src\Shaders\CS_GetMiddleDepth.hlsl">

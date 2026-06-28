@@ -20,7 +20,7 @@ public:
 
 	void InitializeGraphicResources(Graphics& graphics, Pipeline& pipeline);
 
-	virtual bool IsValid(RenderPass* pass, Scene& scene) const;
+	virtual bool IsValid(RenderPass* pass, Scene& scene) const override;
 
 	virtual void Execute(Graphics& graphics, CommandList* commandList) const override;
 
@@ -33,7 +33,7 @@ private:
 
 	RasterizerState* BuildAndGetRasterizerState(Graphics& graphics, Material* material);
 
-private:
+protected:
 	RenderGraphicsStep* m_step;
 
 	MeshBindableContainer m_bindableContainer;

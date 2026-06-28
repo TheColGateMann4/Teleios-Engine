@@ -8,6 +8,8 @@
 #include "RenderPass/Fullscreen/FullscreenRenderPass.h"
 #include "RenderPass/Fullscreen/LightningPass.h"
 #include "RenderPass/GuiPass.h"
+#include "RenderPass/Geometry/OccludedDebugPass.h"
+#include "RenderPass/Geometry/VisibleDebugPass.h"
 
 void RenderGraph::Initialize(Graphics& graphics)
 {
@@ -63,6 +65,22 @@ void RenderGraph::Initialize(Graphics& graphics)
 		emissivePass->SetDepthStencilView(graphics.GetDepthStencil());
 
 		AddRenderPass(emissivePass);
+	}
+
+	{
+		std::shared_ptr<VisibleDebugPass> visibleDebugPass = std::make_shared<VisibleDebugPass>(graphics);
+		visibleDebugPass->AddRenderTarget(graphics.GetBackBuffer());
+		visibleDebugPass->SetDepthStencilView(graphics.GetDepthStencil());
+
+		AddRenderPass(visibleDebugPass);
+	}
+
+	{
+		std::shared_ptr<OccludedDebugPass> occludedDebugPass = std::make_shared<OccludedDebugPass>(graphics);
+		occludedDebugPass->AddRenderTarget(graphics.GetBackBuffer());
+		occludedDebugPass->SetDepthStencilView(graphics.GetDepthStencil());
+
+		AddRenderPass(occludedDebugPass);
 	}
 
 	{

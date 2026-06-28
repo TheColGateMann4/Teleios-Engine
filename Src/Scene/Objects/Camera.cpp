@@ -5,6 +5,9 @@
 #include "System/Input.h"
 #include "Scene/Scene.h"
 
+#include "Graphics/Data/DynamicVertex.h"
+#include "Includes/BindablesInclude.h"
+
 #include <imgui.h>
 
 CameraBase::CameraBase(Graphics& graphics, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation, bool isShadowCamera)
@@ -104,6 +107,60 @@ void CameraBase::UpdateViewMatrix()
 	m_viewChanged = true;
 }
 
+float CalculateViewDepth(float fov, float width)
+{
+	return width * std::tan(fov * 0.5f);
+}
+
+// returns buffer identifier and buffer
+std::vector<DirectX::XMFLOAT3> GetVertexBuffer(const Camera::Settings& settings)
+{
+	float startLength = CalculateViewDepth(settings.FovAngleY, settings.NearZ);
+	float endLength = CalculateViewDepth(settings.FovAngleY, settings.FarZ);
+
+	return {
+		{ startLength * settings.AspectRatio, startLength, settings.NearZ },
+		{ startLength * settings.AspectRatio, -startLength, settings.NearZ },
+		{ -startLength * settings.AspectRatio, -startLength, settings.NearZ },
+		{ -startLength * settings.AspectRatio, startLength, settings.NearZ },
+
+		{ endLength * settings.AspectRatio, endLength, settings.FarZ },
+		{ endLength * settings.AspectRatio, -endLength, settings.FarZ },
+		{ -endLength * settings.AspectRatio, -endLength, settings.FarZ },
+		{ -endLength * settings.AspectRatio, endLength, settings.FarZ }
+	};
+}
+
+BoundingBox GetBoundingBox(const Camera::Settings& settings)
+{
+	float startLength = CalculateViewDepth(settings.FovAngleY, settings.NearZ);
+	float endLength = CalculateViewDepth(settings.FovAngleY, settings.FarZ);
+
+	return BoundingBox({ -endLength * settings.AspectRatio, -endLength, settings.NearZ }, { endLength * settings.AspectRatio, endLength, settings.FarZ });
+}
+
+std::string GetVertexBufferIdentifier(const Camera::Settings& settings)
+{
+	return "$cameraViewIndicator@" + std::to_string(settings.FovAngleY) + '@' + std::to_string(settings.FarZ) + '@' + std::to_string(settings.NearZ) + '@' + std::to_string(settings.AspectRatio);
+}
+
+std::vector<unsigned short> GetIndexBuffer()
+{
+	return {
+		// nearZ
+		0,1,	0,3,
+		1,2,	2,3,
+
+		// farZ
+		4,5,	4,7,
+		5,6,	6,7,
+
+		// linking between both
+		0,4,	1,5,
+		2,6,	3,7
+	};
+}
+
 Camera::Camera(Graphics& graphics, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation, Settings* settings)
 	:
 	CameraBase(graphics, position, rotation, false)
@@ -127,6 +184,91 @@ Camera::Camera(Graphics& graphics, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3
 
 	UpdateViewMatrix();
 	UpdatePerspectiveMatrix();
+
+	{
+		Mesh frustumMesh;
+
+		BlendRenderTargetOptions blendRTOptions = {};
+		blendRTOptions.SetSrcBlend(BlendOperationValue::SrcAlpha);
+		blendRTOptions.SetDestBlend(BlendOperationValue::InvertedSrcAlpha);
+		blendRTOptions.SetBlendOperation(BlendOperation::Add);
+		blendRTOptions.SetSrcAlphaBlend(BlendOperationValue::One);
+		blendRTOptions.SetDestAlphaBlend(BlendOperationValue::InvertedSrcAlpha);
+		blendRTOptions.SetBlendOperationAlpha(BlendOperation::Add);
+
+		BlendStateOptions blendStateOptions = {};
+		blendStateOptions.SetAlphaToCoverage(false);
+		blendStateOptions.SetRenderTargetOptions(blendRTOptions);
+
+		{
+			RenderTechnique technique(RenderJob::JobType::VisibleDebug);
+			RenderGraphicsStep step(this);
+
+			DynamicVertex::DynamicVertexLayout vertexLayout;
+			vertexLayout.AddElement<DynamicVertex::ElementType::Position>();
+
+			std::vector<DirectX::XMFLOAT3> vertexBuffer = GetVertexBuffer(m_settings);
+			std::vector<unsigned short> indexBuffer = GetIndexBuffer();
+
+			step.SetPositionBufferEntry(VertexBufferEntry::GetResource(graphics, GetVertexBufferIdentifier(m_settings), vertexBuffer.data(), vertexLayout, vertexBuffer.size()));
+			step.SetIndexBufferEntry(IndexBufferEntry::GetResource(graphics, "CameraFrustum", std::move(indexBuffer)));
+			step.SetBoundingBox(::GetBoundingBox(m_settings));
+
+			step.AddBindable(Shader::GetResource(graphics, L"PS_Solid", ShaderType::PixelShader));
+			step.AddBindable(Shader::GetResource(graphics, L"VS", ShaderType::VertexShader));
+			step.AddBindable(BlendState::GetResource(graphics, blendStateOptions));
+			step.AddBindable(InputLayout::GetResource(graphics, vertexLayout));
+			step.AddBindable(PrimitiveTechnology::GetResource(graphics, D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE));
+
+			{
+				DynamicConstantBuffer::Layout layout;
+				layout.Add<DynamicConstantBuffer::ElementType::Float4>("color");
+
+				DynamicConstantBuffer::Data bufferData(layout);
+				*bufferData.Get<DynamicConstantBuffer::ElementType::Float4>("color") = DirectX::XMFLOAT4(1.0f, 0.5f, 0.0f, 1.0f);
+
+				step.AddBindable(std::make_shared<CachedConstantBuffer>(graphics, bufferData, ResourceTargets{ {ShaderVisibilityGraphic::PixelShader, 1} }));
+			}
+
+			technique.AddStep(std::move(step));
+			frustumMesh.AddTechnique(std::move(technique));
+		}
+
+		{
+			RenderTechnique technique(RenderJob::JobType::OccludedDebug);
+			RenderGraphicsStep step(this);
+
+			DynamicVertex::DynamicVertexLayout vertexLayout;
+			vertexLayout.AddElement<DynamicVertex::ElementType::Position>();
+
+			std::vector<DirectX::XMFLOAT3> vertexBuffer = GetVertexBuffer(m_settings);
+			std::vector<unsigned short> indexBuffer = GetIndexBuffer();
+
+			step.SetPositionBufferEntry(VertexBufferEntry::GetResource(graphics, GetVertexBufferIdentifier(m_settings), vertexBuffer.data(), vertexLayout, vertexBuffer.size()));
+			step.SetIndexBufferEntry(IndexBufferEntry::GetResource(graphics, "CameraFrustum", std::move(indexBuffer)));
+			step.SetBoundingBox(::GetBoundingBox(m_settings));
+
+			step.AddBindable(Shader::GetResource(graphics, L"PS_Solid", ShaderType::PixelShader));
+			step.AddBindable(Shader::GetResource(graphics, L"VS", ShaderType::VertexShader));
+			step.AddBindable(BlendState::GetResource(graphics, blendStateOptions));
+			step.AddBindable(InputLayout::GetResource(graphics, vertexLayout));
+			step.AddBindable(PrimitiveTechnology::GetResource(graphics, D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE));
+
+			{
+				DynamicConstantBuffer::Layout layout;
+				layout.Add<DynamicConstantBuffer::ElementType::Float4>("color");
+
+				DynamicConstantBuffer::Data bufferData(layout);
+				*bufferData.Get<DynamicConstantBuffer::ElementType::Float4>("color") = DirectX::XMFLOAT4(1.0f, 0.5f, 0.0f, 0.2f);
+
+				step.AddBindable(std::make_shared<CachedConstantBuffer>(graphics, bufferData, ResourceTargets{ {ShaderVisibilityGraphic::PixelShader, 1} }));
+			}
+
+			technique.AddStep(std::move(step));
+			frustumMesh.AddTechnique(std::move(technique));
+		}
+		AddMesh(frustumMesh);
+	}
 }
 
 void Camera::UpdateCamera(const Input& input, bool cursorLocked)

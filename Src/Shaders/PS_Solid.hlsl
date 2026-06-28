@@ -1,4 +1,9 @@
-float4 PSMain(float3 color : COLOR) : SV_TARGET
+cbuffer constBuffer : register(b1)
 {
-	return float4(color, 1.0f);
+    float4 color;
+};
+
+float4 PSMain() : SV_TARGET
+{
+    return color;
 }
