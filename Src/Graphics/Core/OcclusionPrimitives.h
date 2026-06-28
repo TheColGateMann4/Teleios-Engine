@@ -13,6 +13,7 @@ public:
 	BoundingBox() = default;
 	BoundingBox(const DynamicVertex::DynamicVertex& vertexData);
 	BoundingBox(float size);
+	BoundingBox(DirectX::XMFLOAT3 min_, DirectX::XMFLOAT3 max_);
 
 	BoundingBox(const BoundingBox& other);
 	BoundingBox(BoundingBox&& other) noexcept;

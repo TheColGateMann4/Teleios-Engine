@@ -14,6 +14,14 @@ BoundingBox::BoundingBox(float size)
 
 }
 
+BoundingBox::BoundingBox(DirectX::XMFLOAT3 min_, DirectX::XMFLOAT3 max_)
+    :
+    min(min_),
+    max(max_)
+{
+
+}
+
 BoundingBox::BoundingBox(const BoundingBox& other)
     :
     min(other.min),
