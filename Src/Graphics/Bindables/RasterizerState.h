@@ -11,11 +11,14 @@ public:
 	std::string GetIdentifier();
 
 	bool GetIsShadowRasterizer() const;
+	bool GetAliasedLine() const;
 
 	void SetIsShadowRasterizer(bool isShadowRasterizer);
+	void SetAliasedLine(bool aliasedLine);
 
 private:
 	bool m_isShadowRasterizer = false;
+	bool m_aliasedLine = false;
 };
 
 enum class CullingMode

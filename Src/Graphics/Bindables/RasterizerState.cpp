@@ -9,6 +9,8 @@ std::string RenderPassRasterizerStateOptions::GetIdentifier()
 	std::string resultString = "RenderPassRasterizerStateOptions#";
 
 	resultString += std::to_string(m_isShadowRasterizer);
+	resultString += '@';
+	resultString += std::to_string(m_aliasedLine);
 
 	return resultString;
 }
@@ -18,9 +20,19 @@ bool RenderPassRasterizerStateOptions::GetIsShadowRasterizer() const
 	return m_isShadowRasterizer;
 }
 
+bool RenderPassRasterizerStateOptions::GetAliasedLine() const
+{
+	return m_aliasedLine;
+}
+
 void RenderPassRasterizerStateOptions::SetIsShadowRasterizer(bool isShadowRasterizer)
 {
 	m_isShadowRasterizer = isShadowRasterizer;
+}
+
+void RenderPassRasterizerStateOptions::SetAliasedLine(bool aliasedLine)
+{
+	m_aliasedLine = aliasedLine;
 }
 
 std::string ObjectRasterizerStateOptions::GetIdentifier()
@@ -65,7 +77,7 @@ RasterizerState::RasterizerState(Graphics& graphics, RenderPassRasterizerStateOp
 	m_desc.SlopeScaledDepthBias = isShadowRasterizer ? 3.464f : 0.0f;
 	m_desc.DepthClipEnable = true;
 	m_desc.MultisampleEnable = false;
-	m_desc.AntialiasedLineEnable = false;
+	m_desc.AntialiasedLineEnable = renderPassOptions.GetAliasedLine();
 	m_desc.ForcedSampleCount = 0;
 	m_desc.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
 }
