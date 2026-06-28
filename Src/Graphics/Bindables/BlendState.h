@@ -128,7 +128,7 @@ public:
 private:
 	bool m_alphaToCoverage = false;	
 	bool m_independentBlend = false;
-	std::array<BlendRenderTargetOptions, 8> m_renderTargetOptions;
+	std::array<BlendRenderTargetOptions, 8> m_renderTargetOptions = {};
 };
 
 class BlendState : public Bindable, public PipelineStateBindable
