@@ -118,12 +118,16 @@ void SceneObject::DrawHierarchy(SceneObject** selectedObject)
 
 	if (ImGui::IsItemClicked())
 	{
-		*selectedObject = *selectedObject != this ? this : nullptr;
-		
 		if(*selectedObject)
 			(*selectedObject)->m_selected = false;
-
-		m_selected = true;
+		
+		if (*selectedObject != this)
+		{
+			*selectedObject = this;
+			m_selected = true;
+		}
+		else
+			*selectedObject = nullptr;
 	}
 
 	if (nodeExpanded)
