@@ -3,7 +3,7 @@
 
 VisibleDebugPass::VisibleDebugPass(Graphics& graphics)
 {
-	AddBindable(DepthStencilState::GetResource(graphics, DepthStencilState::DepthComparisonFunc::Less));
+	AddBindable(DepthStencilState::GetResource(graphics, DepthStencilStateOptions{}));
 	m_rasterizerOptions.SetAliasedLine(true);
 }
 

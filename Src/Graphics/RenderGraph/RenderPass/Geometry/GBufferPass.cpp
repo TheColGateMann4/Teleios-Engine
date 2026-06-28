@@ -6,10 +6,12 @@ GBufferPass::GBufferPass(Graphics& graphics)
 {
 	AddStaticBindable("lightBuffer");
 
-	BlendStateOptions blendStateOptions = {}; // using the default options
+	AddBindable(BlendState::GetResource(graphics, BlendStateOptions{}));
 
-	AddBindable(BlendState::GetResource(graphics, blendStateOptions));
-	AddBindable(DepthStencilState::GetResource(graphics, DepthStencilState::DepthComparisonFunc::Equal));
+	DepthStencilStateOptions depthStencilStateOptions = {};
+	depthStencilStateOptions.SetDepthComparisonFunction(ComparisonFunction::Equal);
+
+	AddBindable(DepthStencilState::GetResource(graphics, depthStencilStateOptions));
 	AddBindable(ViewPort::GetResource(graphics));
 }
 

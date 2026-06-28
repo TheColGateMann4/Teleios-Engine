@@ -5,11 +5,8 @@
 
 EmissivePass::EmissivePass(Graphics& graphics)
 {
-	BlendStateOptions blendStateOptions = {}; // using the default options
-
-	AddBindable(BlendState::GetResource(graphics, blendStateOptions));
-
-	AddBindable(DepthStencilState::GetResource(graphics, DepthStencilState::DepthComparisonFunc::Less));
+	AddBindable(BlendState::GetResource(graphics, BlendStateOptions{}));
+	AddBindable(DepthStencilState::GetResource(graphics, DepthStencilStateOptions{}));
 }
 
 RenderJob::JobType EmissivePass::GetWantedJob() const

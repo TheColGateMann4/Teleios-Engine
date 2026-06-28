@@ -4,7 +4,7 @@
 
 PreDepthPass::PreDepthPass(Graphics& graphics)
 {
-	AddBindable(DepthStencilState::GetResource(graphics, DepthStencilState::DepthComparisonFunc::Less));
+	AddBindable(DepthStencilState::GetResource(graphics, DepthStencilStateOptions{}));
 }
 
 RenderJob::JobType PreDepthPass::GetWantedJob() const

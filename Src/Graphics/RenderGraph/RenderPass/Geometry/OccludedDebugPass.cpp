@@ -3,7 +3,10 @@
 
 OccludedDebugPass::OccludedDebugPass(Graphics& graphics)
 {
-	AddBindable(DepthStencilState::GetResource(graphics, DepthStencilState::DepthComparisonFunc::Greater));
+	DepthStencilStateOptions depthStencilStateOptions = {};
+	depthStencilStateOptions.SetDepthComparisonFunction(ComparisonFunction::Greater);
+
+	AddBindable(DepthStencilState::GetResource(graphics, depthStencilStateOptions));
 	m_rasterizerOptions.SetAliasedLine(true);
 }
 
