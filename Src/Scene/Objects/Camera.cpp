@@ -269,10 +269,19 @@ Camera::Camera(Graphics& graphics, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3
 		}
 		AddMesh(frustumMesh);
 	}
+
+	SetFrustumViewActive(false);
 }
 
 void Camera::UpdateCamera(const Input& input, bool cursorLocked)
 {
+	if (m_prevSelected != m_selected)
+	{
+		if (!(m_selected && m_active))
+			SetFrustumViewActive(m_selected);
+		m_prevSelected = m_selected;
+	}
+
 	if (!m_active)
 		return;
 
@@ -330,7 +339,10 @@ void Camera::DrawTransformPropeties(Scene& scene)
 		};
 
 	if (ImGui::Button("Active"))
+	{
+		SetFrustumViewActive(false);
 		scene.SetActiveCamera(this);
+	}
 
 	DirectX::XMFLOAT3 position = m_transform.GetPosition();
 
@@ -471,6 +483,18 @@ constexpr float Camera::GetClampedValue(float angle, float minAngle, float maxAn
 	return angle > maxAngle
 		? maxAngle
 		: (angle < minAngle ? minAngle : angle);
+}
+
+void Camera::SetFrustumViewActive(bool active)
+{
+	for(auto& technique : m_meshes.front().GetTechniques())
+	{
+		RenderJob::JobType techType = technique.GetType();
+
+		if (techType == RenderJob::JobType::VisibleDebug || techType == RenderJob::JobType::OccludedDebug)
+			for (auto& step : technique.GetSteps())
+				step.SetEnabled(active);
+	}
 }
 
 ShadowCamera::ShadowCamera(Graphics& graphics, DirectX::XMFLOAT3 position)

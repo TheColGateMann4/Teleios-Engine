@@ -96,6 +96,8 @@ private:
 	static constexpr float GetSlicedValue(float angle, float sliceValue);
 	static constexpr float GetClampedValue(float angle, float minAngle, float maxAngle);
 
+	void SetFrustumViewActive(bool active);
+
 private:
 	Frustum m_frustum;
 	float m_pitch = 0.0f;
@@ -106,6 +108,7 @@ private:
 	float m_fastSpeed = 0.12f;
 
 	bool m_active = false;
+	bool m_prevSelected = false;
 };
 
 class ShadowCamera : public CameraBase
