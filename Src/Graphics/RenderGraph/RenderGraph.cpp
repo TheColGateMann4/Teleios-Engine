@@ -12,7 +12,7 @@
 void RenderGraph::Initialize(Graphics& graphics)
 {
 	{
-		std::shared_ptr<PreDepthPass> preDepthPass = std::make_shared<PreDepthPass>();
+		std::shared_ptr<PreDepthPass> preDepthPass = std::make_shared<PreDepthPass>(graphics);
 		preDepthPass->SetDepthStencilView(graphics.GetDepthStencil(), ResourceDataOperation::clear);
 
 		AddRenderPass(preDepthPass);
@@ -58,7 +58,7 @@ void RenderGraph::Initialize(Graphics& graphics)
 	}
 
 	{
-		std::shared_ptr<EmissivePass> emissivePass = std::make_shared<EmissivePass>();
+		std::shared_ptr<EmissivePass> emissivePass = std::make_shared<EmissivePass>(graphics);
 		emissivePass->AddRenderTarget(graphics.GetBackBuffer());
 		emissivePass->SetDepthStencilView(graphics.GetDepthStencil());
 

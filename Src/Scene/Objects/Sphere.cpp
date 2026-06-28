@@ -35,8 +35,6 @@ Sphere::Sphere(Graphics& graphics, DirectX::XMFLOAT3 position, float diameter, s
 		step.AddBindable(Shader::GetResource(graphics, L"PS_LightSource", ShaderType::PixelShader));
 		std::vector<const char*> macros = {"NORMAL", "TEXCOORDS"};
 		step.AddBindable(Shader::GetResource(graphics, L"VS", ShaderType::VertexShader));
-		step.AddBindable(BlendState::GetResource(graphics));
-		step.AddBindable(DepthStencilState::GetResource(graphics, DepthStencilState::DepthComparisonFunc::Less));
 		step.AddBindable(PrimitiveTechnology::GetResource(graphics, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE));
 		step.AddStaticBindable("lightBuffer");
 
