@@ -15,7 +15,7 @@ class GraphicsBufferSuballocator;
 class BufferAllocatorChunk
 {
 public:
-	BufferAllocatorChunk(size_t offset_, size_t size_, GraphicsBufferSuballocator* allocator_);
+	BufferAllocatorChunk(size_t byteOffset_, size_t elementOffset_, size_t size_, GraphicsBufferSuballocator* allocator_);
 	~BufferAllocatorChunk();
 
 	BufferAllocatorChunk(BufferAllocatorChunk&& other) noexcept;
@@ -25,7 +25,8 @@ public:
 	BufferAllocatorChunk& operator=(const BufferAllocatorChunk& other) = delete;
 
 public:
-	size_t offset;
+	size_t elementOffset;
+	size_t byteOffset;
 	size_t size;
 	GraphicsBufferSuballocator* allocator;
 };

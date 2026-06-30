@@ -10,7 +10,7 @@ IndexBuffer::IndexBuffer(Graphics& graphics, unsigned int stride)
 	m_dataFormat(stride == 2 ? DXGI_FORMAT_R16_UINT : DXGI_FORMAT_R32_UINT),
 	m_stride(stride)
 {
-	m_buffer = graphics.GetGraphicsBufferAllocatorManager()->RequestBufferAllocator(graphics, m_accumulatedElements, m_stride);
+	m_buffer = graphics.GetGraphicsBufferAllocatorManager()->RequestBufferAllocator(graphics, 0, stride);
 	m_buffer->RegisterForUpdates(this);
 
 	THROW_INTERNAL_ERROR_IF("Stride was invalid", stride != 2 && stride != 4);
@@ -42,17 +42,13 @@ std::shared_ptr<BufferAllocatorChunk> IndexBuffer::PushData(Graphics& graphics, 
 	THROW_INTERNAL_ERROR_IF("Num elements passed to IndexBuffer was 0", indexCount == 0);
 	THROW_INTERNAL_ERROR_IF("Tried to push indice data with different stride than target buffer", stride != m_stride);
 
-	auto result = m_buffer->Push(graphics, pData, indexCount * stride, stride);
-
-	m_accumulatedElements += indexCount;
-
-	return result;
+	return m_buffer->Push(graphics, pData, indexCount * stride, stride);
 }
 
 void IndexBuffer::UpdateCallback()
 {
 	m_indexBufferView.BufferLocation = m_buffer->GetResource()->GetGPUAddress();
-	m_indexBufferView.SizeInBytes = m_accumulatedElements * m_stride;
+	m_indexBufferView.SizeInBytes = m_buffer->GetResource()->GetByteSize();
 	m_indexBufferView.Format = m_dataFormat;
 }
 

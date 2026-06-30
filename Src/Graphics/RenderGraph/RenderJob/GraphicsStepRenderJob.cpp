@@ -118,11 +118,6 @@ void GraphicsStepRenderJob::InitializeGraphicResources(Graphics& graphics, Pipel
 	auto positionVertexEntry = m_bindableContainer.GetPositionVertexBufferEntry();
 	auto indexBuffer = m_bindableContainer.GetIndexBufferEntry();
 
-	if (attributeVertexEntry)
-		attributeVertexEntry->GetVertexBuffer()->BindToCopyPipelineIfNeeded(graphics, pipeline);
-	if (positionVertexEntry)
-		positionVertexEntry->GetVertexBuffer()->BindToCopyPipelineIfNeeded(graphics, pipeline);
-
 	THROW_INTERNAL_ERROR_IF("None vertex buffer was bound", !attributeVertexEntry && !positionVertexEntry);
 	THROW_INTERNAL_ERROR_IF("Index buffer hasn't been bound", !indexBuffer);
 
@@ -191,8 +186,8 @@ void GraphicsStepRenderJob::Execute(Graphics& graphics, CommandList* commandList
 	}
 
 	unsigned int indices = m_bindableContainer.GetIndexBufferEntry()->GetIndexCount();
-	unsigned int baseVertexOffset = vertexBufferEntry->GetEntryInfo().offset;
-	unsigned int startIndexOffset = indexBufferEntry->GetEntryInfo()->offset / indexBufferEntry->GetStride();
+	unsigned int baseVertexOffset = vertexBufferEntry->GetEntryInfo()->elementOffset;
+	unsigned int startIndexOffset = indexBufferEntry->GetEntryInfo()->elementOffset;
 
 	commandList->DrawIndexed(graphics, indices, baseVertexOffset, startIndexOffset);
 

@@ -33,8 +33,6 @@ public:
     GraphicsBuffer* GetBuffer();
 
 public:
-	void BindToCopyPipelineIfNeeded(Graphics& graphics, Pipeline& pipeline);
-
     virtual void BindToCommandList(Graphics& graphics, CommandList* commandList) override;
 
     virtual BindableType GetBindableType() const override;
@@ -49,7 +47,6 @@ private:
     D3D12_INDEX_BUFFER_VIEW m_indexBufferView = {};
     DXGI_FORMAT m_dataFormat;
     unsigned int m_stride;
-    size_t m_accumulatedElements = 0;
 };
 
 class IndexBufferEntry : public Bindable, public CommandListBindable

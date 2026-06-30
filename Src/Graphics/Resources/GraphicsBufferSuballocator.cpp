@@ -1,9 +1,10 @@
 #include "GraphicsBufferSuballocator.h"
 #include "Graphics/Core/Graphics.h"
 
-BufferAllocatorChunk::BufferAllocatorChunk(size_t offset_, size_t size_, GraphicsBufferSuballocator* allocator_)
+BufferAllocatorChunk::BufferAllocatorChunk(size_t byteOffset_,size_t elementOffset_, size_t size_, GraphicsBufferSuballocator* allocator_)
 	:
-	offset(offset_),
+	byteOffset(byteOffset_),
+	elementOffset(elementOffset_),
 	size(size_),
 	allocator(allocator_)
 {
@@ -18,22 +19,26 @@ BufferAllocatorChunk::~BufferAllocatorChunk()
 
 BufferAllocatorChunk::BufferAllocatorChunk(BufferAllocatorChunk&& other) noexcept
 	:
-	offset(other.offset),
+	byteOffset(other.byteOffset),
+	elementOffset(other.elementOffset),
 	size(other.size),
 	allocator(other.allocator)
 {
-	other.offset = 0;
+	other.byteOffset = 0;
+	other.elementOffset = 0;
 	other.size = 0;
 	other.allocator = nullptr;
 }
 
 BufferAllocatorChunk& BufferAllocatorChunk::operator=(BufferAllocatorChunk&& other) noexcept
 {
-	offset = other.offset;
+	byteOffset = other.byteOffset;
+	elementOffset = other.elementOffset;
 	size = other.size;
 	allocator = other.allocator;
 
-	other.offset = 0;
+	other.byteOffset = 0;
+	other.elementOffset = 0;
 	other.size = 0;
 	other.allocator = nullptr;
 
@@ -70,7 +75,7 @@ std::shared_ptr<BufferAllocatorChunk> GraphicsBufferSuballocator::Push(Graphics&
 		m_pendingUploadBuffers.push_back(UploadBufferData(std::move(uploadBuffer), chunk.offset));
 	}
 
-	return std::make_shared<BufferAllocatorChunk>(chunk.offset, chunk.size, this);
+	return std::make_shared<BufferAllocatorChunk>(chunk.offset, chunk.offset / stride, chunk.size, this);
 }
 
 void GraphicsBufferSuballocator::Free(BufferAllocatorChunk* chunkInfo)
@@ -81,13 +86,13 @@ void GraphicsBufferSuballocator::Free(BufferAllocatorChunk* chunkInfo)
 	auto found = std::find_if(m_usedChunks.begin(), m_usedChunks.end(), 
 		[chunkInfo](const BufferChunkInfo& c)
 		{
-			return c.offset == chunkInfo->offset && c.size == chunkInfo->size;
+			return c.offset == chunkInfo->byteOffset && c.size == chunkInfo->size;
 		}
 	);
 
 	THROW_INTERNAL_ERROR_IF("Could not find chunk to free", found == m_usedChunks.end());
 
-	m_freeChunks.push_back(FreedChunkInfo(BufferChunkInfo(chunkInfo->offset, chunkInfo->size)));
+	m_freeChunks.push_back(FreedChunkInfo(BufferChunkInfo(chunkInfo->byteOffset, chunkInfo->size)));
 	m_usedChunks.erase(found);
 }
 
@@ -181,7 +186,7 @@ GraphicsBufferSuballocator::BufferChunkInfo GraphicsBufferSuballocator::PushToEn
 	size_t offset = m_usedSpace;
 	m_usedSpace += size;
 
-	return BufferChunkInfo{ offset, size };
+	return BufferChunkInfo( offset, size);
 }
 
 std::optional<std::vector<GraphicsBufferSuballocator::FreedChunkInfo>::iterator> GraphicsBufferSuballocator::GetBestMatchingChunk(Graphics& graphics, size_t size)
