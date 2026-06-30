@@ -1,6 +1,5 @@
-Models/*
-Build/*
-Images/*
+Build
 x64
 Teleios Engine
-/CppDependOut
+CppDependOut
+Assets/Models/intel_sponza
