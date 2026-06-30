@@ -206,6 +206,8 @@ void Scene::UpdateGraphicResources(Graphics& graphics)
 
 	// copying constant buffers to GPU
 	graphics.GetConstantBufferHeap().CopyResources(graphics, pipeline.GetGraphicCommandList());
+
+	graphics.GetGraphicsBufferAllocatorManager()->Update(graphics);
 }
 
 void Scene::DrawObjectInspector(Graphics& graphics)

@@ -143,7 +143,7 @@ void TempGraphicsCommandList::DrawIndexed(Graphics& graphics)
 
 	unsigned int indices = m_bindableContainer.GetIndexBufferEntry()->GetIndexCount();
 	unsigned int baseVertexOffset = vertexBufferEntry->GetEntryInfo().offset;
-	unsigned int startIndexOffset = indexBufferEntry->GetEntryInfo().offset;
+	unsigned int startIndexOffset = indexBufferEntry->GetEntryInfo()->offset;
 
 	m_commandList->DrawIndexed(graphics, indices, baseVertexOffset, startIndexOffset);
 }

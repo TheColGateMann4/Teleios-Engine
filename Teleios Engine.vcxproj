@@ -172,6 +172,8 @@
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Src\Graphics\Core\GraphicsBufferAllocatorManager.cpp" />
+    <ClCompile Include="Src\Graphics\Resources\GraphicsBufferSuballocator.cpp" />
     <ClCompile Include="Src\Graphics\RenderGraph\RenderJob\DebugGraphicsStepRenderJob.cpp" />
     <ClCompile Include="Src\Graphics\RenderGraph\RenderPass\Geometry\OccludedDebugPass.cpp" />
     <ClCompile Include="Src\Graphics\Core\OcclusionPrimitives.cpp" />
@@ -266,6 +268,8 @@
     <ClCompile Include="Src\Graphics\RenderGraph\RenderPass\Geometry\VisibleDebugPass.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Src\Graphics\Core\GraphicsBufferAllocatorManager.h" />
+    <ClInclude Include="Src\Graphics\Resources\GraphicsBufferSuballocator.h" />
     <ClInclude Include="Src\Graphics\RenderGraph\RenderJob\DebugGraphicsStepRenderJob.h" />
     <ClInclude Include="Src\Graphics\RenderGraph\RenderPass\Geometry\OccludedDebugPass.h" />
     <ClInclude Include="Src\Graphics\Core\OcclusionPrimitives.h" />

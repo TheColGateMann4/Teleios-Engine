@@ -15,6 +15,7 @@
 #include "Graphics/Core/DeviceResources.h"
 #include "Graphics/Core/Renderer.h"
 #include "Graphics/Profiler/Profiler.h"
+#include "Graphics/Core/GraphicsBufferAllocatorManager.h"
 
 class Graphics
 {
@@ -46,6 +47,7 @@ private:
 
 public:
 	Fence* GetFence(unsigned int frameIndex);
+	GraphicsBufferAllocatorManager* GetGraphicsBufferAllocatorManager();
 	Profiler& GetProfiler();
 	Renderer& GetRenderer();
 	DeviceResources& GetDeviceResources();
@@ -77,6 +79,7 @@ private:
 	FrameResourceDeleter resourceDeleter;
 	Renderer renderer;
 	Profiler profiler;
+	GraphicsBufferAllocatorManager graphicsBufferAllocatorManager;
 
 private:
 #ifdef _DEBUG

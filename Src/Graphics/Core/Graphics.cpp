@@ -173,6 +173,11 @@ Fence* Graphics::GetFence(unsigned int frameIndex)
 	return &m_graphicFences.at(frameIndex);
 }
 
+GraphicsBufferAllocatorManager* Graphics::GetGraphicsBufferAllocatorManager()
+{
+	return &graphicsBufferAllocatorManager;
+}
+
 Profiler& Graphics::GetProfiler()
 {
 	return profiler;

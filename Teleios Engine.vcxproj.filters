@@ -93,6 +93,8 @@
     <ClCompile Include="Src\Graphics\RenderGraph\RenderPass\Geometry\OccludedDebugPass.cpp" />
     <ClCompile Include="Src\Graphics\RenderGraph\RenderPass\Geometry\VisibleDebugPass.cpp" />
     <ClCompile Include="Src\Graphics\RenderGraph\RenderJob\DebugGraphicsStepRenderJob.cpp" />
+    <ClCompile Include="Src\Graphics\Resources\GraphicsBufferSuballocator.cpp" />
+    <ClCompile Include="Src\Graphics\Core\GraphicsBufferAllocatorManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Src\Application.h" />
@@ -192,6 +194,8 @@
     <ClInclude Include="Src\Graphics\RenderGraph\RenderPass\Geometry\OccludedDebugPass.h" />
     <ClInclude Include="Src\Graphics\RenderGraph\RenderPass\Geometry\VisibleDebugPass.h" />
     <ClInclude Include="Src\Graphics\RenderGraph\RenderJob\DebugGraphicsStepRenderJob.h" />
+    <ClInclude Include="Src\Graphics\Resources\GraphicsBufferSuballocator.h" />
+    <ClInclude Include="Src\Graphics\Core\GraphicsBufferAllocatorManager.h" />
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="Dependencies\zlib1.dll" />

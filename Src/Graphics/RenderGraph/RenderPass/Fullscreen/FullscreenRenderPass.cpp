@@ -81,7 +81,6 @@ void FullscreenRenderPass::InitializePassResources(Graphics& graphics, Pipeline&
 {
 	// copy index and vertex buffers to gpu
 	m_vertexBufferEntry->GetVertexBuffer()->BindToCopyPipelineIfNeeded(graphics, pipeline);
-	m_indexBufferEntry->GetIndexBuffer()->BindToCopyPipelineIfNeeded(graphics, pipeline);
 
 	// Updating camera data
 	{

@@ -10,6 +10,7 @@
 
 ShadowPass::ShadowPass(Graphics& graphics)
 {
+	AddBindable(DepthStencilState::GetResource(graphics, DepthStencilStateOptions{}));
 	AddBindable(ViewPort::GetResource(graphics, DirectX::XMFLOAT2(graphics.GetWidth(), graphics.GetWidth())));
 	m_rasterizerOptions.SetIsShadowRasterizer(true);
 }

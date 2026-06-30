@@ -66,7 +66,7 @@ void GraphicsBuffer::CopyResourcesToTexture(Graphics& graphics, CommandList* cop
 	END_COMMAND_LIST_EVENT(copyCommandList);
 }
 
-void GraphicsBuffer::CopyPartiallyTo(Graphics& graphics, CommandList* copyCommandList, unsigned int srcOffset, unsigned int srcSize, GraphicsResource* dst, unsigned int dstOffset)
+void GraphicsBuffer::CopyPartiallyTo(Graphics& graphics, CommandList* copyCommandList, size_t srcOffset, size_t srcSize, GraphicsResource* dst, size_t dstOffset)
 {
 	THROW_INTERNAL_ERROR_IF("Dest resource was NULL", dst == nullptr);
 
@@ -111,32 +111,27 @@ void GraphicsBuffer::Read(Graphics& graphics, void* data, unsigned int size, uns
 	}
 }
 
-void GraphicsBuffer::Update(Graphics& graphics, const void* data, size_t size)
-{
-	Update(graphics, data, size, 1, size, size);
-}
-
-void GraphicsBuffer::Update(Graphics& graphics, const void* data, size_t rowSize, size_t rows, size_t dataRowPitch, size_t targetRowPitch)
+void GraphicsBuffer::Update(Graphics& graphics, const void* data, size_t size, size_t offset)
 {
 	if (m_cpuAccess == CPUAccess::readwrite || m_cpuAccess == CPUAccess::write)
 	{
-		UpdateLocalResource(graphics, data, rowSize, rows, dataRowPitch, targetRowPitch);
+		UpdateLocalResource(graphics, data, size, 1, size, size, offset);
+	}
+	else
+	{
+		UpdateUsingTempResource(graphics, data, size, offset);
+	}
+}
+
+void GraphicsBuffer::Update(Graphics& graphics, const void* data, size_t rowSize, size_t rows, size_t dataRowPitch, size_t targetRowPitch, size_t offset)
+{
+	if (m_cpuAccess == CPUAccess::readwrite || m_cpuAccess == CPUAccess::write)
+	{
+		UpdateLocalResource(graphics, data, rowSize, rows, dataRowPitch, targetRowPitch, offset);
 	}
 	else
 	{
 		THROW_INTERNAL_ERROR("Tried to Update resource without CPU access. Use pipeline access to update it using temp resource");
-	}
-}
-
-void GraphicsBuffer::Update(Graphics& graphics, Pipeline& pipeline, const void* data, size_t size)
-{
-	if (m_cpuAccess == CPUAccess::readwrite || m_cpuAccess == CPUAccess::write)
-	{
-		UpdateLocalResource(graphics, data, size, 1, size, size);
-	}
-	else
-	{
-		UpdateUsingTempResource(graphics, pipeline, data, size);
 	}
 }
 
@@ -184,18 +179,22 @@ size_t GraphicsBuffer::GetByteStride() const
 	return m_byteStride;
 }
 
-void GraphicsBuffer::UpdateUsingTempResource(Graphics& graphics, Pipeline& pipeline, const void* data, size_t size)
+void GraphicsBuffer::UpdateUsingTempResource(Graphics& graphics, const void* data, size_t size, size_t offset)
 {
 	std::shared_ptr<GraphicsBuffer> uploadBuffer = std::make_shared<GraphicsBuffer>(graphics, size, 1, CPUAccess::write);
 	uploadBuffer->Update(graphics, data, size);
 
-	uploadBuffer->CopyResourcesTo(graphics, pipeline.GetGraphicCommandList(), this);
+	if(offset != 0 || size != m_byteSize)
+		uploadBuffer->CopyPartiallyTo(graphics, graphics.GetRenderer().GetPipeline().GetGraphicCommandList(), 0, size, this, offset);
+	else
+		uploadBuffer->CopyResourcesTo(graphics, graphics.GetRenderer().GetPipeline().GetGraphicCommandList(), this);
 
 	graphics.GetFrameResourceDeleter()->DeleteResource(graphics, std::move(uploadBuffer));
 }
-void GraphicsBuffer::UpdateLocalResource(Graphics& graphics, const void* data, size_t rowSize, size_t rows, size_t dataRowPitch, size_t targetRowPitch)
+
+void GraphicsBuffer::UpdateLocalResource(Graphics& graphics, const void* data, size_t rowSize, size_t rows, size_t dataRowPitch, size_t targetRowPitch, size_t offset)
 {
-	THROW_INTERNAL_ERROR_IF("GraphicsBuffer was larger than resource itself", rowSize > m_byteSize);
+	THROW_INTERNAL_ERROR_IF("GraphicsBuffer was larger than resource itself", targetRowPitch * rows + offset - (targetRowPitch - rowSize) > m_byteSize);
 
 	ID3D12Resource* pConstBuffer = GetResource();
 
@@ -203,33 +202,25 @@ void GraphicsBuffer::UpdateLocalResource(Graphics& graphics, const void* data, s
 
 	// passing data to constant buffer resource
 	{
-		D3D12_RANGE readRange = {};
-		readRange.Begin = 0;
-		readRange.End = 0;
-
-		D3D12_RANGE writeRange = {};
-		writeRange.Begin = 0;
-		writeRange.End = rowSize * rows;
-
 		unsigned char* pMappedData = nullptr;
 		const unsigned char* pData = static_cast<const unsigned char*>(data);
 
 		THROW_ERROR(pConstBuffer->Map(
 			0,
-			&readRange,
+			nullptr,
 			reinterpret_cast<void**>(&pMappedData)
 		));
 
 		for(int row = 0; row < rows; row++)
 		{
 			memcpy_s(
-				pMappedData + row * targetRowPitch,
+				pMappedData + row * targetRowPitch + offset,
 				rowSize,
 				pData + row * dataRowPitch,
 				rowSize
 			);
 		}
 
-		pConstBuffer->Unmap(0, &writeRange);
+		pConstBuffer->Unmap(0, nullptr);
 	}
 }
