@@ -11,10 +11,11 @@ class Pipeline;
 class Graphics;
 class CommandList;
 
-class IndexBuffer : public Bindable, public CommandListBindable
+class IndexBuffer : public Bindable, public CommandListBindable, public BufferAllocatorUpdateListener
 {
 public:
     IndexBuffer(Graphics& graphics, unsigned int stride);
+    virtual ~IndexBuffer() override;
 
     IndexBuffer(IndexBuffer&&) noexcept = default;
     IndexBuffer& operator=(IndexBuffer&&) noexcept = default;
@@ -26,7 +27,7 @@ public:
     std::shared_ptr<BufferAllocatorChunk> PushData(Graphics& graphics, std::vector<unsigned short>&& indices);
     std::shared_ptr<BufferAllocatorChunk> PushData(Graphics& graphics, void* pData, unsigned int indexCount, unsigned int stride);
 
-    void Build(Graphics& graphics);
+    virtual void UpdateCallback() override;
 
 public:
     GraphicsBuffer* GetBuffer();
@@ -73,8 +74,11 @@ public:
 
     unsigned int GetIndexCount() const;
 
+    unsigned int GetStride() const;
+
 private:
     std::shared_ptr<IndexBuffer> m_indexBuffer;
     std::shared_ptr<BufferAllocatorChunk> m_entryInfo;
     unsigned int m_indexCount;
+    unsigned int m_stride;
 };

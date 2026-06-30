@@ -11,8 +11,14 @@ IndexBuffer::IndexBuffer(Graphics& graphics, unsigned int stride)
 	m_stride(stride)
 {
 	m_buffer = graphics.GetGraphicsBufferAllocatorManager()->RequestBufferAllocator(graphics, m_accumulatedElements, m_stride);
+	m_buffer->RegisterForUpdates(this);
 
 	THROW_INTERNAL_ERROR_IF("Stride was invalid", stride != 2 && stride != 4);
+}
+
+IndexBuffer::~IndexBuffer()
+{
+	m_buffer->UnregisterFromUpdates(this);
 }
 
 std::shared_ptr<IndexBuffer> IndexBuffer::GetResource(Graphics& graphics, unsigned int stride)
@@ -36,12 +42,14 @@ std::shared_ptr<BufferAllocatorChunk> IndexBuffer::PushData(Graphics& graphics, 
 	THROW_INTERNAL_ERROR_IF("Num elements passed to IndexBuffer was 0", indexCount == 0);
 	THROW_INTERNAL_ERROR_IF("Tried to push indice data with different stride than target buffer", stride != m_stride);
 
-	m_buffer->Push(graphics, pData, indexCount * stride);
+	auto result = m_buffer->Push(graphics, pData, indexCount * stride, stride);
 
 	m_accumulatedElements += indexCount;
+
+	return result;
 }
 
-void IndexBuffer::Build(Graphics& graphics)
+void IndexBuffer::UpdateCallback()
 {
 	m_indexBufferView.BufferLocation = m_buffer->GetResource()->GetGPUAddress();
 	m_indexBufferView.SizeInBytes = m_accumulatedElements * m_stride;
@@ -77,6 +85,7 @@ IndexBufferEntry::IndexBufferEntry(Graphics& graphics, std::vector<unsigned int>
 {
 	m_indexBuffer = ResourceList::GetResourceByID<IndexBuffer>("IndexBuffer#" + std::to_string(sizeof(indices.front())), graphics, sizeof(indices.front()));
 	m_indexCount = indices.size();
+	m_stride = sizeof(indices.front());
 
 	m_entryInfo = std::move(m_indexBuffer->PushData(graphics, std::move(indices)));
 }
@@ -85,6 +94,7 @@ IndexBufferEntry::IndexBufferEntry(Graphics& graphics, std::vector<unsigned shor
 {
 	m_indexBuffer = ResourceList::GetResourceByID<IndexBuffer>("IndexBuffer#" + std::to_string(sizeof(indices.front())), graphics, sizeof(indices.front()));
 	m_indexCount = indices.size();
+	m_stride = sizeof(indices.front());
 
 	m_entryInfo = std::move(m_indexBuffer->PushData(graphics, std::move(indices)));
 }
@@ -122,4 +132,9 @@ BufferAllocatorChunk* IndexBufferEntry::GetEntryInfo() const
 unsigned int IndexBufferEntry::GetIndexCount() const
 {
 	return m_indexCount;
+}
+
+unsigned int IndexBufferEntry::GetStride() const
+{
+	return m_stride;
 }

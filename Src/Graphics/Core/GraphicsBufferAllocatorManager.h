@@ -4,7 +4,6 @@
 
 class Graphics;
 
-
 class GraphicsBufferAllocatorManager
 {
 public:

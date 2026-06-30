@@ -12,7 +12,32 @@ BufferAllocatorChunk::BufferAllocatorChunk(size_t offset_, size_t size_, Graphic
 
 BufferAllocatorChunk::~BufferAllocatorChunk()
 {
-	allocator->Free(this);
+	if(allocator)
+		allocator->Free(this);
+}
+
+BufferAllocatorChunk::BufferAllocatorChunk(BufferAllocatorChunk&& other) noexcept
+	:
+	offset(other.offset),
+	size(other.size),
+	allocator(other.allocator)
+{
+	other.offset = 0;
+	other.size = 0;
+	other.allocator = nullptr;
+}
+
+BufferAllocatorChunk& BufferAllocatorChunk::operator=(BufferAllocatorChunk&& other) noexcept
+{
+	offset = other.offset;
+	size = other.size;
+	allocator = other.allocator;
+
+	other.offset = 0;
+	other.size = 0;
+	other.allocator = nullptr;
+
+	return *this;
 }
 
 GraphicsBufferSuballocator::GraphicsBufferSuballocator(Graphics& graphics, unsigned int numElements, unsigned int byteStride)
@@ -25,19 +50,21 @@ GraphicsBufferSuballocator::GraphicsBufferSuballocator(Graphics& graphics, unsig
 	m_buffer = std::make_unique<GraphicsBuffer>(graphics, numElements, byteStride, GraphicsResource::CPUAccess::notavailable);
 }
 
-std::shared_ptr<BufferAllocatorChunk> GraphicsBufferSuballocator::Push(Graphics& graphics, void* data, size_t size)
+std::shared_ptr<BufferAllocatorChunk> GraphicsBufferSuballocator::Push(Graphics& graphics, void* data, size_t size, size_t stride)
 {
+	THROW_INTERNAL_ERROR_IF("Tried to push data with different stride", stride != m_stride)
+
 	auto optPushed = TryPushToFreeBlocks(graphics, size);
 
 	BufferChunkInfo chunk = optPushed ? *optPushed : PushToEnd(size);
 
 	m_usedChunks.push_back(chunk);
 
-	if(m_buffer && m_usedSpace <= m_stride)
+	if(m_buffer && m_usedSpace <= m_buffer->GetByteSize())
 		m_buffer->Update(graphics, data, size);
 	else
 	{
-		auto uploadBuffer = std::make_unique<GraphicsBuffer>(graphics, size, m_stride, GraphicsResource::CPUAccess::write);
+		auto uploadBuffer = std::make_unique<GraphicsBuffer>(graphics, size / stride, stride, GraphicsResource::CPUAccess::write);
 		uploadBuffer->Update(graphics, data, size);
 
 		m_pendingUploadBuffers.push_back(UploadBufferData(std::move(uploadBuffer), chunk.offset));
@@ -76,7 +103,7 @@ void GraphicsBufferSuballocator::Update(Graphics& graphics)
 		chunk.initialized = true;
 	}
 
-	if (m_buffer && m_usedSpace <= m_stride)
+	if (m_buffer && m_usedSpace <= m_buffer->GetByteSize())
 		return;
 	
 	Pipeline& pipeline = graphics.GetRenderer().GetPipeline();
@@ -93,10 +120,16 @@ void GraphicsBufferSuballocator::Update(Graphics& graphics)
 		}
 
 		m_buffer = std::move(newBuffer);
+
+		for (auto* updateListener : m_updateListeners)
+			updateListener->UpdateCallback();
 	}
 
 	for (auto& uploadBuffer : m_pendingUploadBuffers)
 	{
+		if (uploadBuffer.offset == 2962332 && uploadBuffer.buffer->GetByteSize() == 671424)
+			std::cout << "a";
+
 		pipeline.AddBufferRegionToCopyPipeline(DestinationBufferRegionCopyData{ m_buffer.get(), uploadBuffer.offset }, SourceBufferRegionCopyData{ uploadBuffer.buffer.get(), 0, uploadBuffer.buffer->GetByteSize() });
 
 		graphics.GetFrameResourceDeleter()->DeleteResource(graphics, std::move(uploadBuffer));
@@ -113,6 +146,16 @@ GraphicsBuffer* GraphicsBufferSuballocator::GetResource() const
 unsigned int GraphicsBufferSuballocator::GetByteStride() const
 {
 	return m_stride;
+}
+
+void GraphicsBufferSuballocator::RegisterForUpdates(BufferAllocatorUpdateListener* listener)
+{
+	m_updateListeners.push_back(listener);
+}
+
+void GraphicsBufferSuballocator::UnregisterFromUpdates(BufferAllocatorUpdateListener* listener)
+{
+	std::erase(m_updateListeners, listener);
 }
 
 std::optional<GraphicsBufferSuballocator::BufferChunkInfo> GraphicsBufferSuballocator::TryPushToFreeBlocks(Graphics& graphics, size_t size)
