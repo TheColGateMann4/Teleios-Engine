@@ -76,15 +76,15 @@
     <IncludePath>$(ProjectDir)Src</IncludePath>
     <SourcePath>$(ProjectDir)Src</SourcePath>
     <OutDir>$(ProjectDir)Build\$(Configuration)\</OutDir>
-    <LibraryPath>C:\Projects\imguilib\$(Platform)\$(Configuration);$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(Platform)\$(Configuration);$(LibraryPath)</LibraryPath>
     <IntDir>$(ProjectDir)Build\$(Configuration)\Bin\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <ExternalIncludePath>$(ExternalIncludePath);C:\Libraries\DirectXTK12\Inc;C:\Libraries\DirectXTK12\Src;C:\Libraries\DirectXTex;C:\Libraries\imgui;C:\Libraries\assimp-5.4.3\include;C:\Libraries\DirectXCompiler2024_07_31\inc;C:\Libraries\DirectX12SDKAgility;C:\Libraries\PIX3\Include\WinPixEventRuntime</ExternalIncludePath>
+    <ExternalIncludePath>$(SolutionDir)ThirdParty\agilitysdk\include;$(ExternalIncludePath)</ExternalIncludePath>
     <IncludePath>$(ProjectDir)Src</IncludePath>
     <SourcePath>$(ProjectDir)Src</SourcePath>
     <OutDir>$(ProjectDir)Build\$(Configuration)\</OutDir>
-    <LibraryPath>C:\Libraries\DirectXTK12\Bin\Windows10_2022\$(Platform)\$(Configuration);C:\Libraries\DirectXTex\DirectXTex\Bin\Desktop_2022_Win10\$(Platform)\$(Configuration);C:\Libraries\freetype\objs\$(Platform)\$(Configuration) Static;C:\Projects\imguilib\$(Platform)\$(Configuration);C:\Libraries\PIX3\bin\x64;C:\Libraries\assimp-5.4.3\lib\$(LibrariesArchitecture);$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(Platform)\$(Configuration);$(LibraryPath)</LibraryPath>
     <IntDir>$(ProjectDir)Build\$(Configuration)\Bin\</IntDir>
     <CustomBuildAfterTargets>
     </CustomBuildAfterTargets>
@@ -203,12 +203,11 @@ dxgi.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDepende
       </Message>
     </CustomBuildStep>
     <PostBuildEvent>
-      <Command>
-      </Command>
+      <Command>robocopy "$(ProjectDir)Assets" "$(OutDir)Assets" /E /XO /FFT /NFL /NDL
+</Command>
     </PostBuildEvent>
     <PostBuildEvent>
-      <Message>
-      </Message>
+      <Message>Copying assets folder to output dir </Message>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>
@@ -599,11 +598,15 @@ dxgi.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDepende
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
       <FileType>Document</FileType>
       <DestinationFolders Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)D3D12\</DestinationFolders>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+      <DestinationFolders Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)D3D12\</DestinationFolders>
     </CopyFileToFolders>
     <CopyFileToFolders Include="ThirdParty\agilitysdk\bin\x64\d3d12SDKLayers.dll">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
       <FileType>Document</FileType>
       <DestinationFolders Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)D3D12\</DestinationFolders>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+      <DestinationFolders Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)D3D12\</DestinationFolders>
     </CopyFileToFolders>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

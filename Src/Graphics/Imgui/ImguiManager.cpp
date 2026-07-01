@@ -72,16 +72,22 @@ ImguiManager::~ImguiManager()
 
 void ImguiManager::BeginFrame(Graphics& graphics)
 {
+#ifdef _DEBUG
 	InfoQueue* infoQueue = graphics.GetInfoQueue();
 
 	// muting warnings or messages that imgui will generate since it is not on time with DX12 previews
 	infoQueue->SetMuteInfoMessages(true);
+#endif
+
 	{
 		THROW_INFO_ERROR(ImGui_ImplDX12_NewFrame());
 		THROW_INFO_ERROR(ImGui_ImplWin32_NewFrame());
 		THROW_INFO_ERROR(ImGui::NewFrame());
 	}
+
+#ifdef _DEBUG
 	infoQueue->SetMuteInfoMessages(false);
+#endif
 }
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
