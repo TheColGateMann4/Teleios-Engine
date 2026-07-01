@@ -5,7 +5,7 @@
 #include "Graphics/Core/DescriptorHeap.h"
 #include "Macros/ErrorMacros.h"
 
-#include <DirectXTex/DirectXTex.h>
+#include <DirectXTex.h>
 
 #include "Graphics/Core/ResourceList.h"
 

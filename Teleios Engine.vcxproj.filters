@@ -194,13 +194,6 @@
     <ClInclude Include="Src\Graphics\RenderGraph\RenderJob\DebugGraphicsStepRenderJob.h" />
   </ItemGroup>
   <ItemGroup>
-    <CopyFileToFolders Include="Dependencies\zlib1.dll" />
-    <CopyFileToFolders Include="Dependencies\dxcompiler.dll" />
-    <CopyFileToFolders Include="Dependencies\dxil.dll" />
-    <CopyFileToFolders Include="Dependencies\AgilitySDK\D3D12Core.dll" />
-    <CopyFileToFolders Include="Dependencies\AgilitySDK\d3d12SDKLayers.dll" />
-    <CopyFileToFolders Include="Dependencies\assimp-vc143-mt.dll" />
-    <CopyFileToFolders Include="Dependencies\WinPixEventRuntime.dll" />
     <CopyFileToFolders Include="Src\Shaders\CS_GetMiddleDepth.hlsl" />
     <CopyFileToFolders Include="Src\Shaders\CS_SRGB_Convert.hlsl" />
     <CopyFileToFolders Include="Src\Shaders\CS_MipMapGeneration.hlsl" />
@@ -215,5 +208,9 @@
     <CopyFileToFolders Include="Src\Shaders\PS_Depth.hlsl" />
     <CopyFileToFolders Include="Src\Shaders\PS_GBuffer.hlsl" />
     <CopyFileToFolders Include="Src\Shaders\PS_Lightning.hlsl" />
+    <CopyFileToFolders Include="ThirdParty\DirectXAgilitySDK\bin\x64\D3D12Core.dll" />
+    <CopyFileToFolders Include="ThirdParty\DirectXAgilitySDK\bin\x64\d3d12SDKLayers.dll" />
+    <CopyFileToFolders Include="ThirdParty\agilitysdk\bin\x64\D3D12Core.dll" />
+    <CopyFileToFolders Include="ThirdParty\agilitysdk\bin\x64\d3d12SDKLayers.dll" />
   </ItemGroup>
 </Project>

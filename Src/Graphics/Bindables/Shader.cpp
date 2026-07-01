@@ -3,8 +3,6 @@
 #include "Graphics/Core/PipelineState.h"
 #include "Graphics/Core/Graphics.h"
 
-#include <d3dcompiler.h>
-
 #include "Graphics/Core/ResourceList.h"
 
 constexpr const wchar_t* GetDefaultEntryPointName(ShaderType type)
@@ -153,7 +151,7 @@ void Shader::Reload(Graphics& graphics)
 
 #ifdef _DEBUG
 
-	std::vector<const wchar_t*> pBinaryArgs = { DXC_ARG_DEBUG, DXC_ARG_SKIP_OPTIMIZATIONS, DXC_ARG_IEEE_STRICTNESS, DXC_ARG_ENABLE_STRICTNESS, DXC_ARG_WARNINGS_ARE_ERRORS, DXC_ARG_ALL_RESOURCES_BOUND, DXC_ARG_DEBUG_NAME_FOR_SOURCE };
+	std::vector<const wchar_t*> pBinaryArgs = { DXC_ARG_DEBUG, DXC_ARG_SKIP_OPTIMIZATIONS, DXC_ARG_IEEE_STRICTNESS, DXC_ARG_ENABLE_STRICTNESS, DXC_ARG_WARNINGS_ARE_ERRORS, DXC_ARG_ALL_RESOURCES_BOUND, DXC_ARG_DEBUG_NAME_FOR_BINARY };
 	std::vector<const wchar_t*> pSourceArgs = { L"-P" };
 
 	Microsoft::WRL::ComPtr<ID3DBlob> pSourceWithoutMacros;
@@ -196,12 +194,6 @@ void Shader::Reload(Graphics& graphics)
 
 		DebugBlobToFile(".pdb", pPDB.Get());
 	}
-
-	// editing debug name
-	pShaderCode = GetShaderWithEditedDebugName(graphics, pShaderCode.Get());
-
-	// removing debug info from out shader binary
-	pShaderCode = GetShaderWithoutDebugInfo(graphics, pShaderCode.Get());
 
 #endif
 }
@@ -308,45 +300,6 @@ Microsoft::WRL::ComPtr<ID3DBlob> Shader::GetResult(Graphics& graphics, IDxcResul
 	}
 
 	return pBlob;
-}
-
-Microsoft::WRL::ComPtr<ID3DBlob> Shader::GetShaderWithEditedDebugName(Graphics& graphics, ID3DBlob* pShaderCode)
-{
-	HRESULT hr;
-	Microsoft::WRL::ComPtr<ID3DBlob> pEditedDebugName;
-
-	std::string newDebugName = "Shaders/" + m_uniqueName + ".pdb";
-	size_t lengthOfNameStorage = (newDebugName.size() + 0x3) & ~0x3;
-	size_t nameBlobPartSize = sizeof(DxilShaderDebugName) + lengthOfNameStorage;
-
-	newDebugName.resize(lengthOfNameStorage, '\0');
-
-	THROW_ERROR(D3DSetBlobPart(
-		pShaderCode->GetBufferPointer(),
-		pShaderCode->GetBufferSize(),
-		D3D_BLOB_DEBUG_NAME,
-		0,
-		newDebugName.c_str(),
-		nameBlobPartSize,
-		&pEditedDebugName
-	));
-
-	return pEditedDebugName;
-}
-
-Microsoft::WRL::ComPtr<ID3DBlob> Shader::GetShaderWithoutDebugInfo(Graphics& graphics, ID3DBlob* pShaderCode)
-{
-	HRESULT hr;
-	Microsoft::WRL::ComPtr<ID3DBlob> pStrippedBlob;
-
-	THROW_ERROR(D3DStripShader(
-		pShaderCode->GetBufferPointer(),
-		pShaderCode->GetBufferSize(),
-		D3DCOMPILER_STRIP_DEBUG_INFO,
-		&pStrippedBlob
-	));
-
-	return pStrippedBlob;
 }
 
 void Shader::ThrowErrorMessagesResult(Graphics& graphics, IDxcResult* pResult)

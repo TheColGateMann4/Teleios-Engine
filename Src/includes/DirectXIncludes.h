@@ -1,27 +1,24 @@
 #pragma once
-#include <Agility/include/d3d12.h> // agility sdk
+#include <d3d12.h> // agility sdk
 #include <DirectXMath.h>
 #include <dxgi1_6.h>
 
-#include "CppIncludes.h"
-
-#define USED_SHADER_MODEL L"6_8"
-
 //	//DirectXTex
 //	#include <DirectXTex/DirectXTex.h>
-//	#include <ScreenGrab/Screengrab12.h>
 //	
 //	//DirectXTK12
 //	#include <PostProcess.h>
 //	#include <GamePad.h>
-//	
-//	//assimp
-//	#include <assimp/scene.h>
-//	#include <assimp/Importer.hpp>
-//	#include <assimp/postprocess.h>
-//	
-//	//imgui
-//	#include <imgui.h>
+
+#define USED_SHADER_MODEL L"6_8"
+
+static const GUID TELEIOS_CREATOR_ID =
+{
+    0xdbb4c79a,
+    0xdcc2,
+    0x4180,
+    { 0xa5, 0xb6, 0x87, 0xe9, 0xa5, 0x91, 0xba, 0x69 }
+};
 
 static bool IsEqual(const DirectX::XMMATRIX& a, const DirectX::XMMATRIX& b)
 {
