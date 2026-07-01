@@ -18,16 +18,16 @@ This engine is designed for:
 
 ## 🚀 Properties:
 
-- **Scalable Structure** - Engine is carefully organized for clarity and maintainability, making it easy to extend and scale.  
+- **Scalable Structure** - Engine is carefully organized for clarity and maintainability, making it easy to extend and scale.
 - **Bindless Binding System** - Uses global descriptor table, with per-material root constants to get given texture by index.
-- **Deferred Rendering System** - Outputs material data to GBuffers, then lightning pass computes final result.
-- **Modern & Physically Based Rendering** - Fully supports metalness-roughness PBR, and handles complex scenes like Intel Sponza.
-- **Dynamic Shader System** - Shaders are generated on-the-fly using macros, allowing flexible “one-shader-fits-all” workflows.
-- **Global Bindable List** - Every Bindable has its own ID and is assigned to global table, which allows us to share them between objects.
+- **Deferred Rendering System** - Outputs material data to G-Buffers, then a lighting pass computes the final result.
+- **Physically Based Rendering** - Fully supports metalness-roughness and specular-glossiness PBR, and handles complex scenes like Intel Sponza.
+- **Dynamic Shader System** - Shaders are generated on-the-fly using macros, allowing flexible “one-source-fits-all” workflows.
+- **Global Resource List** - Every resource has its own ID and is assigned to global table, which allows us to share them between objects.
 - **Post-Processing** - Editable effects like Depth of Field and Fog.
-- **Shader Model 6.8 Ready** - Supports the latest DX12 features including wave operations, typed UAV loads, and advanced root signatures.
-- **Compute Shaders** - Leveraging compute shaders to perform advanced GPU-side calculations.
+- **Compute Shaders** - Uses compute shaders for GPU-side calculations.
 - **Multi-Camera and Multi-Light support** - Allows multiple cameras and lights on scene. Which are also read from model files.
+- **Shadow Mapping** - Point Lights cast shadows onto the scene
 
 ## 📸 Gallery:
 
@@ -62,45 +62,67 @@ This engine is designed for:
 ## 📁 Project Overview
 
 ```
-Build/         # Build directory
-Dependencies/  # Runtime DLLs that project depends on
-Models/        # Models that will be drawn
-Showcase/      # Images made inside the engine
-├─ Src/        # Engine's code
-├─ System/                # Platform abstraction
-├─ Graphics/              # All about graphics engine
-│ ├─ Core/                # Graphics engine plumbing
-│ ├─ Data/                # CPU-side data handlers
-│ ├─ Bindables/           # Bindables we use for rendering
-│ ├─ Resources/           # GPU resource wrappers
-│ ├─ FullscreenPasses/    # Fullscreen rendering passes
-│ └─ Imgui/               # ImGui integration
-├─ Scene/       # scene handling and objects
-│ └─ Objects/   # objects that can be drawn
-├─ Shaders/     # HLSL shaders
-├─ Error/       # Error handling
-├─ Includes/    # Global includes
-└─ Macros/      # Global macros
+Build/			   # Build directory
+ThirdParty/		   # Third-party SDKs and external libraries
+Assets/			   # Assets that will be used in rendering
+Showcase/		   # Images made inside the engine
+Src/			   # Engine source code
+├─ System/		   # Platform abstraction layer
+├─ Graphics/       # Rendering engine
+│ ├─ Core/		   # Core DX12 systems
+│ ├─ Data/		   # CPU-side rendering data management
+│ ├─ Bindables/    # GPU resources and pipeline bindings
+│ ├─ Resources/    # GPU resource wrappers
+│ ├─ Imgui/        # ImGui integration
+│ ├─ Profiler/     # GPU/CPU profiling tools
+│ └─ RenderGraph/  # Render pipeline scheduling system
+│ ├─ RenderJob/    # Individual rendering jobs
+│ ├─ RenderPass/   # Rendering passes
+│ │ ├─ Fullscreen/ # Fullscreen effects and post-processing
+│ │ └─ Geometry/   # Geometry rendering passes
+│ └─ Steps/        # Render graph execution steps
+├─ Scene/		   # Scene management and objects
+│ └─ Objects/	   # Renderable scene objects
+├─ Shaders/		   # HLSL shaders
+├─ Error/		   # Error handling system
+├─ Includes/	   # Global includes
+└─ Macros/		   # Global macros and utilities
+```
+## 🛠 Building
+
+### 📋 Requirements
+- Visual Studio 2022+
+- Git LFS
+- Vcpkg
+- Developer Mode turned ON
+
+### 📥 Cloning
+
+```bash
+git clone https://github.com/TheColGateMann4/Teleios-Engine.git
+cd Teleios-Engine
 ```
 
-## 🎨 Samples
-### Intel Sponza
-- Scene from Intel’s graphics research sample repository  
-- Demonstrates: lighting, PBR materials, fog, and depth of field
-- Source: [Intel Sponza](https://www.intel.com/content/www/us/en/developer/topic-technology/graphics-research/samples.html)
-- Screenshots included in `Showcase/` folder
+### 🔧 Dependencies
 
-## 🛠 Dependencies
+- External dependencies are managed automatically using vcpkg.
 
-### [ImGui](https://github.com/ocornut/imgui) & [Freetype](https://github.com/freetype/freetype)
-- Imgui built in separate project -> single `.lib`  
-  - Faster builds  
-  - No imgui warnings  
-- Freetype required by my ImGui config
+```bash
+vcpkg install
+```
 
-### [DirectXTK](https://github.com/microsoft/DirectXTK) & [DirectXTex](https://github.com/microsoft/DirectXTex)
-- Must use `*_Desktop_2022_Win10.sln`
-- Build **x64 Debug/Release** -> produces `.lib` files
+### 📦 Assets
 
-### [Assimp](https://github.com/assimp/assimp)
-- Get pre-built binaries from Assimp itch.io
+- Assets (models, textures, etc.) are managed using Git LFS.
+- After cloning the repository, download the required assets:
+
+```bash
+git lfs install
+git lfs pull
+```
+
+### ⚠️ Without Developer Mode enabled, DirectX12 initialization will fail. ⚠️ 
+### ⚡ DirectX12 Preview Package
+
+- The engine uses a preview version of DirectX 12.
+- To run the engine, Developer Mode must be enabled on Windows.
