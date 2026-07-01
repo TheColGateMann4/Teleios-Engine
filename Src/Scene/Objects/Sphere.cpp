@@ -1,6 +1,6 @@
 #include "Sphere.h"
 #include "Includes/CppIncludes.h"
-#include <Geometry.h>
+#include <directxtk12/GeometricPrimitive.h>
 
 #include "Includes/BindablesInclude.h"
 
@@ -94,8 +94,8 @@ void Sphere::DrawAdditionalPropeties(Graphics& graphics, Pipeline& pipeline)
 
 void Sphere::UpdateMesh(Graphics& graphics, Pipeline& pipeline)
 {
-	std::vector<DirectX::VertexPositionNormalTexture> vertices;
-	std::vector<uint16_t> indices;
+	DirectX::DX12::GeometricPrimitive::VertexCollection vertices = {};
+	DirectX::DX12::GeometricPrimitive::IndexCollection indices = {};
 
 	DynamicVertex::DynamicVertexLayout vertexLayout;
 	vertexLayout.AddElement<DynamicVertex::ElementType::Position>();
@@ -103,7 +103,7 @@ void Sphere::UpdateMesh(Graphics& graphics, Pipeline& pipeline)
 	vertexLayout.AddElement<DynamicVertex::ElementType::TextureCoords>();
 	vertexLayout.Finish();
 
-	DirectX::ComputeSphere(vertices, indices, m_diameter, m_tesselation, false, false);
+	DirectX::DX12::GeometricPrimitive::CreateSphere(vertices, indices, m_diameter, m_tesselation, false);
 
 	Mesh& modelMesh = m_meshes.front();
 

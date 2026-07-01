@@ -22,8 +22,6 @@ Fence::Fence(Graphics& graphics)
 		IID_PPV_ARGS(&pFence)
 	));
 
-	m_fenceValue = 0;
-
 
 	m_fenceEvent = CreateEventA(nullptr, false, false, nullptr);
 

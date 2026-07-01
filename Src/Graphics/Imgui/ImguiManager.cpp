@@ -3,8 +3,8 @@
 #include "Graphics/Core/Graphics.h"
 
 #include <imgui.h>
-#include <backends/imgui_impl_dx12.h>
-#include <backends/imgui_impl_win32.h>
+#include <imgui_impl_dx12.h>
+#include <imgui_impl_win32.h>
 
 void SrvDescriptorAllocFn(ImGui_ImplDX12_InitInfo* info, D3D12_CPU_DESCRIPTOR_HANDLE* out_cpu_desc_handle, D3D12_GPU_DESCRIPTOR_HANDLE* out_gpu_desc_handle)
 {
@@ -70,11 +70,18 @@ ImguiManager::~ImguiManager()
 	ImGui::DestroyContext();
 }
 
-void ImguiManager::BeginFrame()
+void ImguiManager::BeginFrame(Graphics& graphics)
 {
-	ImGui_ImplDX12_NewFrame();
-	ImGui_ImplWin32_NewFrame();
-	ImGui::NewFrame();
+	InfoQueue* infoQueue = graphics.GetInfoQueue();
+
+	// muting warnings or messages that imgui will generate since it is not on time with DX12 previews
+	infoQueue->SetMuteInfoMessages(true);
+	{
+		THROW_INFO_ERROR(ImGui_ImplDX12_NewFrame());
+		THROW_INFO_ERROR(ImGui_ImplWin32_NewFrame());
+		THROW_INFO_ERROR(ImGui::NewFrame());
+	}
+	infoQueue->SetMuteInfoMessages(false);
 }
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
