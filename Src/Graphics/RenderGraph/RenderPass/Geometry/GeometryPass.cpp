@@ -39,6 +39,8 @@ void GeometryPass::Update(Graphics& graphics, Pipeline& pipeline, Scene& scene)
 	unsigned int currentCameraIndex = scene.GetCurrentCamera()->GetCameraIndex();
 
 	SetCameraTransformIndex(currentCameraIndex);
+
+	m_bindableContainer.Update();
 }
 
 void GeometryPass::AddBindable(std::shared_ptr<Bindable> bindable)

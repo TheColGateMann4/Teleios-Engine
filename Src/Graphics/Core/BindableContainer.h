@@ -67,6 +67,8 @@ public:
 	const std::vector<RootSignatureBindable*>& GetRootSignatureBindables() const;
 	const std::vector<PipelineStateBindable*>& GetPipelineStateBindables() const;
 
+	BindableContainerRevision GetRevision() const;
+
 private:
 	void AddBindableWrapper(std::shared_ptr<Bindable> wrapper);
 

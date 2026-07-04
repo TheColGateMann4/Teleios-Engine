@@ -41,22 +41,16 @@ void RenderGraphicsStep::AddStaticBindable(const char* bindableName)
 void RenderGraphicsStep::SetAttributeBufferEntry(std::shared_ptr<VertexBufferEntry> attributeBufferEntry)
 {
 	m_bindableContainer.SetAttributeBufferEntry(std::move(attributeBufferEntry));
-
-	ModifyPropeties().attributeBufferChanged = true;
 }
 
 void RenderGraphicsStep::SetPositionBufferEntry(std::shared_ptr<VertexBufferEntry> positionBufferEntry)
 {
 	m_bindableContainer.SetPositionBufferEntry(std::move(positionBufferEntry));
-
-	ModifyPropeties().positionBufferChanged = true;
 }
 
 void RenderGraphicsStep::SetIndexBufferEntry(std::shared_ptr<IndexBufferEntry> indexBufferEntry)
 {
 	m_bindableContainer.SetIndexBufferEntry(std::move(indexBufferEntry));
-
-	ModifyPropeties().indexBufferChanged = true;
 }
 
 void RenderGraphicsStep::SetBoundingBox(BoundingBox boundingBox)
@@ -109,11 +103,6 @@ void RenderGraphicsStep::SetRasterizerOptions(ObjectRasterizerStateOptions raste
 	m_rasterizerOptions = rasterizerOptions;
 }
 
-std::optional<ModifiedGraphicsPropeties> RenderGraphicsStep::GetModifiedPropeties() const
-{
-	return m_modifiedPropeties;
-}
-
 void RenderGraphicsStep::Initialize(Graphics& graphics, Pipeline& pipeline)
 {
 	m_bindableContainer.Initialize(graphics, pipeline);
@@ -121,16 +110,5 @@ void RenderGraphicsStep::Initialize(Graphics& graphics, Pipeline& pipeline)
 
 void RenderGraphicsStep::Update()
 {
-	m_modifiedPropeties = std::nullopt;
-
-	
-	//m_bindableContainer.Update();
-}
-
-ModifiedGraphicsPropeties& RenderGraphicsStep::ModifyPropeties()
-{
-	if (!m_modifiedPropeties)
-		m_modifiedPropeties.emplace();
-
-	return m_modifiedPropeties.value();
+	m_bindableContainer.Update();
 }

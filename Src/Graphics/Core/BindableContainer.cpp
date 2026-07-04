@@ -145,6 +145,11 @@ const std::vector<PipelineStateBindable*>& BindableContainer::GetPipelineStateBi
 	return m_pipelineStateBindables;
 }
 
+BindableContainerRevision BindableContainer::GetRevision() const
+{
+	return m_revision;
+}
+
 void BindableContainer::AddBindableWrapper(std::shared_ptr<Bindable> wrapper)
 {
 	THROW_INTERNAL_ERROR_IF("Passed bindable was not wrapper", wrapper->GetBindableType() != BindableType::bindable_rootSignatureWrapper);

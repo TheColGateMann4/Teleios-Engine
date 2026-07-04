@@ -43,4 +43,8 @@ protected:
 	std::shared_ptr<GraphicsPipelineState> m_pipelineState;
 
 	std::shared_ptr<MaterialBindings> m_materialBindings;
+
+	BindableContainerRevision m_stepLastRevision;
+	BindableContainerRevision m_materialLastRevision;
+	BindableContainerRevision m_passLastRevision;
 };

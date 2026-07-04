@@ -69,11 +69,9 @@ void Scene::FinishInitialization(Graphics& graphics)
 
 	InitializeTransformBuffer(graphics, pipeline);
 
-	InitializeMaterials(graphics, pipeline);
-
 	graphics.FinishInitialization();
 
-	InitializeMaterials(graphics);
+	InitializeMaterials(graphics, pipeline);
 
 	ResolveStaticBindables(graphics);
 
@@ -93,12 +91,6 @@ void Scene::FinishInitialization(Graphics& graphics)
 	END_CPU_EVENT();
 
 	graphics.WaitForGPU();
-}
-
-void Scene::InitializeMaterials(Graphics& graphics)
-{
-	for (auto& [key, material] : m_materials)
-		material->Initialize(graphics);
 }
 
 void Scene::InitializeCameraBuffer(Graphics& graphics, Pipeline& pipeline)
@@ -158,7 +150,7 @@ void Scene::InitializeTransformBuffer(Graphics& graphics, Pipeline& pipeline)
 
 void Scene::InitializeMaterials(Graphics& graphics, Pipeline& pipeline)
 {
-	for (auto& [key, material] : m_materials)
+	for (const auto& [key, material] : m_materials)
 		material->InitializeGraphicResources(graphics, pipeline);
 }
 
@@ -289,6 +281,9 @@ void Scene::Update(Graphics& graphics, const Input& input, bool isCursorLocked)
 
 	for (auto& sceneObject : m_sceneObjects)
 		sceneObject->InternalUpdate(graphics, graphics.GetRenderer().GetPipeline());
+
+	for (const auto& [key, material] : m_materials)
+		material->Update();
 
 	UpdateBuffersIfNeeded(graphics);
 

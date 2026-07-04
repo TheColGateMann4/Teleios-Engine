@@ -75,6 +75,8 @@ public:
 
 	void InitializeGraphicResources(Graphics& graphics, Pipeline& pipeline);
 
+	void Update();
+
 	D3D12_GPU_DESCRIPTOR_HANDLE GetDescriptorHeapGPUHandle(Graphics& graphics) const;
 
 	virtual DescriptorType GetDescriptorType() const override;

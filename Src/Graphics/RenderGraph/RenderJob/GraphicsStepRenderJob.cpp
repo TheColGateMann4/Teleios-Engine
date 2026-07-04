@@ -94,25 +94,47 @@ void GraphicsStepRenderJob::Initialize(Graphics& graphics, Pipeline& pipeline)
 	BuildPipelineState(graphics, material);
 
 	InitializeGraphicResources(graphics, pipeline);
+
+	m_stepLastRevision = m_step->GetBindableContainer().GetRevision();
+
+	if(material)
+		m_materialLastRevision = material->GetBindableContainer().GetRevision();
+
+	if(m_pass)
+		m_passLastRevision = m_pass->GetBindableContainer().GetRevision();
+}
+
+void HandleRevision(auto* obj, BindableContainerRevision& cached, bool& rsDirty, bool& psoDirty)
+{
+	if (!obj)
+		return;
+
+	const auto& revision = obj->GetBindableContainer().GetRevision();
+
+	if (revision.rootSignatureRevision != cached.rootSignatureRevision)
+		rsDirty = true;
+
+	if (revision.pipelineStateRevision != cached.pipelineStateRevision)
+		psoDirty = true;
+
+	cached = revision;
 }
 
 void GraphicsStepRenderJob::Update(Graphics& graphics)
 {
-	auto optModifiedPropeties = m_step->GetModifiedPropeties();
-	if (!optModifiedPropeties)
-		return;
+	bool psoDirty = false;
+	bool rsDirty = false;
 
-	const auto& updatedPropeties = *optModifiedPropeties;
 	auto* stepMaterial = m_step->GetMaterial();
 
-	bool PSOneedsRebuild = false;
-	if (updatedPropeties.rootSignatureChanged)
-	{
-		BuildRootSignature(graphics, stepMaterial);
-		PSOneedsRebuild = true;
-	}
+	HandleRevision(m_step, m_stepLastRevision, rsDirty, psoDirty);
+	HandleRevision(stepMaterial, m_materialLastRevision, rsDirty, psoDirty);
+	HandleRevision(m_pass, m_passLastRevision, rsDirty, psoDirty);
 
-	if (updatedPropeties.pipelineStateChanged || PSOneedsRebuild)
+	if (rsDirty)
+		BuildRootSignature(graphics, stepMaterial);
+
+	if (psoDirty || rsDirty)
 		BuildPipelineState(graphics, stepMaterial);
 }
 

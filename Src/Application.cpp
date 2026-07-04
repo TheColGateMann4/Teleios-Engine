@@ -47,8 +47,8 @@ void Application::InitializeScene()
 	scene.AddSceneObject(std::make_shared<Camera>(graphics));
 	//scene.AddSceneObject(std::make_shared<Cube>(graphics));
 	//scene.AddSceneObjectFromFile(graphics, "Models/nanosuit/nanosuit.obj");
-	scene.AddSceneObjectFromFile(graphics, "Models/glTF/ABeautifulGame/glTF/ABeautifulGame.gltf");
-	//scene.AddSceneObjectFromFile(graphics, "Models/sponza/sponza.obj", 1.0f / 40.0f);
+	//scene.AddSceneObjectFromFile(graphics, "Models/glTF/ABeautifulGame/glTF/ABeautifulGame.gltf");
+	scene.AddSceneObjectFromFile(graphics, "Models/sponza/sponza.obj", 1.0f / 40.0f);
 	//scene.AddSceneObjectFromFile(graphics, "Models/intel_sponza/main1_sponza/NewSponza_Main_Yup_003.fbx", 1.0f);
 	//scene.AddSceneObjectFromFile(graphics, "Models/intel_sponza/pkg_a_curtains/NewSponza_Curtains_FBX_YUp.fbx", 1.0f);
 

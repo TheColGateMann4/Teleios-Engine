@@ -30,8 +30,6 @@ public:
 	// ends initialization state in pipeline
 	void FinishInitialization(Graphics& graphics);
 
-	void InitializeMaterials(Graphics& graphics);
-
 	void InitializeCameraBuffer(Graphics& graphics, Pipeline& pipeline);
 
 	void InitializeLightBuffer(Graphics& graphics, Pipeline& pipeline);
