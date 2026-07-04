@@ -13,6 +13,20 @@ class CachedConstantBuffer;
 class Texture;
 class Shader;
 
+struct BindableContainerRevision
+{
+	unsigned long long commandListRevision = 0;
+	unsigned long long descriptorRevision = 0;
+	unsigned long long pipelineStateRevision = 0;
+	unsigned long long rootSignatureRevision = 0;
+};
+
+struct CachedRevision
+{
+	const UpdatableBindable* object = nullptr;
+	unsigned long long revision = 0;
+};
+
 class BindableContainer
 {
 public:
@@ -42,6 +56,8 @@ public:
 public:
 	virtual void Initialize(Graphics& graphics, Pipeline& pipeline);
 	
+	void Update();
+
 	virtual void SegregateBindableByClass(Bindable* bindable);
 	void SegregateBindableBaseFunctionality(Bindable* bindable);
 
@@ -65,6 +81,12 @@ protected:
 
 	// vector with names of static scene resources
 	std::vector<const char*> m_staticBindableNames;
+
+	BindableContainerRevision m_revision;
+	std::vector<CachedRevision> m_commandListLastSeenRevisions;
+	std::vector<CachedRevision> m_descriptorLastSeenRevisions;
+	std::vector<CachedRevision> m_rootSignatureLastSeenRevisions;
+	std::vector<CachedRevision> m_pipelineStateLastSeenRevisions;
 };
 
 class MeshBindableContainer : public BindableContainer

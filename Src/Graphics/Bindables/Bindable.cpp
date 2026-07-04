@@ -3,6 +3,16 @@
 
 #include "Graphics/Core/RootSignature.h"
 
+void UpdatableBindable::SetUpdated()
+{
+	m_revision++;
+}
+
+unsigned long long UpdatableBindable::GetRevision() const
+{
+	return m_revision;
+}
+
 void CommandListBindable::BindToComputeCommandList(Graphics& graphics, CommandList* commandList)
 {
 

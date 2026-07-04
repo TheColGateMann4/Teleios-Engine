@@ -32,7 +32,17 @@ public:
 	virtual ~Bindable() = default;
 };
 
-class CommandListBindable
+class UpdatableBindable
+{
+public:
+	void SetUpdated();
+	unsigned long long GetRevision() const;
+
+private:
+	unsigned long long m_revision = 0;
+};
+
+class CommandListBindable : public virtual UpdatableBindable
 {
 public:
 	virtual ~CommandListBindable() = default;
@@ -42,7 +52,7 @@ public:
 	virtual void BindToComputeCommandList(Graphics& graphics, CommandList* commandList);
 };
 
-class PipelineStateBindable
+class PipelineStateBindable : public virtual UpdatableBindable
 {
 public:
 	virtual ~PipelineStateBindable() = default;
@@ -63,7 +73,7 @@ enum class RootSignatureBindableType
 	rootSignature_StaticSampler,
 };
 
-class RootSignatureBindable
+class RootSignatureBindable : public virtual UpdatableBindable
 {
 public:
 	RootSignatureBindable(ResourceTargets targets);
@@ -91,7 +101,7 @@ enum class DescriptorType
 	descriptor_SAMPLER,
 };
 
-class DescriptorBindable
+class DescriptorBindable : public virtual UpdatableBindable
 {
 public:
 	virtual void Initialize(Graphics& graphics, DescriptorHeap::DescriptorInfo descriptorInfo, unsigned int descriptorNum) = 0;

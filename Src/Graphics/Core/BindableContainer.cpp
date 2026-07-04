@@ -38,6 +38,63 @@ void BindableContainer::Initialize(Graphics& graphics, Pipeline& pipeline)
 {
 	for (auto staticBindableName : m_staticBindableNames)
 		SegregateBindableBaseFunctionality(pipeline.GetStaticResource(staticBindableName).get());
+
+	m_commandListLastSeenRevisions.resize(m_commandListBindables.size());
+	m_descriptorLastSeenRevisions.resize(m_descriptorBindables.size());
+	m_rootSignatureLastSeenRevisions.resize(m_rootSignatureBindables.size());
+	m_pipelineStateLastSeenRevisions.resize(m_pipelineStateBindables.size());
+}
+
+template<class T, ENABLE_IF((std::is_base_of_v<UpdatableBindable, T>))>
+bool CheckForRevisionChanged(const std::vector<T*>& bindables, std::vector<CachedRevision>& cachedRevisions)
+{
+	auto RebuildCachedRevisions = [&]()
+		{
+			cachedRevisions.clear();
+			cachedRevisions.reserve(bindables.size());
+			for (size_t i = 0; i < bindables.size(); i++)
+				cachedRevisions.emplace_back(bindables[i], bindables[i]->GetRevision());
+		};
+
+	if (bindables.size() != cachedRevisions.size())
+	{
+		RebuildCachedRevisions();
+		return true;
+	}
+
+	bool result = false;
+
+	for (size_t i = 0; i < bindables.size(); i++)
+	{
+		if (cachedRevisions[i].object != bindables[i])
+		{
+			RebuildCachedRevisions();
+			return true;
+		}
+
+		if (bindables[i]->GetRevision() != cachedRevisions[i].revision)
+		{
+			cachedRevisions[i].revision = bindables[i]->GetRevision();
+			result = true;
+		}
+	}
+
+	return result;
+}
+
+void BindableContainer::Update()
+{
+	if (CheckForRevisionChanged(m_commandListBindables, m_commandListLastSeenRevisions))
+		m_revision.commandListRevision++;
+
+	if (CheckForRevisionChanged(m_descriptorBindables, m_descriptorLastSeenRevisions))
+		m_revision.descriptorRevision++;
+
+	if (CheckForRevisionChanged(m_rootSignatureBindables, m_rootSignatureLastSeenRevisions))
+		m_revision.rootSignatureRevision++;
+
+	if (CheckForRevisionChanged(m_pipelineStateBindables, m_pipelineStateLastSeenRevisions))
+		m_revision.pipelineStateRevision++;
 }
 
 void BindableContainer::SegregateBindableByClass(Bindable* bindable)
