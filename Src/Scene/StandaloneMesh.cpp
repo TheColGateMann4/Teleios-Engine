@@ -6,7 +6,7 @@
 
 void StandaloneMesh::Initialize(Graphics& graphics, Pipeline& pipeline)
 {
-	m_bindableContainer.Initialize(pipeline);
+	m_bindableContainer.Initialize(graphics, pipeline);
 
 	// initializing root signature
 	{
@@ -99,12 +99,6 @@ void StandaloneMesh::Update(Graphics& graphics, Pipeline& pipeline)
 
 }
 
-void StandaloneMesh::InitializeGraphicResources(Graphics& graphics, Pipeline& pipeline)
-{
-	for (auto texture : m_bindableContainer.GetTextures())
-		texture->InitializeGraphicResources(graphics, pipeline);
-}
-
 void StandaloneMesh::DrawConstantBuffers(Graphics& graphics)
 {
 	const std::vector<CachedConstantBuffer*>& cachedBuffers = m_bindableContainer.GetCachedBuffers();
@@ -138,7 +132,7 @@ void StandaloneMesh::SetIndexBufferEntry(std::shared_ptr<IndexBufferEntry> index
 	m_bindableContainer.SetIndexBufferEntry(std::move(indexBufferEntry));
 }
 
-const MeshBindableContainer& StandaloneMesh::GetBindableContainter() const
+const MeshBindableContainer& StandaloneMesh::GetBindableContainer() const
 {
 	return m_bindableContainer;
 }

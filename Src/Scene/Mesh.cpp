@@ -4,16 +4,7 @@
 #include "Scene/Objects/Camera.h"
 #include "Graphics/RenderGraph/RenderJob/GraphicsStepRenderJob.h"
 
-#include "Graphics/Bindables/VertexBuffer.h"
-#include "Graphics/Bindables/IndexBuffer.h"
-#include "Graphics/Bindables/Texture.h"
-#include "Graphics/Bindables/Shader.h"
-#include "Graphics/Bindables/DepthStencilState.h"
-#include "Graphics/Bindables/BlendState.h"
-#include "Graphics/Bindables/PrimitiveTechnology.h"
-#include "Graphics/Bindables/InputLayout.h"
-#include "Graphics/Bindables/RasterizerState.h"
-#include "Graphics/Bindables/Sampler.h"
+#include "Includes/BindablesInclude.h"
 
 #include "Scene/Material.h"
 
@@ -67,7 +58,7 @@ void Mesh::CreateDepthTechnique(Graphics& graphics, Pipeline& pipeline)
 
 	const RenderGraphicsStep& geometryStep = geometryTechnique.GetStep(0);
 
-	const MeshBindableContainer& geometryBindables = geometryStep.GetBindableContainter();
+	const MeshBindableContainer& geometryBindables = geometryStep.GetBindableContainer();
 
 	bool hasOpacity = StepHasOpacity(geometryStep);
 
@@ -138,7 +129,7 @@ const MeshBindableContainer& Mesh::GetTextureContainerOfStep(const RenderGraphic
 {
 	Material* stepMaterial = step.GetMaterial();
 
-	return stepMaterial ? stepMaterial->GetBindableContainer() : step.GetBindableContainter();
+	return stepMaterial ? stepMaterial->GetBindableContainer() : step.GetBindableContainer();
 }
 
 std::optional<const Texture*> Mesh::GetAlbedoTexture(const std::vector<Texture*>& textures)

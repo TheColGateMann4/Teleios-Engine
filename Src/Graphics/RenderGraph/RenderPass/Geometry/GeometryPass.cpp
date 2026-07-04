@@ -31,11 +31,7 @@ void GeometryPass::Initialize(Graphics& graphics, Scene& scene)
 {
 	Pipeline& pipeline = graphics.GetRenderer().GetPipeline();
 
-	for(const auto* staticBindableName : m_staticBindables)
-	{
-		std::shared_ptr<Bindable> resolvedBindable = pipeline.GetStaticResource(staticBindableName);
-		AddBindable(resolvedBindable);
-	}
+	m_bindableContainer.Initialize(graphics, pipeline);
 }
 
 void GeometryPass::Update(Graphics& graphics, Pipeline& pipeline, Scene& scene)
@@ -47,17 +43,17 @@ void GeometryPass::Update(Graphics& graphics, Pipeline& pipeline, Scene& scene)
 
 void GeometryPass::AddBindable(std::shared_ptr<Bindable> bindable)
 {
-	m_bindables.push_back(bindable);
+	m_bindableContainer.AddBindable(std::move(bindable));
 }
 
 void GeometryPass::AddStaticBindable(const char* staticBindableName)
 {
-	m_staticBindables.push_back(staticBindableName);
+	m_bindableContainer.AddStaticBindable(staticBindableName);
 }
 
-const std::vector<std::shared_ptr<Bindable>>& GeometryPass::GetBindables() const
+const BindableContainer& GeometryPass::GetBindableContainer() const
 {
-	return m_bindables;
+	return m_bindableContainer;
 }
 
 void GeometryPass::SortJobs()

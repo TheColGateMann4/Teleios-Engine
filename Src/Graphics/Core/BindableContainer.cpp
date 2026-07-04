@@ -29,6 +29,22 @@ void BindableContainer::AddBindable(Bindable* bindable)
 	SegregateBindableBaseFunctionality(bindable);
 }
 
+void BindableContainer::AddStaticBindable(const char* bindableName)
+{
+	m_staticBindableNames.push_back(bindableName);
+}
+
+void BindableContainer::Initialize(Graphics& graphics, Pipeline& pipeline)
+{
+	for (auto staticBindableName : m_staticBindableNames)
+		SegregateBindableBaseFunctionality(pipeline.GetStaticResource(staticBindableName).get());
+}
+
+void BindableContainer::SegregateBindableByClass(Bindable* bindable)
+{
+
+}
+
 void BindableContainer::SegregateBindableBaseFunctionality(Bindable* bindable)
 {
 	if (auto* rootParameterBinding = dynamic_cast<RootParameterBinding*>(bindable))
@@ -100,13 +116,22 @@ MeshBindableContainer& MeshBindableContainer::operator+=(const MeshBindableConta
 	if (!m_attributeBuffer) m_attributeBuffer = other.m_attributeBuffer;
 	if (!m_positionBuffer) m_positionBuffer = other.m_positionBuffer;
 	if (m_indexBuffer == nullptr) m_indexBuffer = other.m_indexBuffer;
-	if (m_inputLayout == nullptr) m_inputLayout = other.m_inputLayout;
-	if (m_transformConstantBuffer == nullptr) m_transformConstantBuffer = other.m_transformConstantBuffer;
 
 	m_cachedBuffers.insert(m_cachedBuffers.end(), other.m_cachedBuffers.begin(), other.m_cachedBuffers.end());
 	m_textures.insert(m_textures.end(), other.m_textures.begin(), other.m_textures.end());
 
 	return *this;
+}
+
+void MeshBindableContainer::Initialize(Graphics& graphics, Pipeline& pipeline)
+{
+	BindableContainer::Initialize(graphics, pipeline);
+
+	for (auto* texture : m_textures)
+		texture->InitializeGraphicResources(graphics, pipeline);
+
+	for (auto* cachedBuffer : m_cachedBuffers)
+		cachedBuffer->Update(graphics);
 }
 
 void MeshBindableContainer::SetAttributeBufferEntry(std::shared_ptr<VertexBufferEntry> attributeBufferEntry)
@@ -122,17 +147,6 @@ void MeshBindableContainer::SetPositionBufferEntry(std::shared_ptr<VertexBufferE
 void MeshBindableContainer::SetIndexBufferEntry(std::shared_ptr<IndexBufferEntry> indexBufferEntry)
 {
 	m_indexBuffer = std::move(indexBufferEntry);
-}
-
-void MeshBindableContainer::AddStaticBindable(const char* bindableName)
-{
-	m_staticBindableNames.push_back(bindableName);
-}
-
-void MeshBindableContainer::Initialize(Pipeline& pipeline)
-{
-	for (auto staticBindableName : m_staticBindableNames)
-		SegregateBindableBaseFunctionality(pipeline.GetStaticResource(staticBindableName).get());
 }
 
 std::shared_ptr<VertexBufferEntry> MeshBindableContainer::GetAttributeVertexBufferEntry() const
@@ -153,11 +167,6 @@ std::shared_ptr<IndexBufferEntry> MeshBindableContainer::GetIndexBufferEntry() c
 InputLayout* MeshBindableContainer::GetInputLayout() const
 {
 	return m_inputLayout;
-}
-
-TransformConstantBuffer* MeshBindableContainer::GetTransformConstantBuffer() const
-{
-	return m_transformConstantBuffer;
 }
 
 const std::vector<CachedConstantBuffer*>& MeshBindableContainer::GetCachedBuffers() const

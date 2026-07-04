@@ -12,6 +12,15 @@
 class SceneObject;
 class Material;
 
+struct ModifiedGraphicsPropeties
+{
+	bool attributeBufferChanged = false;
+	bool positionBufferChanged = false;
+	bool indexBufferChanged = false;
+	bool rootSignatureChanged = false;
+	bool pipelineStateChanged = false;
+};
+
 class RenderGraphicsStep : public RenderStep
 {
 public:
@@ -44,13 +53,22 @@ public: // bindable container functions
 
 	void AddBindable(Bindable* bindable);
 
-	const MeshBindableContainer& GetBindableContainter() const;
+	const MeshBindableContainer& GetBindableContainer() const;
 
 	Material* GetMaterial() const;
 
 	ObjectRasterizerStateOptions GetRasterizerOptions() const;
 
 	void SetRasterizerOptions(ObjectRasterizerStateOptions rasterizerOptions);
+
+	std::optional<ModifiedGraphicsPropeties> GetModifiedPropeties() const;
+
+	virtual void Initialize(Graphics& graphics, Pipeline& pipeline) override;
+
+	virtual void Update() override;
+
+private:
+	ModifiedGraphicsPropeties& ModifyPropeties();
 
 private:
 	MeshBindableContainer m_bindableContainer;
@@ -59,4 +77,6 @@ private:
 
 	BoundingBox m_boundingBox = {};
 	SceneObject* m_sceneObject;
+
+	std::optional<ModifiedGraphicsPropeties> m_modifiedPropeties = {};
 };

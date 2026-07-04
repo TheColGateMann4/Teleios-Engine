@@ -218,11 +218,7 @@ void Material::Initialize(Graphics& graphics)
 
 void Material::InitializeGraphicResources(Graphics& graphics, Pipeline& pipeline)
 {
-	for (auto texture : m_bindableContainer.GetTextures())
-		texture->InitializeGraphicResources(graphics, pipeline);
-
-	for (auto* cachedBuffer : m_bindableContainer.GetCachedBuffers())
-		cachedBuffer->Update(graphics);
+	m_bindableContainer.Initialize(graphics, pipeline);
 }
 
 D3D12_GPU_DESCRIPTOR_HANDLE Material::GetDescriptorHeapGPUHandle(Graphics& graphics) const

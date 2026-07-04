@@ -4,3 +4,4 @@ Images/*
 x64
 Teleios Engine
 /CppDependOut
+/vcpkg_installed

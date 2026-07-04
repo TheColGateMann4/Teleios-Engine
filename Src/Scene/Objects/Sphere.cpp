@@ -108,9 +108,12 @@ void Sphere::UpdateMesh(Graphics& graphics, Pipeline& pipeline)
 
 	RenderGraphicsStep& albedoStep = modelMesh.GetTechnique(RenderJob::JobType::Emissive).GetStep(0);
 
-	albedoStep.SetAttributeBufferEntry(VertexBufferEntry::GetResource(graphics, "Sphere", vertices.data(), vertexLayout, vertices.size()));
+	std::string meshVertexBufferID = std::string("Sphere") + '@' + std::to_string(m_diameter) + '@' + std::to_string(m_tesselation);
+	std::string meshIndexBufferID = std::string("Sphere") + '@' + std::to_string(m_tesselation);
 
-	albedoStep.SetIndexBufferEntry(IndexBufferEntry::GetResource(graphics, "Sphere", std::move(indices)));
+	albedoStep.SetAttributeBufferEntry(VertexBufferEntry::GetResource(graphics, meshVertexBufferID, vertices.data(), vertexLayout, vertices.size()));
+
+	albedoStep.SetIndexBufferEntry(IndexBufferEntry::GetResource(graphics, meshIndexBufferID, std::move(indices)));
 
 	albedoStep.SetBoundingBox(BoundingBox(m_diameter / 2.0f));
 }

@@ -28,8 +28,6 @@ public:
 
 	void Update(Graphics& graphics, Pipeline& pipeline);
 
-	void InitializeGraphicResources(Graphics& graphics, Pipeline& pipeline);
-
 	void DrawConstantBuffers(Graphics& graphics);
 
 public: // bindable container functions
@@ -41,7 +39,7 @@ public: // bindable container functions
 	void SetPositionBufferEntry(std::shared_ptr<VertexBufferEntry> positionBufferEntry);
 	void SetIndexBufferEntry(std::shared_ptr<IndexBufferEntry> indexBufferEntry);
 
-	const MeshBindableContainer& GetBindableContainter() const;
+	const MeshBindableContainer& GetBindableContainer() const;
 
 	ObjectRasterizerStateOptions GetRasterizerOptions() const;
 

@@ -38,6 +38,8 @@ public:
 
 	void InitializeTransformBuffer(Graphics& graphics, Pipeline& pipeline);
 
+	void InitializeMaterials(Graphics& graphics, Pipeline& pipeline);
+
 	void UpdateTransformBuffer(Graphics& graphics);
 
 	void AssignJobs(Graphics& graphics);

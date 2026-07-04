@@ -28,3 +28,13 @@ void RenderStep::SetEnabled(bool enabled)
 {
 	m_enabled = enabled;
 }
+
+void RenderStep::Initialize(Graphics& graphics, Pipeline& pipeline)
+{
+
+}
+
+void RenderStep::Update()
+{
+
+}

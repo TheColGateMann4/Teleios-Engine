@@ -69,6 +69,8 @@ void Scene::FinishInitialization(Graphics& graphics)
 
 	InitializeTransformBuffer(graphics, pipeline);
 
+	InitializeMaterials(graphics, pipeline);
+
 	graphics.FinishInitialization();
 
 	InitializeMaterials(graphics);
@@ -152,6 +154,12 @@ void Scene::InitializeTransformBuffer(Graphics& graphics, Pipeline& pipeline)
 	m_transformBuffer = std::make_shared<Buffer>(graphics, numElements, layout, ResourceTargets{{ShaderVisibilityGraphic::VertexShader, 0}});
 
 	pipeline.AddStaticResource("transformBuffer", m_transformBuffer);
+}
+
+void Scene::InitializeMaterials(Graphics& graphics, Pipeline& pipeline)
+{
+	for (auto& [key, material] : m_materials)
+		material->InitializeGraphicResources(graphics, pipeline);
 }
 
 void Scene::UpdateTransformBuffer(Graphics& graphics)

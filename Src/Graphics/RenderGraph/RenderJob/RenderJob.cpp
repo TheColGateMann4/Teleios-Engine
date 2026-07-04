@@ -42,6 +42,11 @@ void RenderJob::Initialize(Graphics& graphics, Pipeline& pipeline)
 	
 }
 
+void RenderJob::Update(Graphics& graphics)
+{
+
+}
+
 bool RenderJob::IsValid(RenderPass* pass, Scene& scene) const
 {
 	return true;

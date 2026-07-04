@@ -37,8 +37,12 @@ public:
 		AddBindable(std::make_shared<T>(std::move(bindable)));
 	}
 
+	void AddStaticBindable(const char* bindableName);
+
 public:
-	virtual void SegregateBindableByClass(Bindable* bindable) = 0;
+	virtual void Initialize(Graphics& graphics, Pipeline& pipeline);
+	
+	virtual void SegregateBindableByClass(Bindable* bindable);
 	void SegregateBindableBaseFunctionality(Bindable* bindable);
 
 	
@@ -58,6 +62,9 @@ protected:
 	std::vector<DescriptorBindable*> m_descriptorBindables;
 	std::vector<RootSignatureBindable*> m_rootSignatureBindables;
 	std::vector<PipelineStateBindable*> m_pipelineStateBindables;
+
+	// vector with names of static scene resources
+	std::vector<const char*> m_staticBindableNames;
 };
 
 class MeshBindableContainer : public BindableContainer
@@ -66,13 +73,12 @@ public:
 	MeshBindableContainer& operator+=(const MeshBindableContainer& other);
 
 public:
+	virtual void Initialize(Graphics& graphics, Pipeline& pipeline) override;
+
+public:
 	void SetAttributeBufferEntry(std::shared_ptr<VertexBufferEntry> attributeBufferEntry);
 	void SetPositionBufferEntry(std::shared_ptr<VertexBufferEntry> positionBufferEntry);
 	void SetIndexBufferEntry(std::shared_ptr<IndexBufferEntry> indexBufferEntry);
-
-	void AddStaticBindable(const char* bindableName);
-
-	void Initialize(Pipeline& pipeline);
 
 public:
 	std::shared_ptr<VertexBufferEntry> GetAttributeVertexBufferEntry() const;
@@ -80,7 +86,6 @@ public:
 	std::shared_ptr<IndexBufferEntry> GetIndexBufferEntry() const;
 
 	InputLayout* GetInputLayout() const;
-	TransformConstantBuffer* GetTransformConstantBuffer() const;
 	const std::vector<CachedConstantBuffer*>& GetCachedBuffers() const;
 	const std::vector<Texture*>& GetTextures() const;
 
@@ -88,15 +93,11 @@ private:
 	virtual void SegregateBindableByClass(Bindable* bindable) override;
 
 private:
-	// vector with names of static scene resources
-	std::vector<const char*> m_staticBindableNames;
-	
 	std::shared_ptr<VertexBufferEntry> m_attributeBuffer;
 	std::shared_ptr<VertexBufferEntry> m_positionBuffer;
 	std::shared_ptr<IndexBufferEntry> m_indexBuffer;
 
 	InputLayout* m_inputLayout = nullptr;
-	TransformConstantBuffer* m_transformConstantBuffer = nullptr;
 
 	std::vector<CachedConstantBuffer*> m_cachedBuffers;
 	std::vector<Texture*> m_textures;
