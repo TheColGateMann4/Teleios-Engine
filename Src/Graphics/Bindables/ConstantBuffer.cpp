@@ -7,7 +7,7 @@
 
 BufferBase::BufferBase(Graphics& graphics, const DynamicConstantBuffer::Layout& layout, ResourceTargets targets)
 	:
-	RootParameterBinding(targets)
+	RootSignatureBindable(targets)
 {
 
 }
@@ -77,14 +77,15 @@ DescriptorType Buffer::GetDescriptorType() const
 	return DescriptorType::descriptor_SRV;
 }
 
-void Buffer::BindToCommandList(Graphics& graphics, CommandList* commandList, TargetSlotAndShader& target)
+void Buffer::AddGraphicsRootSignatureParam(RootSignatureParams* rootSignatureParams)
 {
-	commandList->SetGraphicsDescriptor(graphics, this, target);
+	for (const auto& target : GetTargets())
+		rootSignatureParams->AddDescriptorParameter(this, target);
 }
 
-void Buffer::BindToRootSignature(RootSignatureParams* rootSignatureParams, TargetSlotAndShader& target)
+void Buffer::BindToCommandListAsRootParam(Graphics& graphics, CommandList* commandList, const RootBinding& binding)
 {
-	rootSignatureParams->AddDescriptorParameter(this, target);
+	commandList->SetGraphicsDescriptor(graphics, this, binding);
 }
 
 void Buffer::Update(Graphics& graphics, void* data, size_t size)
@@ -114,14 +115,15 @@ ConstantBuffer::ConstantBuffer(Graphics& graphics, const DynamicConstantBuffer::
 
 }
 
-void ConstantBuffer::BindToCommandList(Graphics& graphics, CommandList* commandList, TargetSlotAndShader& target)
+void ConstantBuffer::AddGraphicsRootSignatureParam(RootSignatureParams* rootSignatureParams)
 {
-	commandList->SetGraphicsConstBufferView(graphics, this, target);
+	for (const auto& target : GetTargets())
+		rootSignatureParams->AddConstBufferViewParameter(this, target);
 }
 
-void ConstantBuffer::BindToRootSignature(RootSignatureParams* rootSignatureParams, TargetSlotAndShader& target)
+void ConstantBuffer::BindToCommandListAsRootParam(Graphics& graphics, CommandList* commandList, const RootBinding& binding)
 {
-	rootSignatureParams->AddConstBufferViewParameter(this, target);
+	commandList->SetGraphicsConstBufferView(graphics, this, binding);
 }
 
 BindableType ConstantBuffer::GetBindableType() const
@@ -217,16 +219,6 @@ TempConstantBuffer::TempConstantBuffer(Graphics& graphics, DynamicConstantBuffer
 void TempConstantBuffer::Update(Graphics& graphics)
 {
 	graphics.GetConstantBufferHeap().UpdateResource(graphics, m_bufferIndex, m_data.GetPtr(), m_data.GetLayout().GetSize());
-}
-
-void TempConstantBuffer::BindToCommandList(Graphics& graphics, CommandList* commandList, TargetSlotAndShader& target)
-{
-	commandList->SetComputeConstBufferView(graphics, this, target);
-}
-
-void TempConstantBuffer::AddComputeRootSignatureParam(RootSignatureParams* rootSignatureParams, TargetSlotAndShader& target)
-{
-	rootSignatureParams->AddConstBufferViewParameter(this, target);
 }
 
 D3D12_GPU_VIRTUAL_ADDRESS TempConstantBuffer::GetGPUAddress(Graphics& graphics) const

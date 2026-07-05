@@ -106,9 +106,25 @@ void RenderGraphicsStep::SetRasterizerOptions(ObjectRasterizerStateOptions raste
 void RenderGraphicsStep::Initialize(Graphics& graphics, Pipeline& pipeline)
 {
 	m_bindableContainer.Initialize(graphics, pipeline);
+
+	InitializeMaterialBindings();
 }
 
 void RenderGraphicsStep::Update()
 {
 	m_bindableContainer.Update();
+}
+
+void RenderGraphicsStep::InitializeMaterialBindings()
+{
+	const auto& textureContainer = m_material ? m_material->GetBindableContainer() : GetBindableContainer();
+	const auto& textures = textureContainer.GetTextures();
+
+	if (textures.empty())
+		return;
+
+	m_materialBindings = std::make_shared<MaterialBindings>(textures);
+	
+	AddBindable(m_materialBindings->GetDescriptorHeapBindable());
+	AddBindable(m_materialBindings->GetTextureIndexesConstants());
 }

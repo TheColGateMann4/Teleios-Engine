@@ -95,11 +95,16 @@ const std::string& RootSignatureParams::GetIdentifier() const
 	return m_cachedIdentifier;
 }
 
-void RootSignatureParams::AddConstBufferViewParameter(ConstantBuffer* constantBuffer, TargetSlotAndShader& target)
+const RootSignatureLayout& RootSignatureParams::GetLayout() const
+{
+	return m_layout;
+}
+
+void RootSignatureParams::AddConstBufferViewParameter(ConstantBuffer* constantBuffer, const TargetSlotAndShader& target)
 {
 	THROW_INTERNAL_ERROR_IF("RootSignatureParams were already finished", m_finished);
 
-	target.rootIndex = m_rootSignatureDesc.NumParameters;
+	m_layout.AddParam(constantBuffer, RootBinding(target, m_rootSignatureDesc.NumParameters));
 
 	m_rootSignatureDesc.NumParameters++;
 
@@ -115,9 +120,11 @@ void RootSignatureParams::AddConstBufferViewParameter(ConstantBuffer* constantBu
 	m_rootSignatureDesc.pParameters = m_rootParameters.data();
 }
 
-void RootSignatureParams::AddDescriptorTableParameter(DescriptorHeapBindable* descriptorHeapBindable, TargetSlotAndShader& target)
+void RootSignatureParams::AddDescriptorTableParameter(DescriptorHeapBindable* descriptorHeapBindable, const TargetSlotAndShader& target)
 {
-	target.rootIndex = m_AddDescriptorTableParameter(
+	m_layout.AddParam(descriptorHeapBindable, RootBinding(target, m_rootSignatureDesc.NumParameters));
+
+	m_AddDescriptorTableParameter(
 		D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 
 		target, 
 		UINT_MAX, // UINT_MAX for unbounded size (bindless system)
@@ -125,21 +132,18 @@ void RootSignatureParams::AddDescriptorTableParameter(DescriptorHeapBindable* de
 	); 
 }
 
-void RootSignatureParams::AddDescriptorTableParameter(Texture* texture, TargetSlotAndShader& target)
+void RootSignatureParams::AddDescriptorTableParameter(ShaderResourceViewBase* srv, const TargetSlotAndShader& target)
 {
-	target.rootIndex = m_AddDescriptorTableParameter( D3D12_DESCRIPTOR_RANGE_TYPE_SRV, target);
+	m_layout.AddParam(srv, RootBinding(target, m_rootSignatureDesc.NumParameters));
+
+	m_AddDescriptorTableParameter(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, target);
 }
 
-void RootSignatureParams::AddDescriptorTableParameter(ShaderResourceViewBase* srv, TargetSlotAndShader& target)
-{
-	target.rootIndex = m_AddDescriptorTableParameter(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, target);
-}
-
-void RootSignatureParams::AddDescriptorParameter(Buffer* buffer, TargetSlotAndShader& target)
+void RootSignatureParams::AddDescriptorParameter(Buffer* buffer, const const TargetSlotAndShader& target)
 {
 	THROW_INTERNAL_ERROR_IF("RootSignatureParams were already finished", m_finished);
 
-	target.rootIndex = m_rootSignatureDesc.NumParameters;
+	m_layout.AddParam(buffer, RootBinding(target, m_rootSignatureDesc.NumParameters));
 
 	m_rootSignatureDesc.NumParameters++;
 
@@ -156,28 +160,18 @@ void RootSignatureParams::AddDescriptorParameter(Buffer* buffer, TargetSlotAndSh
 	m_rootSignatureDesc.pParameters = m_rootParameters.data();
 }
 
-void RootSignatureParams::AddComputeDescriptorTableParameter(Texture* texture, TargetSlotAndShader& target)
+void RootSignatureParams::AddUnorderedAccessViewParameter(UnorderedAccessView* uav, const TargetSlotAndShader& target)
 {
-	texture->SetComputeRootIndex(m_AddDescriptorTableParameter(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, target));
+	m_layout.AddParam(uav, RootBinding(target, m_rootSignatureDesc.NumParameters));
+
+	m_AddDescriptorTableParameter(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, target);
 }
 
-void RootSignatureParams::AddComputeDescriptorTableParameter(ShaderResourceViewBase* srv, TargetSlotAndShader& target)
-{
-	srv->SetComputeRootIndex(m_AddDescriptorTableParameter(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, target));
-}
-
-
-void RootSignatureParams::AddUnorderedAccessViewParameter(UnorderedAccessView* uav, TargetSlotAndShader& target)
-{
-	target.rootIndex = m_AddDescriptorTableParameter(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, target);
-}
-
-
-void RootSignatureParams::SetGraphicsRootConstants(RootSignatureConstants* constants, TargetSlotAndShader& target)
+void RootSignatureParams::SetGraphicsRootConstants(RootSignatureConstants* constants, const TargetSlotAndShader& target)
 {
 	THROW_INTERNAL_ERROR_IF("RootSignatureParams were already finished", m_finished);
 
-	target.rootIndex = m_rootSignatureDesc.NumParameters;
+	m_layout.AddParam(constants, RootBinding(target, m_rootSignatureDesc.NumParameters));
 
 	m_rootSignatureDesc.NumParameters++;
 
@@ -194,20 +188,9 @@ void RootSignatureParams::SetGraphicsRootConstants(RootSignatureConstants* const
 	m_rootSignatureDesc.pParameters = m_rootParameters.data();
 }
 
-void RootSignatureParams::AddStaticSampler(StaticSampler* staticSampler)
+void RootSignatureParams::AddStaticSampler(StaticSampler* staticSampler, const TargetSlotAndShader& target)
 {
-	auto& targets = staticSampler->GetTargets();
-
-	for (auto& target : targets)
-		m_AddStaticSampler(staticSampler, target);
-}
-
-void RootSignatureParams::AddComputeStaticSampler(StaticSampler* staticSampler)
-{
-	auto& targets = staticSampler->GetTargets();
-
-	for (auto& target : targets)
-		m_AddStaticSampler(staticSampler, target);
+	m_AddStaticSampler(staticSampler, target);
 }
 
 void RootSignatureParams::ConnectDescriptorParametersToRanges()
@@ -222,11 +205,9 @@ void RootSignatureParams::ConnectDescriptorParametersToRanges()
 		}
 }
 
-unsigned int RootSignatureParams::m_AddDescriptorTableParameter(D3D12_DESCRIPTOR_RANGE_TYPE descriptorType, TargetSlotAndShader& target, unsigned int numDescriptors, D3D12_DESCRIPTOR_RANGE_FLAGS flags)
+void RootSignatureParams::m_AddDescriptorTableParameter(D3D12_DESCRIPTOR_RANGE_TYPE descriptorType, const TargetSlotAndShader& target, unsigned int numDescriptors, D3D12_DESCRIPTOR_RANGE_FLAGS flags)
 {
 	THROW_INTERNAL_ERROR_IF("RootSignatureParams were already finished", m_finished);
-
-	unsigned int resultRootIndex = m_rootSignatureDesc.NumParameters;
 
 	{
 		m_rootSignatureDesc.NumParameters++;
@@ -252,11 +233,9 @@ unsigned int RootSignatureParams::m_AddDescriptorTableParameter(D3D12_DESCRIPTOR
 	}
 
 	m_rootSignatureDesc.pParameters = m_rootParameters.data();
-
-	return resultRootIndex;
 }
 
-void RootSignatureParams::m_AddStaticSampler(StaticSampler* staticSampler, TargetSlotAndShader& target)
+void RootSignatureParams::m_AddStaticSampler(StaticSampler* staticSampler, const TargetSlotAndShader& target)
 {
 	THROW_INTERNAL_ERROR_IF("RootSignatureParams were already finished", m_finished);
 

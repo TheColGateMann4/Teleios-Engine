@@ -1,7 +1,7 @@
 #include "Sampler.h"
 #include "Graphics/Core/RootSignature.h"
-
 #include "Graphics/Core/ResourceList.h"
+#include "Macros/ErrorMacros.h"
 
 StaticSampler::StaticSampler(Graphics& graphics, D3D12_FILTER filter, D3D12_TEXTURE_ADDRESS_MODE overlappingMode, ResourceTargets targets)
 	: 
@@ -47,14 +47,15 @@ std::string StaticSampler::GetIdentifier(D3D12_FILTER filter, D3D12_TEXTURE_ADDR
 	return resultString;
 }
 
-void StaticSampler::BindToRootSignature(RootSignatureParams* rootSignatureParams)
+void StaticSampler::AddGraphicsRootSignatureParam(RootSignatureParams* rootSignatureParams)
 {
-	rootSignatureParams->AddStaticSampler(this);
+	for (const auto& target : GetTargets())
+		rootSignatureParams->AddStaticSampler(this, target);
 }
 
-void StaticSampler::AddComputeRootSignatureParam(RootSignatureParams* rootSignatureParams)
+void StaticSampler::BindToCommandListAsRootParam(Graphics& graphics, CommandList* commandList, const RootBinding& binding)
 {
-	rootSignatureParams->AddComputeStaticSampler(this);
+
 }
 
 BindableType StaticSampler::GetBindableType() const
@@ -65,6 +66,14 @@ BindableType StaticSampler::GetBindableType() const
 RootSignatureBindableType StaticSampler::GetRootSignatureBindableType() const
 {
 	return RootSignatureBindableType::rootSignature_StaticSampler;
+}
+
+D3D12_GPU_VIRTUAL_ADDRESS StaticSampler::GetGPUAddress(Graphics& graphics) const
+{
+	// TODO: make diverged class for objects that don't own a resource but are RootParams
+	THROW_INTERNAL_ERROR("Tried to get gpu address of root bind that doesn't own a resource");
+
+	return {};
 }
 
 D3D12_STATIC_SAMPLER_DESC StaticSampler::Get() const

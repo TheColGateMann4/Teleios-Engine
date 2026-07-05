@@ -12,30 +12,20 @@
 
 ShaderResourceViewBase::ShaderResourceViewBase(unsigned int slot)
 	:
-	RootParameterBinding(ResourceTargets{{ShaderVisibilityGraphic::AllShaders, slot}}),
-	m_computeRootIndex(0)
+	RootSignatureBindable(ResourceTargets{{ShaderVisibilityGraphic::AllShaders, slot}})
 {
 
 }
 
-void ShaderResourceViewBase::BindToCommandList(Graphics& graphics, CommandList* commandList, TargetSlotAndShader& target)
+void ShaderResourceViewBase::AddGraphicsRootSignatureParam(RootSignatureParams* rootSignatureParams)
 {
-	commandList->SetGraphicsDescriptorTable(graphics, this, target);
+	for(const auto& target : GetTargets())
+		rootSignatureParams->AddDescriptorTableParameter(this, target);
 }
 
-void ShaderResourceViewBase::BindToComputeCommandList(Graphics& graphics, CommandList* commandList, TargetSlotAndShader& target)
+void ShaderResourceViewBase::BindToCommandListAsRootParam(Graphics& graphics, CommandList* commandList, const RootBinding& binding)
 {
-	commandList->SetComputeDescriptorTable(graphics, this, target);
-}
-
-void ShaderResourceViewBase::BindToRootSignature(RootSignatureParams* rootSignatureParams, TargetSlotAndShader& target)
-{
-	rootSignatureParams->AddDescriptorTableParameter(this, target);
-}
-
-void ShaderResourceViewBase::AddComputeRootSignatureParam(RootSignatureParams* rootSignatureParams, TargetSlotAndShader& target)
-{
-	rootSignatureParams->AddComputeDescriptorTableParameter(this, GetTargets().front());
+	commandList->SetGraphicsDescriptorTable(graphics, this, binding);
 }
 
 BindableType ShaderResourceViewBase::GetBindableType() const
@@ -51,16 +41,6 @@ DescriptorType ShaderResourceViewBase::GetDescriptorType() const
 RootSignatureBindableType ShaderResourceViewBase::GetRootSignatureBindableType() const
 {
 	return RootSignatureBindableType::rootSignature_DescriptorTable;
-}
-
-void ShaderResourceViewBase::SetComputeRootIndex(unsigned int rootIndex)
-{
-	m_computeRootIndex = rootIndex;
-}
-
-unsigned int ShaderResourceViewBase::GetComputeRootIndex() const
-{
-	return m_computeRootIndex;
 }
 
 void ShaderResourceViewBase::InitializeTextureSRV(Graphics& graphics, unsigned int targetMip, DescriptorHeap::DescriptorInfo& descriptor, const GraphicsTexture* texture)
@@ -144,6 +124,11 @@ ShaderResourceView::ShaderResourceView(Graphics& graphics, GraphicsBuffer* buffe
 D3D12_GPU_DESCRIPTOR_HANDLE ShaderResourceView::GetDescriptorHeapGPUHandle(Graphics& graphics) const
 {
 	return m_descriptor.descriptorHeapGpuHandle;
+}
+
+D3D12_GPU_VIRTUAL_ADDRESS ShaderResourceView::GetGPUAddress(Graphics& graphics) const
+{
+	return m_resource->GetGPUAddress();
 }
 
 UINT ShaderResourceView::GetOffsetInDescriptor(Graphics& graphics) const
@@ -237,6 +222,11 @@ ShaderResourceViewMultiResource::ShaderResourceViewMultiResource(Graphics& graph
 D3D12_GPU_DESCRIPTOR_HANDLE ShaderResourceViewMultiResource::GetDescriptorHeapGPUHandle(Graphics& graphics) const
 {
 	return m_descriptors.at(graphics.GetCurrentBufferIndex()).descriptorHeapGpuHandle;
+}
+
+D3D12_GPU_VIRTUAL_ADDRESS ShaderResourceViewMultiResource::GetGPUAddress(Graphics& graphics) const
+{
+	return m_resources.at(graphics.GetCurrentBufferIndex())->GetGPUAddress();
 }
 
 unsigned int ShaderResourceViewMultiResource::GetOffsetInDescriptor(Graphics& graphics) const

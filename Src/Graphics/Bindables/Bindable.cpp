@@ -15,12 +15,12 @@ unsigned long long UpdatableBindable::GetRevision() const
 
 void CommandListBindable::BindToComputeCommandList(Graphics& graphics, CommandList* commandList)
 {
-
+	THROW_INTERNAL_ERROR("Called BindToComputeCommandList that wasn't overloaded");
 }
 
 void PipelineStateBindable::AddComputePipelineStateParam(Graphics& graphics, ComputePipelineStateParams* params)
 {
-
+	THROW_INTERNAL_ERROR("Called AddComputePipelineStateParam that wasn't overloaded");
 }
 
 RootSignatureBindable::RootSignatureBindable(ResourceTargets targets)
@@ -30,12 +30,7 @@ RootSignatureBindable::RootSignatureBindable(ResourceTargets targets)
 
 }
 
-void RootSignatureBindable::AddComputeRootSignatureParam(RootSignatureParams* rootSignatureParams)
-{
-
-}
-
-ResourceTargets& RootSignatureBindable::GetTargets()
+const ResourceTargets& RootSignatureBindable::GetTargets() const
 {
 	return m_targets;
 }

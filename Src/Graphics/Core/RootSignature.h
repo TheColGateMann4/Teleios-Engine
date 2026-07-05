@@ -3,6 +3,7 @@
 #include "Includes/WRLNoWarnings.h"
 #include "Shaders/TargetShaders.h"
 #include "Graphics/Bindables/Bindable.h"
+#include "RootSignatureLayout.h"
 
 class Graphics;
 class ConstantBuffer;
@@ -30,32 +31,28 @@ public:
 
 	const std::string& GetIdentifier() const;
 
+	const RootSignatureLayout& GetLayout() const;
+
 public:
 	// returns rootIndex that was used
-	void AddConstBufferViewParameter(ConstantBuffer* constantBuffer, TargetSlotAndShader& target);
+	void AddConstBufferViewParameter(ConstantBuffer* constantBuffer, const TargetSlotAndShader& target);
 
-	void AddDescriptorTableParameter(DescriptorHeapBindable* descriptorHeapBindable, TargetSlotAndShader& target);
-	void AddDescriptorTableParameter(Texture* texture, TargetSlotAndShader& target);
-	void AddDescriptorTableParameter(ShaderResourceViewBase* srv, TargetSlotAndShader& target);
+	void AddDescriptorTableParameter(DescriptorHeapBindable* descriptorHeapBindable, const TargetSlotAndShader& target);
+	void AddDescriptorTableParameter(ShaderResourceViewBase* srv, const TargetSlotAndShader& target);
 
-	void AddDescriptorParameter(Buffer* buffer, TargetSlotAndShader& target);
+	void AddDescriptorParameter(Buffer* buffer, const TargetSlotAndShader& target);
 
-	void AddComputeDescriptorTableParameter(Texture* texture, TargetSlotAndShader& target);
-	void AddComputeDescriptorTableParameter(ShaderResourceViewBase* srv, TargetSlotAndShader& target);
+	void AddUnorderedAccessViewParameter(UnorderedAccessView* uav, const TargetSlotAndShader& target);
 
-	void AddUnorderedAccessViewParameter(UnorderedAccessView* uav, TargetSlotAndShader& target);
+	void SetGraphicsRootConstants(RootSignatureConstants* constants, const TargetSlotAndShader& target);
 
-	void SetGraphicsRootConstants(RootSignatureConstants* constants, TargetSlotAndShader& target);
-
-	void AddStaticSampler(StaticSampler* staticSampler);
-	void AddComputeStaticSampler(StaticSampler* staticSampler);
+	void AddStaticSampler(StaticSampler* staticSampler, const TargetSlotAndShader& target);
 
 private:
 	void ConnectDescriptorParametersToRanges();
 
-	// returns root index
-	unsigned int m_AddDescriptorTableParameter(D3D12_DESCRIPTOR_RANGE_TYPE descriptorType, TargetSlotAndShader& target, unsigned int numDescriptors = 1, D3D12_DESCRIPTOR_RANGE_FLAGS flags = D3D12_DESCRIPTOR_RANGE_FLAG_NONE);
-	void m_AddStaticSampler(StaticSampler* staticSampler, TargetSlotAndShader& target);
+	void m_AddDescriptorTableParameter(D3D12_DESCRIPTOR_RANGE_TYPE descriptorType, const TargetSlotAndShader& target, unsigned int numDescriptors = 1, D3D12_DESCRIPTOR_RANGE_FLAGS flags = D3D12_DESCRIPTOR_RANGE_FLAG_NONE);
+	void m_AddStaticSampler(StaticSampler* staticSampler, const TargetSlotAndShader& target);
 
 private:
 	void CreateIdentifier();
@@ -73,6 +70,7 @@ private:
 	std::vector<D3D12_DESCRIPTOR_RANGE1> m_descriptorTableRanges;
 
 	std::string m_cachedIdentifier = {};
+	RootSignatureLayout m_layout = {};
 };
 
 class RootSignature
@@ -93,4 +91,3 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> pRootSignature;
 	RootSignatureParams m_params;
 };
-

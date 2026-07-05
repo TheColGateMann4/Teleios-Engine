@@ -3,17 +3,6 @@
 #include "Pipeline.h"
 
 #include "Includes/BindablesInclude.h"
-#include "Graphics/Bindables/RootSignatureBindableWrapper.h"
-
-BindableContainer& BindableContainer::operator+=(const BindableContainer& other)
-{
-	m_bindables.insert(m_bindables.end(), other.m_bindables.begin(), other.m_bindables.end());
-	m_commandListBindables.insert(m_commandListBindables.end(), other.m_commandListBindables.begin(), other.m_commandListBindables.end());
-	m_rootSignatureBindables.insert(m_rootSignatureBindables.end(), other.m_rootSignatureBindables.begin(), other.m_rootSignatureBindables.end());
-	m_pipelineStateBindables.insert(m_pipelineStateBindables.end(), other.m_pipelineStateBindables.begin(), other.m_pipelineStateBindables.end());
-
-	return *this;
-}
 
 void BindableContainer::AddBindable(std::shared_ptr<Bindable> bindable)
 {
@@ -104,19 +93,11 @@ void BindableContainer::SegregateBindableByClass(Bindable* bindable)
 
 void BindableContainer::SegregateBindableBaseFunctionality(Bindable* bindable)
 {
-	if (auto* rootParameterBinding = dynamic_cast<RootParameterBinding*>(bindable))
-		AddBindableWrapper(std::make_shared<RootParameterBindableWrapper>(rootParameterBinding));
-	else
-	{
-		if (auto* rootSignatureBinding = dynamic_cast<RootSignatureBinding*>(bindable))
-			AddBindableWrapper(std::make_shared<RootSignatureBindableWrapper>(rootSignatureBinding));
+	if (auto* rootSignatureBindable = dynamic_cast<RootSignatureBindable*>(bindable))
+		m_rootSignatureBindables.push_back(rootSignatureBindable);
 
-		if (auto* rootSignatureBindable = dynamic_cast<RootSignatureBindable*>(bindable))
-			m_rootSignatureBindables.push_back(rootSignatureBindable);
-
-		if (auto* commandListBindable = dynamic_cast<CommandListBindable*>(bindable))
-			m_commandListBindables.push_back(commandListBindable);
-	}
+	if (auto* commandListBindable = dynamic_cast<CommandListBindable*>(bindable))
+		m_commandListBindables.push_back(commandListBindable);
 
 	if (auto* descriptorBindable = dynamic_cast<DescriptorBindable*>(bindable))
 		m_descriptorBindables.push_back(descriptorBindable);
@@ -152,8 +133,6 @@ BindableContainerRevision BindableContainer::GetRevision() const
 
 void BindableContainer::AddBindableWrapper(std::shared_ptr<Bindable> wrapper)
 {
-	THROW_INTERNAL_ERROR_IF("Passed bindable was not wrapper", wrapper->GetBindableType() != BindableType::bindable_rootSignatureWrapper);
-
 	Bindable* pWrapper = wrapper.get();
 
 	m_bindables.push_back(wrapper);
@@ -166,23 +145,6 @@ void BindableContainer::AddBindableWrapper(std::shared_ptr<Bindable> wrapper)
 
 	if (auto* pipelineStateBindable = dynamic_cast<PipelineStateBindable*>(pWrapper))
 		m_pipelineStateBindables.push_back(pipelineStateBindable);
-}
-
-MeshBindableContainer& MeshBindableContainer::operator+=(const MeshBindableContainer& other)
-{
-	// calling base constructor
-	BindableContainer::operator+=(other);
-
-	m_staticBindableNames.insert(m_staticBindableNames.end(), other.m_staticBindableNames.begin(), other.m_staticBindableNames.end());
-
-	if (!m_attributeBuffer) m_attributeBuffer = other.m_attributeBuffer;
-	if (!m_positionBuffer) m_positionBuffer = other.m_positionBuffer;
-	if (m_indexBuffer == nullptr) m_indexBuffer = other.m_indexBuffer;
-
-	m_cachedBuffers.insert(m_cachedBuffers.end(), other.m_cachedBuffers.begin(), other.m_cachedBuffers.end());
-	m_textures.insert(m_textures.end(), other.m_textures.begin(), other.m_textures.end());
-
-	return *this;
 }
 
 void MeshBindableContainer::Initialize(Graphics& graphics, Pipeline& pipeline)
@@ -245,8 +207,6 @@ void MeshBindableContainer::SegregateBindableByClass(Bindable* bindable)
 {
 	BindableType type = bindable->GetBindableType();
 
-	THROW_INTERNAL_ERROR_IF("Tried to bind RootSignatureBindableWrapper like normal bindable", type == BindableType::bindable_rootSignatureWrapper);
-
 	switch (type)
 	{
 		case BindableType::bindable_indexBuffer:
@@ -290,16 +250,6 @@ void MeshBindableContainer::SegregateBindableByClass(Bindable* bindable)
 	}
 }
 
-ComputeBindableContainer& ComputeBindableContainer::operator+=(const ComputeBindableContainer& other)
-{
-	// calling base constructor
-	BindableContainer::operator+=(other);
-
-	if (m_shader == nullptr) m_shader = other.m_shader;
-
-	return *this;
-}
-
 const Shader* ComputeBindableContainer::GetShader() const
 {
 	return m_shader;
@@ -308,8 +258,6 @@ const Shader* ComputeBindableContainer::GetShader() const
 void ComputeBindableContainer::SegregateBindableByClass(Bindable* bindable)
 {
 	BindableType type = bindable->GetBindableType();
-
-	THROW_INTERNAL_ERROR_IF("Tried to bind RootSignatureBindableWrapper like normal bindable", type == BindableType::bindable_rootSignatureWrapper);
 
 	if(type == BindableType::bindable_shader)
 		m_shader = static_cast<Shader*>(bindable);

@@ -33,16 +33,18 @@ void GraphicsStepRenderJob::BuildRootSignature(Graphics& graphics, Material* mat
 				descriptorBindable->Initialize(graphics);
 
 			for (auto& rootSignatureBindable : stepBindableContainer.GetRootSignatureBindables())
-				rootSignatureBindable->BindToRootSignature(&rootParams);
+				rootSignatureBindable->AddGraphicsRootSignatureParam(&rootParams);
 		}
 
 		for (auto& rootSignatureBindable : m_pass->GetBindableContainer().GetRootSignatureBindables())
-			rootSignatureBindable->BindToRootSignature(&rootParams);
+			rootSignatureBindable->AddGraphicsRootSignatureParam(&rootParams);
 
-		if (material)
-			material->BindToRootSignature(&rootParams);
+		if(material)
+			for (auto& rootSignatureBindable : material->GetBindableContainer().GetRootSignatureBindables())
+				rootSignatureBindable->AddGraphicsRootSignatureParam(&rootParams);
 	}
 
+	m_rootSignatureLayout = rootParams.GetLayout();
 	m_rootSignature = RootSignature::GetResource(graphics, std::move(rootParams));
 }
 
@@ -85,8 +87,6 @@ void GraphicsStepRenderJob::BuildPipelineState(Graphics& graphics, Material* mat
 
 void GraphicsStepRenderJob::Initialize(Graphics& graphics, Pipeline& pipeline)
 {
-	InitializeMaterialBindings();
-
 	Material* material = m_step->GetMaterial();
 
 	BuildRootSignature(graphics, material);
@@ -136,21 +136,6 @@ void GraphicsStepRenderJob::Update(Graphics& graphics)
 
 	if (psoDirty || rsDirty)
 		BuildPipelineState(graphics, stepMaterial);
-}
-
-void GraphicsStepRenderJob::InitializeMaterialBindings()
-{
-	const auto* material = m_step->GetMaterial();
-	const auto& textureContainer = material ? material->GetBindableContainer() : m_step->GetBindableContainer();
-	const auto& textures = textureContainer.GetTextures();
-
-	if (textures.empty())
-		return;
-
-	m_materialBindings = std::make_shared<MaterialBindings>(textures);
-
-	m_step->AddBindable(m_materialBindings->GetDescriptorHeapBindable());
-	m_step->AddBindable(m_materialBindings->GetTextureIndexesConstants());
 }
 
 void GraphicsStepRenderJob::InitializeGraphicResources(Graphics& graphics, Pipeline& pipeline)
@@ -212,6 +197,8 @@ void GraphicsStepRenderJob::Execute(Graphics& graphics, CommandList* commandList
 	}
 
 	{
+		m_rootSignatureLayout.BindToCommandList(graphics, commandList);
+
 		const auto& commandListBindables = stepBindableContainer.GetCommandListBindables();
 
 		for (auto& pCommandListBindable : commandListBindables)

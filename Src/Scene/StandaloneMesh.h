@@ -54,4 +54,5 @@ protected:
 	std::shared_ptr<GraphicsPipelineState> m_pipelineState;
 	std::shared_ptr<RootSignature> m_rootSignature;
 	ObjectRasterizerStateOptions m_rasterizerOptions = {};
+	RootSignatureLayout m_rootSignatureLayout = {};
 };

@@ -3,20 +3,17 @@
 #include "Includes/DirectXIncludes.h"
 #include "Includes/WRLNoWarnings.h"
 #include "Graphics/Data/DynamicConstantBuffer.h"
-#include "Binding.h"
 
 #include "Graphics/Core/ConstantBufferHeap.h"
+#include "Bindable.h"
 
 class Graphics;
 class CommandList;
 
-class BufferBase : public Bindable, public RootParameterBinding
+class BufferBase : public Bindable, public RootSignatureBindable
 {
 protected:
 	BufferBase(Graphics& graphics, const DynamicConstantBuffer::Layout& layout, ResourceTargets targets = { {ShaderVisibilityGraphic::PixelShader, 0} });
-
-protected:
-	bool m_initializedRootIndex = false;
 };
 
 class Buffer : public BufferBase, public DescriptorBindable
@@ -33,9 +30,9 @@ public:
 
 	virtual DescriptorType GetDescriptorType() const override;
 
-	virtual void BindToCommandList(Graphics& graphics, CommandList* commandList, TargetSlotAndShader& target) override;
+	virtual void AddGraphicsRootSignatureParam(RootSignatureParams* rootSignatureParams) override;
 
-	virtual void BindToRootSignature(RootSignatureParams* rootSignatureParams, TargetSlotAndShader& target) override;
+	virtual void BindToCommandListAsRootParam(Graphics& graphics, CommandList* commandList, const RootBinding& binding) override;
 
 	void Update(Graphics& graphics, void* data, size_t size);
 
@@ -59,16 +56,13 @@ public:
 	ConstantBuffer(Graphics& graphics, const DynamicConstantBuffer::Layout& layout, ResourceTargets = { {ShaderVisibilityGraphic::PixelShader, 0} });
 
 public:
-	virtual void BindToCommandList(Graphics& graphics, CommandList* commandList, TargetSlotAndShader& target) override;
+	virtual void AddGraphicsRootSignatureParam(RootSignatureParams* rootSignatureParams) override;
 
-	virtual void BindToRootSignature(RootSignatureParams* rootSignatureParams, TargetSlotAndShader& target) override;
+	virtual void BindToCommandListAsRootParam(Graphics& graphics, CommandList* commandList, const RootBinding& binding) override;
 
 	virtual BindableType GetBindableType() const override;
 
 	virtual RootSignatureBindableType GetRootSignatureBindableType() const override;
-
-protected:
-	bool m_initializedRootIndex = false;
 };
 
 
@@ -126,10 +120,6 @@ public:
 	TempConstantBuffer(const CachedConstantBuffer&) = delete;
 
 	void Update(Graphics& graphics);
-
-	virtual void BindToCommandList(Graphics& graphics, CommandList* commandList, TargetSlotAndShader& target) override;
-
-	virtual void AddComputeRootSignatureParam(RootSignatureParams* rootSignatureParams, TargetSlotAndShader& target) override;
 
 	virtual D3D12_GPU_VIRTUAL_ADDRESS GetGPUAddress(Graphics& graphics) const override;
 

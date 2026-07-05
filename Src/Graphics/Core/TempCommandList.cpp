@@ -69,7 +69,7 @@ void TempComputeCommandList::Finish(Graphics& graphics)
 		RootSignatureParams rootParams = {};
 
 		for (auto rootSignatureBindable : m_bindableContainer.GetRootSignatureBindables())
-			rootSignatureBindable->BindToRootSignature(&rootParams);
+			rootSignatureBindable->AddGraphicsRootSignatureParam(&rootParams);
 
 		m_rootSignature = RootSignature::GetResource(graphics, std::move(rootParams));
 	}
@@ -167,7 +167,7 @@ void TempGraphicsCommandList::Finish(Graphics& graphics)
 		RootSignatureParams rootParams = {};
 
 		for (auto rootSignatureBindable : m_bindableContainer.GetRootSignatureBindables())
-			rootSignatureBindable->BindToRootSignature(&rootParams);
+			rootSignatureBindable->AddGraphicsRootSignatureParam(&rootParams);
 
 		m_rootSignature = RootSignature::GetResource(graphics, std::move(rootParams));
 	}

@@ -16,9 +16,10 @@ void StandaloneMesh::Initialize(Graphics& graphics, Pipeline& pipeline)
 				descriptorBindable->Initialize(graphics);
 
 			for (auto& rootSignatureBindable : m_bindableContainer.GetRootSignatureBindables())
-				rootSignatureBindable->BindToRootSignature(&rootParams);
+				rootSignatureBindable->AddGraphicsRootSignatureParam(&rootParams);
 		}
 
+		m_rootSignatureLayout = rootParams.GetLayout();
 		m_rootSignature = RootSignature::GetResource(graphics, std::move(rootParams));
 	}
 
@@ -78,6 +79,8 @@ void StandaloneMesh::Draw(Graphics& graphics, CommandList* commandList) const
 	commandList->SetGraphicsRootSignature(graphics, m_rootSignature.get());
 
 	{
+		m_rootSignatureLayout.BindToCommandList(graphics, commandList);
+
 		const auto& commandListBindables = m_bindableContainer.GetCommandListBindables();
 
 		for (auto& pCommandListBindable : commandListBindables)

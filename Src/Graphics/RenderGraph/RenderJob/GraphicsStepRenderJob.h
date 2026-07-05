@@ -3,7 +3,7 @@
 #include "Graphics/Core/BindableContainer.h"
 #include "Graphics/Core/PipelineState.h"
 #include "Graphics/RenderGraph/RenderJob/GraphicsRenderData.h"
-#include "Graphics/Bindables/MaterialBindings.h"
+#include "Graphics/Core/RootSignatureLayout.h"
 
 class RenderGraphicsStep;
 class Material;
@@ -29,8 +29,6 @@ public:
 	RenderGraphicsStep* GetStep() const;
 
 private:
-	void InitializeMaterialBindings();
-
 	RasterizerState* BuildAndGetRasterizerState(Graphics& graphics, Material* material);
 
 	void BuildRootSignature(Graphics& graphics, Material* material);
@@ -42,7 +40,7 @@ protected:
 	
 	std::shared_ptr<GraphicsPipelineState> m_pipelineState;
 
-	std::shared_ptr<MaterialBindings> m_materialBindings;
+	RootSignatureLayout m_rootSignatureLayout = {};
 
 	BindableContainerRevision m_stepLastRevision;
 	BindableContainerRevision m_materialLastRevision;

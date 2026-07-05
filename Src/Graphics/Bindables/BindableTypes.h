@@ -25,8 +25,6 @@ enum class BindableType
 	bindable_vertexBuffer,
 	bindable_vertexBufferEntry,
 	bindable_viewPort,
-	bindable_rootSignatureWrapper,
 	bindable_rootSignatureConstants,
-	bindable_descriptorHeapBindable,
-	bindable_materialBindings
+	bindable_descriptorHeapBindable
 };

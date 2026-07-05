@@ -44,7 +44,8 @@
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
-    <EnableASAN>false</EnableASAN>
+    <EnableASAN>true</EnableASAN>
+    <EnableFuzzer>false</EnableFuzzer>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -173,6 +174,7 @@
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Src\Graphics\Core\RootSignatureLayout.cpp" />
     <ClCompile Include="Src\Graphics\Core\GraphicsBufferAllocatorManager.cpp" />
     <ClCompile Include="Src\Graphics\Resources\GraphicsBufferSuballocator.cpp" />
     <ClCompile Include="Src\Graphics\RenderGraph\RenderPass\Geometry\OccludedDebugPass.cpp" />
@@ -183,8 +185,6 @@
     <ClCompile Include="Src\Graphics\Profiler\CPUProfiler.cpp" />
     <ClCompile Include="Src\Graphics\Profiler\GPUProfiler.cpp" />
     <ClCompile Include="Src\Graphics\Profiler\Profiler.cpp" />
-    <ClCompile Include="Src\Graphics\Bindables\Binding.cpp" />
-    <ClCompile Include="Src\Graphics\Bindables\RootSignatureBindableWrapper.cpp" />
     <ClCompile Include="Src\Graphics\Bindables\RootSignatureConstants.cpp" />
     <ClCompile Include="Src\Graphics\RenderGraph\RenderPass\Geometry\ShadowPass.cpp" />
     <ClCompile Include="Src\Graphics\RenderGraph\RenderPass\Geometry\EmissivePass.cpp" />
@@ -268,6 +268,7 @@
     <ClCompile Include="Src\Graphics\RenderGraph\RenderPass\Geometry\VisibleDebugPass.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Src\Graphics\Core\RootSignatureLayout.h" />
     <ClInclude Include="Src\Graphics\Core\GraphicsBufferAllocatorManager.h" />
     <ClInclude Include="Src\Graphics\Resources\GraphicsBufferSuballocator.h" />
     <ClInclude Include="Src\Graphics\RenderGraph\RenderPass\Geometry\OccludedDebugPass.h" />
@@ -281,8 +282,6 @@
     <ClInclude Include="Src\Graphics\Profiler\CPUProfiler.h" />
     <ClInclude Include="Src\Graphics\Profiler\GPUProfiler.h" />
     <ClInclude Include="Src\Graphics\Profiler\Profiler.h" />
-    <ClInclude Include="Src\Graphics\Bindables\Binding.h" />
-    <ClInclude Include="Src\Graphics\Bindables\RootSignatureBindableWrapper.h" />
     <ClInclude Include="Src\Graphics\Bindables\RootSignatureConstants.h" />
     <ClInclude Include="Src\Graphics\RenderGraph\RenderPass\Geometry\ShadowPass.h" />
     <ClInclude Include="Src\Graphics\RenderGraph\RenderPass\Geometry\EmissivePass.h" />

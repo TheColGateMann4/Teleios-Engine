@@ -37,8 +37,6 @@ public:
 	BindableContainer& operator=(BindableContainer&& other) noexcept = default;
 	BindableContainer& operator=(const BindableContainer& other) = default;
 
-	BindableContainer& operator+=(const BindableContainer& other);
-
 	virtual ~BindableContainer() = default;
 	
 public:
@@ -94,9 +92,6 @@ protected:
 class MeshBindableContainer : public BindableContainer
 {
 public:
-	MeshBindableContainer& operator+=(const MeshBindableContainer& other);
-
-public:
 	virtual void Initialize(Graphics& graphics, Pipeline& pipeline) override;
 
 public:
@@ -129,9 +124,6 @@ private:
 
 class ComputeBindableContainer : public BindableContainer
 {
-public:
-	ComputeBindableContainer& operator+=(const ComputeBindableContainer& other);
-
 public:
 	const Shader* GetShader() const;
 
