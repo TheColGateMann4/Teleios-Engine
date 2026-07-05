@@ -49,8 +49,8 @@ private:
 	struct FreedChunkInfo
 	{
 		BufferChunkInfo chunk;
-		size_t fenceValue;
-		unsigned int frameIndex;
+		size_t fenceValue = 0;
+		unsigned int frameIndex = 0;
 		bool initialized = false;
 	};
 

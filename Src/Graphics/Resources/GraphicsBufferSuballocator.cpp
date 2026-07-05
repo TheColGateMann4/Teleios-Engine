@@ -66,7 +66,7 @@ std::shared_ptr<BufferAllocatorChunk> GraphicsBufferSuballocator::Push(Graphics&
 	m_usedChunks.push_back(chunk);
 
 	if(m_buffer && m_usedSpace <= m_buffer->GetByteSize())
-		m_buffer->Update(graphics, data, size);
+		m_buffer->Update(graphics, data, size, chunk.offset);
 	else
 	{
 		auto uploadBuffer = std::make_unique<GraphicsBuffer>(graphics, size / stride, stride, GraphicsResource::CPUAccess::write);
@@ -83,17 +83,51 @@ void GraphicsBufferSuballocator::Free(BufferAllocatorChunk* chunkInfo)
 	THROW_INTERNAL_ERROR_IF("Passed graphics buffers allocator was NULL", chunkInfo == nullptr);
 	THROW_INTERNAL_ERROR_IF("Tried to use chunk from different graphics buffer allocator", chunkInfo->allocator != this);
 
-	auto found = std::find_if(m_usedChunks.begin(), m_usedChunks.end(), 
-		[chunkInfo](const BufferChunkInfo& c)
+	// erasing free chunk
+	{
+		auto found = std::find_if(m_usedChunks.begin(), m_usedChunks.end(),
+			[chunkInfo](const BufferChunkInfo& c)
+			{
+				return c.offset == chunkInfo->byteOffset && c.size == chunkInfo->size;
+			}
+		);
+
+		THROW_INTERNAL_ERROR_IF("Could not find chunk to free", found == m_usedChunks.end());
+
+		m_usedChunks.erase(found);
+	}
+
+	// insert into sorted list to avoid per-frame sorting
+	{
+		auto chunk = FreedChunkInfo(BufferChunkInfo(chunkInfo->byteOffset, chunkInfo->size));
+
+		auto it = std::lower_bound(m_freeChunks.begin(), m_freeChunks.end(), chunk,
+			[](const FreedChunkInfo& a, const FreedChunkInfo& b)
+			{
+				return a.chunk.offset < b.chunk.offset;
+			});
+
+		// try merge with previous one
+		if (it != m_freeChunks.end())
 		{
-			return c.offset == chunkInfo->byteOffset && c.size == chunkInfo->size;
+			if (chunk.chunk.offset + chunk.chunk.size == it->chunk.offset)
+			{
+				chunk.chunk.size += it->chunk.size;
+				it = m_freeChunks.erase(it);
+			}
 		}
-	);
 
-	THROW_INTERNAL_ERROR_IF("Could not find chunk to free", found == m_usedChunks.end());
-
-	m_freeChunks.push_back(FreedChunkInfo(BufferChunkInfo(chunkInfo->byteOffset, chunkInfo->size)));
-	m_usedChunks.erase(found);
+		// try merge with next entry
+		if (it != m_freeChunks.begin() &&
+			std::prev(it)->chunk.offset + std::prev(it)->chunk.size == chunk.chunk.offset)
+		{
+			std::prev(it)->chunk.size += chunk.chunk.size;
+		}
+		else
+		{
+			m_freeChunks.insert(it, chunk);
+		}
+	}
 }
 
 void GraphicsBufferSuballocator::Update(Graphics& graphics)
@@ -132,9 +166,6 @@ void GraphicsBufferSuballocator::Update(Graphics& graphics)
 
 	for (auto& uploadBuffer : m_pendingUploadBuffers)
 	{
-		if (uploadBuffer.offset == 2962332 && uploadBuffer.buffer->GetByteSize() == 671424)
-			std::cout << "a";
-
 		pipeline.AddBufferRegionToCopyPipeline(DestinationBufferRegionCopyData{ m_buffer.get(), uploadBuffer.offset }, SourceBufferRegionCopyData{ uploadBuffer.buffer.get(), 0, uploadBuffer.buffer->GetByteSize() });
 
 		graphics.GetFrameResourceDeleter()->DeleteResource(graphics, std::move(uploadBuffer));
@@ -200,7 +231,7 @@ std::optional<std::vector<GraphicsBufferSuballocator::FreedChunkInfo>::iterator>
 
 	for (auto it = m_freeChunks.begin(); it != m_freeChunks.end(); ++it)
 	{
-		if (!it->initialized || it->chunk.size < size || fenceValues.at(it->frameIndex) <= it->frameIndex)
+		if (!it->initialized || it->chunk.size < size || fenceValues.at(it->frameIndex) <= it->fenceValue)
 			continue;
 
 		if (found == m_freeChunks.end() || it->chunk.size < found->chunk.size)

@@ -1,5 +1,6 @@
 #pragma once
 #include "Includes/CppIncludes.h"
+#include "Graphics/Core/Graphics.h"
 
 class ResourceList
 {
@@ -31,6 +32,24 @@ public:
 			iterator->second = std::make_shared<T>(std::forward<Params>(creationParams)...);
 
 		return std::static_pointer_cast<T>(iterator->second);
+	}
+
+	static void ClearUnusedResources(Graphics& graphics)
+	{
+		auto& map = GetMap();
+
+		for (auto it = map.begin(); it != map.end(); )
+		{
+			if (it->second.use_count() == 1)
+			{
+				graphics.GetFrameResourceDeleter()->DeleteResource(graphics, std::move(it->second));
+				it = map.erase(it);
+			}
+			else
+			{
+				it++;
+			}
+		}
 	}
 
 private:
