@@ -148,8 +148,6 @@ void GraphicsStepRenderJob::InitializeGraphicResources(Graphics& graphics, Pipel
 
 	THROW_INTERNAL_ERROR_IF("None vertex buffer was bound", !attributeVertexEntry && !positionVertexEntry);
 	THROW_INTERNAL_ERROR_IF("Index buffer hasn't been bound", !indexBuffer);
-
-	m_step->Initialize(graphics, pipeline);
 }
 
 bool GraphicsStepRenderJob::IsValid(RenderPass* pass, Scene& scene) const
@@ -172,6 +170,7 @@ void GraphicsStepRenderJob::Execute(Graphics& graphics, CommandList* commandList
 	commandList->SetGraphicsRootSignature(graphics, m_rootSignature.get());
 
 	const auto& stepBindableContainer = m_step->GetBindableContainer();
+	const Material* material = m_step->GetMaterial();
 
 	std::shared_ptr<IndexBufferEntry> indexBufferEntry = stepBindableContainer.GetIndexBufferEntry();
 	std::shared_ptr<VertexBufferEntry> vertexBufferEntry;
@@ -199,10 +198,16 @@ void GraphicsStepRenderJob::Execute(Graphics& graphics, CommandList* commandList
 	{
 		m_rootSignatureLayout.BindToCommandList(graphics, commandList);
 
-		const auto& commandListBindables = stepBindableContainer.GetCommandListBindables();
-
-		for (auto& pCommandListBindable : commandListBindables)
+		for (auto& pCommandListBindable : stepBindableContainer.GetCommandListBindables())
 			pCommandListBindable->BindToCommandList(graphics, commandList);
+
+		if(m_pass)
+			for (auto& pCommandListBindable : m_pass->GetBindableContainer().GetCommandListBindables())
+				pCommandListBindable->BindToCommandList(graphics, commandList);
+
+		if(material)
+			for (auto& pCommandListBindable : material->GetBindableContainer().GetCommandListBindables())
+				pCommandListBindable->BindToCommandList(graphics, commandList);
 
 		vertexBufferEntry->BindToCommandList(graphics, commandList);
 		indexBufferEntry->BindToCommandList(graphics, commandList);

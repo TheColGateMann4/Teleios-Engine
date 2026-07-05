@@ -5,7 +5,7 @@
 
 RootSignatureConstants::RootSignatureConstants(DynamicConstantBuffer::Data& data, ResourceTargets targets)
 	:
-	RootSignatureBindable(targets),
+	RootSignatureBindable(std::move(targets)),
 	m_data(std::move(data))
 {
 

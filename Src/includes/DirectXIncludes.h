@@ -3,8 +3,6 @@
 #include <DirectXMath.h>
 #include <dxgi1_6.h>
 
-#include "CppIncludes.h"
-
 #define USED_SHADER_MODEL L"6_8"
 
 //	//DirectXTex

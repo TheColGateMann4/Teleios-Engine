@@ -7,7 +7,7 @@
 
 BufferBase::BufferBase(Graphics& graphics, const DynamicConstantBuffer::Layout& layout, ResourceTargets targets)
 	:
-	RootSignatureBindable(targets)
+	RootSignatureBindable(std::move(targets))
 {
 
 }

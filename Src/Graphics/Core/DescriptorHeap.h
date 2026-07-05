@@ -1,6 +1,7 @@
 #pragma once
-#include "Includes/WRLNoWarnings.h"
+#include "Includes/CppIncludes.h"
 #include "Includes/DirectXIncludes.h"
+#include "Includes/WRLNoWarnings.h"
 
 class Graphics;
 

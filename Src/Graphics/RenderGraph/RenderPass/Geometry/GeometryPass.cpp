@@ -121,7 +121,7 @@ void GeometryPass::ExecutePass(Graphics& graphics, CommandList* commandList, Sce
 
 	for (auto& job : m_jobs)
 		if(job->IsValid(this, scene))
-		job->Execute(graphics, commandList);
+			job->Execute(graphics, commandList);
 
 	commandList->EndRenderPass(graphics);
 }

@@ -115,6 +115,11 @@ void RenderGraphicsStep::Update()
 	m_bindableContainer.Update();
 }
 
+MaterialBindings* RenderGraphicsStep::GetMaterialBindings()
+{
+	return m_materialBindings.get();
+}
+
 void RenderGraphicsStep::InitializeMaterialBindings()
 {
 	const auto& textureContainer = m_material ? m_material->GetBindableContainer() : GetBindableContainer();

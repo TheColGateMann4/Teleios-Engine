@@ -57,6 +57,8 @@ public: // bindable container functions
 
 	virtual void Update() override;
 
+	MaterialBindings* GetMaterialBindings();
+
 private:
 	void InitializeMaterialBindings();
 

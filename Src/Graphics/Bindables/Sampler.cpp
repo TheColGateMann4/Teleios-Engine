@@ -5,7 +5,7 @@
 
 StaticSampler::StaticSampler(Graphics& graphics, D3D12_FILTER filter, D3D12_TEXTURE_ADDRESS_MODE overlappingMode, ResourceTargets targets)
 	: 
-	RootSignatureBindable(targets)
+	RootSignatureBindable(std::move(targets))
 {
 	m_staticSamplerDesc.Filter = filter;
 	m_staticSamplerDesc.AddressU = overlappingMode;
