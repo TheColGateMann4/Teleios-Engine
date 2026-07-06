@@ -116,4 +116,6 @@ void Sphere::UpdateMesh(Graphics& graphics, Pipeline& pipeline)
 	albedoStep.SetIndexBufferEntry(IndexBufferEntry::GetResource(graphics, meshIndexBufferID, std::move(indices)));
 
 	albedoStep.SetBoundingBox(BoundingBox(m_diameter / 2.0f));
+
+	UpdateBoundingBox();
 }

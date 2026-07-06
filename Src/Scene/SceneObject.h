@@ -37,7 +37,7 @@ public:
 
 	void UpdateLocalTransformIfNeeded();
 
-private:
+protected:
 	void UpdateBoundingBox();
 
 	virtual void Initialize(Graphics& graphics, Pipeline& pipeline);
