@@ -207,12 +207,7 @@ Camera::Camera(Graphics& graphics, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3
 			DynamicVertex::DynamicVertexLayout vertexLayout;
 			vertexLayout.AddElement<DynamicVertex::ElementType::Position>();
 
-			std::vector<DirectX::XMFLOAT3> vertexBuffer = GetVertexBuffer(m_settings);
-			std::vector<unsigned short> indexBuffer = GetIndexBuffer();
-
-			step.SetPositionBufferEntry(VertexBufferEntry::GetResource(graphics, GetVertexBufferIdentifier(m_settings), vertexBuffer.data(), vertexLayout, vertexBuffer.size()));
-			step.SetIndexBufferEntry(IndexBufferEntry::GetResource(graphics, "CameraFrustum", std::move(indexBuffer)));
-			step.SetBoundingBox(::GetBoundingBox(m_settings));
+			UpdateMeshData(graphics, step);
 
 			step.AddBindable(Shader::GetResource(graphics, L"PS_Solid", ShaderType::PixelShader));
 			step.AddBindable(Shader::GetResource(graphics, L"VS", ShaderType::VertexShader));
@@ -241,12 +236,7 @@ Camera::Camera(Graphics& graphics, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3
 			DynamicVertex::DynamicVertexLayout vertexLayout;
 			vertexLayout.AddElement<DynamicVertex::ElementType::Position>();
 
-			std::vector<DirectX::XMFLOAT3> vertexBuffer = GetVertexBuffer(m_settings);
-			std::vector<unsigned short> indexBuffer = GetIndexBuffer();
-
-			step.SetPositionBufferEntry(VertexBufferEntry::GetResource(graphics, GetVertexBufferIdentifier(m_settings), vertexBuffer.data(), vertexLayout, vertexBuffer.size()));
-			step.SetIndexBufferEntry(IndexBufferEntry::GetResource(graphics, "CameraFrustum", std::move(indexBuffer)));
-			step.SetBoundingBox(::GetBoundingBox(m_settings));
+			UpdateMeshData(graphics, step);
 
 			step.AddBindable(Shader::GetResource(graphics, L"PS_Solid", ShaderType::PixelShader));
 			step.AddBindable(Shader::GetResource(graphics, L"VS", ShaderType::VertexShader));
@@ -398,7 +388,13 @@ void Camera::DrawAdditionalPropeties(Graphics& graphics, Pipeline& pipeline)
 	checkChanged(changed, ImGui::SliderFloat("FarZ", &m_settings.FarZ, m_settings.NearZ + 0.01f, 800.0f));
 
 	if (changed)
+	{
 		UpdatePerspectiveMatrix();
+
+		for (auto& technique : m_meshes.front().GetTechniques())
+			UpdateMeshData(graphics, technique.GetStep(0));
+	}
+
 }
 
 const Frustum& Camera::GetFrustum() const
@@ -495,6 +491,19 @@ void Camera::SetFrustumViewActive(bool active)
 			for (auto& step : technique.GetSteps())
 				step.SetEnabled(active);
 	}
+}
+
+void Camera::UpdateMeshData(Graphics& graphics, RenderGraphicsStep& step)
+{
+	DynamicVertex::DynamicVertexLayout vertexLayout;
+	vertexLayout.AddElement<DynamicVertex::ElementType::Position>();
+
+	std::vector<DirectX::XMFLOAT3> vertexBuffer = GetVertexBuffer(m_settings);
+	std::vector<unsigned short> indexBuffer = GetIndexBuffer();
+
+	step.SetPositionBufferEntry(VertexBufferEntry::GetResource(graphics, GetVertexBufferIdentifier(m_settings), vertexBuffer.data(), vertexLayout, vertexBuffer.size()));
+	step.SetIndexBufferEntry(IndexBufferEntry::GetResource(graphics, "CameraFrustum", std::move(indexBuffer)));
+	step.SetBoundingBox(::GetBoundingBox(m_settings));
 }
 
 ShadowCamera::ShadowCamera(Graphics& graphics, DirectX::XMFLOAT3 position)
