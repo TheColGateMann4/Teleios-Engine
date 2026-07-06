@@ -201,15 +201,27 @@ std::optional<GraphicsBufferSuballocator::BufferChunkInfo> GraphicsBufferSuballo
 	if (!found)
 		return std::nullopt;
 
-	FreedChunkInfo result = **found;
+	BufferChunkInfo result = (*found)->chunk;
+	result.size = size;
 
-	size_t remainingChunkSpace = result.chunk.size - size;
-	if (remainingChunkSpace == 0)
-		m_freeChunks.erase(*found);
-	else
-		(*found)->chunk.size = remainingChunkSpace;
+	FreedChunkInfo remaining = **found;
+	remaining.chunk.offset += size;
+	remaining.chunk.size -= size;
 
-	return result.chunk;
+	m_freeChunks.erase(*found);
+
+	if (remaining.chunk.size != 0)
+	{
+		auto it = std::lower_bound(m_freeChunks.begin(), m_freeChunks.end(), remaining,
+			[](const FreedChunkInfo& a, const FreedChunkInfo& b)
+			{
+				return a.chunk.offset < b.chunk.offset;
+			});
+
+		m_freeChunks.insert(it, remaining);
+	}
+
+	return result;
 }
 
 GraphicsBufferSuballocator::BufferChunkInfo GraphicsBufferSuballocator::PushToEnd(size_t size)
