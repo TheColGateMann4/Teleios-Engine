@@ -153,6 +153,7 @@
       <AdditionalLibraryDirectories>
       </AdditionalLibraryDirectories>
       <AdditionalDependencies>d3d12.lib;dxgi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ProgramDatabaseFile>$(OutDir)Bin\vc$(PlatformToolsetVersion).pdb</ProgramDatabaseFile>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -192,6 +193,7 @@
       </AdditionalLibraryDirectories>
       <AdditionalDependencies>d3d12.lib;
 dxgi.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <ProgramDatabaseFile>$(OutDir)Bin\vc$(PlatformToolsetVersion).pdb</ProgramDatabaseFile>
     </Link>
     <FxCompile>
       <ShaderModel>5.1</ShaderModel>
