@@ -98,6 +98,8 @@ private:
 
 	void SetFrustumViewActive(bool active);
 
+	void UpdateMeshData(Graphics& graphics, RenderGraphicsStep& step);
+
 private:
 	Frustum m_frustum;
 	float m_pitch = 0.0f;
