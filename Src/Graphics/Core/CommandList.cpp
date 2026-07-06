@@ -393,15 +393,15 @@ void CommandList::SetGraphicsRootSignature(Graphics& graphics, RootSignature* ro
 	THROW_INFO_ERROR(pCommandList->SetGraphicsRootSignature(rootSignature->Get()));
 }
 
-void CommandList::SetGraphicsConstBufferView(Graphics& graphics, ConstantBuffer* constBuffer, TargetSlotAndShader target)
+void CommandList::SetGraphicsConstBufferView(Graphics& graphics, ConstantBuffer* constBuffer, const RootBinding& binding)
 {
 	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
 	THROW_OBJECT_STATE_ERROR_IF("Only Direct and Bundle command lists can set graphics constant buffers", m_type != D3D12_COMMAND_LIST_TYPE_DIRECT && m_type != D3D12_COMMAND_LIST_TYPE_BUNDLE);
 
-	if (!m_state.SetRootSignatureParam(target.rootIndex, constBuffer))
+	if (!m_state.SetRootSignatureParam(binding.rootIndex, constBuffer))
 		return;
 
-	THROW_INFO_ERROR(pCommandList->SetGraphicsRootConstantBufferView(target.rootIndex, constBuffer->GetGPUAddress(graphics)));
+	THROW_INFO_ERROR(pCommandList->SetGraphicsRootConstantBufferView(binding.rootIndex, constBuffer->GetGPUAddress(graphics)));
 }
 
 void CommandList::SetDescriptorHeap(Graphics& graphics, DescriptorHeap* descriptorHeap)
@@ -414,48 +414,59 @@ void CommandList::SetDescriptorHeap(Graphics& graphics, DescriptorHeap* descript
 	THROW_INFO_ERROR(pCommandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps));
 }
 
-void CommandList::SetGraphicsDescriptor(Graphics& graphics, Buffer* buffer, TargetSlotAndShader& target)
+void CommandList::SetGraphicsDescriptor(Graphics& graphics, Buffer* buffer, const RootBinding& binding)
 {
 	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
 	THROW_OBJECT_STATE_ERROR_IF("Only Direct and Bundle command lists can set graphics Descriptor Tables", m_type != D3D12_COMMAND_LIST_TYPE_DIRECT && m_type != D3D12_COMMAND_LIST_TYPE_BUNDLE);
 
-	if (!m_state.SetRootSignatureParam(target.rootIndex, buffer))
+	if (!m_state.SetRootSignatureParam(binding.rootIndex, buffer))
 		return;
 
-	THROW_INFO_ERROR(pCommandList->SetGraphicsRootShaderResourceView(target.rootIndex, buffer->GetGPUAddress(graphics)));
+	THROW_INFO_ERROR(pCommandList->SetGraphicsRootShaderResourceView(binding.rootIndex, buffer->GetGPUAddress(graphics)));
 }
 
-void CommandList::SetGraphicsDescriptorTable(Graphics& graphics, DescriptorHeapBindable* descriptorHeapBindable, TargetSlotAndShader& target)
+void CommandList::SetGraphicsDescriptorTable(Graphics& graphics, DescriptorHeapBindable* descriptorHeapBindable, const RootBinding& binding)
 {
 	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
 	THROW_OBJECT_STATE_ERROR_IF("Only Direct and Bundle command lists can set graphics Descriptor Tables", m_type != D3D12_COMMAND_LIST_TYPE_DIRECT && m_type != D3D12_COMMAND_LIST_TYPE_BUNDLE);
 
-	if (!m_state.SetRootSignatureParam(target.rootIndex, descriptorHeapBindable))
+	if (!m_state.SetRootSignatureParam(binding.rootIndex, descriptorHeapBindable))
 		return;
 
-	THROW_INFO_ERROR(pCommandList->SetGraphicsRootDescriptorTable(target.rootIndex, descriptorHeapBindable->GetDescriptorHeapGPUHandle()));
+	THROW_INFO_ERROR(pCommandList->SetGraphicsRootDescriptorTable(binding.rootIndex, descriptorHeapBindable->GetDescriptorHeapGPUHandle(graphics)));
 }
 
-void CommandList::SetGraphicsDescriptorTable(Graphics& graphics, ShaderResourceViewBase* srv, TargetSlotAndShader target)
+void CommandList::SetGraphicsDescriptorTable(Graphics& graphics, ShaderResourceViewBase* srv, const RootBinding& binding)
 {
 	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
 	THROW_OBJECT_STATE_ERROR_IF("Only Direct and Bundle command lists can set graphics Descriptor Tables", m_type != D3D12_COMMAND_LIST_TYPE_DIRECT && m_type != D3D12_COMMAND_LIST_TYPE_BUNDLE);
 
-	if (!m_state.SetRootSignatureParam(target.rootIndex, srv))
+	if (!m_state.SetRootSignatureParam(binding.rootIndex, srv))
 		return;
 
-	THROW_INFO_ERROR(pCommandList->SetGraphicsRootDescriptorTable(target.rootIndex, srv->GetDescriptorHeapGPUHandle(graphics)));
+	THROW_INFO_ERROR(pCommandList->SetGraphicsRootDescriptorTable(binding.rootIndex, srv->GetDescriptorHeapGPUHandle(graphics)));
 }
 
-void CommandList::SetRootConstants(Graphics& graphics, RootSignatureConstants* constants, TargetSlotAndShader target)
+void CommandList::SetGraphicsDescriptorTable(Graphics& graphics, UnorderedAccessView* uav, const RootBinding& binding)
+{
+	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
+	THROW_OBJECT_STATE_ERROR_IF("Only Direct and Bundle command lists can set graphics Descriptor Tables", m_type != D3D12_COMMAND_LIST_TYPE_DIRECT && m_type != D3D12_COMMAND_LIST_TYPE_BUNDLE);
+
+	if (!m_state.SetRootSignatureParam(binding.rootIndex, uav))
+		return;
+
+	THROW_INFO_ERROR(pCommandList->SetGraphicsRootDescriptorTable(binding.rootIndex, uav->GetDescriptorHeapGPUHandle(graphics)));
+}
+
+void CommandList::SetRootConstants(Graphics& graphics, RootSignatureConstants* constants, const RootBinding& binding)
 {
 	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
 	THROW_OBJECT_STATE_ERROR_IF("Only Direct and Bundle command lists can set graphics constant buffers", m_type != D3D12_COMMAND_LIST_TYPE_DIRECT && m_type != D3D12_COMMAND_LIST_TYPE_BUNDLE);
 
-	if (!m_state.SetRootSignatureParam(target.rootIndex, constants) && !constants->IsUpdated())
+	if (!m_state.SetRootSignatureParam(binding.rootIndex, constants) && !constants->IsUpdated())
 		return;
 
-	THROW_INFO_ERROR(pCommandList->SetGraphicsRoot32BitConstants(target.rootIndex, constants->GetNumValues(), constants->GetDataPtr(), 0));
+	THROW_INFO_ERROR(pCommandList->SetGraphicsRoot32BitConstants(binding.rootIndex, constants->GetNumValues(), constants->GetDataPtr(), 0));
 }
 
 void CommandList::ExecuteBundle(Graphics& graphics, CommandList* commandList)
@@ -514,52 +525,52 @@ void CommandList::SetComputeRootSignature(Graphics& graphics, RootSignature* roo
 	THROW_INFO_ERROR(pCommandList->SetComputeRootSignature(rootSignature->Get()));
 }
 
-void CommandList::SetComputeConstBufferView(Graphics& graphics, ConstantBuffer* constBuffer, TargetSlotAndShader target)
+void CommandList::SetComputeConstBufferView(Graphics& graphics, ConstantBuffer* constBuffer, const RootBinding& binding)
 {
 	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
 	THROW_OBJECT_STATE_ERROR_IF("Only Compute and Direct command lists can set compute constant buffer view", m_type != D3D12_COMMAND_LIST_TYPE_COMPUTE && m_type != D3D12_COMMAND_LIST_TYPE_DIRECT);
 
-	THROW_INFO_ERROR(pCommandList->SetComputeRootConstantBufferView(target.rootIndex, constBuffer->GetGPUAddress(graphics)));
+	THROW_INFO_ERROR(pCommandList->SetComputeRootConstantBufferView(binding.rootIndex, constBuffer->GetGPUAddress(graphics)));
 }
 
-void CommandList::SetComputeDescriptorTable(Graphics& graphics, ShaderResourceViewBase* srv, TargetSlotAndShader target)
+void CommandList::SetComputeDescriptorTable(Graphics& graphics, ShaderResourceViewBase* srv, const RootBinding& binding)
 {
 	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
 	THROW_OBJECT_STATE_ERROR_IF("Only Compute and Direct command lists can set compute descriptor table", m_type != D3D12_COMMAND_LIST_TYPE_COMPUTE && m_type != D3D12_COMMAND_LIST_TYPE_DIRECT);
 
-	THROW_INFO_ERROR(pCommandList->SetComputeRootDescriptorTable(target.rootIndex, srv->GetDescriptorHeapGPUHandle(graphics)));
+	THROW_INFO_ERROR(pCommandList->SetComputeRootDescriptorTable(binding.rootIndex, srv->GetDescriptorHeapGPUHandle(graphics)));
 }
 
-void CommandList::SetComputeDescriptorTable(Graphics& graphics, UnorderedAccessView* uav, TargetSlotAndShader target)
+void CommandList::SetComputeDescriptorTable(Graphics& graphics, UnorderedAccessView* uav, const RootBinding& binding)
 {
 	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
 	THROW_OBJECT_STATE_ERROR_IF("Only Compute and Direct command lists can set compute descriptor table", m_type != D3D12_COMMAND_LIST_TYPE_COMPUTE && m_type != D3D12_COMMAND_LIST_TYPE_DIRECT);
 
-	THROW_INFO_ERROR(pCommandList->SetComputeRootDescriptorTable(target.rootIndex, uav->GetDescriptorHeapGPUHandle(graphics)));
+	THROW_INFO_ERROR(pCommandList->SetComputeRootDescriptorTable(binding.rootIndex, uav->GetDescriptorHeapGPUHandle(graphics)));
 }
 
-void CommandList::SetComputeRootShaderResourceView(Graphics& graphics, ConstantBuffer* constBuffer, TargetSlotAndShader target)
+void CommandList::SetComputeRootShaderResourceView(Graphics& graphics, ConstantBuffer* constBuffer, const RootBinding& binding)
 {
 	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
 	THROW_OBJECT_STATE_ERROR_IF("Only Compute and Direct command lists can set compute shader resource view", m_type != D3D12_COMMAND_LIST_TYPE_COMPUTE && m_type != D3D12_COMMAND_LIST_TYPE_DIRECT);
 
-	THROW_INFO_ERROR(pCommandList->SetComputeRootShaderResourceView(target.rootIndex, constBuffer->GetGPUAddress(graphics)));
+	THROW_INFO_ERROR(pCommandList->SetComputeRootShaderResourceView(binding.rootIndex, constBuffer->GetGPUAddress(graphics)));
 }
 
-void CommandList::SetComputeRootUnorderedAccessView(Graphics& graphics, ConstantBuffer* constBuffer, TargetSlotAndShader target)
+void CommandList::SetComputeRootUnorderedAccessView(Graphics& graphics, ConstantBuffer* constBuffer, const RootBinding& binding)
 {
 	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
 	THROW_OBJECT_STATE_ERROR_IF("Only Compute and Direct command lists can set compute unordered access view", m_type != D3D12_COMMAND_LIST_TYPE_COMPUTE && m_type != D3D12_COMMAND_LIST_TYPE_DIRECT);
 
-	THROW_INFO_ERROR(pCommandList->SetComputeRootUnorderedAccessView(target.rootIndex, constBuffer->GetGPUAddress(graphics)));
+	THROW_INFO_ERROR(pCommandList->SetComputeRootUnorderedAccessView(binding.rootIndex, constBuffer->GetGPUAddress(graphics)));
 }
 
-void CommandList::SetComputeRootConstantBufferView(Graphics& graphics, ConstantBuffer* constBuffer, TargetSlotAndShader target)
+void CommandList::SetComputeRootConstantBufferView(Graphics& graphics, ConstantBuffer* constBuffer, const RootBinding& binding)
 {
 	THROW_OBJECT_STATE_ERROR_IF("Command list is not initialized", !m_initialized);
 	THROW_OBJECT_STATE_ERROR_IF("Only Compute and Direct command lists can set compute constant buffer view", m_type != D3D12_COMMAND_LIST_TYPE_COMPUTE && m_type != D3D12_COMMAND_LIST_TYPE_DIRECT);
 
-	THROW_INFO_ERROR(pCommandList->SetComputeRootConstantBufferView(target.rootIndex, constBuffer->GetGPUAddress(graphics)));
+	THROW_INFO_ERROR(pCommandList->SetComputeRootConstantBufferView(binding.rootIndex, constBuffer->GetGPUAddress(graphics)));
 }
 
 void CommandList::CopyBufferRegion(Graphics& graphics, ID3D12Resource* dstResource, UINT64 dstOffset, ID3D12Resource* srcResource, UINT64 srcOffset, UINT64 numBytes)

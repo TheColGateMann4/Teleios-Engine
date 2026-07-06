@@ -4,21 +4,16 @@
 #include "Scene/Objects/Camera.h"
 #include "Graphics/RenderGraph/RenderJob/GraphicsStepRenderJob.h"
 
-#include "Graphics/Bindables/VertexBuffer.h"
-#include "Graphics/Bindables/IndexBuffer.h"
-#include "Graphics/Bindables/Texture.h"
-#include "Graphics/Bindables/Shader.h"
-#include "Graphics/Bindables/DepthStencilState.h"
-#include "Graphics/Bindables/BlendState.h"
-#include "Graphics/Bindables/PrimitiveTechnology.h"
-#include "Graphics/Bindables/InputLayout.h"
-#include "Graphics/Bindables/RasterizerState.h"
-#include "Graphics/Bindables/Sampler.h"
+#include "Includes/BindablesInclude.h"
 
 #include "Scene/Material.h"
 
 void Mesh::Initialize(Graphics& graphics, Pipeline& pipeline)
 {
+	for (auto& technique : m_techniques)
+		for (auto& step : technique.GetSteps())
+			step.Initialize(graphics, pipeline);
+
 	CreateImplicitTechniques(graphics, pipeline);
 }
 
@@ -63,11 +58,11 @@ void Mesh::CreateImplicitTechniques(Graphics& graphics, Pipeline& pipeline)
 
 void Mesh::CreateDepthTechnique(Graphics& graphics, Pipeline& pipeline)
 {
-	const RenderTechnique& geometryTechnique = GetTechnique(RenderJob::JobType::GBuffer);
+	RenderTechnique& geometryTechnique = GetTechnique(RenderJob::JobType::GBuffer);
 
-	const RenderGraphicsStep& geometryStep = geometryTechnique.GetStep(0);
+	RenderGraphicsStep& geometryStep = geometryTechnique.GetStep(0);
 
-	const MeshBindableContainer& geometryBindables = geometryStep.GetBindableContainter();
+	const MeshBindableContainer& geometryBindables = geometryStep.GetBindableContainer();
 
 	bool hasOpacity = StepHasOpacity(geometryStep);
 
@@ -98,9 +93,12 @@ void Mesh::CreateDepthTechnique(Graphics& graphics, Pipeline& pipeline)
 				depthStep.AddBindable(Shader::GetResource(graphics, L"PS_Depth", ShaderType::PixelShader));
 				depthStep.AddBindable(Shader::GetResource(graphics, L"VS", ShaderType::VertexShader, { { L"INPUT_TEXCCORDS" } }));
 
-				// TODO: Handle for opacity texture
 				depthStep.AddBindable(StaticSampler::GetResource(graphics, D3D12_FILTER_MIN_MAG_MIP_POINT));
-				depthStep.AddBindable(GetTextureContainerOfStep(geometryStep).GetTextures().front());
+
+				MaterialBindings* geometryMaterialBindings = geometryStep.GetMaterialBindings();
+
+				depthStep.AddBindable(geometryMaterialBindings->GetTextureIndexesConstants());
+				depthStep.AddBindable(geometryMaterialBindings->GetDescriptorHeapBindable());
 			}
 			else
 				depthStep.AddBindable(Shader::GetResource(graphics, L"VS", ShaderType::VertexShader));
@@ -120,25 +118,21 @@ bool Mesh::StepHasOpacity(const RenderGraphicsStep& geometryStep)
 		return false;
 
 	// TODO: DO a check for opacity texture
+	std::optional<const Texture*> optAlbedoTexture = GetAlbedoTexture(geometryStepTextures);
 
-	// check diffuse texture alpha channel
-	{
-		std::optional<const Texture*> optDiffuseTexture = GetAlbedoTexture(geometryStepTextures);
+	if (!optAlbedoTexture)
+		return false;
 
-		if (!optDiffuseTexture.has_value())
-			return false;
+	bool isAlphaOpaque = (*optAlbedoTexture)->IsAlphaOpaque();
 
-		bool isAlphaOpaque = optDiffuseTexture.value()->IsAlphaOpaque();
-
-		return !isAlphaOpaque;
-	}
+	return !isAlphaOpaque;
 }
 
 const MeshBindableContainer& Mesh::GetTextureContainerOfStep(const RenderGraphicsStep& step)
 {
 	Material* stepMaterial = step.GetMaterial();
 
-	return stepMaterial ? stepMaterial->GetBindableContainer() : step.GetBindableContainter();
+	return stepMaterial ? stepMaterial->GetBindableContainer() : step.GetBindableContainer();
 }
 
 std::optional<const Texture*> Mesh::GetAlbedoTexture(const std::vector<Texture*>& textures)

@@ -1,5 +1,6 @@
 #pragma once
 #include "Includes/CppIncludes.h"
+#include "Includes/DirectXIncludes.h"
 #include "Shaders/TargetShaders.h"
 #include "BindableTypes.h"
 
@@ -16,6 +17,11 @@ struct TargetSlotAndShader
 {
 	ShaderVisibilityGraphic target;
 	UINT slot;
+};
+
+struct RootBinding
+{
+	TargetSlotAndShader target;
 	UINT rootIndex = 0;
 };
 
@@ -32,7 +38,17 @@ public:
 	virtual ~Bindable() = default;
 };
 
-class CommandListBindable
+class UpdatableBindable
+{
+public:
+	void SetUpdated();
+	unsigned long long GetRevision() const;
+
+private:
+	unsigned long long m_revision = 0;
+};
+
+class CommandListBindable : public virtual UpdatableBindable
 {
 public:
 	virtual ~CommandListBindable() = default;
@@ -42,7 +58,7 @@ public:
 	virtual void BindToComputeCommandList(Graphics& graphics, CommandList* commandList);
 };
 
-class PipelineStateBindable
+class PipelineStateBindable : public virtual UpdatableBindable
 {
 public:
 	virtual ~PipelineStateBindable() = default;
@@ -63,19 +79,21 @@ enum class RootSignatureBindableType
 	rootSignature_StaticSampler,
 };
 
-class RootSignatureBindable
+class RootSignatureBindable : public virtual UpdatableBindable
 {
 public:
 	RootSignatureBindable(ResourceTargets targets);
 
 public:
-	virtual void BindToRootSignature(RootSignatureParams* rootSignatureParams) = 0;
+	virtual void AddGraphicsRootSignatureParam(RootSignatureParams* rootSignatureParams) = 0;
 
-	virtual void AddComputeRootSignatureParam(RootSignatureParams* rootSignatureParams);
+	virtual void BindToCommandListAsRootParam(Graphics& graphics, CommandList* commandList, const RootBinding& binding) = 0;
 
-	ResourceTargets& GetTargets();
+	const ResourceTargets& GetTargets() const;
 
 	virtual RootSignatureBindableType GetRootSignatureBindableType() const = 0;
+
+	virtual D3D12_GPU_VIRTUAL_ADDRESS GetGPUAddress(Graphics& graphics) const = 0;
 
 private:
 	ResourceTargets m_targets;
@@ -91,12 +109,14 @@ enum class DescriptorType
 	descriptor_SAMPLER,
 };
 
-class DescriptorBindable
+class DescriptorBindable : public virtual UpdatableBindable
 {
 public:
 	virtual void Initialize(Graphics& graphics, DescriptorHeap::DescriptorInfo descriptorInfo, unsigned int descriptorNum) = 0;
 
 	virtual void Initialize(Graphics& graphics) = 0;
+
+	virtual D3D12_GPU_DESCRIPTOR_HANDLE GetDescriptorHeapGPUHandle(Graphics& graphics) const = 0;
 
 public:
 	virtual DescriptorType GetDescriptorType() const = 0;

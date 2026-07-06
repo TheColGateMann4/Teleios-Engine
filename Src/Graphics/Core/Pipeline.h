@@ -8,14 +8,14 @@ class Camera;
 struct DestinationBufferRegionCopyData
 {
 	GraphicsBuffer* buffer;
-	unsigned int byteOffset;
+	size_t byteOffset;
 };
 
 struct SourceBufferRegionCopyData
 {
 	GraphicsBuffer* buffer;
-	unsigned int byteOffset;
-	unsigned int byteSizeToCopy;
+	size_t byteOffset;
+	size_t byteSizeToCopy;
 };
 
 class Pipeline

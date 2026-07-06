@@ -79,10 +79,6 @@ void FullscreenRenderPass::Initialize(Graphics& graphics, Scene& scene)
 
 void FullscreenRenderPass::InitializePassResources(Graphics& graphics, Pipeline& pipeline, Scene& scene)
 {
-	// copy index and vertex buffers to gpu
-	m_vertexBufferEntry->GetVertexBuffer()->BindToCopyPipelineIfNeeded(graphics, pipeline);
-	m_indexBufferEntry->GetIndexBuffer()->BindToCopyPipelineIfNeeded(graphics, pipeline);
-
 	// Updating camera data
 	{
 		Camera* currentCamera = scene.GetCurrentCamera();

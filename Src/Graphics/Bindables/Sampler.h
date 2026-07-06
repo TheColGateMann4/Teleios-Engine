@@ -16,13 +16,15 @@ public:
 	static std::string GetIdentifier(D3D12_FILTER filter, D3D12_TEXTURE_ADDRESS_MODE overlappingMode, ResourceTargets targets);
 
 public:
-	virtual void BindToRootSignature(RootSignatureParams* rootSignatureParams) override;
+	virtual void AddGraphicsRootSignatureParam(RootSignatureParams* rootSignatureParams) override;
 
-	virtual void AddComputeRootSignatureParam(RootSignatureParams* rootSignatureParams) override;
+	virtual void BindToCommandListAsRootParam(Graphics& graphics, CommandList* commandList, const RootBinding& binding) override;
 
 	virtual BindableType GetBindableType() const override;
 
 	virtual RootSignatureBindableType GetRootSignatureBindableType() const override;
+
+	virtual D3D12_GPU_VIRTUAL_ADDRESS GetGPUAddress(Graphics& graphics) const override;
 
 	D3D12_STATIC_SAMPLER_DESC Get() const;
 

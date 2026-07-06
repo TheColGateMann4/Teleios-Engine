@@ -71,7 +71,7 @@ void Scene::FinishInitialization(Graphics& graphics)
 
 	graphics.FinishInitialization();
 
-	InitializeMaterials(graphics);
+	InitializeMaterials(graphics, pipeline);
 
 	ResolveStaticBindables(graphics);
 
@@ -91,12 +91,6 @@ void Scene::FinishInitialization(Graphics& graphics)
 	END_CPU_EVENT();
 
 	graphics.WaitForGPU();
-}
-
-void Scene::InitializeMaterials(Graphics& graphics)
-{
-	for (auto& [key, material] : m_materials)
-		material->Initialize(graphics);
 }
 
 void Scene::InitializeCameraBuffer(Graphics& graphics, Pipeline& pipeline)
@@ -154,6 +148,12 @@ void Scene::InitializeTransformBuffer(Graphics& graphics, Pipeline& pipeline)
 	pipeline.AddStaticResource("transformBuffer", m_transformBuffer);
 }
 
+void Scene::InitializeMaterials(Graphics& graphics, Pipeline& pipeline)
+{
+	for (const auto& [key, material] : m_materials)
+		material->InitializeGraphicResources(graphics, pipeline);
+}
+
 void Scene::UpdateTransformBuffer(Graphics& graphics)
 {
 	static std::vector<DirectX::XMMATRIX> m_currentFrameMatrices(m_sceneObjects.size(), {});
@@ -206,6 +206,8 @@ void Scene::UpdateGraphicResources(Graphics& graphics)
 
 	// copying constant buffers to GPU
 	graphics.GetConstantBufferHeap().CopyResources(graphics, pipeline.GetGraphicCommandList());
+
+	graphics.GetGraphicsBufferAllocatorManager()->Update(graphics);
 }
 
 void Scene::DrawObjectInspector(Graphics& graphics)
@@ -279,6 +281,9 @@ void Scene::Update(Graphics& graphics, const Input& input, bool isCursorLocked)
 
 	for (auto& sceneObject : m_sceneObjects)
 		sceneObject->InternalUpdate(graphics, graphics.GetRenderer().GetPipeline());
+
+	for (const auto& [key, material] : m_materials)
+		material->Update();
 
 	UpdateBuffersIfNeeded(graphics);
 

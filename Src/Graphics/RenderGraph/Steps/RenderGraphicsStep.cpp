@@ -7,6 +7,7 @@
 #include "Graphics/Bindables/VertexBuffer.h"
 #include "Graphics/Bindables/ConstantBuffer.h"
 #include "Graphics/Bindables/Texture.h"
+#include "Scene/Material.h"
 
 RenderGraphicsStep::RenderGraphicsStep(SceneObject* sceneObject, const std::string& name)
 	:
@@ -82,7 +83,7 @@ void RenderGraphicsStep::AddBindable(Bindable* bindable)
 	m_bindableContainer.AddBindable(bindable);
 }
 
-const MeshBindableContainer& RenderGraphicsStep::GetBindableContainter() const
+const MeshBindableContainer& RenderGraphicsStep::GetBindableContainer() const
 {
 	return m_bindableContainer;
 }
@@ -100,4 +101,35 @@ ObjectRasterizerStateOptions RenderGraphicsStep::GetRasterizerOptions() const
 void RenderGraphicsStep::SetRasterizerOptions(ObjectRasterizerStateOptions rasterizerOptions)
 {
 	m_rasterizerOptions = rasterizerOptions;
+}
+
+void RenderGraphicsStep::Initialize(Graphics& graphics, Pipeline& pipeline)
+{
+	m_bindableContainer.Initialize(graphics, pipeline);
+
+	InitializeMaterialBindings();
+}
+
+void RenderGraphicsStep::Update()
+{
+	m_bindableContainer.Update();
+}
+
+MaterialBindings* RenderGraphicsStep::GetMaterialBindings()
+{
+	return m_materialBindings.get();
+}
+
+void RenderGraphicsStep::InitializeMaterialBindings()
+{
+	const auto& textureContainer = m_material ? m_material->GetBindableContainer() : GetBindableContainer();
+	const auto& textures = textureContainer.GetTextures();
+
+	if (textures.empty())
+		return;
+
+	m_materialBindings = std::make_shared<MaterialBindings>(textures);
+	
+	AddBindable(m_materialBindings->GetDescriptorHeapBindable());
+	AddBindable(m_materialBindings->GetTextureIndexesConstants());
 }

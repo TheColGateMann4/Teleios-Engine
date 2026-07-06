@@ -45,6 +45,7 @@
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
     <EnableASAN>false</EnableASAN>
+    <EnableFuzzer>false</EnableFuzzer>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -148,7 +149,7 @@
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>
       </AdditionalLibraryDirectories>
       <AdditionalDependencies>d3d12.lib;dxgi.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -217,7 +218,9 @@ dxgi.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDepende
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Src\Graphics\RenderGraph\RenderJob\DebugGraphicsStepRenderJob.cpp" />
+    <ClCompile Include="Src\Graphics\Core\RootSignatureLayout.cpp" />
+    <ClCompile Include="Src\Graphics\Core\GraphicsBufferAllocatorManager.cpp" />
+    <ClCompile Include="Src\Graphics\Resources\GraphicsBufferSuballocator.cpp" />
     <ClCompile Include="Src\Graphics\RenderGraph\RenderPass\Geometry\OccludedDebugPass.cpp" />
     <ClCompile Include="Src\Graphics\Core\OcclusionPrimitives.cpp" />
     <ClCompile Include="Src\Graphics\Bindables\DescriptorHeapBindable.cpp" />
@@ -226,8 +229,6 @@ dxgi.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDepende
     <ClCompile Include="Src\Graphics\Profiler\CPUProfiler.cpp" />
     <ClCompile Include="Src\Graphics\Profiler\GPUProfiler.cpp" />
     <ClCompile Include="Src\Graphics\Profiler\Profiler.cpp" />
-    <ClCompile Include="Src\Graphics\Bindables\Binding.cpp" />
-    <ClCompile Include="Src\Graphics\Bindables\RootSignatureBindableWrapper.cpp" />
     <ClCompile Include="Src\Graphics\Bindables\RootSignatureConstants.cpp" />
     <ClCompile Include="Src\Graphics\RenderGraph\RenderPass\Geometry\ShadowPass.cpp" />
     <ClCompile Include="Src\Graphics\RenderGraph\RenderPass\Geometry\EmissivePass.cpp" />
@@ -311,7 +312,9 @@ dxgi.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDepende
     <ClCompile Include="Src\Graphics\RenderGraph\RenderPass\Geometry\VisibleDebugPass.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Src\Graphics\RenderGraph\RenderJob\DebugGraphicsStepRenderJob.h" />
+    <ClInclude Include="Src\Graphics\Core\RootSignatureLayout.h" />
+    <ClInclude Include="Src\Graphics\Core\GraphicsBufferAllocatorManager.h" />
+    <ClInclude Include="Src\Graphics\Resources\GraphicsBufferSuballocator.h" />
     <ClInclude Include="Src\Graphics\RenderGraph\RenderPass\Geometry\OccludedDebugPass.h" />
     <ClInclude Include="Src\Graphics\Core\OcclusionPrimitives.h" />
     <ClInclude Include="Src\Graphics\Core\Pix.h" />
@@ -323,8 +326,6 @@ dxgi.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDepende
     <ClInclude Include="Src\Graphics\Profiler\CPUProfiler.h" />
     <ClInclude Include="Src\Graphics\Profiler\GPUProfiler.h" />
     <ClInclude Include="Src\Graphics\Profiler\Profiler.h" />
-    <ClInclude Include="Src\Graphics\Bindables\Binding.h" />
-    <ClInclude Include="Src\Graphics\Bindables\RootSignatureBindableWrapper.h" />
     <ClInclude Include="Src\Graphics\Bindables\RootSignatureConstants.h" />
     <ClInclude Include="Src\Graphics\RenderGraph\RenderPass\Geometry\ShadowPass.h" />
     <ClInclude Include="Src\Graphics\RenderGraph\RenderPass\Geometry\EmissivePass.h" />

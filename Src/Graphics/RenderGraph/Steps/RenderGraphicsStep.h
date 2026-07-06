@@ -8,6 +8,7 @@
 #include "Graphics/Core/BindableContainer.h"
 #include "Graphics/Core/OcclusionPrimitives.h"
 #include "Graphics/Bindables/RasterizerState.h"
+#include "Graphics/Bindables/MaterialBindings.h"
 
 class SceneObject;
 class Material;
@@ -44,7 +45,7 @@ public: // bindable container functions
 
 	void AddBindable(Bindable* bindable);
 
-	const MeshBindableContainer& GetBindableContainter() const;
+	const MeshBindableContainer& GetBindableContainer() const;
 
 	Material* GetMaterial() const;
 
@@ -52,10 +53,20 @@ public: // bindable container functions
 
 	void SetRasterizerOptions(ObjectRasterizerStateOptions rasterizerOptions);
 
+	virtual void Initialize(Graphics& graphics, Pipeline& pipeline) override;
+
+	virtual void Update() override;
+
+	MaterialBindings* GetMaterialBindings();
+
+private:
+	void InitializeMaterialBindings();
+
 private:
 	MeshBindableContainer m_bindableContainer;
 	std::shared_ptr<Material> m_material;
 	ObjectRasterizerStateOptions m_rasterizerOptions = {};
+	std::shared_ptr<MaterialBindings> m_materialBindings;
 
 	BoundingBox m_boundingBox = {};
 	SceneObject* m_sceneObject;

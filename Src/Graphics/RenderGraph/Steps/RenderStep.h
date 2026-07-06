@@ -2,6 +2,7 @@
 #include "Includes/CppIncludes.h"
 
 class Graphics;
+class Pipeline;
 class CommandList;
 
 class RenderStep
@@ -15,6 +16,9 @@ public:
 
 	bool IsEnabled() const;
 	void SetEnabled(bool enabled);
+
+	virtual void Initialize(Graphics& graphics, Pipeline& pipeline);
+	virtual void Update();
 
 private:
 	std::string m_name;

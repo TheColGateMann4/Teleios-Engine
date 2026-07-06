@@ -6,7 +6,7 @@
 
 void StandaloneMesh::Initialize(Graphics& graphics, Pipeline& pipeline)
 {
-	m_bindableContainer.Initialize(pipeline);
+	m_bindableContainer.Initialize(graphics, pipeline);
 
 	// initializing root signature
 	{
@@ -16,9 +16,10 @@ void StandaloneMesh::Initialize(Graphics& graphics, Pipeline& pipeline)
 				descriptorBindable->Initialize(graphics);
 
 			for (auto& rootSignatureBindable : m_bindableContainer.GetRootSignatureBindables())
-				rootSignatureBindable->BindToRootSignature(&rootParams);
+				rootSignatureBindable->AddGraphicsRootSignatureParam(&rootParams);
 		}
 
+		m_rootSignatureLayout = rootParams.GetLayout();
 		m_rootSignature = RootSignature::GetResource(graphics, std::move(rootParams));
 	}
 
@@ -78,6 +79,8 @@ void StandaloneMesh::Draw(Graphics& graphics, CommandList* commandList) const
 	commandList->SetGraphicsRootSignature(graphics, m_rootSignature.get());
 
 	{
+		m_rootSignatureLayout.BindToCommandList(graphics, commandList);
+
 		const auto& commandListBindables = m_bindableContainer.GetCommandListBindables();
 
 		for (auto& pCommandListBindable : commandListBindables)
@@ -88,8 +91,8 @@ void StandaloneMesh::Draw(Graphics& graphics, CommandList* commandList) const
 	}
 
 	unsigned int indices = m_bindableContainer.GetIndexBufferEntry()->GetIndexCount();
-	unsigned int baseVertexOffset = vertexBufferEntry->GetEntryInfo().offset;
-	unsigned int startIndexOffset = indexBufferEntry->GetEntryInfo().offset;
+	unsigned int baseVertexOffset = vertexBufferEntry->GetEntryInfo()->elementOffset;
+	unsigned int startIndexOffset = indexBufferEntry->GetEntryInfo()->elementOffset;
 
 	commandList->DrawIndexed(graphics, indices, baseVertexOffset, startIndexOffset);
 };
@@ -97,12 +100,6 @@ void StandaloneMesh::Draw(Graphics& graphics, CommandList* commandList) const
 void StandaloneMesh::Update(Graphics& graphics, Pipeline& pipeline)
 {
 
-}
-
-void StandaloneMesh::InitializeGraphicResources(Graphics& graphics, Pipeline& pipeline)
-{
-	for (auto texture : m_bindableContainer.GetTextures())
-		texture->InitializeGraphicResources(graphics, pipeline);
 }
 
 void StandaloneMesh::DrawConstantBuffers(Graphics& graphics)
@@ -138,7 +135,7 @@ void StandaloneMesh::SetIndexBufferEntry(std::shared_ptr<IndexBufferEntry> index
 	m_bindableContainer.SetIndexBufferEntry(std::move(indexBufferEntry));
 }
 
-const MeshBindableContainer& StandaloneMesh::GetBindableContainter() const
+const MeshBindableContainer& StandaloneMesh::GetBindableContainer() const
 {
 	return m_bindableContainer;
 }

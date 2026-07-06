@@ -1,6 +1,6 @@
 #pragma once
-#include "Binding.h"
 #include "Graphics/Core/DescriptorHeap.h"
+#include "Bindable.h"
 
 class Graphics;
 class GraphicsTexture;
@@ -13,7 +13,7 @@ class BackBufferRenderTarget;
 class DepthStencilViewMultiResource;
 class DepthStencilViewCubeMultiResource;
 
-class ShaderResourceViewBase : public Bindable, public RootParameterBinding, public DescriptorBindable
+class ShaderResourceViewBase : public Bindable, public RootSignatureBindable, public DescriptorBindable
 {
 protected:
 	ShaderResourceViewBase(unsigned int slot);
@@ -22,13 +22,9 @@ protected:
 public:
 	virtual unsigned int GetOffsetInDescriptor(Graphics& graphics) const = 0;
 
-	virtual void BindToCommandList(Graphics& graphics, CommandList* commandList, TargetSlotAndShader& target) override;
+	virtual void AddGraphicsRootSignatureParam(RootSignatureParams* rootSignatureParams) override;
 
-	virtual void BindToComputeCommandList(Graphics& graphics, CommandList* commandList, TargetSlotAndShader& target) override;
-
-	virtual void BindToRootSignature(RootSignatureParams* rootSignatureParams, TargetSlotAndShader& target) override;
-
-	virtual void AddComputeRootSignatureParam(RootSignatureParams* rootSignatureParams, TargetSlotAndShader& target) override;
+	virtual void BindToCommandListAsRootParam(Graphics& graphics, CommandList* commandList, const RootBinding& binding) override;
 
 	virtual BindableType GetBindableType() const override;
 
@@ -36,17 +32,9 @@ public:
 
 	virtual RootSignatureBindableType GetRootSignatureBindableType() const override;
 
-public:
-	void SetComputeRootIndex(unsigned int rootIndex);
-
-	unsigned int GetComputeRootIndex() const;
-
 protected:
 	static void InitializeTextureSRV(Graphics& graphics, unsigned int targetMip, DescriptorHeap::DescriptorInfo& descriptor, const GraphicsTexture* texture);
 	static void InitializeBufferSRV(Graphics& graphics, DescriptorHeap::DescriptorInfo& descriptor, const GraphicsBuffer* buffer);
-
-protected:
-	unsigned int m_computeRootIndex;
 };
 
 class ShaderResourceView : public ShaderResourceViewBase
@@ -58,6 +46,8 @@ public:
 
 public:
 	virtual D3D12_GPU_DESCRIPTOR_HANDLE GetDescriptorHeapGPUHandle(Graphics& graphics) const override;
+
+	virtual D3D12_GPU_VIRTUAL_ADDRESS GetGPUAddress(Graphics& graphics) const override;
 
 	virtual unsigned int GetOffsetInDescriptor(Graphics& graphics) const override;
 
@@ -81,6 +71,8 @@ public:
 
 public:
 	virtual D3D12_GPU_DESCRIPTOR_HANDLE GetDescriptorHeapGPUHandle(Graphics& graphics) const override;
+
+	virtual D3D12_GPU_VIRTUAL_ADDRESS GetGPUAddress(Graphics& graphics) const override;
 
 	virtual unsigned int GetOffsetInDescriptor(Graphics& graphics) const override;
 

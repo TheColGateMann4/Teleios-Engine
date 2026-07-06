@@ -13,7 +13,6 @@
 
 Sphere::Sphere(Graphics& graphics, DirectX::XMFLOAT3 position, float diameter, size_t tesselation)
 	:
-	m_initialized(false),
 	m_diameter(diameter),
 	m_tesselation(tesselation)
 {
@@ -109,27 +108,14 @@ void Sphere::UpdateMesh(Graphics& graphics, Pipeline& pipeline)
 
 	RenderGraphicsStep& albedoStep = modelMesh.GetTechnique(RenderJob::JobType::Emissive).GetStep(0);
 
-	if (!m_initialized)
-	{
-		albedoStep.SetAttributeBufferEntry(VertexBufferEntry::GetResource(graphics, "Sphere", vertices.data(), vertexLayout, vertices.size()));
+	std::string meshVertexBufferID = std::string("Sphere") + '@' + std::to_string(m_diameter) + '@' + std::to_string(m_tesselation);
+	std::string meshIndexBufferID = std::string("Sphere") + '@' + std::to_string(m_tesselation);
 
-		albedoStep.SetIndexBufferEntry(IndexBufferEntry::GetResource(graphics, "Sphere", std::move(indices)));
+	albedoStep.SetAttributeBufferEntry(VertexBufferEntry::GetResource(graphics, meshVertexBufferID, vertices.data(), vertexLayout, vertices.size()));
 
-		albedoStep.SetBoundingBox(BoundingBox(m_diameter / 2.0f));
+	albedoStep.SetIndexBufferEntry(IndexBufferEntry::GetResource(graphics, meshIndexBufferID, std::move(indices)));
 
-		m_initialized = true;
-	}
-	else
-	{
-		// TODO: Add dynamicly adding data to vertexBuffers
+	albedoStep.SetBoundingBox(BoundingBox(m_diameter / 2.0f));
 
-		//VertexBuffer* vbuffer = albedoStep.GetBindableContainter().GetVertexBuffer();
-		//IndexBuffer* ibuffer = albedoStep.GetBindableContainter().GetIndexBuffer();
-		//
-		//vbuffer->Update(graphics, vertices.data(), vertices.size(), sizeof(vertices.front()));
-		//ibuffer->Update(graphics, indices.data(), indices.size(), sizeof(indices.front()));
-		//
-		//vbuffer->BindToCopyPipelineIfNeeded(graphics, pipeline);
-		//ibuffer->BindToCopyPipelineIfNeeded(graphics, pipeline);
-	}
+	UpdateBoundingBox();
 }

@@ -3,6 +3,7 @@
 #include "Graphics/RenderGraph/RenderJob/GraphicsRenderData.h"
 #include "Graphics/RenderGraph/RenderJob/GraphicsStepRenderJob.h"
 #include "Graphics/Bindables/RasterizerState.h"
+#include "Graphics/Core/BindableContainer.h"
 
 class RenderJob;
 class Material;
@@ -21,7 +22,7 @@ public:
 public: // Handling for pass specific bindables
 	void AddBindable(std::shared_ptr<Bindable> bindable);
 	void AddStaticBindable(const char* staticBindableName);
-	const std::vector<std::shared_ptr<Bindable>>& GetBindables() const;
+	const BindableContainer& GetBindableContainer() const;
 
 public: // job handling
 	// sort jobs so executing them on GPU is more effecient
@@ -50,9 +51,7 @@ protected:
 protected:
 	std::shared_ptr<RootSignatureConstants> m_cameraRootConstant;
 
-	std::vector<std::shared_ptr<Bindable>> m_bindables;
-
-	std::vector<const char*> m_staticBindables;
+	BindableContainer m_bindableContainer;
 
 	std::vector<std::unique_ptr<GraphicsStepRenderJob>> m_jobs;
 

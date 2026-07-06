@@ -22,122 +22,132 @@ GraphicsStepRenderJob::GraphicsStepRenderJob(GraphicsRenderData renderData, Geom
 	m_pass = pass;
 }
 
-void GraphicsStepRenderJob::GatherBindables()
+void GraphicsStepRenderJob::BuildRootSignature(Graphics& graphics, Material* material)
 {
-	THROW_INTERNAL_ERROR_IF("Pass was not linked to job", m_pass == nullptr);
+	RootSignatureParams rootParams = {};
+	{
+		{
+			const auto& stepBindableContainer = m_step->GetBindableContainer();
 
-	const auto& passBinds = m_pass->GetBindables();
+			for (auto& descriptorBindable : stepBindableContainer.GetDescriptorBindables())
+				descriptorBindable->Initialize(graphics);
 
-	for (const auto& passBind : passBinds)
-		m_bindableContainer.AddBindable(passBind);
-	
-	// appending step bindables to local container
-	m_bindableContainer += m_step->GetBindableContainter();
+			for (auto& rootSignatureBindable : stepBindableContainer.GetRootSignatureBindables())
+				rootSignatureBindable->AddGraphicsRootSignatureParam(&rootParams);
+		}
+
+		for (auto& rootSignatureBindable : m_pass->GetBindableContainer().GetRootSignatureBindables())
+			rootSignatureBindable->AddGraphicsRootSignatureParam(&rootParams);
+
+		if(material)
+			for (auto& rootSignatureBindable : material->GetBindableContainer().GetRootSignatureBindables())
+				rootSignatureBindable->AddGraphicsRootSignatureParam(&rootParams);
+	}
+
+	m_rootSignatureLayout = rootParams.GetLayout();
+	m_rootSignature = RootSignature::GetResource(graphics, std::move(rootParams));
+}
+
+void GraphicsStepRenderJob::BuildPipelineState(Graphics& graphics, Material* material)
+{
+	const std::vector<RenderPass::RenderTargetData>& renderTargets = m_pass->GetRenderTargets();
+	RenderPass::DepthStencilData depthStencilView = m_pass->GetDepthStencilView();
+
+	GraphicsPipelineStateParams pipelineStateParams = {};
+
+	{
+		for (auto& pPipelineStateBindable : m_step->GetBindableContainer().GetPipelineStateBindables())
+			pPipelineStateBindable->AddPipelineStateParam(graphics, &pipelineStateParams);
+
+		for (auto& pPipelineStateBindable : m_pass->GetBindableContainer().GetPipelineStateBindables())
+			pPipelineStateBindable->AddPipelineStateParam(graphics, &pipelineStateParams);
+
+		if (material)
+			for (auto& pPipelineStateBindable : material->GetBindableContainer().GetPipelineStateBindables())
+				pPipelineStateBindable->AddPipelineStateParam(graphics, &pipelineStateParams);
+
+		pipelineStateParams.SetRasterizerState(BuildAndGetRasterizerState(graphics, material));
+
+		pipelineStateParams.SetRootSignature(m_rootSignature.get());
+
+		pipelineStateParams.SetSampleMask(0xffffffff);
+
+		pipelineStateParams.SetSampleDesc(1, 0);
+
+		pipelineStateParams.SetNumRenderTargets(renderTargets.size());
+
+		for (int i = 0; i < renderTargets.size(); i++)
+			pipelineStateParams.SetRenderTargetFormat(i, renderTargets.at(i).resource->GetFormat());
+
+		pipelineStateParams.SetDepthStencilFormat(depthStencilView.resource ? depthStencilView.resource->GetResource(graphics)->GetFormat() : DXGI_FORMAT_UNKNOWN);
+	}
+
+	m_pipelineState = GraphicsPipelineState::GetResource(graphics, std::move(pipelineStateParams));
 }
 
 void GraphicsStepRenderJob::Initialize(Graphics& graphics, Pipeline& pipeline)
 {
-	InitializeMaterialBindings();
-
-	m_bindableContainer.Initialize(pipeline);
-
-	const std::vector<RenderPass::RenderTargetData>& renderTargets = m_pass->GetRenderTargets();
-	RenderPass::DepthStencilData depthStencilView = m_pass->GetDepthStencilView();
-
 	Material* material = m_step->GetMaterial();
 
-	// initializing root signature
-	{
-		RootSignatureParams rootParams = {};
-		{
-			for (auto& descriptorBindable : m_bindableContainer.GetDescriptorBindables())
-				descriptorBindable->Initialize(graphics);
+	BuildRootSignature(graphics, material);
 
-			for (auto& rootSignatureBindable : m_bindableContainer.GetRootSignatureBindables())
-				rootSignatureBindable->BindToRootSignature(&rootParams);
-
-			if(material)
-				material->BindToRootSignature(&rootParams);
-		}
-
-		m_rootSignature = RootSignature::GetResource(graphics, std::move(rootParams));
-	}
-
-	// initialize pipeline state object
-	{
-		GraphicsPipelineStateParams pipelineStateParams = {};
-		
-		{
-			for (auto& pPipelineStateBindable : m_bindableContainer.GetPipelineStateBindables())
-				pPipelineStateBindable->AddPipelineStateParam(graphics, &pipelineStateParams);
-
-			if (material)
-				for (auto& pPipelineStateBindable : material->GetBindableContainer().GetPipelineStateBindables())
-					pPipelineStateBindable->AddPipelineStateParam(graphics, &pipelineStateParams);
-
-			pipelineStateParams.SetRasterizerState(BuildAndGetRasterizerState(graphics, material));
-
-			pipelineStateParams.SetRootSignature(m_rootSignature.get());
-
-			pipelineStateParams.SetSampleMask(0xffffffff);
-
-			pipelineStateParams.SetSampleDesc(1, 0);
-
-			pipelineStateParams.SetNumRenderTargets(renderTargets.size());
-
-			for(int i = 0; i < renderTargets.size(); i++)
-				pipelineStateParams.SetRenderTargetFormat(i, renderTargets.at(i).resource->GetFormat());
-
-			pipelineStateParams.SetDepthStencilFormat(depthStencilView.resource ? depthStencilView.resource->GetResource(graphics)->GetFormat() : DXGI_FORMAT_UNKNOWN);
-		}
-
-		m_pipelineState = GraphicsPipelineState::GetResource(graphics, std::move(pipelineStateParams));
-	}
+	BuildPipelineState(graphics, material);
 
 	InitializeGraphicResources(graphics, pipeline);
+
+	m_stepLastRevision = m_step->GetBindableContainer().GetRevision();
+
+	if(material)
+		m_materialLastRevision = material->GetBindableContainer().GetRevision();
+
+	if(m_pass)
+		m_passLastRevision = m_pass->GetBindableContainer().GetRevision();
 }
 
-void GraphicsStepRenderJob::InitializeMaterialBindings()
+void HandleRevision(auto* obj, BindableContainerRevision& cached, bool& rsDirty, bool& psoDirty)
 {
-	const auto* material = m_step->GetMaterial();
-	const auto& bindableContainer = material ? material->GetBindableContainer() : m_bindableContainer;
-	const auto& textures = bindableContainer.GetTextures();
-
-	if (textures.empty())
+	if (!obj)
 		return;
 
-	m_materialBindings = std::make_shared<MaterialBindings>(textures);
+	const auto& revision = obj->GetBindableContainer().GetRevision();
 
-	m_bindableContainer.AddBindable(m_materialBindings->GetDescriptorHeapBindable());
-	m_bindableContainer.AddBindable(m_materialBindings->GetTextureIndexesConstants());
+	if (revision.rootSignatureRevision != cached.rootSignatureRevision)
+		rsDirty = true;
+
+	if (revision.pipelineStateRevision != cached.pipelineStateRevision)
+		psoDirty = true;
+
+	cached = revision;
+}
+
+void GraphicsStepRenderJob::Update(Graphics& graphics)
+{
+	bool psoDirty = false;
+	bool rsDirty = false;
+
+	auto* stepMaterial = m_step->GetMaterial();
+
+	HandleRevision(m_step, m_stepLastRevision, rsDirty, psoDirty);
+	HandleRevision(stepMaterial, m_materialLastRevision, rsDirty, psoDirty);
+	HandleRevision(m_pass, m_passLastRevision, rsDirty, psoDirty);
+
+	if (rsDirty)
+		BuildRootSignature(graphics, stepMaterial);
+
+	if (psoDirty || rsDirty)
+		BuildPipelineState(graphics, stepMaterial);
 }
 
 void GraphicsStepRenderJob::InitializeGraphicResources(Graphics& graphics, Pipeline& pipeline)
 {
-	auto attributeVertexEntry = m_bindableContainer.GetAttributeVertexBufferEntry();
-	auto positionVertexEntry = m_bindableContainer.GetPositionVertexBufferEntry();
-	auto indexBuffer = m_bindableContainer.GetIndexBufferEntry();
+	const auto& stepBindableContainer = m_step->GetBindableContainer();
 
-	if (attributeVertexEntry)
-		attributeVertexEntry->GetVertexBuffer()->BindToCopyPipelineIfNeeded(graphics, pipeline);
-	if (positionVertexEntry)
-		positionVertexEntry->GetVertexBuffer()->BindToCopyPipelineIfNeeded(graphics, pipeline);
+	auto attributeVertexEntry = stepBindableContainer.GetAttributeVertexBufferEntry();
+	auto positionVertexEntry = stepBindableContainer.GetPositionVertexBufferEntry();
+	auto indexBuffer = stepBindableContainer.GetIndexBufferEntry();
 
 	THROW_INTERNAL_ERROR_IF("None vertex buffer was bound", !attributeVertexEntry && !positionVertexEntry);
 	THROW_INTERNAL_ERROR_IF("Index buffer hasn't been bound", !indexBuffer);
-
-	indexBuffer->GetIndexBuffer()->BindToCopyPipelineIfNeeded(graphics, pipeline);
-
-	for (auto texture : m_bindableContainer.GetTextures())
-		texture->InitializeGraphicResources(graphics, pipeline);
-
-	for (auto* cachedBuffer : m_bindableContainer.GetCachedBuffers())
-		cachedBuffer->Update(graphics);
-
-	auto* material = m_step->GetMaterial();
-
-	if (material)
-		material->InitializeGraphicResources(graphics, pipeline);
 }
 
 bool GraphicsStepRenderJob::IsValid(RenderPass* pass, Scene& scene) const
@@ -159,11 +169,14 @@ void GraphicsStepRenderJob::Execute(Graphics& graphics, CommandList* commandList
 
 	commandList->SetGraphicsRootSignature(graphics, m_rootSignature.get());
 
-	std::shared_ptr<IndexBufferEntry> indexBufferEntry = m_bindableContainer.GetIndexBufferEntry();
+	const auto& stepBindableContainer = m_step->GetBindableContainer();
+	const Material* material = m_step->GetMaterial();
+
+	std::shared_ptr<IndexBufferEntry> indexBufferEntry = stepBindableContainer.GetIndexBufferEntry();
 	std::shared_ptr<VertexBufferEntry> vertexBufferEntry;
 	{
-		auto attribBufferEntry = m_bindableContainer.GetAttributeVertexBufferEntry();
-		auto positionBufferEntry = m_bindableContainer.GetPositionVertexBufferEntry();
+		auto attribBufferEntry = stepBindableContainer.GetAttributeVertexBufferEntry();
+		auto positionBufferEntry = stepBindableContainer.GetPositionVertexBufferEntry();
 
 		if (attribBufferEntry)
 			vertexBufferEntry = attribBufferEntry;
@@ -183,18 +196,26 @@ void GraphicsStepRenderJob::Execute(Graphics& graphics, CommandList* commandList
 	}
 
 	{
-		const auto& commandListBindables = m_bindableContainer.GetCommandListBindables();
+		m_rootSignatureLayout.BindToCommandList(graphics, commandList);
 
-		for (auto& pCommandListBindable : commandListBindables)
+		for (auto& pCommandListBindable : stepBindableContainer.GetCommandListBindables())
 			pCommandListBindable->BindToCommandList(graphics, commandList);
+
+		if(m_pass)
+			for (auto& pCommandListBindable : m_pass->GetBindableContainer().GetCommandListBindables())
+				pCommandListBindable->BindToCommandList(graphics, commandList);
+
+		if(material)
+			for (auto& pCommandListBindable : material->GetBindableContainer().GetCommandListBindables())
+				pCommandListBindable->BindToCommandList(graphics, commandList);
 
 		vertexBufferEntry->BindToCommandList(graphics, commandList);
 		indexBufferEntry->BindToCommandList(graphics, commandList);
 	}
 
-	unsigned int indices = m_bindableContainer.GetIndexBufferEntry()->GetIndexCount();
-	unsigned int baseVertexOffset = vertexBufferEntry->GetEntryInfo().offset;
-	unsigned int startIndexOffset = indexBufferEntry->GetEntryInfo().offset;
+	unsigned int indices = stepBindableContainer.GetIndexBufferEntry()->GetIndexCount();
+	unsigned int baseVertexOffset = vertexBufferEntry->GetEntryInfo()->elementOffset;
+	unsigned int startIndexOffset = indexBufferEntry->GetEntryInfo()->elementOffset;
 
 	commandList->DrawIndexed(graphics, indices, baseVertexOffset, startIndexOffset);
 
@@ -218,7 +239,7 @@ RasterizerState* GraphicsStepRenderJob::BuildAndGetRasterizerState(Graphics& gra
 	std::shared_ptr<RasterizerState> rasterizerState = RasterizerState::GetResource(graphics, m_pass->GetRasterizerOptions(), objectRasterizerOptions);
 	RasterizerState* pRasterizerState = rasterizerState.get();
 
-	m_bindableContainer.AddBindable(std::move(rasterizerState));
+	m_step->AddBindable(std::move(rasterizerState));
 
 	return pRasterizerState;
 }

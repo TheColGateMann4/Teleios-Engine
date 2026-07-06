@@ -13,6 +13,20 @@ class CachedConstantBuffer;
 class Texture;
 class Shader;
 
+struct BindableContainerRevision
+{
+	unsigned long long commandListRevision = 0;
+	unsigned long long descriptorRevision = 0;
+	unsigned long long pipelineStateRevision = 0;
+	unsigned long long rootSignatureRevision = 0;
+};
+
+struct CachedRevision
+{
+	const UpdatableBindable* object = nullptr;
+	unsigned long long revision = 0;
+};
+
 class BindableContainer
 {
 public:
@@ -22,8 +36,6 @@ public:
 
 	BindableContainer& operator=(BindableContainer&& other) noexcept = default;
 	BindableContainer& operator=(const BindableContainer& other) = default;
-
-	BindableContainer& operator+=(const BindableContainer& other);
 
 	virtual ~BindableContainer() = default;
 	
@@ -37,8 +49,14 @@ public:
 		AddBindable(std::make_shared<T>(std::move(bindable)));
 	}
 
+	void AddStaticBindable(const char* bindableName);
+
 public:
-	virtual void SegregateBindableByClass(Bindable* bindable) = 0;
+	virtual void Initialize(Graphics& graphics, Pipeline& pipeline);
+	
+	void Update();
+
+	virtual void SegregateBindableByClass(Bindable* bindable);
 	void SegregateBindableBaseFunctionality(Bindable* bindable);
 
 	
@@ -46,6 +64,8 @@ public:
 	const std::vector<DescriptorBindable*>& GetDescriptorBindables() const;
 	const std::vector<RootSignatureBindable*>& GetRootSignatureBindables() const;
 	const std::vector<PipelineStateBindable*>& GetPipelineStateBindables() const;
+
+	BindableContainerRevision GetRevision() const;
 
 private:
 	void AddBindableWrapper(std::shared_ptr<Bindable> wrapper);
@@ -58,21 +78,26 @@ protected:
 	std::vector<DescriptorBindable*> m_descriptorBindables;
 	std::vector<RootSignatureBindable*> m_rootSignatureBindables;
 	std::vector<PipelineStateBindable*> m_pipelineStateBindables;
+
+	// vector with names of static scene resources
+	std::vector<const char*> m_staticBindableNames;
+
+	BindableContainerRevision m_revision;
+	std::vector<CachedRevision> m_commandListLastSeenRevisions;
+	std::vector<CachedRevision> m_descriptorLastSeenRevisions;
+	std::vector<CachedRevision> m_rootSignatureLastSeenRevisions;
+	std::vector<CachedRevision> m_pipelineStateLastSeenRevisions;
 };
 
 class MeshBindableContainer : public BindableContainer
 {
 public:
-	MeshBindableContainer& operator+=(const MeshBindableContainer& other);
+	virtual void Initialize(Graphics& graphics, Pipeline& pipeline) override;
 
 public:
 	void SetAttributeBufferEntry(std::shared_ptr<VertexBufferEntry> attributeBufferEntry);
 	void SetPositionBufferEntry(std::shared_ptr<VertexBufferEntry> positionBufferEntry);
 	void SetIndexBufferEntry(std::shared_ptr<IndexBufferEntry> indexBufferEntry);
-
-	void AddStaticBindable(const char* bindableName);
-
-	void Initialize(Pipeline& pipeline);
 
 public:
 	std::shared_ptr<VertexBufferEntry> GetAttributeVertexBufferEntry() const;
@@ -80,7 +105,6 @@ public:
 	std::shared_ptr<IndexBufferEntry> GetIndexBufferEntry() const;
 
 	InputLayout* GetInputLayout() const;
-	TransformConstantBuffer* GetTransformConstantBuffer() const;
 	const std::vector<CachedConstantBuffer*>& GetCachedBuffers() const;
 	const std::vector<Texture*>& GetTextures() const;
 
@@ -88,15 +112,11 @@ private:
 	virtual void SegregateBindableByClass(Bindable* bindable) override;
 
 private:
-	// vector with names of static scene resources
-	std::vector<const char*> m_staticBindableNames;
-	
 	std::shared_ptr<VertexBufferEntry> m_attributeBuffer;
 	std::shared_ptr<VertexBufferEntry> m_positionBuffer;
 	std::shared_ptr<IndexBufferEntry> m_indexBuffer;
 
 	InputLayout* m_inputLayout = nullptr;
-	TransformConstantBuffer* m_transformConstantBuffer = nullptr;
 
 	std::vector<CachedConstantBuffer*> m_cachedBuffers;
 	std::vector<Texture*> m_textures;
@@ -104,9 +124,6 @@ private:
 
 class ComputeBindableContainer : public BindableContainer
 {
-public:
-	ComputeBindableContainer& operator+=(const ComputeBindableContainer& other);
-
 public:
 	const Shader* GetShader() const;
 

@@ -127,13 +127,14 @@ public:
 
 	void SetGraphicsRootSignature(Graphics& graphics, RootSignature* rootSignature);
 
-	void SetGraphicsConstBufferView(Graphics& graphics, ConstantBuffer* constBuffer, TargetSlotAndShader target);
+	void SetGraphicsConstBufferView(Graphics& graphics, ConstantBuffer* constBuffer, const RootBinding& binding);
 
-	void SetGraphicsDescriptor(Graphics& graphics, Buffer* buffer, TargetSlotAndShader& target);
-	void SetGraphicsDescriptorTable(Graphics& graphics, DescriptorHeapBindable* descriptorHeapBindable, TargetSlotAndShader& target);
-	void SetGraphicsDescriptorTable(Graphics& graphics, ShaderResourceViewBase* srv, TargetSlotAndShader target);
+	void SetGraphicsDescriptor(Graphics& graphics, Buffer* buffer, const RootBinding& binding);
+	void SetGraphicsDescriptorTable(Graphics& graphics, DescriptorHeapBindable* descriptorHeapBindable, const RootBinding& binding);
+	void SetGraphicsDescriptorTable(Graphics& graphics, ShaderResourceViewBase* srv, const RootBinding& binding);
+	void SetGraphicsDescriptorTable(Graphics& graphics, UnorderedAccessView* uav, const RootBinding& binding);
 
-	void SetRootConstants(Graphics& graphics, RootSignatureConstants* constants, TargetSlotAndShader target);
+	void SetRootConstants(Graphics& graphics, RootSignatureConstants* constants, const RootBinding& binding);
 
 	void ClearRenderTargetView(Graphics& graphics, RenderTarget* renderTarget);
 
@@ -144,16 +145,16 @@ public:
 	// compute
 	void SetComputeRootSignature(Graphics& graphics, RootSignature* rootSignature);
 
-	void SetComputeConstBufferView(Graphics& graphics, ConstantBuffer* constBuffer, TargetSlotAndShader target);
+	void SetComputeConstBufferView(Graphics& graphics, ConstantBuffer* constBuffer, const RootBinding& binding);
 
-	void SetComputeDescriptorTable(Graphics& graphics, ShaderResourceViewBase* srv, TargetSlotAndShader target);
-	void SetComputeDescriptorTable(Graphics& graphics, UnorderedAccessView* uav, TargetSlotAndShader target);
+	void SetComputeDescriptorTable(Graphics& graphics, ShaderResourceViewBase* srv, const RootBinding& binding);
+	void SetComputeDescriptorTable(Graphics& graphics, UnorderedAccessView* uav, const RootBinding& binding);
 
-	void SetComputeRootShaderResourceView(Graphics& graphics, ConstantBuffer* constBuffer, TargetSlotAndShader target);
+	void SetComputeRootShaderResourceView(Graphics& graphics, ConstantBuffer* constBuffer, const RootBinding& binding);
 
-	void SetComputeRootUnorderedAccessView(Graphics& graphics, ConstantBuffer* constBuffer, TargetSlotAndShader target);
+	void SetComputeRootUnorderedAccessView(Graphics& graphics, ConstantBuffer* constBuffer, const RootBinding& binding);
 
-	void SetComputeRootConstantBufferView(Graphics& graphics, ConstantBuffer* constBuffer, TargetSlotAndShader target);
+	void SetComputeRootConstantBufferView(Graphics& graphics, ConstantBuffer* constBuffer, const RootBinding& binding);
 
 	// copy
 	void CopyBufferRegion(Graphics& graphics, ID3D12Resource* dstResource, UINT64 dstOffset, ID3D12Resource* srcResource, UINT64 srcOffset, UINT64 numBytes);

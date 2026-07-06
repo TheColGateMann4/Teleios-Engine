@@ -69,7 +69,7 @@ void TempComputeCommandList::Finish(Graphics& graphics)
 		RootSignatureParams rootParams = {};
 
 		for (auto rootSignatureBindable : m_bindableContainer.GetRootSignatureBindables())
-			rootSignatureBindable->BindToRootSignature(&rootParams);
+			rootSignatureBindable->AddGraphicsRootSignatureParam(&rootParams);
 
 		m_rootSignature = RootSignature::GetResource(graphics, std::move(rootParams));
 	}
@@ -142,8 +142,8 @@ void TempGraphicsCommandList::DrawIndexed(Graphics& graphics)
 	}
 
 	unsigned int indices = m_bindableContainer.GetIndexBufferEntry()->GetIndexCount();
-	unsigned int baseVertexOffset = vertexBufferEntry->GetEntryInfo().offset;
-	unsigned int startIndexOffset = indexBufferEntry->GetEntryInfo().offset;
+	unsigned int baseVertexOffset = vertexBufferEntry->GetEntryInfo()->elementOffset;
+	unsigned int startIndexOffset = indexBufferEntry->GetEntryInfo()->elementOffset;
 
 	m_commandList->DrawIndexed(graphics, indices, baseVertexOffset, startIndexOffset);
 }
@@ -167,7 +167,7 @@ void TempGraphicsCommandList::Finish(Graphics& graphics)
 		RootSignatureParams rootParams = {};
 
 		for (auto rootSignatureBindable : m_bindableContainer.GetRootSignatureBindables())
-			rootSignatureBindable->BindToRootSignature(&rootParams);
+			rootSignatureBindable->AddGraphicsRootSignatureParam(&rootParams);
 
 		m_rootSignature = RootSignature::GetResource(graphics, std::move(rootParams));
 	}

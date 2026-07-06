@@ -2,6 +2,7 @@
 #include "Macros/ErrorMacros.h"
 
 #include "Graphics/Core/Pix.h"
+#include "ResourceList.h"
 #include "Includes/DirectXIncludes.h"
 
 extern "C"
@@ -102,6 +103,8 @@ void Graphics::BeginFrame(float deltaTime)
 	renderer.GetPipeline().BeginRender(*this);
 
 	profiler.SetBeginData(*this, renderer.GetPipeline().GetGraphicCommandList(), deltaTime);
+
+	graphicsBufferAllocatorManager.Update(*this);
 }
 
 void Graphics::FinishFrame()
@@ -115,6 +118,8 @@ void Graphics::FinishFrame()
 	START_CPU_EVENT(PIX_COLOR(0, 255, 255), "Cleanup");
 
 	CleanupResources();
+
+	ResourceList::ClearUnusedResources(*this);
 
 	END_CPU_EVENT();
 
@@ -175,6 +180,11 @@ Fence* Graphics::GetFence(unsigned int frameIndex)
 	THROW_INTERNAL_ERROR_IF("Tried to access Fence out of bounds", frameIndex > GetBufferCount() - 1);
 
 	return &m_graphicFences.at(frameIndex);
+}
+
+GraphicsBufferAllocatorManager* Graphics::GetGraphicsBufferAllocatorManager()
+{
+	return &graphicsBufferAllocatorManager;
 }
 
 Profiler& Graphics::GetProfiler()

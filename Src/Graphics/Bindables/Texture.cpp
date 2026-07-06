@@ -140,6 +140,11 @@ D3D12_CPU_DESCRIPTOR_HANDLE Texture::GetCPUDescriptor(Graphics& graphics) const
 	return m_textureDescriptor.descriptorCpuHandle;
 }
 
+D3D12_GPU_DESCRIPTOR_HANDLE Texture::GetDescriptorHeapGPUHandle(Graphics& graphics) const
+{
+	return m_textureDescriptor.descriptorHeapGpuHandle;
+}
+
 TextureType Texture::GetTextureType() const
 {
 	return m_type;
@@ -153,16 +158,6 @@ UINT Texture::GetOffsetInDescriptor() const
 GraphicsTexture* Texture::GetTexture() const
 {
 	return m_gpuTexture.get();
-}
-
-unsigned int Texture::GetComputeRootIndex() const
-{
-	return m_computeRootIndex;
-}
-
-void Texture::SetComputeRootIndex(unsigned int rootIndex)
-{
-	m_computeRootIndex = rootIndex;
 }
 
 bool Texture::IsAlphaOpaque() const

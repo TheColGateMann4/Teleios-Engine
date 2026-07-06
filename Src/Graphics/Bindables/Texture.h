@@ -2,9 +2,9 @@
 #include "Includes/DirectXIncludes.h"
 #include "Includes/WRLNoWarnings.h"
 #include "Shaders/TargetShaders.h"
-#include "Binding.h"
 
 #include "Graphics/Core/DescriptorHeap.h"
+#include "Bindable.h"
 
 class CommandList;
 class RootSignature;
@@ -69,16 +69,14 @@ public:
 
 	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUDescriptor(Graphics& graphics) const;
 
+	virtual D3D12_GPU_DESCRIPTOR_HANDLE GetDescriptorHeapGPUHandle(Graphics& graphics) const override;
+
 	TextureType GetTextureType() const;
 
 	UINT GetOffsetInDescriptor() const;
 
 	GraphicsTexture* GetTexture() const;
 
-	unsigned int GetComputeRootIndex() const;
-
-	void SetComputeRootIndex(unsigned int rootIndex);
-	
 	bool IsAlphaOpaque() const;
 
 	DXGI_FORMAT GetOriginalFormat() const;
@@ -128,6 +126,4 @@ private:
 	bool m_generateMipMaps;
 	bool m_compressImage;
 	bool m_resourcesInitialized = false;
-
-	unsigned int m_computeRootIndex = 0;
 };

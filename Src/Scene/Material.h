@@ -56,7 +56,7 @@ namespace MaterialProperties
 	};
 };
 
-class Material : public RootSignatureBindable, public DescriptorBindable
+class Material
 {
 	friend class ModelImporter;
 
@@ -69,25 +69,19 @@ public:
 
 	void Bind(Graphics& graphics, CommandList* commandList);
 
-	virtual void BindToRootSignature(RootSignatureParams* rootSignatureParams) override;
-	virtual void Initialize(Graphics& graphics, DescriptorHeap::DescriptorInfo descriptorInfo, unsigned int descriptorNum) override;
-	virtual void Initialize(Graphics& graphics) override;
+	void Initialize(Graphics& graphics);
 
 	void InitializeGraphicResources(Graphics& graphics, Pipeline& pipeline);
 
+	void Update();
+
 	D3D12_GPU_DESCRIPTOR_HANDLE GetDescriptorHeapGPUHandle(Graphics& graphics) const;
-
-	virtual DescriptorType GetDescriptorType() const override;
-
-	virtual RootSignatureBindableType GetRootSignatureBindableType() const override;
 
 	ObjectRasterizerStateOptions GetRasterizerOptions() const;
 
 private:
 	MeshBindableContainer m_bindableContainer;
 	MaterialProperties::MaterialProperties m_properties = {};
-	DescriptorHeap::DescriptorInfo m_descriptorInfo = {};
-	bool m_hasDescriptorBindables = false;
 
 	ObjectRasterizerStateOptions m_rasterizerOptions = {};
 };

@@ -5,7 +5,6 @@
 
 Material::Material(Graphics& graphics, std::string filePath, MaterialProperties::MaterialProperties properties)
 	:
-	RootSignatureBindable(ResourceTargets{ {ShaderVisibilityGraphic::PixelShader, 0} }),
 	m_properties(properties)
 {
 	std::vector<ShaderMacro> shaderMacros;
@@ -199,17 +198,6 @@ void Material::Bind(Graphics& graphics, CommandList* commandList)
 		pCommandListBindable->BindToCommandList(graphics, commandList);
 }
 
-void Material::BindToRootSignature(RootSignatureParams* rootSignatureParams)
-{
-	for (auto& pRootSignatureBindable : m_bindableContainer.GetRootSignatureBindables())
-		pRootSignatureBindable->BindToRootSignature(rootSignatureParams);
-}
-
-void Material::Initialize(Graphics& graphics, DescriptorHeap::DescriptorInfo descriptorInfo, unsigned int descriptorNum)
-{
-	THROW_INTERNAL_ERROR("Tried to explicitly place Material in descriptor");
-}
-
 void Material::Initialize(Graphics& graphics)
 {
 	for (auto& pDescriptorBindable : m_bindableContainer.GetDescriptorBindables())
@@ -218,26 +206,14 @@ void Material::Initialize(Graphics& graphics)
 
 void Material::InitializeGraphicResources(Graphics& graphics, Pipeline& pipeline)
 {
-	for (auto texture : m_bindableContainer.GetTextures())
-		texture->InitializeGraphicResources(graphics, pipeline);
+	m_bindableContainer.Initialize(graphics, pipeline);
 
-	for (auto* cachedBuffer : m_bindableContainer.GetCachedBuffers())
-		cachedBuffer->Update(graphics);
+	Initialize(graphics);
 }
 
-D3D12_GPU_DESCRIPTOR_HANDLE Material::GetDescriptorHeapGPUHandle(Graphics& graphics) const
+void Material::Update()
 {
-	return m_descriptorInfo.descriptorHeapGpuHandle;
-}
-
-DescriptorType Material::GetDescriptorType() const
-{
-	return DescriptorType::descriptor_none;
-}
-
-RootSignatureBindableType Material::GetRootSignatureBindableType() const
-{
-	return RootSignatureBindableType::rootSignature_none;
+	m_bindableContainer.Update();
 }
 
 ObjectRasterizerStateOptions Material::GetRasterizerOptions() const

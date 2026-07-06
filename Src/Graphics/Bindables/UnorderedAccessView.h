@@ -1,6 +1,6 @@
 #pragma once
-#include "Binding.h"
 #include "Graphics/Core/DescriptorHeap.h"
+#include "Bindable.h"
 
 class Graphics;
 
@@ -10,20 +10,16 @@ class CommandList;
 class GraphicsTexture;
 class GraphicsBuffer;
 
-class UnorderedAccessView : public Bindable, public RootParameterBinding, public DescriptorBindable
+class UnorderedAccessView : public Bindable, public RootSignatureBindable, public CommandListBindable, public DescriptorBindable
 {
 public:
 	UnorderedAccessView(Graphics& graphics, GraphicsTexture* texture, unsigned int targetMip);
 	UnorderedAccessView(Graphics& graphics, GraphicsBuffer* buffer, UINT slot = 0);
 
 public:
-	virtual void BindToCommandList(Graphics& graphics, CommandList* commandList, TargetSlotAndShader& target) override;
+	virtual void AddGraphicsRootSignatureParam(RootSignatureParams* rootSignatureParams) override;
 
-	virtual void BindToComputeCommandList(Graphics& graphics, CommandList* commandList, TargetSlotAndShader& target) override;
-
-	virtual void BindToRootSignature(RootSignatureParams* rootSignatureParams, TargetSlotAndShader& target) override;
-
-	virtual void AddComputeRootSignatureParam(RootSignatureParams* rootSignatureParams, TargetSlotAndShader& target) override;
+	virtual void BindToCommandListAsRootParam(Graphics& graphics, CommandList* commandList, const RootBinding& binding) override;
 
 	virtual BindableType GetBindableType() const override;
 

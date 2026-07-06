@@ -15,7 +15,7 @@
 
 UnorderedAccessView::UnorderedAccessView(Graphics& graphics, GraphicsTexture* texture, unsigned int targetMip)
 	:
-	RootParameterBinding({ {ShaderVisibilityGraphic::AllShaders, 0} })
+	RootSignatureBindable({ {ShaderVisibilityGraphic::AllShaders, 0} })
 {
 	THROW_INTERNAL_ERROR_IF("GraphicsTexture was NULL", texture == nullptr);
 
@@ -43,7 +43,7 @@ UnorderedAccessView::UnorderedAccessView(Graphics& graphics, GraphicsTexture* te
 
 UnorderedAccessView::UnorderedAccessView(Graphics& graphics, GraphicsBuffer* buffer, UINT slot)
 	:
-	RootParameterBinding({ {ShaderVisibilityGraphic::AllShaders, slot} })
+	RootSignatureBindable({ {ShaderVisibilityGraphic::AllShaders, slot} })
 {
 	THROW_INTERNAL_ERROR_IF("GraphicsBuffer was NULL", buffer == nullptr);
 
@@ -72,24 +72,15 @@ UnorderedAccessView::UnorderedAccessView(Graphics& graphics, GraphicsBuffer* buf
 	}
 }
 
-void UnorderedAccessView::BindToCommandList(Graphics& graphics, CommandList* commandList, TargetSlotAndShader& target)
+void UnorderedAccessView::AddGraphicsRootSignatureParam(RootSignatureParams* rootSignatureParams)
 {
-	THROW_INTERNAL_ERROR("Tried to bind UAV to graphic command list");
+	for (const auto& target : GetTargets())
+		rootSignatureParams->AddUnorderedAccessViewParameter(this, target);
 }
 
-void UnorderedAccessView::BindToComputeCommandList(Graphics& graphics, CommandList* commandList, TargetSlotAndShader& target)
+void UnorderedAccessView::BindToCommandListAsRootParam(Graphics& graphics, CommandList* commandList, const RootBinding& binding)
 {
-	commandList->SetComputeDescriptorTable(graphics, this, target);
-}
-
-void UnorderedAccessView::BindToRootSignature(RootSignatureParams* rootSignatureParams, TargetSlotAndShader& target)
-{
-	THROW_INTERNAL_ERROR("Tried to bind UAV to graphic root signature");
-}
-
-void UnorderedAccessView::AddComputeRootSignatureParam(RootSignatureParams* rootSignatureParams, TargetSlotAndShader& target)
-{
-	rootSignatureParams->AddUnorderedAccessViewParameter(this, target);
+	commandList->SetComputeDescriptorTable(graphics, this, binding);
 }
 
 BindableType UnorderedAccessView::GetBindableType() const

@@ -5,20 +5,39 @@
 
 RootSignatureConstants::RootSignatureConstants(DynamicConstantBuffer::Data& data, ResourceTargets targets)
 	:
-	RootParameterBinding(targets),
+	RootSignatureBindable(std::move(targets)),
 	m_data(std::move(data))
 {
 
 }
 
-void RootSignatureConstants::BindToCommandList(Graphics& graphics, CommandList* commandList, TargetSlotAndShader& target)
+void RootSignatureConstants::AddGraphicsRootSignatureParam(RootSignatureParams* rootSignatureParams)
 {
-	commandList->SetRootConstants(graphics, this, target);
+	for (const auto& target : GetTargets())
+		rootSignatureParams->SetGraphicsRootConstants(this, target);
 }
 
-void RootSignatureConstants::BindToRootSignature(RootSignatureParams* rootSignatureParams, TargetSlotAndShader& target)
+void RootSignatureConstants::BindToCommandListAsRootParam(Graphics& graphics, CommandList* commandList, const RootBinding& binding)
 {
-	rootSignatureParams->SetGraphicsRootConstants(this, target);
+	commandList->SetRootConstants(graphics, this, binding);
+}
+
+BindableType RootSignatureConstants::GetBindableType() const
+{
+	return BindableType::bindable_rootSignatureConstants;
+}
+
+RootSignatureBindableType RootSignatureConstants::GetRootSignatureBindableType() const
+{
+	return RootSignatureBindableType::rootSignature_Constants;
+}
+
+D3D12_GPU_VIRTUAL_ADDRESS RootSignatureConstants::GetGPUAddress(Graphics& graphics) const
+{
+	// TODO: make diverged class for objects that don't own a resource but are RootParams
+	THROW_INTERNAL_ERROR("Tried to get gpu address of root bind that doesn't own a resource");
+
+	return {};
 }
 
 unsigned int RootSignatureConstants::GetNumValues() const
@@ -46,14 +65,4 @@ void RootSignatureConstants::SetUpdated(bool updated)
 DynamicConstantBuffer::Data& RootSignatureConstants::GetData()
 {
 	return m_data;
-}
-
-BindableType RootSignatureConstants::GetBindableType() const
-{
-	return BindableType::bindable_rootSignatureConstants;
-}
-
-RootSignatureBindableType RootSignatureConstants::GetRootSignatureBindableType() const
-{
-	return RootSignatureBindableType::rootSignature_Constants;
 }

@@ -8,7 +8,7 @@
 
 DescriptorHeapBindable::DescriptorHeapBindable(ResourceTargets targets)
 	:
-	RootParameterBinding(std::move(targets))
+	RootSignatureBindable(std::move(targets))
 {
 
 }
@@ -32,14 +32,15 @@ std::string DescriptorHeapBindable::GetIdentifier(ResourceTargets targets)
 	return result;
 }
 
-void DescriptorHeapBindable::BindToRootSignature(RootSignatureParams* rootSignatureParams, TargetSlotAndShader& target)
+void DescriptorHeapBindable::AddGraphicsRootSignatureParam(RootSignatureParams* rootSignatureParams)
 {
-	rootSignatureParams->AddDescriptorTableParameter(this, target);
+	for(const auto& target : GetTargets())
+		rootSignatureParams->AddDescriptorTableParameter(this, target);
 }
 
-void DescriptorHeapBindable::BindToCommandList(Graphics& graphics, CommandList* commandList, TargetSlotAndShader& target)
+void DescriptorHeapBindable::BindToCommandListAsRootParam(Graphics& graphics, CommandList* commandList, const RootBinding& binding)
 {
-	commandList->SetGraphicsDescriptorTable(graphics, this, target);
+	commandList->SetGraphicsDescriptorTable(graphics, this, binding);
 }
 
 BindableType DescriptorHeapBindable::GetBindableType() const
@@ -52,9 +53,17 @@ RootSignatureBindableType DescriptorHeapBindable::GetRootSignatureBindableType()
 	return RootSignatureBindableType::rootSignature_DescriptorTable;
 }
 
-D3D12_GPU_DESCRIPTOR_HANDLE DescriptorHeapBindable::GetDescriptorHeapGPUHandle() const
+D3D12_GPU_DESCRIPTOR_HANDLE DescriptorHeapBindable::GetDescriptorHeapGPUHandle(Graphics& graphics) const
 {
 	return m_descriptorHandle;
+}
+
+D3D12_GPU_VIRTUAL_ADDRESS DescriptorHeapBindable::GetGPUAddress(Graphics& graphics) const
+{
+	// TODO: make diverged class for objects that don't own a resource but are RootParams
+	THROW_INTERNAL_ERROR("Tried to get gpu address of root bind that doesn't own a resource");
+
+	return {};
 }
 
 void DescriptorHeapBindable::Initialize(Graphics& graphics, DescriptorHeap::DescriptorInfo descriptorInfo, unsigned int descriptorNum)

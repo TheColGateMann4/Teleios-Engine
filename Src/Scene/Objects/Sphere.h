@@ -21,7 +21,6 @@ private:
 
 private:
 	std::shared_ptr<RootSignatureConstants> m_pointLightIndexConstant;
-	bool m_initialized;
 	float m_diameter;
 	size_t m_tesselation;
 };
