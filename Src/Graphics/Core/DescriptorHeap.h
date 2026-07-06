@@ -1,5 +1,6 @@
 #pragma once
 #include "Includes/CppIncludes.h"
+#include "Includes/WRLNoWarnings.h"
 #include "Includes/DirectXIncludes.h"
 #include "Includes/WRLNoWarnings.h"
 

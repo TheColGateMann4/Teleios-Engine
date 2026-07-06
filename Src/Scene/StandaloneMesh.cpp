@@ -46,7 +46,7 @@ void StandaloneMesh::Initialize(Graphics& graphics, Pipeline& pipeline)
 
 			pipelineStateParams.SetRenderTargetFormat(0, graphics.GetBackBuffer()->GetFormat());
 
-			pipelineStateParams.SetDepthStencilFormat(graphics.GetDepthStencil()->GetResource(graphics)->GetFormat());
+			pipelineStateParams.SetDepthStencilFormat(DXGI_FORMAT_UNKNOWN);
 		}
 
 		m_pipelineState = GraphicsPipelineState::GetResource(graphics, std::move(pipelineStateParams));

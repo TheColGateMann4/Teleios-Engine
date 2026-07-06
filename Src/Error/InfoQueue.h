@@ -14,6 +14,8 @@ public:
 
  	std::vector<std::string> GetMessages() const;
 
+	void SetMuteInfoMessages(bool mute);
+
 private:
 	std::string ProcessMessage(struct D3D12_MESSAGE* message) const;
 

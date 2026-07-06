@@ -16,7 +16,7 @@ InfoQueue::InfoQueue(Graphics& graphics)
 
 size_t InfoQueue::GetNumMessages() const
 {
-	return static_cast<size_t>(pInfoQueue->GetNumStoredMessages());
+	return static_cast<size_t>(pInfoQueue->GetNumMessagesAllowedByStorageFilter());
 }
 
 std::vector<std::string> InfoQueue::GetMessages() const
@@ -40,7 +40,29 @@ std::vector<std::string> InfoQueue::GetMessages() const
 		result.push_back(ProcessMessage(pMessage));
 	}
 
+	pInfoQueue->ClearStoredMessages();
+
 	return result;
+}
+
+void InfoQueue::SetMuteInfoMessages(bool mute)
+{
+	if (mute)
+	{
+		HRESULT hr;
+		
+		D3D12_MESSAGE_SEVERITY filteredSevernity[3] = { D3D12_MESSAGE_SEVERITY_WARNING, D3D12_MESSAGE_SEVERITY_INFO, D3D12_MESSAGE_SEVERITY_MESSAGE };
+
+		D3D12_INFO_QUEUE_FILTER filter = {};
+		filter.DenyList.NumSeverities = 3;
+		filter.DenyList.pSeverityList = filteredSevernity;
+
+		THROW_ERROR_NO_MSGS(pInfoQueue->PushStorageFilter(&filter));
+	}
+	else
+	{
+		pInfoQueue->PopStorageFilter();
+	}
 }
 
 std::string InfoQueue::ProcessMessage(D3D12_MESSAGE* message) const

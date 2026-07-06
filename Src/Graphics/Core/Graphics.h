@@ -42,7 +42,7 @@ public:
 	void FinishInitialization();
 
 private:
-	void PresentFrame();
+	void PresentFrame(Graphics& graphics);
 	void CleanupResources();
 
 public:

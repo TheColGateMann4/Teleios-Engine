@@ -13,7 +13,7 @@ public:
 	~ImguiManager();
 
 public:
-	void BeginFrame();
+	void BeginFrame(Graphics& graphics);
 
 	static LRESULT HandleMessages(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 

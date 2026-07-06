@@ -3,11 +3,14 @@
 
 #include "Graphics/Core/Pix.h"
 #include "ResourceList.h"
+#include "Includes/DirectXIncludes.h"
 
-using namespace  std::string_literals;
-extern "C" { __declspec(dllexport) extern const UINT D3D12SDKVersion = 715; } // agility version of D3D12Core.dll. Mine is latest preview
+extern "C"
+{
+	__declspec(dllexport) extern const UINT D3D12SDKVersion = D3D12_PREVIEW_SDK_VERSION;
 
-extern "C" { __declspec(dllexport) extern const char* D3D12SDKPath = "D3D12/"; } // path of agility dll's
+	__declspec(dllexport) extern const char* D3D12SDKPath = ".\\D3D12\\";
+}
 
 Graphics::Graphics(HWND hWnd, DXGI_FORMAT renderTargetFormat)
 	:
@@ -93,7 +96,7 @@ void Graphics::BeginFrame(float deltaTime)
 {
 	m_currentBufferIndex = GetCurrentBufferIndexFromSwapchain();
 
-	m_imguiManager->BeginFrame();
+	m_imguiManager->BeginFrame(*this);
 
 	// For now since we don't have proper synchronization system
 	// We need to push copy events during runtime
@@ -108,7 +111,7 @@ void Graphics::FinishFrame()
 {
 	START_CPU_EVENT(PIX_COLOR(0, 255, 255), "Present");
 
-	PresentFrame();
+	PresentFrame(*this);
 
 	END_CPU_EVENT();
 
@@ -128,14 +131,15 @@ void Graphics::Render(Scene& scene, float deltaTime)
 	renderer.Draw(*this, scene, deltaTime);
 }
 
-void Graphics::PresentFrame()
+void Graphics::PresentFrame(Graphics& graphics)
 {
 	HRESULT hr;
 
 	Fence* pPreviousFrameFence = &m_graphicFences.at(GetPreviousBufferIndex());
 
 	// forcing this frame on GPU side to wait till previous frame is presented
-	GetDeviceResources().GetCommandQueue()->Wait(pPreviousFrameFence->Get(), pPreviousFrameFence->GetValue());
+	if(pPreviousFrameFence->GetValue() != 0)
+		THROW_INFO_ERROR(GetDeviceResources().GetCommandQueue()->Wait(pPreviousFrameFence->Get(), pPreviousFrameFence->GetValue()));
 
 	THROW_ERROR_AT_GFX_INIT(GetDeviceResources().GetSwapChain()->Present(1, NULL));
 }

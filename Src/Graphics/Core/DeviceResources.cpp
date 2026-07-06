@@ -45,7 +45,7 @@ void DeviceResources::InitializeGraphicsResources(Graphics& graphics, HWND hWnd,
 		commandQueueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
 		commandQueueDesc.NodeMask = 0;
 
-		THROW_INFO_ERROR(pDevice->CreateCommandQueue(&commandQueueDesc, IID_PPV_ARGS(&pCommandQueue)));
+		THROW_INFO_ERROR(pDevice->CreateCommandQueue1(&commandQueueDesc, TELEIOS_CREATOR_ID, IID_PPV_ARGS(&pCommandQueue)));
 	}
 
 	// Creating swap chain
@@ -81,12 +81,12 @@ ID3D12Debug6* DeviceResources::GetDebugController()
 	return pDebugController.Get();
 }
 
-ID3D12Device10* DeviceResources::GetDevice()
+ID3D12Device15* DeviceResources::GetDevice()
 {
 	return pDevice.Get();
 }
 
-ID3D12CommandQueue* DeviceResources::GetCommandQueue()
+ID3D12CommandQueue1* DeviceResources::GetCommandQueue()
 {
 	return pCommandQueue.Get();
 }
