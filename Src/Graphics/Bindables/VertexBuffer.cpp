@@ -14,7 +14,7 @@ VertexBuffer::VertexBuffer(Graphics& graphics, const DynamicVertex::DynamicVerte
 {
 	m_layout.Finish();
 
-	m_buffer = graphics.GetGraphicsBufferAllocatorManager()->RequestBufferAllocator(graphics, 0, layout.GetSize());
+	m_buffer = graphics.GetGraphicsBufferAllocatorManager()->RequestBufferAllocator(graphics, 0, layout.GetSize(), D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, BufferType::Static);
 	m_buffer->RegisterForUpdates(this);
 }
 

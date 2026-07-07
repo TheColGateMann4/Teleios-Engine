@@ -15,7 +15,7 @@ class GraphicsBufferSuballocator;
 class BufferAllocatorChunk
 {
 public:
-	BufferAllocatorChunk(size_t byteOffset_, size_t elementOffset_, size_t size_, GraphicsBufferSuballocator* allocator_);
+	BufferAllocatorChunk(size_t byteOffset_, size_t elementOffset_, size_t size_, unsigned int stride_, GraphicsBufferSuballocator* allocator_);
 	~BufferAllocatorChunk();
 
 	BufferAllocatorChunk(BufferAllocatorChunk&& other) noexcept;
@@ -28,7 +28,14 @@ public:
 	size_t elementOffset;
 	size_t byteOffset;
 	size_t size;
+	unsigned int stride;
 	GraphicsBufferSuballocator* allocator;
+};
+
+enum class BufferType
+{
+	Static,
+	Dynamic
 };
 
 class GraphicsBufferSuballocator
@@ -57,15 +64,19 @@ private:
 	struct UploadBufferData
 	{
 		std::unique_ptr<GraphicsBuffer> buffer;
-		size_t offset;
+		size_t dstoffset;
+		size_t srcoffset = 0;
 	};
 
 public:
-	GraphicsBufferSuballocator(Graphics& graphics, unsigned int numElements, unsigned int byteStride);
+	GraphicsBufferSuballocator(Graphics& graphics, unsigned int numElements, unsigned int byteStride, D3D12_RESOURCE_STATES bufferState, BufferType type);
 
 public:
-	std::shared_ptr<BufferAllocatorChunk> Push(Graphics& graphics, void* data, size_t size, size_t stride);
+	std::shared_ptr<BufferAllocatorChunk> Allocate(Graphics& graphics, size_t size, unsigned int stride);
+	std::shared_ptr<BufferAllocatorChunk> Push(Graphics& graphics, void* data, size_t size, unsigned int stride);
 	void Free(BufferAllocatorChunk* chunkInfo);
+	void Write(Graphics& graphics, BufferAllocatorChunk* chunkInfo, void* data, size_t size, size_t offset);
+	std::shared_ptr<BufferAllocatorChunk> Resize(Graphics& graphics, std::shared_ptr<BufferAllocatorChunk>& chunkInfo, size_t newSize, unsigned int stride);
 
 	// takes all upload buffers and reallocates main data if needed
 	void Update(Graphics& graphics);
@@ -78,10 +89,12 @@ public:
 	void UnregisterFromUpdates(BufferAllocatorUpdateListener* listener);
 
 private:
-	std::optional<BufferChunkInfo> TryPushToFreeBlocks(Graphics& graphics, size_t size);
-	BufferChunkInfo PushToEnd(size_t size);
+	std::optional<BufferChunkInfo> TryPushToFreeBlocks(Graphics& graphics, size_t size, unsigned int stride);
+	BufferChunkInfo PushToEnd(size_t size, unsigned int stride);
 
-	std::optional<std::vector<FreedChunkInfo>::iterator> GetBestMatchingChunk(Graphics& graphics, size_t size);
+	std::optional<std::vector<FreedChunkInfo>::iterator> GetBestMatchingChunk(Graphics& graphics, size_t size, unsigned int stride);
+	void InsertFreeChunk(const BufferChunkInfo& chunkInfo);
+	void ShrinkChunk(BufferAllocatorChunk* chunkInfo, size_t newSize);
 
 private:
 	std::vector<BufferAllocatorUpdateListener*> m_updateListeners = {};
@@ -92,4 +105,5 @@ private:
 	std::vector<UploadBufferData> m_pendingUploadBuffers = {};
 	size_t m_usedSpace = 0;
 	unsigned int m_stride;
+	BufferType m_type;
 };

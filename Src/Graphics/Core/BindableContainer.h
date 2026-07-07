@@ -8,7 +8,6 @@ class VertexBufferEntry;
 class IndexBufferEntry;
 class IndexBuffer;
 class InputLayout;
-class TransformConstantBuffer;
 class CachedConstantBuffer;
 class Texture;
 class Shader;

@@ -10,7 +10,7 @@ IndexBuffer::IndexBuffer(Graphics& graphics, unsigned int stride)
 	m_dataFormat(stride == 2 ? DXGI_FORMAT_R16_UINT : DXGI_FORMAT_R32_UINT),
 	m_stride(stride)
 {
-	m_buffer = graphics.GetGraphicsBufferAllocatorManager()->RequestBufferAllocator(graphics, 0, stride);
+	m_buffer = graphics.GetGraphicsBufferAllocatorManager()->RequestBufferAllocator(graphics, 0, stride, D3D12_RESOURCE_STATE_INDEX_BUFFER, BufferType::Static);
 	m_buffer->RegisterForUpdates(this);
 
 	THROW_INTERNAL_ERROR_IF("Stride was invalid", stride != 2 && stride != 4);
