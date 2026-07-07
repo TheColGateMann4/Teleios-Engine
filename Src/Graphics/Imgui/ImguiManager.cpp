@@ -32,35 +32,23 @@ ImguiManager::ImguiManager(Graphics& graphics, HWND hWnd)
 		ImGui::CreateContext();
 	}
 
-
 	// setting style for our imgui layer
 	ImGui::StyleColorsDark();
 
+	THROW_INTERNAL_ERROR_IF("Failed to initialize imgui win32 backend", !ImGui_ImplWin32_Init(hWnd));
 
-	// descriptor heap initialization
-	{
-		D3D12_DESCRIPTOR_HEAP_DESC desc = {};
-		desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-		desc.NumDescriptors = 1;
-		desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-		
-		THROW_ERROR(graphics.GetDeviceResources().GetDevice()->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&pDescriptorHeap)));
-		
-		THROW_INTERNAL_ERROR_IF("Failed to initialize imgui win32 backend", !ImGui_ImplWin32_Init(hWnd));
-		
-		ImGui_ImplDX12_InitInfo initInfo = {};
-		initInfo.Device = graphics.GetDeviceResources().GetDevice();
-		initInfo.CommandQueue = graphics.GetDeviceResources().GetCommandQueue();
-		initInfo.NumFramesInFlight = graphics.GetBufferCount();
-		initInfo.RTVFormat = graphics.GetBackBuffer()->GetFormat();
-		initInfo.DSVFormat = graphics.GetDepthStencil()->GetFormat();
-		initInfo.UserData = &graphics;
-		initInfo.SrvDescriptorHeap = graphics.GetDescriptorHeap().Get();
-		initInfo.SrvDescriptorAllocFn = SrvDescriptorAllocFn;
-		initInfo.SrvDescriptorFreeFn = SrvDescriptorFreeFn;
-		
-		THROW_INTERNAL_ERROR_IF("Failed to initialize imgui directx12 backend", !ImGui_ImplDX12_Init(&initInfo));
-	}
+	ImGui_ImplDX12_InitInfo initInfo = {};
+	initInfo.Device = graphics.GetDeviceResources().GetDevice();
+	initInfo.CommandQueue = graphics.GetDeviceResources().GetCommandQueue();
+	initInfo.NumFramesInFlight = graphics.GetBufferCount();
+	initInfo.RTVFormat = graphics.GetBackBuffer()->GetFormat();
+	initInfo.DSVFormat = graphics.GetDepthStencil()->GetFormat();
+	initInfo.UserData = &graphics;
+	initInfo.SrvDescriptorHeap = graphics.GetDescriptorHeap().Get();
+	initInfo.SrvDescriptorAllocFn = SrvDescriptorAllocFn;
+	initInfo.SrvDescriptorFreeFn = SrvDescriptorFreeFn;
+
+	THROW_INTERNAL_ERROR_IF("Failed to initialize imgui directx12 backend", !ImGui_ImplDX12_Init(&initInfo));
 }
 
 ImguiManager::~ImguiManager()
@@ -95,9 +83,4 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 LRESULT ImguiManager::HandleMessages(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	return ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam);
-}
-
-ID3D12DescriptorHeap* const* ImguiManager::GetAddressOfDescriptorHeap() const
-{
-	return pDescriptorHeap.GetAddressOf();
 }

@@ -123,7 +123,7 @@ ShaderResourceView::ShaderResourceView(Graphics& graphics, GraphicsBuffer* buffe
 
 D3D12_GPU_DESCRIPTOR_HANDLE ShaderResourceView::GetDescriptorHeapGPUHandle(Graphics& graphics) const
 {
-	return m_descriptor.descriptorHeapGpuHandle;
+	return graphics.GetDescriptorHeap().GetHandle(m_descriptorIndex).descriptorHeapGpuHandle;
 }
 
 D3D12_GPU_VIRTUAL_ADDRESS ShaderResourceView::GetGPUAddress(Graphics& graphics) const
@@ -133,30 +133,32 @@ D3D12_GPU_VIRTUAL_ADDRESS ShaderResourceView::GetGPUAddress(Graphics& graphics) 
 
 UINT ShaderResourceView::GetOffsetInDescriptor(Graphics& graphics) const
 {
-	return m_descriptor.offsetInDescriptorFromStart;
+	return graphics.GetDescriptorHeap().GetHandle(m_descriptorIndex).offsetInDescriptorFromStart;
 }
 
 void ShaderResourceView::Initialize(Graphics& graphics, DescriptorHeap::DescriptorInfo descriptorInfo, unsigned int descriptorNum)
 {
 	GraphicsResourceType resourceType = m_resource->GetResourceType();
 
+	m_descriptorIndex = descriptorInfo.offsetInDescriptorFromStart;
+
 	if (resourceType == GraphicsResourceType::texture)
 	{
 		const GraphicsTexture* texture = static_cast<const GraphicsTexture*>(m_resource);
-		InitializeTextureSRV(graphics, m_targetSubresource, m_descriptor, texture);
+		InitializeTextureSRV(graphics, m_targetSubresource, descriptorInfo, texture);
 	}
 	else if (resourceType == GraphicsResourceType::buffer)
 	{
 		const GraphicsBuffer* buffer = static_cast<const GraphicsBuffer*>(m_resource);
-		InitializeBufferSRV(graphics, m_descriptor, buffer);
+		InitializeBufferSRV(graphics, descriptorInfo, buffer);
 	}
 }
 
 void ShaderResourceView::Initialize(Graphics& graphics)
 {
-	m_descriptor = graphics.GetDescriptorHeap().GetNextHandle();
+	auto descriptor = graphics.GetDescriptorHeap().GetNextHandle();
 
-	Initialize(graphics, m_descriptor, 0);
+	Initialize(graphics, descriptor, 0);
 }
 
 ShaderResourceViewMultiResource::ShaderResourceViewMultiResource(Graphics& graphics, BackBufferRenderTarget* renderTarget, UINT slot)
@@ -221,7 +223,9 @@ ShaderResourceViewMultiResource::ShaderResourceViewMultiResource(Graphics& graph
 
 D3D12_GPU_DESCRIPTOR_HANDLE ShaderResourceViewMultiResource::GetDescriptorHeapGPUHandle(Graphics& graphics) const
 {
-	return m_descriptors.at(graphics.GetCurrentBufferIndex()).descriptorHeapGpuHandle;
+	unsigned int currentFrameDescriptorIndex = m_descriptors.at(graphics.GetCurrentBufferIndex());
+
+	return graphics.GetDescriptorHeap().GetHandle(currentFrameDescriptorIndex).descriptorHeapGpuHandle;
 }
 
 D3D12_GPU_VIRTUAL_ADDRESS ShaderResourceViewMultiResource::GetGPUAddress(Graphics& graphics) const
@@ -231,7 +235,9 @@ D3D12_GPU_VIRTUAL_ADDRESS ShaderResourceViewMultiResource::GetGPUAddress(Graphic
 
 unsigned int ShaderResourceViewMultiResource::GetOffsetInDescriptor(Graphics& graphics) const
 {
-	return m_descriptors.at(graphics.GetCurrentBufferIndex()).offsetInDescriptorFromStart;
+	unsigned int currentFrameDescriptorIndex = m_descriptors.at(graphics.GetCurrentBufferIndex());
+
+	return graphics.GetDescriptorHeap().GetHandle(currentFrameDescriptorIndex).offsetInDescriptorFromStart;
 }
 
 void ShaderResourceViewMultiResource::Initialize(Graphics& graphics, DescriptorHeap::DescriptorInfo descriptorInfo, unsigned int descriptorNum)
@@ -255,9 +261,9 @@ void ShaderResourceViewMultiResource::Initialize(Graphics& graphics)
 
 		const GraphicsTexture* texture = static_cast<const GraphicsTexture*>(targetResource);
 
-		DescriptorHeap::DescriptorInfo& descriptor = m_descriptors.at(i);
+		DescriptorHeap::DescriptorInfo descriptor = graphics.GetDescriptorHeap().GetNextHandle();
 
-		descriptor = graphics.GetDescriptorHeap().GetNextHandle();
+		m_descriptors.at(i) = descriptor.offsetInDescriptorFromStart;
 
 		InitializeTextureSRV(graphics, 0, descriptor, texture);
 	}

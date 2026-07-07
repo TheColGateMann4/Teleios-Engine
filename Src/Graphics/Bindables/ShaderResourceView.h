@@ -58,7 +58,7 @@ public:
 private:
 	unsigned int m_targetSubresource = 0;
 	GraphicsResource* m_resource;
-	DescriptorHeap::DescriptorInfo m_descriptor = {};
+	unsigned int m_descriptorIndex = 0;
 };
 
 class ShaderResourceViewMultiResource : public ShaderResourceViewBase
@@ -90,5 +90,5 @@ public:
 
 private:
 	std::vector<GraphicsResource*> m_resources;
-	std::vector<DescriptorHeap::DescriptorInfo> m_descriptors = {};
+	std::vector<unsigned int> m_descriptors = {};
 };

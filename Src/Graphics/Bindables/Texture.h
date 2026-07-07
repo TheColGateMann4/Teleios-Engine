@@ -121,7 +121,7 @@ private:
 	bool m_srgb = false;
 	unsigned int m_mipmapLevels = 1;
 
-	DescriptorHeap::DescriptorInfo m_textureDescriptor = {};
+	unsigned int m_textureDescriptor = -1;
 
 	bool m_generateMipMaps;
 	bool m_compressImage;

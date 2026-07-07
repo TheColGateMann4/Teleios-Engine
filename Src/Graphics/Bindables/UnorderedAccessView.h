@@ -28,7 +28,7 @@ public:
 
 	virtual RootSignatureBindableType GetRootSignatureBindableType() const override;
 
-	UINT GetOffsetInDescriptor() const;
+	UINT GetOffsetInDescriptor(Graphics& graphics) const;
 
 	virtual D3D12_GPU_DESCRIPTOR_HANDLE GetDescriptorHeapGPUHandle(Graphics& graphics) const override;
 
@@ -37,5 +37,5 @@ public:
 	static DXGI_FORMAT GetTypedUAVFormat(DXGI_FORMAT format);
 
 private:
-	DescriptorHeap::DescriptorInfo m_descriptor = {};
+	unsigned int m_descriptorIndex = {};
 };
