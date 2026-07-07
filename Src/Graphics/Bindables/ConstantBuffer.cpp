@@ -93,6 +93,11 @@ void Buffer::Update(Graphics& graphics, void* data, size_t size)
 	graphics.GetBufferHeap().UpdateResource(graphics, m_bufferIndex, data, size);
 }
 
+void Buffer::Resize(Graphics& graphics, size_t newSize)
+{
+	graphics.GetBufferHeap().ResizeResource(graphics, m_bufferIndex, newSize);
+}
+
 D3D12_GPU_VIRTUAL_ADDRESS Buffer::GetGPUAddress(Graphics& graphics) const
 {
 	return graphics.GetBufferHeap().GetBufferAddress(graphics, m_bufferIndex);
@@ -170,13 +175,13 @@ CachedConstantBuffer::CachedConstantBuffer(Graphics& graphics, DynamicConstantBu
 	if(m_frequentlyUpdated)
 		m_bufferIndex.dynamicIndex = graphics.GetConstantBufferHeap().RequestMoreSpace(graphics, m_data.GetLayout().GetSize());
 	else
-		m_bufferIndex.staticIndex = graphics.GetConstantBufferHeap().RequestMoreStaticSpace(m_data.GetLayout().GetSize());
+		m_bufferIndex.staticIndex = graphics.GetConstantBufferHeap().RequestMoreStaticSpace(graphics, m_data.GetLayout().GetSize());
 }
 
 void CachedConstantBuffer::Update(Graphics& graphics)
 {
 	if (m_frequentlyUpdated)
-		graphics.GetConstantBufferHeap().UpdateFrequentlyUpdatedResource(graphics, m_bufferIndex.dynamicIndex, m_data.GetPtr(), m_data.GetLayout().GetSize());
+		graphics.GetConstantBufferHeap().UpdateResource(graphics, m_bufferIndex.dynamicIndex, m_data.GetPtr(), m_data.GetLayout().GetSize());
 	else
 		graphics.GetConstantBufferHeap().UpdateResource(graphics, m_bufferIndex.staticIndex, m_data.GetPtr(), m_data.GetLayout().GetSize());
 }

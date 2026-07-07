@@ -202,11 +202,6 @@ void Scene::InitializeSceneObjects(Graphics& graphics)
 
 void Scene::UpdateGraphicResources(Graphics& graphics)
 {
-	Pipeline& pipeline = graphics.GetRenderer().GetPipeline();
-
-	// copying constant buffers to GPU
-	graphics.GetConstantBufferHeap().CopyResources(graphics, pipeline.GetGraphicCommandList());
-
 	graphics.GetGraphicsBufferAllocatorManager()->Update(graphics);
 }
 
@@ -289,8 +284,6 @@ void Scene::Update(Graphics& graphics, const Input& input, bool isCursorLocked)
 
 	// Updating passes
 	graphics.GetRenderer().UpdatePasses(graphics, *this);
-
-	graphics.GetConstantBufferHeap().UpdateHeap(graphics);
 
 	UpdateObjectMatrices(graphics);
 

@@ -36,6 +36,8 @@ public:
 
 	void Update(Graphics& graphics, void* data, size_t size);
 
+	void Resize(Graphics& graphics, size_t newSize);
+
 	virtual D3D12_GPU_VIRTUAL_ADDRESS GetGPUAddress(Graphics& graphics) const override;
 
 	virtual BindableType GetBindableType() const override;

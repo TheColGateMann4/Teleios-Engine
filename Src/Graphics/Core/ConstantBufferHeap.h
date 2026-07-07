@@ -3,6 +3,7 @@
 #include "Includes/DirectXIncludes.h"
 #include "Includes/WRLNoWarnings.h"
 #include "Macros/ErrorMacros.h"
+#include "Graphics/Resources/GraphicsBufferSuballocator.h"
 
 class Graphics;
 class CommandList;
@@ -52,30 +53,18 @@ using TempBufferIndex = BufferIndex<TempBufferTag>;
 class BufferHeapBase
 {
 protected:
-	struct BufferData
-	{
-		UINT64 offset;
-		UINT size;
-		UINT stride;
-	};
-
 	struct HeapData
 	{
-		std::unique_ptr<GraphicsBuffer> heap;
-		std::vector<BufferData> buffers = {};
-		UINT64 combinedSize = 0;
+		std::shared_ptr<GraphicsBufferSuballocator> heap;
+		std::vector<std::shared_ptr<BufferAllocatorChunk>> buffers = {};
 	};
 
-protected:
-	BufferHeapBase() = default;
-	virtual ~BufferHeapBase();
+public:
+	virtual ~BufferHeapBase() = default;
 
-public:  // At program initialization
-	void Finish(Graphics& graphics);
+	void Initialize(Graphics& graphics);
 
 public:	// At runtime
-	void CopyResources(Graphics& graphics, CommandList* copyCommandList);
-
 	D3D12_GPU_VIRTUAL_ADDRESS GetBufferAddress(TempBufferIndex bufferIndex);
 	D3D12_GPU_VIRTUAL_ADDRESS GetBufferAddress(Graphics& graphics, DynamicBufferIndex bufferIndex);
 	D3D12_GPU_VIRTUAL_ADDRESS GetBufferAddress(StaticBufferIndex bufferIndex);
@@ -84,15 +73,13 @@ public:	// At runtime
 	ID3D12Resource* GetStaticResource() const;
 	ID3D12Resource* GetTempResource() const;
 
-	void UpdateHeap(Graphics& graphics);
-
 	void UpdateResource(Graphics& graphics, TempBufferIndex bufferIndex, void* data, size_t size);
 	void UpdateResource(Graphics& graphics, DynamicBufferIndex bufferIndex, void* data, size_t size);
 	void UpdateResource(Graphics& graphics, StaticBufferIndex bufferIndex, void* data, size_t size);
-	void UpdateFrequentlyUpdatedResource(Graphics& graphics, DynamicBufferIndex bufferIndex, void* data, size_t size);
 
-private:
-	void UpdateResource(UINT64 bufferStartingOffset, UINT64 bufferSize, void* data, size_t size);
+	void ResizeResource(Graphics& graphics, TempBufferIndex bufferIndex, size_t size);
+	void ResizeResource(Graphics& graphics, DynamicBufferIndex bufferIndex, size_t size);
+	void ResizeResource(Graphics& graphics, StaticBufferIndex bufferIndex, size_t size);
 
 private:
 	UINT64 GetOffsetOfBuffer(Graphics& graphics, DynamicBufferIndex bufferIndex);
@@ -105,48 +92,23 @@ private:
 	UINT64 GetBufferOffsetAtIndex(const HeapData& heapData, unsigned int bufferIndex);
 
 protected:
-	bool m_finished = false;
-
+	// static resources - on GPU-only memory
+	HeapData m_staticHeap;
+	
 	// non static resources - on shared memory; size multiplied by n frames-in-flight
 	HeapData m_dynamicHeap;
 
-	// static resources - on GPU-only memory
-	HeapData m_staticHeap;
-
-	void* pBufferHeapMappedData = nullptr;
-	
 	// temp resources
 	// each buffer is 256 bytes
 	UINT64 m_numberOfTempBuffers = 1024;
 	UINT64 m_numTempBuffersUsed = 0;
-
-	// struct contaning data for updating resource on GPU
-	struct UploadResource 
-	{
-		std::unique_ptr<GraphicsBuffer> uploadResource;
-		unsigned int workRangeInBytes;
-		StaticBufferIndex staticResourceID = StaticBufferIndex();
-	};
-
-	std::vector<UploadResource> m_uploadResources;
-
-	struct FrequentlyUpdatedResourceData
-	{
-		void* data;
-		size_t dataSize;
-
-		unsigned int frameIndex;
-		bool updated = false;
-	};
-
-	std::unordered_map<unsigned int, FrequentlyUpdatedResourceData> m_frequentlyUpdatedResourcesToUpdate;
 };
 
 class ConstantBufferHeap : public BufferHeapBase
 {
 public:  // At program initialization
 	TempBufferIndex GetNextTempIndex(UINT resourceSize);
-	StaticBufferIndex RequestMoreStaticSpace(UINT resourceSize);
+	StaticBufferIndex RequestMoreStaticSpace(Graphics& graphics, UINT resourceSize);
 	DynamicBufferIndex RequestMoreSpace(Graphics& graphics, UINT resourceSize);
 
 protected:
@@ -156,10 +118,10 @@ protected:
 class BufferHeap : public BufferHeapBase
 {
 public:
-	BufferHeap();
+	void Initialize(Graphics& graphics);
 
 public:  // At program initialization
-	StaticBufferIndex RequestMoreStaticSpace(UINT resourceSize, UINT stride);
+	StaticBufferIndex RequestMoreStaticSpace(Graphics& graphics, UINT resourceSize, UINT stride);
 	DynamicBufferIndex RequestMoreSpace(Graphics& graphics, UINT resourceSize, UINT stride);
 
 public: // At runtime

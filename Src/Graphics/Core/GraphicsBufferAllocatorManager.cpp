@@ -1,23 +1,27 @@
 #include "GraphicsBufferAllocatorManager.h"
 
-std::shared_ptr<GraphicsBufferSuballocator> GraphicsBufferAllocatorManager::RequestBufferAllocator(Graphics& graphics, unsigned int numElements, unsigned int stride)
+std::shared_ptr<GraphicsBufferSuballocator> GraphicsBufferAllocatorManager::RequestBufferAllocator(Graphics& graphics, unsigned int numElements, unsigned int stride, D3D12_RESOURCE_STATES bufferState, BufferType type)
 {
-	for (auto& allocator : m_allocators)
-		if (allocator->GetByteStride() == stride)
-			return allocator;
+	SuballocatorIdentifier identifier = {};
+	identifier.state = bufferState;
+	identifier.type = type;
 
-	m_allocators.push_back(std::make_shared<GraphicsBufferSuballocator>(graphics, numElements, stride));
+	auto [iterator, inserted] = m_allocators.try_emplace(identifier);
 
-	return m_allocators.back();
-}
+	if (inserted)
+		iterator->second = std::make_shared<GraphicsBufferSuballocator>(graphics, numElements, stride, bufferState, type);
 
-GraphicsBufferSuballocator* GraphicsBufferAllocatorManager::Get(size_t allocatorIndex)
-{
-	return m_allocators.at(allocatorIndex).get();
+	return iterator->second;
 }
 
 void GraphicsBufferAllocatorManager::Update(Graphics& graphics)
 {
-	for (auto& allocator : m_allocators)
+	for (auto& [key, allocator] : m_allocators)
 		allocator->Update(graphics);
+}
+
+bool GraphicsBufferAllocatorManager::SuballocatorIdentifier::operator==(const SuballocatorIdentifier& other) const
+{
+	return state == other.state &&
+		type == other.type;
 }

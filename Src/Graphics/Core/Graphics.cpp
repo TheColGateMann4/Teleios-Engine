@@ -63,6 +63,8 @@ Graphics::Graphics(HWND hWnd, DXGI_FORMAT renderTargetFormat)
 			m_graphicFences.push_back(Fence(*this));
 	}
 
+	constantBufferHeap.Initialize(*this);
+	bufferHeap.Initialize(*this);
 	renderer.Initialize(*this);
 	profiler.Initialize(*this);
 }
@@ -161,13 +163,10 @@ void Graphics::FinishInitialization()
 	// after every object was firstly initialized, we create descriptor heap with space for each one
 	descriptorHeap.Finish(*this);
 
-	// we are creating one big constant buffer that will hold every constant buffer on scene
-	constantBufferHeap.Finish(*this);
-
-	bufferHeap.Finish(*this);
-
 	//initializing imgui
 	m_imguiManager = std::make_unique<ImguiManager>(*this, m_windowHwnd);
+
+	graphicsBufferAllocatorManager.Update(*this);
 }
 
 void Graphics::CleanupResources()
