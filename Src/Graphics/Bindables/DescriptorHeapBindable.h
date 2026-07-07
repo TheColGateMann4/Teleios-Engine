@@ -32,7 +32,4 @@ public:
 	virtual void Initialize(Graphics& graphics) override;
 
 	virtual DescriptorType GetDescriptorType() const override;
-
-private:
-	D3D12_GPU_DESCRIPTOR_HANDLE m_descriptorHandle;
 };

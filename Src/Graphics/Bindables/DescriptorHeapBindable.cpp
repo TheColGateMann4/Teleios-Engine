@@ -55,7 +55,7 @@ RootSignatureBindableType DescriptorHeapBindable::GetRootSignatureBindableType()
 
 D3D12_GPU_DESCRIPTOR_HANDLE DescriptorHeapBindable::GetDescriptorHeapGPUHandle(Graphics& graphics) const
 {
-	return m_descriptorHandle;
+	return graphics.GetDescriptorHeap().GetHandle().descriptorHeapGpuHandle;
 }
 
 D3D12_GPU_VIRTUAL_ADDRESS DescriptorHeapBindable::GetGPUAddress(Graphics& graphics) const
@@ -73,8 +73,7 @@ void DescriptorHeapBindable::Initialize(Graphics& graphics, DescriptorHeap::Desc
 
 void DescriptorHeapBindable::Initialize(Graphics& graphics)
 {
-	// getting start address of descriptor heap to bind it whole
-	m_descriptorHandle = graphics.GetDescriptorHeap().GetGPUHandle();
+	
 }
 
 DescriptorType DescriptorHeapBindable::GetDescriptorType() const

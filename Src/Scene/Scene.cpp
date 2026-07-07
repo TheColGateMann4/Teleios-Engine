@@ -203,6 +203,8 @@ void Scene::InitializeSceneObjects(Graphics& graphics)
 void Scene::UpdateGraphicResources(Graphics& graphics)
 {
 	graphics.GetGraphicsBufferAllocatorManager()->Update(graphics);
+
+	graphics.GetDescriptorHeap().Update(graphics);
 }
 
 void Scene::DrawObjectInspector(Graphics& graphics)

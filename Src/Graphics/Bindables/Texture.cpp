@@ -77,12 +77,12 @@ void Texture::Initialize(Graphics& graphics, DescriptorHeap::DescriptorInfo desc
 
 	// creating SRV for texture resource on GPU memory
 	{
-		m_textureDescriptor = descriptorInfo;
+		m_textureDescriptor = descriptorInfo.offsetInDescriptorFromStart;
 
 		THROW_INFO_ERROR(graphics.GetDeviceResources().GetDevice()->CreateShaderResourceView(
 			m_gpuTexture->GetResource(),
 			&shaderResourceViewDesc,
-			m_textureDescriptor.descriptorCpuHandle
+			descriptorInfo.descriptorCpuHandle
 		));
 	}
 }
@@ -137,12 +137,12 @@ DescriptorType Texture::GetDescriptorType() const
 
 D3D12_CPU_DESCRIPTOR_HANDLE Texture::GetCPUDescriptor(Graphics& graphics) const
 {
-	return m_textureDescriptor.descriptorCpuHandle;
+	return graphics.GetDescriptorHeap().GetHandle(m_textureDescriptor).descriptorCpuHandle;
 }
 
 D3D12_GPU_DESCRIPTOR_HANDLE Texture::GetDescriptorHeapGPUHandle(Graphics& graphics) const
 {
-	return m_textureDescriptor.descriptorHeapGpuHandle;
+	return graphics.GetDescriptorHeap().GetHandle(m_textureDescriptor).descriptorHeapGpuHandle;
 }
 
 TextureType Texture::GetTextureType() const
@@ -152,7 +152,7 @@ TextureType Texture::GetTextureType() const
 
 UINT Texture::GetOffsetInDescriptor() const
 {
-	return m_textureDescriptor.offsetInDescriptorFromStart;
+	return m_textureDescriptor;
 }
 
 GraphicsTexture* Texture::GetTexture() const

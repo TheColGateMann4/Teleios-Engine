@@ -21,7 +21,8 @@ UnorderedAccessView::UnorderedAccessView(Graphics& graphics, GraphicsTexture* te
 
 	HRESULT hr;
 
-	m_descriptor = graphics.GetDescriptorHeap().GetNextHandle();
+	auto descriptor = graphics.GetDescriptorHeap().GetNextHandle();
+	m_descriptorIndex = descriptor.offsetInDescriptorFromStart;
 
 	// creating UAV itself
 	{
@@ -36,7 +37,7 @@ UnorderedAccessView::UnorderedAccessView(Graphics& graphics, GraphicsTexture* te
 			texture->GetResource(),
 			nullptr,
 			&uavDesc,
-			m_descriptor.descriptorCpuHandle
+			descriptor.descriptorCpuHandle
 		));
 	}
 }
@@ -49,7 +50,8 @@ UnorderedAccessView::UnorderedAccessView(Graphics& graphics, GraphicsBuffer* buf
 
 	HRESULT hr;
 
-	m_descriptor = graphics.GetDescriptorHeap().GetNextHandle();
+	auto descriptor = graphics.GetDescriptorHeap().GetNextHandle();
+	m_descriptorIndex = descriptor.offsetInDescriptorFromStart;
 
 	// creating UAV itself
 	{
@@ -67,7 +69,7 @@ UnorderedAccessView::UnorderedAccessView(Graphics& graphics, GraphicsBuffer* buf
 			buffer->GetResource(),
 			nullptr,
 			&uavDesc,
-			m_descriptor.descriptorCpuHandle
+			descriptor.descriptorCpuHandle
 		));
 	}
 }
@@ -98,19 +100,19 @@ RootSignatureBindableType UnorderedAccessView::GetRootSignatureBindableType() co
 	return RootSignatureBindableType::rootSignature_DescriptorTable;
 }
 
-UINT UnorderedAccessView::GetOffsetInDescriptor() const
+UINT UnorderedAccessView::GetOffsetInDescriptor(Graphics& graphics) const
 {
-	return m_descriptor.offsetInDescriptorFromStart;
+	return graphics.GetDescriptorHeap().GetHandle(m_descriptorIndex).offsetInDescriptorFromStart;
 }
 
 D3D12_GPU_DESCRIPTOR_HANDLE UnorderedAccessView::GetDescriptorHeapGPUHandle(Graphics& graphics) const
 {
-	return m_descriptor.descriptorHeapGpuHandle;
+	return graphics.GetDescriptorHeap().GetHandle(m_descriptorIndex).descriptorHeapGpuHandle;
 }
 
 D3D12_CPU_DESCRIPTOR_HANDLE UnorderedAccessView::GetCPUDescriptor(Graphics& graphics) const
 {
-	return m_descriptor.descriptorCpuHandle;
+	return graphics.GetDescriptorHeap().GetHandle(m_descriptorIndex).descriptorCpuHandle;
 }
 
 DXGI_FORMAT UnorderedAccessView::GetTypedUAVFormat(DXGI_FORMAT format)

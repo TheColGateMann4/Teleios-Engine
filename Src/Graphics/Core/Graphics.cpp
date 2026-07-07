@@ -63,6 +63,7 @@ Graphics::Graphics(HWND hWnd, DXGI_FORMAT renderTargetFormat)
 			m_graphicFences.push_back(Fence(*this));
 	}
 
+	descriptorHeap.Initialize(*this);
 	constantBufferHeap.Initialize(*this);
 	bufferHeap.Initialize(*this);
 	renderer.Initialize(*this);
@@ -160,9 +161,6 @@ void Graphics::WaitForGPUIfNeeded()
 
 void Graphics::FinishInitialization()
 {
-	// after every object was firstly initialized, we create descriptor heap with space for each one
-	descriptorHeap.Finish(*this);
-
 	//initializing imgui
 	m_imguiManager = std::make_unique<ImguiManager>(*this, m_windowHwnd);
 

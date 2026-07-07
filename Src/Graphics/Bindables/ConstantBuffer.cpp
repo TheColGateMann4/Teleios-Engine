@@ -19,7 +19,7 @@ Buffer::Buffer(Graphics& graphics, unsigned int numElements, DynamicConstantBuff
 	m_numElements(numElements)
 {
 	graphics.GetDescriptorHeap().RequestMoreSpace(graphics.GetBufferCount());
-	m_descriptorPerFrame.resize(graphics.GetBufferCount());
+	m_descriptorIndexPerFrame.resize(graphics.GetBufferCount());
 
 	unsigned int layoutSize = layout.GetSize();
 
@@ -47,12 +47,12 @@ void Buffer::Initialize(Graphics& graphics, DescriptorHeap::DescriptorInfo descr
 
 	// creating SRV for texture resource on GPU memory
 	{
-		m_descriptorPerFrame.at(descriptorNum) = descriptorInfo;
+		m_descriptorIndexPerFrame.at(descriptorNum) = descriptorInfo.offsetInDescriptorFromStart;
 
 		THROW_INFO_ERROR(graphics.GetDeviceResources().GetDevice()->CreateShaderResourceView(
 			graphics.GetBufferHeap().GetDynamicResource(),
 			&shaderResourceViewDesc,
-			m_descriptorPerFrame.at(descriptorNum).descriptorCpuHandle
+			descriptorInfo.descriptorCpuHandle
 		));
 	}
 }
@@ -69,7 +69,9 @@ void Buffer::Initialize(Graphics& graphics)
 
 D3D12_GPU_DESCRIPTOR_HANDLE Buffer::GetDescriptorHeapGPUHandle(Graphics& graphics) const
 {
-	return m_descriptorPerFrame.at(graphics.GetCurrentBufferIndex()).descriptorHeapGpuHandle;
+	unsigned int currentFrameDescriptorIndex = m_descriptorIndexPerFrame.at(graphics.GetCurrentBufferIndex());
+
+	return graphics.GetDescriptorHeap().GetHandle(currentFrameDescriptorIndex).descriptorHeapGpuHandle;
 }
 
 DescriptorType Buffer::GetDescriptorType() const

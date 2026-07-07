@@ -45,7 +45,7 @@ public:
 	virtual RootSignatureBindableType GetRootSignatureBindableType() const override;
 
 private:
-	std::vector<DescriptorHeap::DescriptorInfo> m_descriptorPerFrame;
+	std::vector<unsigned int> m_descriptorIndexPerFrame;
 
 	DynamicConstantBuffer::Layout m_layout;
 	unsigned int m_numElements;
