@@ -65,11 +65,13 @@ void ModelImporter::AddSceneObjectFromFile(Graphics& graphics, const char* path,
 
 		THROW_INTERNAL_ERROR_IF(importer.GetErrorString(), modelScene == nullptr);
 
+		std::string modelName = modelScene->GetShortFilename(path);
+
 		ProcessCameras(graphics, scene, *modelScene);
 		ProcessLights(graphics, scene, *modelScene);
-		ProcessMaterials(graphics, scene, *modelScene, filePath);
+		ProcessMaterials(graphics, scene, *modelScene, filePath, modelName);
 
-		PushModel(graphics, scene, scale, modelScene->mRootNode, modelScene->mMeshes, modelScene->mMaterials);
+		PushModel(graphics, scene, modelName, scale, modelScene->mRootNode, modelScene->mMeshes, modelScene->mMaterials);
 	}
 	else if (strcmp(fileExtension.c_str(), ".fbx") == 0)
 	{
@@ -134,7 +136,7 @@ void ModelImporter::ProcessCameras(Graphics& graphics, Scene& scene, const aiSce
 	}
 }
 
-void ModelImporter::ProcessMaterials(Graphics& graphics, Scene& scene, const aiScene& importedScene, const std::string& filePath)
+void ModelImporter::ProcessMaterials(Graphics& graphics, Scene& scene, const aiScene& importedScene, const std::string& filePath, const std::string& modelName)
 {
 	if (!importedScene.HasMaterials())
 		return;
@@ -143,7 +145,7 @@ void ModelImporter::ProcessMaterials(Graphics& graphics, Scene& scene, const aiS
 
 	for (auto* importedMaterial : importedMaterials)
 	{
-		std::string materialName = importedMaterial->GetName().C_Str();
+		std::string materialName = modelName + '@' + importedMaterial->GetName().C_Str();
 		std::shared_ptr<Material> material = ProcessMaterial(graphics, importedMaterial, filePath);
 
 		scene.AddMaterial(materialName, std::move(material));
@@ -285,7 +287,7 @@ MaterialProperties::MaterialProperties ModelImporter::ProcessMaterialProperties(
 	return resultPropeties;
 }
 
-void ModelImporter::PushModel(Graphics& graphics, Scene& scene, float scale, aiNode* node, aiMesh** meshes, aiMaterial** materials, Model* pParent)
+void ModelImporter::PushModel(Graphics& graphics, Scene& scene, const std::string& modelName, float scale, aiNode* node, aiMesh** meshes, aiMaterial** materials, Model* pParent)
 {
 	std::vector<std::pair<aiMesh*, std::shared_ptr<Material>>> modelMeshes;
 	modelMeshes.reserve(node->mNumMeshes);
@@ -294,8 +296,9 @@ void ModelImporter::PushModel(Graphics& graphics, Scene& scene, float scale, aiN
 	{
 		aiMesh* targetMesh = meshes[node->mMeshes[meshIndex]];
 		aiString targetMaterialName = materials[targetMesh->mMaterialIndex]->GetName();
+		std::string masterialIdentifier = modelName + '@' + targetMaterialName.C_Str();
 
-		modelMeshes.push_back({ targetMesh, scene.GetMaterial(targetMaterialName.C_Str())});
+		modelMeshes.push_back({ targetMesh, scene.GetMaterial(masterialIdentifier)});
 	}
 
 	Model* pNewParent;
@@ -308,5 +311,5 @@ void ModelImporter::PushModel(Graphics& graphics, Scene& scene, float scale, aiN
 	}
 
 	for (unsigned int childIndex = 0; childIndex < node->mNumChildren; childIndex++)
-		PushModel(graphics, scene, scale, node->mChildren[childIndex], meshes, materials, pNewParent);
+		PushModel(graphics, scene, modelName, scale, node->mChildren[childIndex], meshes, materials, pNewParent);
 }

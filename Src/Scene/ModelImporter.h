@@ -19,8 +19,8 @@ public:
 private:
 	static void ProcessLights(Graphics& graphics, Scene& scene, const aiScene& importedScene);
 	static void ProcessCameras(Graphics& graphics, Scene& scene, const aiScene& importedScene);
-	static void ProcessMaterials(Graphics& graphics, Scene& scene, const aiScene& importedScene, const std::string& filePath);
-	static void PushModel(Graphics& graphics, Scene& scene, float scale, aiNode* node, aiMesh** meshes, aiMaterial** materials, Model* pParent = nullptr);
+	static void ProcessMaterials(Graphics& graphics, Scene& scene, const aiScene& importedScene, const std::string& filePath, const std::string& modelName);
+	static void PushModel(Graphics& graphics, Scene& scene, const std::string& modelName, float scale, aiNode* node, aiMesh** meshes, aiMaterial** materials, Model* pParent = nullptr);
 
 private:
 	static std::shared_ptr<Material> ProcessMaterial(Graphics& graphics, aiMaterial* material, const std::string& filePath);
