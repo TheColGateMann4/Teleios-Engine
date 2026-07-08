@@ -80,7 +80,7 @@ void BufferHeapBase::ResizeResource(Graphics& graphics, DynamicBufferIndex buffe
 {
 	auto& chunk = m_dynamicHeap.buffers.at(bufferIndex.GetIndex());
 
-	auto reallocated = m_dynamicHeap.heap->Resize(graphics, chunk, size * 3, chunk->stride);
+	auto reallocated = m_dynamicHeap.heap->Resize(graphics, chunk, size * graphics.GetBufferCount(), chunk->stride);
 
 	m_dynamicHeap.buffers.at(bufferIndex.GetIndex()) = std::move(reallocated);
 }
@@ -154,7 +154,7 @@ DynamicBufferIndex ConstantBufferHeap::RequestMoreSpace(Graphics& graphics, UINT
 {
 	UINT alignedSize = GetAligned(resourceSize, 256);
 
-	m_dynamicHeap.buffers.push_back(m_dynamicHeap.heap->Allocate(graphics, alignedSize * 3, resourceSize));
+	m_dynamicHeap.buffers.push_back(m_dynamicHeap.heap->Allocate(graphics, alignedSize * graphics.GetBufferCount(), resourceSize));
 
 	return DynamicBufferIndex(m_dynamicHeap.buffers.size() - 1);
 }
@@ -180,7 +180,7 @@ StaticBufferIndex BufferHeap::RequestMoreStaticSpace(Graphics& graphics, UINT re
 
 DynamicBufferIndex BufferHeap::RequestMoreSpace(Graphics& graphics, UINT resourceSize, UINT stride)
 {
-	m_dynamicHeap.buffers.push_back(m_dynamicHeap.heap->Allocate(graphics, resourceSize * 3, stride));
+	m_dynamicHeap.buffers.push_back(m_dynamicHeap.heap->Allocate(graphics, resourceSize * graphics.GetBufferCount(), stride));
 
 	return DynamicBufferIndex(m_dynamicHeap.buffers.size() - 1);
 }
