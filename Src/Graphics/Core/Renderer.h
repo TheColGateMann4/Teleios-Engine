@@ -17,7 +17,7 @@ public:
 	void UpdatePasses(Graphics& graphics, Scene& scene);
 	void FinishInitialization(Graphics& graphics);
 	void SubmitPassesJobs();
-	void AssignJobsToPasses();
+	void AssignNewJobsToPasses();
 
 	void Draw(Graphics& graphics, Scene& scene, float deltaTime);
 

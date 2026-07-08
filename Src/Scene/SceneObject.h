@@ -108,6 +108,7 @@ protected:
 	bool m_isChild;
 	bool m_hideInHierarchy = false;
 	bool m_selected = false;
+	bool m_initialized = false;
 
 	unsigned int m_sceneIndex = 0;
 	std::shared_ptr<RootSignatureConstants> m_sceneIndexConstant;

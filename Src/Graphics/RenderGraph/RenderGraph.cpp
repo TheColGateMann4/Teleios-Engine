@@ -129,9 +129,9 @@ void RenderGraph::SubmitPassesJobs()
 		renderPass->SubmitJobs(GetRenderManager());
 }
 
-void RenderGraph::AssignJobsToPasses()
+void RenderGraph::AssignNewJobsToPasses()
 {
-	m_renderManager.BindJobsToPasses(m_geometryPasses);
+	m_renderManager.AssignNewJobsToPasses(m_geometryPasses);
 }
 
 void RenderGraph::Execute(Graphics& graphics, CommandList* commandList, Scene& scene)

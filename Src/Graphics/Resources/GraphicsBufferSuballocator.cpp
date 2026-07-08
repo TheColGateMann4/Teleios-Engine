@@ -137,17 +137,13 @@ std::shared_ptr<BufferAllocatorChunk> GraphicsBufferSuballocator::Resize(Graphic
 	// grow
 	{
 		Free(chunkInfo.get());
-		chunkInfo->allocator = nullptr;
 
 		std::shared_ptr<BufferAllocatorChunk> result = Allocate(graphics, newSize, stride);
 
 		if(chunkInfo->byteOffset != result->byteOffset)
 		{
-			auto& pipeline = graphics.GetRenderer().GetPipeline();
-
-			pipeline.AddBufferRegionToCopyPipeline(
-				DestinationBufferRegionCopyData{ m_buffer.get(), result->byteOffset },
-				SourceBufferRegionCopyData{ m_buffer.get(), chunkInfo->byteOffset, chunkInfo->size });
+			chunkInfo->allocator = nullptr;
+			m_selfCopy.push_back({ BufferChunkInfo(result->byteOffset, result->size), BufferChunkInfo(chunkInfo->byteOffset, chunkInfo->size) });
 		}
 
 		return result;
@@ -175,6 +171,14 @@ void GraphicsBufferSuballocator::Update(Graphics& graphics)
 		unsigned int numElements = m_usedSpace / m_stride;
 		std::unique_ptr<GraphicsBuffer> newBuffer = std::make_unique<GraphicsBuffer>(graphics, numElements, m_stride, GraphicsResource::CPUAccess::notavailable);
 
+		for (auto& selfCopies : m_selfCopy)
+		{
+			pipeline.AddBufferRegionToCopyPipeline(
+				DestinationBufferRegionCopyData{ newBuffer.get(), selfCopies.first.offset },
+				SourceBufferRegionCopyData{ m_buffer.get(), selfCopies.second.offset, selfCopies.second.size }
+			);
+		}
+
 		if (m_buffer)
 		{
 			pipeline.AddBufferRegionToCopyPipeline(DestinationBufferRegionCopyData{ newBuffer.get(), 0 }, SourceBufferRegionCopyData{ m_buffer.get(), 0, m_buffer->GetByteSize() });
@@ -190,7 +194,10 @@ void GraphicsBufferSuballocator::Update(Graphics& graphics)
 
 	for (auto& uploadBuffer : m_pendingUploadBuffers)
 	{
-		pipeline.AddBufferRegionToCopyPipeline(DestinationBufferRegionCopyData{ m_buffer.get(), uploadBuffer.dstoffset }, SourceBufferRegionCopyData{ uploadBuffer.buffer.get(), 0, uploadBuffer.buffer->GetByteSize() });
+		pipeline.AddBufferRegionToCopyPipeline(
+			DestinationBufferRegionCopyData{ m_buffer.get(), uploadBuffer.dstoffset }, 
+			SourceBufferRegionCopyData{ uploadBuffer.buffer.get(), 0, uploadBuffer.buffer->GetByteSize() }
+		);
 
 		graphics.GetFrameResourceDeleter()->DeleteResource(graphics, std::move(uploadBuffer));
 	}

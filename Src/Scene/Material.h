@@ -84,4 +84,5 @@ private:
 	MaterialProperties::MaterialProperties m_properties = {};
 
 	ObjectRasterizerStateOptions m_rasterizerOptions = {};
+	bool m_initialized = false;
 };

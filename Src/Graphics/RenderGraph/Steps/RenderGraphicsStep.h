@@ -59,6 +59,10 @@ public: // bindable container functions
 
 	MaterialBindings* GetMaterialBindings();
 
+	bool SubmitedStep() const;
+
+	void SetSubmited();
+
 private:
 	void InitializeMaterialBindings();
 
@@ -70,4 +74,5 @@ private:
 
 	BoundingBox m_boundingBox = {};
 	SceneObject* m_sceneObject;
+	bool m_submittedJob = false;
 };

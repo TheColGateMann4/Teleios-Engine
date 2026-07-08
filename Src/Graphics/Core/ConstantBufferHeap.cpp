@@ -78,16 +78,20 @@ void BufferHeapBase::ResizeResource(Graphics& graphics, TempBufferIndex bufferIn
 
 void BufferHeapBase::ResizeResource(Graphics& graphics, DynamicBufferIndex bufferIndex, size_t size)
 {
-	std::shared_ptr<BufferAllocatorChunk>& chunk = m_dynamicHeap.buffers.at(bufferIndex.GetIndex());
+	auto& chunk = m_dynamicHeap.buffers.at(bufferIndex.GetIndex());
 
-	m_dynamicHeap.heap->Resize(graphics, chunk, size, chunk->stride);
+	auto reallocated = m_dynamicHeap.heap->Resize(graphics, chunk, size * 3, chunk->stride);
+
+	m_dynamicHeap.buffers.at(bufferIndex.GetIndex()) = std::move(reallocated);
 }
 
 void BufferHeapBase::ResizeResource(Graphics& graphics, StaticBufferIndex bufferIndex, size_t size)
 {
 	std::shared_ptr<BufferAllocatorChunk>& chunk = m_staticHeap.buffers.at(bufferIndex.GetIndex());
 
-	m_staticHeap.heap->Resize(graphics, chunk, size, chunk->stride);
+	auto reallocated = m_staticHeap.heap->Resize(graphics, chunk, size, chunk->stride);
+
+	m_staticHeap.buffers.at(bufferIndex.GetIndex()) = std::move(reallocated);
 }
 
 UINT64 BufferHeapBase::GetOffsetOfBuffer(Graphics& graphics, DynamicBufferIndex bufferIndex)

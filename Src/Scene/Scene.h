@@ -30,6 +30,7 @@ public:
 	// ends initialization state in pipeline
 	void FinishInitialization(Graphics& graphics);
 
+private:
 	void InitializeCameraBuffer(Graphics& graphics, Pipeline& pipeline);
 
 	void InitializeLightBuffer(Graphics& graphics, Pipeline& pipeline);
@@ -37,6 +38,8 @@ public:
 	void InitializeTransformBuffer(Graphics& graphics, Pipeline& pipeline);
 
 	void InitializeMaterials(Graphics& graphics, Pipeline& pipeline);
+
+	void ResizeTransformBufferIfNeeded(Graphics& graphics);
 
 	void UpdateTransformBuffer(Graphics& graphics);
 
@@ -49,6 +52,7 @@ public:
 	// resources that need to be initialized using compute shaders, eg. mip maps for textures
 	void UpdateGraphicResources(Graphics& graphics);
 
+public:
 	void DrawObjectInspector(Graphics& graphics);
 
 	void Update(Graphics& graphics, const Input& input, bool isCursorLocked);
@@ -57,8 +61,12 @@ public:
 
 	bool IsVisible(unsigned int cameraIndex, unsigned int sceneIndex);
 
+private:
 	void UpdateBuffersIfNeeded(Graphics& graphics);
 
+	void InitializeNewObjects(Graphics& graphics);
+
+public:
 	std::vector<std::shared_ptr<SceneObject>>& GetObjects();
 
 	const std::vector<PointLight*>& GetPointLights();

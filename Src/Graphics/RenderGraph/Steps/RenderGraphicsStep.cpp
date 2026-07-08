@@ -120,6 +120,16 @@ MaterialBindings* RenderGraphicsStep::GetMaterialBindings()
 	return m_materialBindings.get();
 }
 
+bool RenderGraphicsStep::SubmitedStep() const
+{
+	return m_submittedJob;
+}
+
+void RenderGraphicsStep::SetSubmited()
+{
+	m_submittedJob = true;
+}
+
 void RenderGraphicsStep::InitializeMaterialBindings()
 {
 	const auto& textureContainer = m_material ? m_material->GetBindableContainer() : GetBindableContainer();

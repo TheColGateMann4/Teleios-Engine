@@ -43,9 +43,9 @@ void Renderer::SubmitPassesJobs()
 	m_renderGraph.SubmitPassesJobs();
 }
 
-void Renderer::AssignJobsToPasses()
+void Renderer::AssignNewJobsToPasses()
 {
-	m_renderGraph.AssignJobsToPasses();
+	m_renderGraph.AssignNewJobsToPasses();
 }
 
 void Renderer::Draw(Graphics& graphics, Scene& scene, float deltaTime)

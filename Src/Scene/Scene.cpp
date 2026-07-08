@@ -39,9 +39,7 @@ void Scene::AddSceneObject(std::shared_ptr<SceneObject> sceneObject)
 
 void Scene::AddMaterial(std::string name, std::shared_ptr<Material> material)
 {
-	THROW_INTERNAL_ERROR_IF("Tried to add material with the same name", m_materials.find(name) != m_materials.end());
-
-	m_materials.emplace(name, material);
+	m_materials.try_emplace(std::move(name), std::move(material));
 }
 
 void Scene::BeginInitialization(Graphics& graphics)
@@ -154,6 +152,19 @@ void Scene::InitializeMaterials(Graphics& graphics, Pipeline& pipeline)
 		material->InitializeGraphicResources(graphics, pipeline);
 }
 
+void Scene::ResizeTransformBufferIfNeeded(Graphics& graphics)
+{
+	size_t sceneObjectNum = m_sceneObjects.size();
+	static size_t prevSceneObjectNum = sceneObjectNum;
+
+	if (prevSceneObjectNum < sceneObjectNum)
+	{
+		prevSceneObjectNum = sceneObjectNum;
+
+		m_transformBuffer->Resize(graphics, sceneObjectNum * sizeof(DirectX::XMMATRIX));
+	}
+}
+
 void Scene::UpdateTransformBuffer(Graphics& graphics)
 {
 	static std::vector<DirectX::XMMATRIX> m_currentFrameMatrices(m_sceneObjects.size(), {});
@@ -179,7 +190,7 @@ void Scene::AssignJobs(Graphics& graphics)
 
 	graphics.GetRenderer().SubmitPassesJobs();
 
-	graphics.GetRenderer().AssignJobsToPasses();
+	graphics.GetRenderer().AssignNewJobsToPasses();
 }
 
 void Scene::ResolveStaticBindables(Graphics& graphics)
@@ -282,16 +293,20 @@ void Scene::Update(Graphics& graphics, const Input& input, bool isCursorLocked)
 	for (const auto& [key, material] : m_materials)
 		material->Update();
 
+	ResizeTransformBufferIfNeeded(graphics);
+
+	UpdateGraphicResources(graphics);
+
 	UpdateBuffersIfNeeded(graphics);
 
 	// Updating passes
 	graphics.GetRenderer().UpdatePasses(graphics, *this);
 
+	InitializeNewObjects(graphics);
+
 	UpdateObjectMatrices(graphics);
 
 	UpdateVisibility();
-
-	UpdateGraphicResources(graphics);
 
 	END_CPU_EVENT();
 }
@@ -363,6 +378,44 @@ void Scene::UpdateBuffersIfNeeded(Graphics& graphics)
 
 		if (cameraBufferShouldUpdate)
 			m_cameraBuffer->Update(graphics);
+	}
+}
+
+void Scene::InitializeNewObjects(Graphics& graphics)
+{
+	auto& renderer = graphics.GetRenderer();
+
+	// updating new scene objects
+	{
+		size_t materialsNum = m_materials.size();
+		static size_t prevMaterialsNum = materialsNum;
+
+		if (materialsNum != prevMaterialsNum)
+		{
+			prevMaterialsNum = materialsNum;
+
+			InitializeMaterials(graphics, renderer.GetPipeline());
+		}
+	}
+
+	// updating new materials
+	{
+		size_t sceneObjectNum = m_sceneObjects.size();
+		static size_t prevSceneObjectNum = sceneObjectNum;
+
+		if (sceneObjectNum != prevSceneObjectNum)
+		{
+			prevSceneObjectNum = sceneObjectNum;
+
+			InitializeSceneObjects(graphics);
+
+			AssignJobs(graphics);
+
+			renderer.AssignNewJobsToPasses();
+
+			renderer.InitializeJobs(graphics);
+		}
+
 	}
 }
 

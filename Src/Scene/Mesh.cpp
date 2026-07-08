@@ -47,7 +47,11 @@ void Mesh::SubmitJobs(Renderer& renderer)
 {
 	for (auto& technique : m_techniques)
 		for (auto& step : technique.GetSteps())
-			renderer.SubmitRenderData(GraphicsRenderData(technique.GetType(), &step));
+			if(!step.SubmitedStep())
+			{
+				step.SetSubmited();
+				renderer.SubmitRenderData(GraphicsRenderData(technique.GetType(), &step));
+			}
 }
 
 void Mesh::CreateImplicitTechniques(Graphics& graphics, Pipeline& pipeline)

@@ -87,6 +87,10 @@ void GraphicsStepRenderJob::BuildPipelineState(Graphics& graphics, Material* mat
 
 void GraphicsStepRenderJob::Initialize(Graphics& graphics, Pipeline& pipeline)
 {
+	if (m_initialized)
+		return;
+	m_initialized = true;
+
 	Material* material = m_step->GetMaterial();
 
 	BuildRootSignature(graphics, material);
