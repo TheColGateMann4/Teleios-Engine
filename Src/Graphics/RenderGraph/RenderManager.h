@@ -12,7 +12,7 @@ class RenderManager
 public:
 	void AddRenderData(GraphicsRenderData renderData);
 
-	void BindJobsToPasses(const std::vector<GeometryPass*>& renderPasses);
+	void AssignNewJobsToPasses(const std::vector<GeometryPass*>& renderPasses);
 
 private:
 	RenderManager::PassListByJobType GetWantedDataTypesByPasses(const std::vector<GeometryPass*>& renderPasses) const;
@@ -20,5 +20,6 @@ private:
 	void AssignRenderDataToPasses(const RenderManager::PassListByJobType& wantedJobsToPasses);
 
 private:
-	std::vector<GraphicsRenderData> m_allRenderData;
+	std::vector<GraphicsRenderData> m_submitedRenderData;
+	std::vector<GraphicsRenderData> m_newRenderData;
 };

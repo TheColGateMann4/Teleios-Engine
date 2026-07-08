@@ -24,6 +24,10 @@ void SceneObject::UpdateBoundingBox()
 
 void SceneObject::InternalInitialize(Graphics& graphics, Pipeline& pipeline)
 {
+	if (m_initialized)
+		return;
+	m_initialized = true;
+
 	// initializing modelSceneIndex
 	{
 		DynamicConstantBuffer::Layout layout;

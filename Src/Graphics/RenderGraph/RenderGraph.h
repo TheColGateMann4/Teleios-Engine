@@ -25,7 +25,7 @@ public:
 	// submits jobs that passes created
 	void SubmitPassesJobs();
 
-	void AssignJobsToPasses();
+	void AssignNewJobsToPasses();
 
 	void Execute(Graphics& graphics, CommandList* commandList, Scene& scene);
 

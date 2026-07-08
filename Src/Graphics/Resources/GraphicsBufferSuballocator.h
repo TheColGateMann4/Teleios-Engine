@@ -102,6 +102,7 @@ private:
 	std::vector<UploadDataInfo> m_uploads = {};
 	std::vector<FreedChunkInfo> m_freeChunks = {};
 	std::vector<BufferChunkInfo> m_usedChunks = {};
+	std::vector<std::pair<BufferChunkInfo, BufferChunkInfo>> m_selfCopy = {};
 	std::vector<UploadBufferData> m_pendingUploadBuffers = {};
 	size_t m_usedSpace = 0;
 	unsigned int m_stride;

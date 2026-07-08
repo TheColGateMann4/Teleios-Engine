@@ -206,9 +206,14 @@ void Material::Initialize(Graphics& graphics)
 
 void Material::InitializeGraphicResources(Graphics& graphics, Pipeline& pipeline)
 {
+	if (m_initialized)
+		return;
+
 	m_bindableContainer.Initialize(graphics, pipeline);
 
 	Initialize(graphics);
+
+	m_initialized = true;
 }
 
 void Material::Update()

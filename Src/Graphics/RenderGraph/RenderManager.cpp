@@ -2,10 +2,10 @@
 
 void RenderManager::AddRenderData(GraphicsRenderData renderData)
 {
-	m_allRenderData.push_back(renderData);
+	m_newRenderData.push_back(renderData);
 }
 
-void RenderManager::BindJobsToPasses(const std::vector<GeometryPass*>& renderPasses)
+void RenderManager::AssignNewJobsToPasses(const std::vector<GeometryPass*>& renderPasses)
 {
 	const RenderManager::PassListByJobType wantedDataByPasses = GetWantedDataTypesByPasses(renderPasses);
 
@@ -33,7 +33,7 @@ RenderManager::PassListByJobType RenderManager::GetWantedDataTypesByPasses(const
 
 void RenderManager::AssignRenderDataToPasses(const RenderManager::PassListByJobType& wantedJobsToPasses)
 {
-	for (auto& renderData : m_allRenderData)
+	for (auto& renderData : m_newRenderData)
 	{
 		if (renderData.type == RenderJob::JobType::None)
 			continue;
@@ -42,5 +42,14 @@ void RenderManager::AssignRenderDataToPasses(const RenderManager::PassListByJobT
 
 		for (auto& targetPass : targetPassesVector)
 			targetPass->AssignRenderData(renderData);
+	}
+
+	// setting this data as assigned
+	{
+		m_submitedRenderData.reserve(m_submitedRenderData.size() + m_newRenderData.size());
+
+		std::ranges::move(m_newRenderData, std::back_inserter(m_submitedRenderData));
+
+		m_newRenderData.clear();
 	}
 }

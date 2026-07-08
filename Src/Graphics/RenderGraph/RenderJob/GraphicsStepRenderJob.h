@@ -45,4 +45,5 @@ protected:
 	BindableContainerRevision m_stepLastRevision;
 	BindableContainerRevision m_materialLastRevision;
 	BindableContainerRevision m_passLastRevision;
+	bool m_initialized = false;
 };

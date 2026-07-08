@@ -89,6 +89,9 @@ void Application::Update()
 	imguiLayer.DrawDemoWindow();
 	graphics.GetProfiler().Draw();
 
+	if (window.input.GetKeyDown(KEY_P))
+		scene.AddSceneObjectFromFile(graphics, "Assets/Models/glTF/DamagedHelmet/glTF/DamagedHelmet.gltf");
+
 	scene.Update(graphics, window.input, window.GetCursorLocked());
 
 	graphics.Render(scene, time.Peek());
