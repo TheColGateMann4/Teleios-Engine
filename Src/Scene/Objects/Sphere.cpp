@@ -6,7 +6,7 @@
 
 #include "Graphics/Data/DynamicVertex.h"
 
-#include "Graphics/RenderGraph/Steps/RenderGraphicsStep.h"
+#include "Graphics/RenderGraph/Steps/RenderGraphicsGeometryStep.h"
 #include "Scene/RenderTechnique.h"
 
 #include <imgui.h>
@@ -22,7 +22,7 @@ Sphere::Sphere(Graphics& graphics, DirectX::XMFLOAT3 position, float diameter, s
 	Mesh modelMesh;
 
 	RenderTechnique technique(RenderJob::JobType::Emissive);
-	RenderGraphicsStep step(this);
+	RenderGraphicsGeometryStep step(this);
 	{
 		DynamicVertex::DynamicVertexLayout vertexLayout;
 		vertexLayout.AddElement<DynamicVertex::ElementType::Position>();
@@ -106,7 +106,7 @@ void Sphere::UpdateMesh(Graphics& graphics, Pipeline& pipeline)
 
 	Mesh& modelMesh = m_meshes.front();
 
-	RenderGraphicsStep& albedoStep = modelMesh.GetTechnique(RenderJob::JobType::Emissive).GetStep(0);
+	RenderGraphicsGeometryStep& albedoStep = modelMesh.GetTechnique(RenderJob::JobType::Emissive).GetStep(0);
 
 	std::string meshVertexBufferID = std::string("Sphere") + '@' + std::to_string(m_diameter) + '@' + std::to_string(m_tesselation);
 	std::string meshIndexBufferID = std::string("Sphere") + '@' + std::to_string(m_tesselation);

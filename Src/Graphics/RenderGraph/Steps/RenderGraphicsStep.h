@@ -1,30 +1,15 @@
 #pragma once
-#include "Includes/CppIncludes.h"
-
 #include "RenderStep.h"
-
-#include "Graphics/Core/PipelineState.h"
-#include "Graphics/Core/RootSignature.h"
 #include "Graphics/Core/BindableContainer.h"
-#include "Graphics/Core/OcclusionPrimitives.h"
-#include "Graphics/Bindables/RasterizerState.h"
-#include "Graphics/Bindables/MaterialBindings.h"
-
-class SceneObject;
-class Material;
+#include "Includes/BindablesInclude.h"
 
 class RenderGraphicsStep : public RenderStep
 {
 public:
-	RenderGraphicsStep(SceneObject* sceneObject, const std::string& name);
-	RenderGraphicsStep(SceneObject* sceneObject);
-	RenderGraphicsStep(RenderGraphicsStep&&) noexcept = default;
-	RenderGraphicsStep(const RenderGraphicsStep&) = delete;
+	RenderGraphicsStep();
+	RenderGraphicsStep(const std::string& name);
 
 public:
-	void DrawConstantBuffers(Graphics& graphics);
-
-public: // bindable container functions
 	void AddStaticBindable(const char* bindableName);
 
 	void SetAttributeBufferEntry(std::shared_ptr<VertexBufferEntry> attributeBufferEntry);
@@ -33,46 +18,16 @@ public: // bindable container functions
 
 	void SetIndexBufferEntry(std::shared_ptr<IndexBufferEntry> indexBufferEntry);
 
-	void SetBoundingBox(BoundingBox boundingBox);
-
-	const BoundingBox& GetBoundingBox() const;
-
-	SceneObject* GetSceneObject() const;
-
 	void AddBindable(std::shared_ptr<Bindable> bindable);
-
-	void SetMaterial(std::shared_ptr<Material> material);
 
 	void AddBindable(Bindable* bindable);
 
 	const MeshBindableContainer& GetBindableContainer() const;
 
-	Material* GetMaterial() const;
-
-	ObjectRasterizerStateOptions GetRasterizerOptions() const;
-
-	void SetRasterizerOptions(ObjectRasterizerStateOptions rasterizerOptions);
-
 	virtual void Initialize(Graphics& graphics, Pipeline& pipeline) override;
 
 	virtual void Update() override;
 
-	MaterialBindings* GetMaterialBindings();
-
-	bool SubmitedStep() const;
-
-	void SetSubmited();
-
-private:
-	void InitializeMaterialBindings();
-
-private:
+protected:
 	MeshBindableContainer m_bindableContainer;
-	std::shared_ptr<Material> m_material;
-	ObjectRasterizerStateOptions m_rasterizerOptions = {};
-	std::shared_ptr<MaterialBindings> m_materialBindings;
-
-	BoundingBox m_boundingBox = {};
-	SceneObject* m_sceneObject;
-	bool m_submittedJob = false;
 };

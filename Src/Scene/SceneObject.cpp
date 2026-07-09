@@ -200,8 +200,8 @@ void SceneObject::DrawConstantBuffers(Graphics& graphics)
 				ImGuiTreeNodeFlags_DefaultOpen
 			))
 			{
-				std::vector<RenderGraphicsStep>& steps = technique.GetSteps();
-				for (RenderGraphicsStep& step : steps)
+				std::vector<RenderGraphicsGeometryStep>& steps = technique.GetSteps();
+				for (RenderGraphicsGeometryStep& step : steps)
 				{
 					std::string stepNodeName = "Step: " + step.GetName();
 

@@ -45,7 +45,7 @@ void DeviceResources::InitializeGraphicsResources(Graphics& graphics, HWND hWnd,
 		commandQueueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
 		commandQueueDesc.NodeMask = 0;
 
-		THROW_INFO_ERROR(pDevice->CreateCommandQueue1(&commandQueueDesc, TELEIOS_CREATOR_ID, IID_PPV_ARGS(&pCommandQueue)));
+		THROW_ERROR(pDevice->CreateCommandQueue(&commandQueueDesc, IID_PPV_ARGS(&pCommandQueue)));
 	}
 
 	// Creating swap chain
@@ -67,7 +67,7 @@ void DeviceResources::InitializeGraphicsResources(Graphics& graphics, HWND hWnd,
 		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 		swapChainDesc.Flags = 0;
 
-		THROW_INFO_ERROR(pFactory->CreateSwapChain(pCommandQueue.Get(), &swapChainDesc, &pSwapChain));
+		THROW_ERROR(pFactory->CreateSwapChain(pCommandQueue.Get(), &swapChainDesc, &pSwapChain));
 	}
 }
 
@@ -86,7 +86,7 @@ ID3D12Device15* DeviceResources::GetDevice()
 	return pDevice.Get();
 }
 
-ID3D12CommandQueue1* DeviceResources::GetCommandQueue()
+ID3D12CommandQueue* DeviceResources::GetCommandQueue()
 {
 	return pCommandQueue.Get();
 }

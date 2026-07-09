@@ -7,7 +7,7 @@
 
 FogRenderPass::FogRenderPass(Graphics& graphics)
 	:
-	FullscreenRenderPass(graphics)
+	FullscreenPass(graphics)
 {
 	m_fogPS = std::make_shared<Shader>(graphics, L"PS_Fog", ShaderType::PixelShader);
 

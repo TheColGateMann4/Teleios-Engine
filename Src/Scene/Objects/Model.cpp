@@ -11,7 +11,7 @@
 #include "Macros/ErrorMacros.h"
 
 #include "Scene/Mesh.h"
-#include "Graphics/RenderGraph/Steps/RenderGraphicsStep.h"
+#include "Graphics/RenderGraph/Steps/RenderGraphicsGeometryStep.h"
 #include "Scene/RenderTechnique.h"
 
 #include "Scene/Material.h"
@@ -20,7 +20,7 @@
 #include <assimp/scene.h>           // Output data structure
 #include <assimp/postprocess.h>     // Post processing flags
 
-void HandleVertexData(Graphics& graphics, RenderGraphicsStep& step, aiMesh* mesh, float scale)
+void HandleVertexData(Graphics& graphics, RenderGraphicsGeometryStep& step, aiMesh* mesh, float scale)
 {
 	size_t numVertices = mesh->mNumVertices + 1;
 
@@ -114,7 +114,7 @@ void HandleVertexData(Graphics& graphics, RenderGraphicsStep& step, aiMesh* mesh
 	step.AddBindable(InputLayout::GetResource(graphics, vertexLayout));
 }
 
-void HandleIndiceData(Graphics& graphics, RenderGraphicsStep& step, aiMesh* mesh)
+void HandleIndiceData(Graphics& graphics, RenderGraphicsGeometryStep& step, aiMesh* mesh)
 {
 	size_t mNumIndices = mesh->mNumFaces * mesh->mFaces->mNumIndices;
 	std::vector<unsigned int> indices(mNumIndices, '\0');
@@ -147,7 +147,7 @@ Model::Model(Graphics& graphics, Model* pParent, aiNode* node, std::vector<std::
 		Mesh objectMesh;
 
 		RenderTechnique technique(RenderJob::JobType::GBuffer);
-		RenderGraphicsStep step(this);
+		RenderGraphicsGeometryStep step(this);
 
 		{
 			HandleVertexData(graphics, step, mesh, scale);

@@ -38,3 +38,13 @@ void RenderStep::Update()
 {
 
 }
+
+bool RenderStep::SubmitedStep() const
+{
+	return m_submittedJob;
+}
+
+void RenderStep::SetSubmited()
+{
+	m_submittedJob = true;
+}

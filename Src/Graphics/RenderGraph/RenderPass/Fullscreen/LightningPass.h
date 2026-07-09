@@ -1,19 +1,20 @@
 #pragma once
-#include "FullscreenRenderPass.h"
+#include "FullscreenPass.h"
 
-class LightningPass : public FullscreenRenderPass
+class LightningPass : public FullscreenPass
 {
 public:
-	LightningPass(Graphics& graphics, RenderManager& renderManager);
+	LightningPass(Graphics& graphics);
 
 public:
 	virtual void Initialize(Graphics& graphics, Scene& scene) override;
 	virtual void InitializeFullscreenResources(Graphics& graphics, Pipeline& pipeline, Scene& scene) override;
 
+	virtual void Update(Graphics& graphics, Pipeline& pipeline, Scene& scene) override;
+
 	virtual void PreDraw(Graphics& graphics, CommandList* commandList) override;
 	virtual void PostDraw(Graphics& graphics, CommandList* commandList) override;
 
-	virtual void InternalUpdate(Graphics& graphics, Pipeline& pipeline, Scene& scene) override;
 
 private:
 	void UpdateInverseProjectionMatrix(Graphics& graphics, Scene& scene);
