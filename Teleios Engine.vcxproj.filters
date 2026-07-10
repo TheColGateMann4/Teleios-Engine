@@ -93,6 +93,7 @@
     <ClCompile Include="Src\Graphics\Resources\GraphicsBufferSuballocator.cpp" />
     <ClCompile Include="Src\Graphics\Core\GraphicsBufferAllocatorManager.cpp" />
     <ClCompile Include="Src\Graphics\Core\RootSignatureLayout.cpp" />
+    <ClCompile Include="Src\Graphics\RenderGraph\RenderPass\Fullscreen\SkyboxPass.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Src\Application.h" />
@@ -192,6 +193,7 @@
     <ClInclude Include="Src\Graphics\Resources\GraphicsBufferSuballocator.h" />
     <ClInclude Include="Src\Graphics\Core\GraphicsBufferAllocatorManager.h" />
     <ClInclude Include="Src\Graphics\Core\RootSignatureLayout.h" />
+    <ClInclude Include="Src\Graphics\RenderGraph\RenderPass\Fullscreen\SkyboxPass.h" />
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="Src\Shaders\CS_GetMiddleDepth.hlsl" />
@@ -199,7 +201,7 @@
     <CopyFileToFolders Include="Src\Shaders\CS_MipMapGeneration.hlsl" />
     <CopyFileToFolders Include="Src\Shaders\PS_DepthOfField.hlsl" />
     <CopyFileToFolders Include="Src\Shaders\PS_Fog.hlsl" />
-    <CopyFileToFolders Include="Src\Shaders\PS_Fullscreen.hlsl" />
+    <CopyFileToFolders Include="Src\Shaders\PS_Skybox.hlsl" />
     <CopyFileToFolders Include="Src\Shaders\PS_LightSource.hlsl" />
     <CopyFileToFolders Include="Src\Shaders\PS_Texture.hlsl" />
     <CopyFileToFolders Include="Src\Shaders\PS_Solid.hlsl" />
@@ -210,5 +212,6 @@
     <CopyFileToFolders Include="Src\Shaders\PS_Lightning.hlsl" />
     <CopyFileToFolders Include="ThirdParty\agilitysdk\bin\x64\D3D12Core.dll" />
     <CopyFileToFolders Include="ThirdParty\agilitysdk\bin\x64\d3d12SDKLayers.dll" />
+    <CopyFileToFolders Include="Src\Shaders\PS_Fullscreen.hlsl" />
   </ItemGroup>
 </Project>

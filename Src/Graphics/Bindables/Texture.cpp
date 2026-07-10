@@ -21,7 +21,7 @@
 
 #include "Graphics/Resources/GraphicsTexture.h"
 
-Texture::Texture(Graphics& graphics, const char* path, TextureType type)
+Texture::Texture(Graphics& graphics, const char* path, TextureType type, int flags)
 	:
 #ifdef _DEBUG
 	m_path(std::string("../../") + path),
@@ -30,24 +30,51 @@ Texture::Texture(Graphics& graphics, const char* path, TextureType type)
 #endif
 	m_type(type),
 	m_srgb(IsSRGBTypeTexture(m_type)),
-	m_generateMipMaps(true),
-	m_compressImage(true)
+	m_generateMipMaps(!(flags & TextureFlags::NoMipMapping)),
+	m_compressImage(!(flags & TextureFlags::NoCompression))
 {
 	graphics.GetDescriptorHeap().RequestMoreSpace();
 
+	{
+		std::string extension = std::filesystem::path(m_path).extension().string();
+		m_originalFileType = GetTextureDataType(extension);
+	}
+
 	// reading file metadata and creating GPU resource
 	{
+
 		std::wstring wPath = std::wstring(m_path.begin(), m_path.end());
 		DirectX::WIC_FLAGS flags = m_srgb ? DirectX::WIC_FLAGS_FORCE_SRGB : DirectX::WIC_FLAGS_IGNORE_SRGB;
 		DirectX::TexMetadata metaData = {};
 
 		HRESULT hr;
 
-		THROW_ERROR(DirectX::GetMetadataFromWICFile(
-			wPath.c_str(),
-			flags,
-			metaData
-		));
+		if (m_originalFileType == TextureFileType::WIC)
+		{
+			THROW_ERROR(DirectX::GetMetadataFromWICFile(
+				wPath.c_str(),
+				flags,
+				metaData
+			));
+		}
+		else if (m_originalFileType == TextureFileType::TGA)
+		{
+			THROW_ERROR(DirectX::GetMetadataFromTGAFile(
+				wPath.c_str(),
+				metaData
+			));
+		}
+		else if (m_originalFileType == TextureFileType::HDR)
+		{
+			THROW_ERROR(DirectX::GetMetadataFromHDRFile(
+				wPath.c_str(),
+				metaData
+			));
+		}
+		else
+		{
+			THROW_INTERNAL_ERROR("Used unhandled texture file type");
+		}
 
 		DXGI_FORMAT format = GetCorrectedFormat(metaData.format);
 		format = m_srgb ? GetSRGBFormat(format) : GetLinearFormat(format);
@@ -94,12 +121,12 @@ void Texture::Initialize(Graphics& graphics)
 	Initialize(graphics, descriptorInfo, 0);
 }
 
-std::shared_ptr<Texture> Texture::GetResource(Graphics& graphics, const char* path, TextureType type)
+std::shared_ptr<Texture> Texture::GetResource(Graphics& graphics, const char* path, TextureType type, int flags)
 {
-	return ResourceList::GetResource<Texture>(graphics, path, type);
+	return ResourceList::GetResource<Texture>(graphics, path, type, flags);
 }
 
-std::string Texture::GetIdentifier(const char* path, TextureType type)
+std::string Texture::GetIdentifier(const char* path, TextureType type, int flags)
 {
 	std::string resultString = "Texture#";
 
@@ -107,6 +134,8 @@ std::string Texture::GetIdentifier(const char* path, TextureType type)
 	resultString += '#';
 
 	resultString += std::to_string(static_cast<int>(type));
+	resultString += '#';
+	resultString += std::to_string(static_cast<int>(flags));
 
 	return resultString;
 }
@@ -230,10 +259,10 @@ DXGI_FORMAT Texture::GetSRGBFormat(DXGI_FORMAT format)
 			return DXGI_FORMAT_B8G8R8A8_UNORM_SRGB;
 
 		case DXGI_FORMAT_BC1_UNORM:
-			DXGI_FORMAT_BC1_UNORM_SRGB;
+			return DXGI_FORMAT_BC1_UNORM_SRGB;
 
-	default:
-		return format;
+		default:
+			return format;
 	}
 }
 
@@ -305,19 +334,23 @@ std::optional<std::wstring> Texture::GetDDSImagePath()
 
 	// checking in local Textures/ folder
 	{
-		std::filesystem::path modelFoldersPath;
+		std::filesystem::path filePath;
 
 		bool found = false;
 		for (const auto& part : imagePath)
 		{
 			if (found)
-				modelFoldersPath /= part;
+				filePath /= part;
 
 			if (part == L"Models")
 				found = true;
 		}
 
-		std::filesystem::path ddsTexture = std::filesystem::current_path() / "Textures" / modelFoldersPath;
+		if (!found)
+			filePath = imagePath.filename();
+
+
+		std::filesystem::path ddsTexture = std::filesystem::current_path() / "Textures" / filePath;
 
 		if (std::filesystem::exists(ddsTexture))
 			return ddsTexture;
@@ -328,12 +361,37 @@ std::optional<std::wstring> Texture::GetDDSImagePath()
 
 Texture::TextureProcessingStage Texture::LoadImage(Graphics& graphics, DirectX::ScratchImage& targetImage)
 {
-	auto optDdsImagePath = GetDDSImagePath();
+	if (m_originalFileType != TextureFileType::DDS)
+	{
+		auto optDdsImagePath = GetDDSImagePath();
 
-	if (optDdsImagePath)
-		return LoadDDSImage(graphics, targetImage, optDdsImagePath.value());
+		if (optDdsImagePath)
+			return LoadDDSImage(graphics, targetImage, optDdsImagePath.value());
+	}
 
-	LoadWICImage(graphics, targetImage);
+	switch (m_originalFileType)
+	{
+		case TextureFileType::WIC:
+		{
+			LoadWICImage(graphics, targetImage);
+			break;
+		}
+		case TextureFileType::TGA:
+		{
+			LoadTGAImage(graphics, targetImage);
+			break;
+		}
+		case TextureFileType::HDR:
+		{
+			LoadHDRImage(graphics, targetImage);
+			break;
+		}
+		case TextureFileType::DDS:
+			return LoadDDSImage(graphics, targetImage, std::wstring(m_path.begin(), m_path.end()));
+		default:
+			THROW_INTERNAL_ERROR("Unhandled texture file type");
+	}
+
 	return TextureProcessingStage::unprocessed;
 }
 
@@ -344,7 +402,6 @@ void Texture::LoadWICImage(Graphics& graphics, DirectX::ScratchImage& targetImag
 	std::wstring wPath = std::wstring(m_path.begin(), m_path.end());
 	DirectX::WIC_FLAGS flags = m_srgb ? DirectX::WIC_FLAGS_FORCE_SRGB : DirectX::WIC_FLAGS_IGNORE_SRGB;
 
-	// reading image data from file
 	THROW_ERROR(DirectX::LoadFromWICFile(
 		wPath.c_str(),
 		flags,
@@ -353,12 +410,38 @@ void Texture::LoadWICImage(Graphics& graphics, DirectX::ScratchImage& targetImag
 	));
 }
 
-Texture::TextureProcessingStage Texture::LoadDDSImage(Graphics& graphics, DirectX::ScratchImage& targetImage, std::wstring ddsImagePath)
+void Texture::LoadTGAImage(Graphics& graphics, DirectX::ScratchImage& targetImage)
+{
+	HRESULT hr;
+
+	std::wstring wPath = std::wstring(m_path.begin(), m_path.end());
+
+	THROW_ERROR(DirectX::LoadFromTGAFile(
+		wPath.c_str(),
+		nullptr,
+		targetImage
+	));
+}
+
+void Texture::LoadHDRImage(Graphics& graphics, DirectX::ScratchImage& targetImage)
+{
+	HRESULT hr;
+
+	std::wstring wPath = std::wstring(m_path.begin(), m_path.end());
+
+	THROW_ERROR(DirectX::LoadFromHDRFile(
+		wPath.c_str(),
+		nullptr,
+		targetImage
+	));
+}
+
+Texture::TextureProcessingStage Texture::LoadDDSImage(Graphics& graphics, DirectX::ScratchImage& targetImage, const std::wstring& imagePath)
 {
 	HRESULT hr;
 
 	THROW_ERROR(DirectX::LoadFromDDSFile(
-		ddsImagePath.c_str(), 
+		imagePath.c_str(),
 		DirectX::DDS_FLAGS_NONE,
 		nullptr,
 		targetImage
@@ -387,19 +470,22 @@ void Texture::SaveProcessedTexture(Graphics& graphics, const DirectX::ScratchIma
 	HRESULT hr;
 
 	std::filesystem::path originalImagePath = m_path;
-	std::filesystem::path modelFoldersPath;
+	std::filesystem::path filePath;
 
 	bool found = false;
 	for (const auto& part : originalImagePath)
 	{
 		if (found)
-			modelFoldersPath /= part;
+			filePath /= part;
 
 		if (part == L"Models")
 			found = true;
 	}
 
-	std::filesystem::path targetImagePath = std::filesystem::current_path() / "Textures" / modelFoldersPath.replace_extension(".dds");
+	if (!found)
+		filePath = originalImagePath.filename();
+
+	std::filesystem::path targetImagePath = std::filesystem::current_path() / "Textures" / filePath.replace_extension(".dds");
 
 	std::filesystem::path pathToNewImage = targetImagePath;
 	pathToNewImage.remove_filename();
@@ -464,4 +550,39 @@ void Texture::UploadImage(Graphics& graphics, Pipeline& pipeline, const DirectX:
 
 		m_gpuTexture->Update(graphics, pipeline, targetImageData.pixels, rowSize, numRows, targetImageData.rowPitch, targetMip, format);
 	}
+}
+
+Texture::TextureFileType Texture::GetTextureDataType(std::string extension)
+{
+	std::transform(
+		extension.begin(),
+		extension.end(),
+		extension.begin(),
+		[](unsigned char c)
+		{
+			return std::tolower(c);
+		}
+	);
+
+	if (extension == ".png" ||
+		extension == ".jpg" ||
+		extension == ".jpeg" ||
+		extension == ".bmp" ||
+		extension == ".gif" ||
+		extension == ".tif" ||
+		extension == ".tiff")
+		return Texture::TextureFileType::WIC;
+
+	if (extension == ".tga")
+		return Texture::TextureFileType::TGA;
+
+	if (extension == ".hdr")
+		return Texture::TextureFileType::HDR;
+
+	if (extension == ".dds")
+		return Texture::TextureFileType::DDS;
+
+
+	THROW_INTERNAL_ERROR("Failed to map extension to texture data type");
+	return Texture::TextureFileType::Unknown;
 }

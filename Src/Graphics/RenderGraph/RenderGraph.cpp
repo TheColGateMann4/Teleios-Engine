@@ -7,6 +7,7 @@
 #include "RenderPass/Geometry/ShadowPass.h"
 #include "RenderPass/Fullscreen/FullscreenPlaceholderPass.h"
 #include "RenderPass/Fullscreen/LightningPass.h"
+#include "RenderPass/Fullscreen/SkyBoxPass.h"
 #include "RenderPass/GuiPass.h"
 #include "RenderPass/Geometry/OccludedDebugPass.h"
 #include "RenderPass/Geometry/VisibleDebugPass.h"
@@ -65,6 +66,13 @@ void RenderGraph::Initialize(Graphics& graphics)
 		emissivePass->SetDepthStencilView(graphics.GetDepthStencil());
 
 		AddRenderPass(emissivePass);
+	}
+
+	{
+		std::shared_ptr<SkyboxPass> skyBoxPass = std::make_shared<SkyboxPass>(graphics);
+		skyBoxPass->AddRenderTarget(graphics.GetBackBuffer());
+		skyBoxPass->SetDepthStencilView(graphics.GetDepthStencil());
+		AddRenderPass(skyBoxPass);
 	}
 
 	{

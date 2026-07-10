@@ -36,6 +36,13 @@ enum class TextureType : int
 	texture_types_num
 };
 
+enum TextureFlags
+{
+	None = 0,
+	NoMipMapping = 1 << 0,
+	NoCompression = 1 << 1
+};
+
 class Texture : public Bindable, public DescriptorBindable
 {
 private:
@@ -45,9 +52,17 @@ private:
 		mipmaps,
 		compressed // if there are no mip maps in compressed texture we are going to throw
 	};
+	enum class TextureFileType
+	{
+		Unknown = -1,
+		WIC,
+		TGA,
+		HDR,
+		DDS
+	};
 
 public:
-	Texture(Graphics& graphics, const char* path, TextureType type);
+	Texture(Graphics& graphics, const char* path, TextureType type, int flags = TextureFlags::None);
 
 public:
 	virtual void Initialize(Graphics& graphics, DescriptorHeap::DescriptorInfo descriptorInfo, unsigned int descriptorNum) override;
@@ -56,9 +71,9 @@ protected:
 	virtual void Initialize(Graphics& graphics) override;
 
 public:
-	static std::shared_ptr<Texture> GetResource(Graphics& graphics, const char* path, TextureType type);
+	static std::shared_ptr<Texture> GetResource(Graphics& graphics, const char* path, TextureType type, int flags = TextureFlags::None);
 
-	static std::string GetIdentifier(const char* path, TextureType type);
+	static std::string GetIdentifier(const char* path, TextureType type, int flags);
 
 public:
 	void InitializeGraphicResources(Graphics& graphics, Pipeline& pipeline);
@@ -99,7 +114,9 @@ private:
 
 	TextureProcessingStage LoadImage(Graphics& graphics, DirectX::ScratchImage& targetImage);
 	void LoadWICImage(Graphics& graphics, DirectX::ScratchImage& targetImage);
-	TextureProcessingStage LoadDDSImage(Graphics& graphics, DirectX::ScratchImage& targetImage, std::wstring ddsImagePath);
+	void LoadTGAImage(Graphics& graphics, DirectX::ScratchImage& targetImage);
+	void LoadHDRImage(Graphics& graphics, DirectX::ScratchImage& targetImage);
+	TextureProcessingStage LoadDDSImage(Graphics& graphics, DirectX::ScratchImage& targetImage, const std::wstring& imagePath);
 
 	// texture saving
 	void SaveProcessedTexture(Graphics& graphics, const DirectX::ScratchImage& image);
@@ -111,10 +128,13 @@ private:
 	// data uploading
 	void UploadImage(Graphics& graphics, Pipeline& pipeline, const DirectX::ScratchImage& targetImage);
 
+	static TextureFileType GetTextureDataType(std::string extension);
+
 private:
 	std::shared_ptr<GraphicsTexture> m_gpuTexture;
 
 	std::string m_path;
+	TextureFileType m_originalFileType;
 	TextureType m_type;
 	DXGI_FORMAT m_originalFormat = DXGI_FORMAT_UNKNOWN;
 	bool m_isAlphaOpaque = false;
