@@ -225,6 +225,7 @@ dxgi.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDepende
     <ClCompile Include="Src\Graphics\RenderGraph\RenderJob\RenderGraphicsFullscreenJob.cpp" />
     <ClCompile Include="Src\Graphics\RenderGraph\Steps\RenderGraphicsStep.cpp" />
     <ClCompile Include="Src\Graphics\RenderGraph\Steps\RenderGraphicsFullscreenStep.cpp" />
+    <ClCompile Include="Src\Graphics\RenderGraph\RenderPass\Fullscreen\SkyboxPass.cpp" />
     <ClCompile Include="Src\Graphics\Core\RootSignatureLayout.cpp" />
     <ClCompile Include="Src\Graphics\Core\GraphicsBufferAllocatorManager.cpp" />
     <ClCompile Include="Src\Graphics\Resources\GraphicsBufferSuballocator.cpp" />
@@ -321,6 +322,7 @@ dxgi.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDepende
     <ClInclude Include="Src\Graphics\RenderGraph\RenderJob\RenderGraphicsFullscreenJob.h" />
     <ClInclude Include="Src\Graphics\RenderGraph\Steps\RenderGraphicsStep.h" />
     <ClInclude Include="Src\Graphics\RenderGraph\Steps\RenderGraphicsFullscreenStep.h" />
+    <ClInclude Include="Src\Graphics\RenderGraph\RenderPass\Fullscreen\SkyboxPass.h" />
     <ClInclude Include="Src\Graphics\Core\RootSignatureLayout.h" />
     <ClInclude Include="Src\Graphics\Core\GraphicsBufferAllocatorManager.h" />
     <ClInclude Include="Src\Graphics\Resources\GraphicsBufferSuballocator.h" />
@@ -483,7 +485,7 @@ dxgi.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDepende
       <FileType>Document</FileType>
       <DestinationFolders Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)\Shaders</DestinationFolders>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="Src\Shaders\PS_Fullscreen.hlsl">
+    <CopyFileToFolders Include="Src\Shaders\PS_Skybox.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">6.7</ShaderModel>
@@ -614,6 +616,18 @@ dxgi.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDepende
       <DestinationFolders Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)D3D12\</DestinationFolders>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
       <DestinationFolders Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)D3D12\</DestinationFolders>
+    </CopyFileToFolders>
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="Src\Shaders\PS_Fullscreen.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+      <FileType>Document</FileType>
+      <DestinationFolders Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)\Shaders</DestinationFolders>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </CopyFileToFolders>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
