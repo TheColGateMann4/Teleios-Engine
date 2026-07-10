@@ -98,7 +98,7 @@ private:
 
 	void SetFrustumViewActive(bool active);
 
-	void UpdateMeshData(Graphics& graphics, RenderGraphicsStep& step);
+	void UpdateMeshData(Graphics& graphics, RenderGraphicsGeometryStep& step);
 
 private:
 	Frustum m_frustum;

@@ -1,17 +1,16 @@
 #pragma once
-#include "StepRenderJob.h"
-#include "Graphics/Core/BindableContainer.h"
-#include "Graphics/Core/PipelineState.h"
+#include "GraphicsRenderJob.h"
 #include "Graphics/RenderGraph/RenderJob/GraphicsRenderData.h"
-#include "Graphics/Core/RootSignatureLayout.h"
+#include "Graphics/Core/BindableContainer.h"
 
-class RenderGraphicsStep;
+class RenderGraphicsGeometryStep;
+class GeometryPass;
 class Material;
 
-class GraphicsStepRenderJob : public StepRenderJob
+class RenderGraphicsGeometryJob : public GraphicsRenderJob
 {
 public:
-	GraphicsStepRenderJob(GraphicsRenderData renderData, GeometryPass* pass);
+	RenderGraphicsGeometryJob(GraphicsRenderData renderData, GeometryPass* pass);
 
 public:
 	virtual void Initialize(Graphics& graphics, Pipeline& pipeline) override;
@@ -24,9 +23,7 @@ public:
 
 	virtual void Execute(Graphics& graphics, CommandList* commandList) const override;
 
-	virtual JobGroup GetGroup() const override;
-
-	RenderGraphicsStep* GetStep() const;
+	RenderGraphicsGeometryStep* GetStep() const;
 
 private:
 	RasterizerState* BuildAndGetRasterizerState(Graphics& graphics, Material* material);
@@ -36,14 +33,10 @@ private:
 	void BuildPipelineState(Graphics& graphics, Material* material);
 
 protected:
-	RenderGraphicsStep* m_step;
-	
-	std::shared_ptr<GraphicsPipelineState> m_pipelineState;
-
-	RootSignatureLayout m_rootSignatureLayout = {};
+	RenderGraphicsGeometryStep* m_step;
+	GeometryPass* m_pass;
 
 	BindableContainerRevision m_stepLastRevision;
 	BindableContainerRevision m_materialLastRevision;
 	BindableContainerRevision m_passLastRevision;
-	bool m_initialized = false;
 };

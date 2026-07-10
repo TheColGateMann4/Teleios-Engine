@@ -4,9 +4,9 @@
 #include "Scene/Objects/Camera.h"
 #include "Scene/Scene.h"
 
-LightningPass::LightningPass(Graphics& graphics, RenderManager& renderManager)
+LightningPass::LightningPass(Graphics& graphics)
 	:
-	FullscreenRenderPass(graphics, renderManager)
+	FullscreenPass(graphics)
 {
 	// inverse projection matrix constant buffer
 	{
@@ -27,23 +27,24 @@ LightningPass::LightningPass(Graphics& graphics, RenderManager& renderManager)
 
 void LightningPass::Initialize(Graphics& graphics, Scene& scene)
 {
-	StandaloneMesh& mesh = m_meshRenderJob->GetMesh();
-
 	for (const auto& bind : m_bindables)
-		mesh.AddBindable(bind);
+		m_step->AddBindable(bind);
 
 	unsigned int numberOfLightsOnScene = scene.GetPointLights().size();
 	std::wstring strNumberOfLightsOnScene = std::to_wstring(numberOfLightsOnScene);
 
 	THROW_INTERNAL_ERROR_IF("There were no lights on the scene", numberOfLightsOnScene == 0);
 
-	mesh.SetAttributeBufferEntry(m_vertexBufferEntry);
-	mesh.SetIndexBufferEntry(m_indexBufferEntry);
-	mesh.AddStaticBindable("lightBuffer");
-	mesh.AddBindable(Shader::GetResource(graphics, L"PS_Lightning", ShaderType::PixelShader, { { L"NUM_POINTLIGHTS", strNumberOfLightsOnScene.c_str()} })); // ps
-	mesh.AddBindable(Shader::GetResource(graphics, L"VS_Fullscreen", ShaderType::VertexShader)); // vs
-	mesh.AddBindable(PrimitiveTechnology::GetResource(graphics, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)); // topology
-	mesh.AddBindable(ViewPort::GetResource(graphics)); // vp
+	m_step->SetAttributeBufferEntry(m_vertexBufferEntry);
+	m_step->SetIndexBufferEntry(m_indexBufferEntry);
+	m_step->AddStaticBindable("lightBuffer");
+	m_step->AddBindable(StaticSampler::GetResource(graphics));
+	m_step->AddBindable(BlendState::GetResource(graphics, {}));
+	m_step->AddBindable(Shader::GetResource(graphics, L"PS_Lightning", ShaderType::PixelShader, { { L"NUM_POINTLIGHTS", strNumberOfLightsOnScene.c_str()} })); // ps
+	m_step->AddBindable(Shader::GetResource(graphics, L"VS_Fullscreen", ShaderType::VertexShader)); // vs
+	m_step->AddBindable(PrimitiveTechnology::GetResource(graphics, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)); // topology
+	m_step->AddBindable(ViewPort::GetResource(graphics)); // vp
+	m_step->AddBindable(RasterizerState::GetResource(graphics, {}, {}));
 }
 
 void LightningPass::InitializeFullscreenResources(Graphics& graphics, Pipeline& pipeline, Scene& scene)
@@ -73,6 +74,14 @@ void LightningPass::InitializeFullscreenResources(Graphics& graphics, Pipeline& 
 	UpdateInverseProjectionMatrix(graphics, scene);
 }
 
+void LightningPass::Update(Graphics& graphics, Pipeline& pipeline, Scene& scene)
+{
+	Camera* currentCamera = scene.GetCurrentCamera();
+
+	if (currentCamera->PerspectiveChanged())
+		UpdateInverseProjectionMatrix(graphics, scene);
+}
+
 void LightningPass::PreDraw(Graphics& graphics, CommandList* commandList)
 {
 	THROW_INTERNAL_ERROR_IF("One of inputs was null", rt0 == nullptr || rt1 == nullptr || rt2 == nullptr || ds == nullptr || shadowMap == nullptr);
@@ -87,14 +96,6 @@ void LightningPass::PreDraw(Graphics& graphics, CommandList* commandList)
 void LightningPass::PostDraw(Graphics& graphics, CommandList* commandList)
 {
 
-}
-
-void LightningPass::InternalUpdate(Graphics& graphics, Pipeline& pipeline, Scene& scene)
-{
-	Camera* currentCamera = scene.GetCurrentCamera();
-
-	if (currentCamera->PerspectiveChanged())
-		UpdateInverseProjectionMatrix(graphics, scene);
 }
 
 void LightningPass::UpdateInverseProjectionMatrix(Graphics& graphics, Scene& scene)

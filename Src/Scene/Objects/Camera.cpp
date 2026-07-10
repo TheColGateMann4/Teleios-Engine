@@ -202,7 +202,7 @@ Camera::Camera(Graphics& graphics, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3
 
 		{
 			RenderTechnique technique(RenderJob::JobType::VisibleDebug);
-			RenderGraphicsStep step(this);
+			RenderGraphicsGeometryStep step(this);
 
 			DynamicVertex::DynamicVertexLayout vertexLayout;
 			vertexLayout.AddElement<DynamicVertex::ElementType::Position>();
@@ -231,7 +231,7 @@ Camera::Camera(Graphics& graphics, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3
 
 		{
 			RenderTechnique technique(RenderJob::JobType::OccludedDebug);
-			RenderGraphicsStep step(this);
+			RenderGraphicsGeometryStep step(this);
 
 			DynamicVertex::DynamicVertexLayout vertexLayout;
 			vertexLayout.AddElement<DynamicVertex::ElementType::Position>();
@@ -493,7 +493,7 @@ void Camera::SetFrustumViewActive(bool active)
 	}
 }
 
-void Camera::UpdateMeshData(Graphics& graphics, RenderGraphicsStep& step)
+void Camera::UpdateMeshData(Graphics& graphics, RenderGraphicsGeometryStep& step)
 {
 	DynamicVertex::DynamicVertexLayout vertexLayout;
 	vertexLayout.AddElement<DynamicVertex::ElementType::Position>();

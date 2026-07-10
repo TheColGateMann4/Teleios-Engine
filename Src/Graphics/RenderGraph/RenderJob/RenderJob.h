@@ -25,7 +25,6 @@ public:
 	{
 		None = -1,
 		Geometry,
-		StandaloneGeometry,
 
 		Count
 	};
@@ -36,8 +35,6 @@ public:
 	RenderJob(JobType m_type);
 
 public:
-	void LinkToPass(GeometryPass* pass);
-
 	virtual void GatherBindables();
 
 	virtual void Initialize(Graphics& graphics, Pipeline& pipeline);
@@ -49,11 +46,10 @@ public:
 	virtual void Execute(Graphics& graphics, CommandList* commandList) const = 0;
 
 	JobType GetType() const;
-	virtual JobGroup GetGroup() const = 0;
 
 private:
 	JobType m_type;
 
 protected:
-	GeometryPass* m_pass = nullptr;
+	bool m_initialized = false;
 };

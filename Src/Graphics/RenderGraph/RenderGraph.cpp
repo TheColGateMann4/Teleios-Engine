@@ -5,7 +5,7 @@
 #include "RenderPass/Geometry/GBufferPass.h"
 #include "RenderPass/Geometry/EmissivePass.h"
 #include "RenderPass/Geometry/ShadowPass.h"
-#include "RenderPass/Fullscreen/FullscreenRenderPass.h"
+#include "RenderPass/Fullscreen/FullscreenPlaceholderPass.h"
 #include "RenderPass/Fullscreen/LightningPass.h"
 #include "RenderPass/GuiPass.h"
 #include "RenderPass/Geometry/OccludedDebugPass.h"
@@ -48,7 +48,7 @@ void RenderGraph::Initialize(Graphics& graphics)
 	std::shared_ptr<ShaderResourceViewMultiResource> depthsrv = std::make_shared<ShaderResourceViewMultiResource>(graphics, graphics.GetDepthStencil().get(), 3);
 	std::shared_ptr<ShaderResourceViewMultiResource> shadowMap = std::make_shared<ShaderResourceViewMultiResource>(graphics, lightDepthData.get(), 4);
 	{
-		std::shared_ptr<LightningPass> lightningPass = std::make_shared<LightningPass>(graphics, GetRenderManager());
+		std::shared_ptr<LightningPass> lightningPass = std::make_shared<LightningPass>(graphics);
 		lightningPass->AddRenderTarget(graphics.GetBackBuffer());
 		lightningPass->AddBindable(rt0srv);
 		lightningPass->AddBindable(rt1srv);
@@ -84,7 +84,7 @@ void RenderGraph::Initialize(Graphics& graphics)
 	}
 
 	{
-		std::shared_ptr<FullscreenRenderPass> fullscreenPass = std::make_shared<FullscreenRenderPass>(graphics, GetRenderManager());
+		std::shared_ptr<FullscreenPlaceholderPass> fullscreenPass = std::make_shared<FullscreenPlaceholderPass>(graphics);
 		fullscreenPass->AddRenderTarget(graphics.GetSwapChainBuffer(), ResourceDataOperation::discard);
 		AddRenderPass(fullscreenPass);
 	}

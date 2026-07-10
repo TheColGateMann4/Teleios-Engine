@@ -20,7 +20,12 @@ public:
 	virtual void Initialize(Graphics& graphics, Pipeline& pipeline);
 	virtual void Update();
 
+	bool SubmitedStep() const;
+
+	void SetSubmited();
+
 private:
 	std::string m_name;
 	bool m_enabled = true;
+	bool m_submittedJob = false;
 };

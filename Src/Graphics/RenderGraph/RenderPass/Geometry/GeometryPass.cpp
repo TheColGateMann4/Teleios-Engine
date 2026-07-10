@@ -5,7 +5,7 @@
 
 #include "Graphics/Bindables/RootSignatureConstants.h"
 
-#include "Graphics/RenderGraph/RenderJob/GraphicsStepRenderJob.h"
+#include "Graphics/RenderGraph/RenderJob/RenderGraphicsGeometryJob.h"
 
 #include "Graphics/Core/Graphics.h"
 
@@ -62,7 +62,7 @@ void GeometryPass::SortJobs()
 {
 	std::sort(
 		m_jobs.begin(), m_jobs.end(),
-		[](const std::unique_ptr<GraphicsStepRenderJob>& a, const std::unique_ptr<GraphicsStepRenderJob>& b)
+		[](const std::unique_ptr<RenderGraphicsGeometryJob>& a, const std::unique_ptr<RenderGraphicsGeometryJob>& b)
 		{
 			// currently sorting by pointers, our only goal for now is just grouping the same-material render jobs together
 			return a->GetStep()->GetMaterial() < b->GetStep()->GetMaterial();
@@ -79,7 +79,7 @@ void GeometryPass::AssignRenderData(GraphicsRenderData renderData)
 {
 	THROW_INTERNAL_ERROR_IF("Tried to push non-geometry render job to GeometryPass", RenderJob::GetJobGroup(renderData.type) != RenderJob::JobGroup::Geometry);
 
-	m_jobs.push_back(std::make_unique<GraphicsStepRenderJob>(renderData, this));
+	m_jobs.push_back(std::make_unique<RenderGraphicsGeometryJob>(renderData, this));
 }
 
 void GeometryPass::GatherJobBindables()

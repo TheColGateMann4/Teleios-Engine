@@ -4,5 +4,5 @@
 struct GraphicsRenderData
 {
 	RenderJob::JobType type;
-	class RenderGraphicsStep* step;
+	class RenderStep* step;
 };

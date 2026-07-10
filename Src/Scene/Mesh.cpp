@@ -2,7 +2,7 @@
 #include "Graphics/Core/Graphics.h"
 #include "Graphics/Core/Pipeline.h"
 #include "Scene/Objects/Camera.h"
-#include "Graphics/RenderGraph/RenderJob/GraphicsStepRenderJob.h"
+#include "Graphics/RenderGraph/RenderJob/RenderGraphicsGeometryJob.h"
 
 #include "Includes/BindablesInclude.h"
 
@@ -64,7 +64,7 @@ void Mesh::CreateDepthTechnique(Graphics& graphics, Pipeline& pipeline)
 {
 	RenderTechnique& geometryTechnique = GetTechnique(RenderJob::JobType::GBuffer);
 
-	RenderGraphicsStep& geometryStep = geometryTechnique.GetStep(0);
+	RenderGraphicsGeometryStep& geometryStep = geometryTechnique.GetStep(0);
 
 	const MeshBindableContainer& geometryBindables = geometryStep.GetBindableContainer();
 
@@ -75,7 +75,7 @@ void Mesh::CreateDepthTechnique(Graphics& graphics, Pipeline& pipeline)
 		RenderTechnique depthTechnique(RenderJob::JobType::Depth);
 
 		{
-			RenderGraphicsStep depthStep(geometryStep.GetSceneObject());
+			RenderGraphicsGeometryStep depthStep(geometryStep.GetSceneObject());
 
 			depthStep.SetPositionBufferEntry(geometryBindables.GetPositionVertexBufferEntry());
 			depthStep.SetIndexBufferEntry(geometryBindables.GetIndexBufferEntry());
@@ -114,7 +114,7 @@ void Mesh::CreateDepthTechnique(Graphics& graphics, Pipeline& pipeline)
 	}
 }
 
-bool Mesh::StepHasOpacity(const RenderGraphicsStep& geometryStep)
+bool Mesh::StepHasOpacity(const RenderGraphicsGeometryStep& geometryStep)
 {
 	const auto& geometryStepTextures = GetTextureContainerOfStep(geometryStep).GetTextures();
 
@@ -132,7 +132,7 @@ bool Mesh::StepHasOpacity(const RenderGraphicsStep& geometryStep)
 	return !isAlphaOpaque;
 }
 
-const MeshBindableContainer& Mesh::GetTextureContainerOfStep(const RenderGraphicsStep& step)
+const MeshBindableContainer& Mesh::GetTextureContainerOfStep(const RenderGraphicsGeometryStep& step)
 {
 	Material* stepMaterial = step.GetMaterial();
 

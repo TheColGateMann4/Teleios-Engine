@@ -8,7 +8,7 @@
 #include "Graphics/Data/DynamicConstantBuffer.h"
 #include "Graphics/Data/DynamicVertex.h"
 
-#include "Graphics/RenderGraph/Steps/RenderGraphicsStep.h"
+#include "Graphics/RenderGraph/Steps/RenderGraphicsGeometryStep.h"
 #include "Scene/RenderTechnique.h"
 
 #include <imgui.h>
@@ -18,7 +18,7 @@ Cube::Cube(Graphics& graphics, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rot
 	Mesh cubeMesh;
 
 	RenderTechnique technique(RenderJob::JobType::GBuffer);
-	RenderGraphicsStep step(this);
+	RenderGraphicsGeometryStep step(this);
 	{
 		struct Vertice
 		{

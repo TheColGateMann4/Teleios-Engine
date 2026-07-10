@@ -15,13 +15,13 @@ public:
 	IDXGIFactory2* GetFactory();
 	ID3D12Debug6* GetDebugController();
 	ID3D12Device15* GetDevice();
-	ID3D12CommandQueue1* GetCommandQueue();
+	ID3D12CommandQueue* GetCommandQueue();
 	IDXGISwapChain* GetSwapChain();
 
 private:
 	Microsoft::WRL::ComPtr<IDXGIFactory2> pFactory;
 	Microsoft::WRL::ComPtr<ID3D12Debug6> pDebugController;
 	Microsoft::WRL::ComPtr<ID3D12Device15> pDevice;
-	Microsoft::WRL::ComPtr<ID3D12CommandQueue1> pCommandQueue;
+	Microsoft::WRL::ComPtr<ID3D12CommandQueue> pCommandQueue;
 	Microsoft::WRL::ComPtr<IDXGISwapChain> pSwapChain;
 };

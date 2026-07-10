@@ -220,6 +220,11 @@ dxgi.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDepende
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Src\Graphics\RenderGraph\RenderPass\Fullscreen\FullscreenPlaceholderPass.cpp" />
+    <ClCompile Include="Src\Graphics\RenderGraph\RenderJob\GraphicsRenderJob.cpp" />
+    <ClCompile Include="Src\Graphics\RenderGraph\RenderJob\RenderGraphicsFullscreenJob.cpp" />
+    <ClCompile Include="Src\Graphics\RenderGraph\Steps\RenderGraphicsStep.cpp" />
+    <ClCompile Include="Src\Graphics\RenderGraph\Steps\RenderGraphicsFullscreenStep.cpp" />
     <ClCompile Include="Src\Graphics\Core\RootSignatureLayout.cpp" />
     <ClCompile Include="Src\Graphics\Core\GraphicsBufferAllocatorManager.cpp" />
     <ClCompile Include="Src\Graphics\Resources\GraphicsBufferSuballocator.cpp" />
@@ -236,10 +241,9 @@ dxgi.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDepende
     <ClCompile Include="Src\Graphics\RenderGraph\RenderPass\Geometry\EmissivePass.cpp" />
     <ClCompile Include="Src\Graphics\RenderGraph\RenderPass\Fullscreen\LightningPass.cpp" />
     <ClCompile Include="Src\Graphics\RenderGraph\RenderPass\Geometry\GBufferPass.cpp" />
-    <ClCompile Include="Src\Graphics\RenderGraph\RenderJob\GraphicsStepRenderJob.cpp" />
+    <ClCompile Include="Src\Graphics\RenderGraph\RenderJob\RenderGraphicsGeometryJob.cpp" />
     <ClCompile Include="Src\Graphics\RenderGraph\RenderPass\Geometry\PreDepthPass.cpp" />
     <ClCompile Include="Src\Graphics\RenderGraph\RenderPass\GuiPass.cpp" />
-    <ClCompile Include="Src\Graphics\RenderGraph\RenderJob\MeshRenderJob.cpp" />
     <ClCompile Include="Src\Graphics\RenderGraph\RenderPass\Geometry\GeometryPass.cpp" />
     <ClCompile Include="Src\Graphics\Core\Renderer.cpp" />
     <ClCompile Include="Src\Graphics\RenderGraph\RenderManager.cpp" />
@@ -248,7 +252,7 @@ dxgi.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDepende
     <ClCompile Include="Src\Graphics\RenderGraph\RenderJob\RenderJob.cpp" />
     <ClCompile Include="Src\Scene\Material.cpp" />
     <ClCompile Include="Src\Scene\RenderTechnique.cpp" />
-    <ClCompile Include="Src\Graphics\RenderGraph\Steps\RenderGraphicsStep.cpp" />
+    <ClCompile Include="Src\Graphics\RenderGraph\Steps\RenderGraphicsGeometryStep.cpp" />
     <ClCompile Include="Src\Graphics\RenderGraph\RenderGraph.cpp" />
     <ClCompile Include="Src\Graphics\Core\DeviceResources.cpp" />
     <ClCompile Include="Src\Application.cpp" />
@@ -257,7 +261,7 @@ dxgi.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDepende
     <ClCompile Include="Src\Graphics\Bindables\BlendState.cpp" />
     <ClCompile Include="Src\Graphics\RenderGraph\RenderPass\Fullscreen\DepthOfFieldRenderPass.cpp" />
     <ClCompile Include="Src\Graphics\RenderGraph\RenderPass\Fullscreen\FogRenderPass.cpp" />
-    <ClCompile Include="Src\Graphics\RenderGraph\RenderPass\Fullscreen\FullscreenRenderPass.cpp" />
+    <ClCompile Include="Src\Graphics\RenderGraph\RenderPass\Fullscreen\FullscreenPass.cpp" />
     <ClCompile Include="Src\Graphics\Resources\GraphicsBuffer.cpp" />
     <ClCompile Include="Src\Scene\Objects\Camera.cpp" />
     <ClCompile Include="Src\Graphics\Core\CommandList.cpp" />
@@ -309,11 +313,14 @@ dxgi.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDepende
     <ClCompile Include="Src\Graphics\Bindables\ViewPort.cpp" />
     <ClCompile Include="Src\System\Window.cpp" />
     <ClCompile Include="Src\System\Time.cpp" />
-    <ClCompile Include="Src\Scene\StandaloneMesh.cpp" />
-    <ClCompile Include="Src\Graphics\RenderGraph\RenderJob\StepRenderJob.cpp" />
     <ClCompile Include="Src\Graphics\RenderGraph\RenderPass\Geometry\VisibleDebugPass.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Src\Graphics\RenderGraph\RenderPass\Fullscreen\FullscreenPlaceholderPass.h" />
+    <ClInclude Include="Src\Graphics\RenderGraph\RenderJob\GraphicsRenderJob.h" />
+    <ClInclude Include="Src\Graphics\RenderGraph\RenderJob\RenderGraphicsFullscreenJob.h" />
+    <ClInclude Include="Src\Graphics\RenderGraph\Steps\RenderGraphicsStep.h" />
+    <ClInclude Include="Src\Graphics\RenderGraph\Steps\RenderGraphicsFullscreenStep.h" />
     <ClInclude Include="Src\Graphics\Core\RootSignatureLayout.h" />
     <ClInclude Include="Src\Graphics\Core\GraphicsBufferAllocatorManager.h" />
     <ClInclude Include="Src\Graphics\Resources\GraphicsBufferSuballocator.h" />
@@ -333,10 +340,9 @@ dxgi.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDepende
     <ClInclude Include="Src\Graphics\RenderGraph\RenderPass\Geometry\EmissivePass.h" />
     <ClInclude Include="Src\Graphics\RenderGraph\RenderPass\Fullscreen\LightningPass.h" />
     <ClInclude Include="Src\Graphics\RenderGraph\RenderPass\Geometry\GBufferPass.h" />
-    <ClInclude Include="Src\Graphics\RenderGraph\RenderJob\GraphicsStepRenderJob.h" />
+    <ClInclude Include="Src\Graphics\RenderGraph\RenderJob\RenderGraphicsGeometryJob.h" />
     <ClInclude Include="Src\Graphics\RenderGraph\RenderPass\Geometry\PreDepthPass.h" />
     <ClInclude Include="Src\Graphics\RenderGraph\RenderPass\GuiPass.h" />
-    <ClInclude Include="Src\Graphics\RenderGraph\RenderJob\MeshRenderJob.h" />
     <ClInclude Include="Src\Graphics\Bindables\BindableTypes.h" />
     <ClInclude Include="Src\Graphics\RenderGraph\RenderPass\Geometry\GeometryPass.h" />
     <ClInclude Include="Src\Graphics\Core\Renderer.h" />
@@ -346,7 +352,7 @@ dxgi.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDepende
     <ClInclude Include="Src\Graphics\RenderGraph\RenderJob\RenderJob.h" />
     <ClInclude Include="Src\Scene\Material.h" />
     <ClInclude Include="Src\Scene\RenderTechnique.h" />
-    <ClInclude Include="Src\Graphics\RenderGraph\Steps\RenderGraphicsStep.h" />
+    <ClInclude Include="Src\Graphics\RenderGraph\Steps\RenderGraphicsGeometryStep.h" />
     <ClInclude Include="Src\Graphics\RenderGraph\RenderGraph.h" />
     <ClInclude Include="Src\Graphics\Core\DeviceResources.h" />
     <ClInclude Include="Src\Application.h" />
@@ -355,7 +361,7 @@ dxgi.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDepende
     <ClInclude Include="Src\Graphics\Bindables\BlendState.h" />
     <ClInclude Include="Src\Graphics\RenderGraph\RenderPass\Fullscreen\DepthOfFieldRenderPass.h" />
     <ClInclude Include="Src\Graphics\RenderGraph\RenderPass\Fullscreen\FogRenderPass.h" />
-    <ClInclude Include="Src\Graphics\RenderGraph\RenderPass\Fullscreen\FullscreenRenderPass.h" />
+    <ClInclude Include="Src\Graphics\RenderGraph\RenderPass\Fullscreen\FullscreenPass.h" />
     <ClInclude Include="Src\Graphics\Resources\GraphicsBuffer.h" />
     <ClInclude Include="Src\Scene\Objects\Camera.h" />
     <ClInclude Include="Src\Graphics\Core\CommandList.h" />
@@ -408,8 +414,6 @@ dxgi.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDepende
     <ClInclude Include="Src\System\Window.h" />
     <ClInclude Include="Src\Includes\WRLNoWarnings.h" />
     <ClInclude Include="Src\System\Time.h" />
-    <ClInclude Include="Src\Scene\StandaloneMesh.h" />
-    <ClInclude Include="Src\Graphics\RenderGraph\RenderJob\StepRenderJob.h" />
     <ClInclude Include="Src\Graphics\RenderGraph\RenderPass\Geometry\VisibleDebugPass.h" />
   </ItemGroup>
   <ItemGroup>

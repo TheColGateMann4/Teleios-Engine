@@ -32,9 +32,9 @@ private:
 
 	void CreateDepthTechnique(Graphics& graphics, Pipeline& pipeline);
 
-	static bool StepHasOpacity(const RenderGraphicsStep& geometryStep);
+	static bool StepHasOpacity(const RenderGraphicsGeometryStep& geometryStep);
 
-	static const MeshBindableContainer& GetTextureContainerOfStep(const RenderGraphicsStep& step);
+	static const MeshBindableContainer& GetTextureContainerOfStep(const RenderGraphicsGeometryStep& step);
 
 	static std::optional<const Texture*> GetAlbedoTexture(const std::vector<Texture*>& textures);
 

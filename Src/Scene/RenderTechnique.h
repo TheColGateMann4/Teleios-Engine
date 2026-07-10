@@ -1,6 +1,6 @@
 #pragma once
 #include "Includes/CppIncludes.h"
-#include "Graphics/RenderGraph/Steps/RenderGraphicsStep.h"
+#include "Graphics/RenderGraph/Steps/RenderGraphicsGeometryStep.h"
 #include "Graphics/RenderGraph/RenderJob/RenderJob.h"
 
 class RenderTechnique
@@ -14,15 +14,15 @@ public:
 	RenderJob::JobType GetType() const;
 
 public:
-	void AddStep(RenderGraphicsStep&& step);
+	void AddStep(RenderGraphicsGeometryStep&& step);
 
-	RenderGraphicsStep& GetStep(unsigned int index = 0);
+	RenderGraphicsGeometryStep& GetStep(unsigned int index = 0);
 
-	const RenderGraphicsStep& GetStep(unsigned int index = 0) const;
+	const RenderGraphicsGeometryStep& GetStep(unsigned int index = 0) const;
 
-	std::vector<RenderGraphicsStep>& GetSteps();
+	std::vector<RenderGraphicsGeometryStep>& GetSteps();
 
 private:
-	std::vector<RenderGraphicsStep> m_steps;
+	std::vector<RenderGraphicsGeometryStep> m_steps;
 	RenderJob::JobType m_type;
 };

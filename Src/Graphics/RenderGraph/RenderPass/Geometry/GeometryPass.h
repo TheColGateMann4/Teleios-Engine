@@ -1,7 +1,7 @@
 #pragma once
 #include "Graphics/RenderGraph/RenderPass/RenderPass.h"
 #include "Graphics/RenderGraph/RenderJob/GraphicsRenderData.h"
-#include "Graphics/RenderGraph/RenderJob/GraphicsStepRenderJob.h"
+#include "Graphics/RenderGraph/RenderJob/RenderGraphicsGeometryJob.h"
 #include "Graphics/Bindables/RasterizerState.h"
 #include "Graphics/Core/BindableContainer.h"
 
@@ -53,7 +53,7 @@ protected:
 
 	BindableContainer m_bindableContainer;
 
-	std::vector<std::unique_ptr<GraphicsStepRenderJob>> m_jobs;
+	std::vector<std::unique_ptr<RenderGraphicsGeometryJob>> m_jobs;
 
 	unsigned int m_currentCameraIndex = UINT_MAX;
 

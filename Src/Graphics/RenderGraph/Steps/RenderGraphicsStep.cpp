@@ -1,36 +1,17 @@
 #include "RenderGraphicsStep.h"
 
-#include "Graphics/Core/Graphics.h"
-#include "Graphics/Core/Pipeline.h"
-
-#include "Graphics/Bindables/IndexBuffer.h"
-#include "Graphics/Bindables/VertexBuffer.h"
-#include "Graphics/Bindables/ConstantBuffer.h"
-#include "Graphics/Bindables/Texture.h"
-#include "Scene/Material.h"
-
-RenderGraphicsStep::RenderGraphicsStep(SceneObject* sceneObject, const std::string& name)
+RenderGraphicsStep::RenderGraphicsStep()
 	:
-	RenderStep(name),
-	m_sceneObject(sceneObject)
+	RenderStep()
 {
 
 }
 
-RenderGraphicsStep::RenderGraphicsStep(SceneObject* sceneObject)
+RenderGraphicsStep::RenderGraphicsStep(const std::string& name)
 	:
-	RenderStep(),
-	m_sceneObject(sceneObject)
+	RenderStep(name)
 {
 
-}
-
-void RenderGraphicsStep::DrawConstantBuffers(Graphics& graphics)
-{
-	const std::vector<CachedConstantBuffer*>& cachedBuffers = m_bindableContainer.GetCachedBuffers();
-
-	for (auto& cachedBuffer : cachedBuffers)
-		cachedBuffer->DrawImguiProperties(graphics);
 }
 
 void RenderGraphicsStep::AddStaticBindable(const char* bindableName)
@@ -53,29 +34,9 @@ void RenderGraphicsStep::SetIndexBufferEntry(std::shared_ptr<IndexBufferEntry> i
 	m_bindableContainer.SetIndexBufferEntry(std::move(indexBufferEntry));
 }
 
-void RenderGraphicsStep::SetBoundingBox(BoundingBox boundingBox)
-{
-	m_boundingBox = boundingBox;
-}
-
-const BoundingBox& RenderGraphicsStep::GetBoundingBox() const
-{
-	return m_boundingBox;
-}
-
-SceneObject* RenderGraphicsStep::GetSceneObject() const
-{
-	return m_sceneObject;
-}
-
 void RenderGraphicsStep::AddBindable(std::shared_ptr<Bindable> bindable)
 {
 	m_bindableContainer.AddBindable(std::move(bindable));
-}
-
-void RenderGraphicsStep::SetMaterial(std::shared_ptr<Material> material)
-{
-	m_material = std::move(material);
 }
 
 void RenderGraphicsStep::AddBindable(Bindable* bindable)
@@ -88,58 +49,12 @@ const MeshBindableContainer& RenderGraphicsStep::GetBindableContainer() const
 	return m_bindableContainer;
 }
 
-Material* RenderGraphicsStep::GetMaterial() const
-{
-	return m_material.get();
-}
-
-ObjectRasterizerStateOptions RenderGraphicsStep::GetRasterizerOptions() const
-{
-	return m_rasterizerOptions;
-}
-
-void RenderGraphicsStep::SetRasterizerOptions(ObjectRasterizerStateOptions rasterizerOptions)
-{
-	m_rasterizerOptions = rasterizerOptions;
-}
-
 void RenderGraphicsStep::Initialize(Graphics& graphics, Pipeline& pipeline)
 {
 	m_bindableContainer.Initialize(graphics, pipeline);
-
-	InitializeMaterialBindings();
 }
 
 void RenderGraphicsStep::Update()
 {
 	m_bindableContainer.Update();
-}
-
-MaterialBindings* RenderGraphicsStep::GetMaterialBindings()
-{
-	return m_materialBindings.get();
-}
-
-bool RenderGraphicsStep::SubmitedStep() const
-{
-	return m_submittedJob;
-}
-
-void RenderGraphicsStep::SetSubmited()
-{
-	m_submittedJob = true;
-}
-
-void RenderGraphicsStep::InitializeMaterialBindings()
-{
-	const auto& textureContainer = m_material ? m_material->GetBindableContainer() : GetBindableContainer();
-	const auto& textures = textureContainer.GetTextures();
-
-	if (textures.empty())
-		return;
-
-	m_materialBindings = std::make_shared<MaterialBindings>(textures);
-	
-	AddBindable(m_materialBindings->GetDescriptorHeapBindable());
-	AddBindable(m_materialBindings->GetTextureIndexesConstants());
 }

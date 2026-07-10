@@ -1,9 +1,9 @@
 #pragma once
-#include "FullscreenRenderPass.h"
+#include "FullscreenPass.h"
 
 class Graphics;
 /*
-class DepthOfFieldRenderPass : public FullscreenRenderPass
+class DepthOfFieldRenderPass : public FullscreenPass
 {
 public:
 	DepthOfFieldRenderPass(Graphics& graphics);

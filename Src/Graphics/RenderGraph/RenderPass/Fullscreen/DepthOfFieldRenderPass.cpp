@@ -10,7 +10,7 @@
 
 DepthOfFieldRenderPass::DepthOfFieldRenderPass(Graphics& graphics)
 	:
-	FullscreenRenderPass(graphics)
+	FullscreenPass(graphics)
 {
 	m_depthOfFieldPS = std::make_shared<Shader>(graphics, L"PS_DepthOfField", ShaderType::PixelShader);
 	m_depthFromScreenCS = Shader::GetResource(graphics, L"CS_GetMiddleDepth", ShaderType::ComputeShader);
@@ -33,7 +33,7 @@ DepthOfFieldRenderPass::DepthOfFieldRenderPass(Graphics& graphics)
 	m_DepthBuffer = std::make_shared<GraphicsBuffer>(graphics, 1, sizeof(float), GraphicsResource::CPUAccess::notavailable, D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
 }
 
-void FullscreenRenderPass::PreDraw(Graphics& graphics, CommandList* commandList)
+void FullscreenPass::PreDraw(Graphics& graphics, CommandList* commandList)
 {
 	// computing depth in the middle of the screen
 	{
@@ -82,7 +82,7 @@ void FullscreenRenderPass::PreDraw(Graphics& graphics, CommandList* commandList)
 	}
 }
 
-void FullscreenRenderPass::PostDraw(Graphics& graphics, CommandList* commandList)
+void FullscreenPass::PostDraw(Graphics& graphics, CommandList* commandList)
 {
 	GraphicsTexture* backBuffer = graphics.GetBackBuffer()->GetTexture(graphics);
 	GraphicsTexture* depthStencil = graphics.GetDepthStencil()->GetResource(graphics);

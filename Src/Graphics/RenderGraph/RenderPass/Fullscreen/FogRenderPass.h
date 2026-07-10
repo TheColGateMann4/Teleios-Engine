@@ -1,10 +1,10 @@
 #pragma once
-#include "FullscreenRenderPass.h"
+#include "FullscreenPass.h"
 
 class Graphics;
 
 /*
-class FogRenderPass : public FullscreenRenderPass
+class FogRenderPass : public FullscreenPass
 {
 public:
 	FogRenderPass(Graphics& graphics);
